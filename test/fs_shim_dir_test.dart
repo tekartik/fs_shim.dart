@@ -187,7 +187,13 @@ void defineTests(FileSystemTestContext ctx) {
         fail('should fail');
       } on FileSystemException catch (e) {
         // [39] FileSystemException: Rename failed, path = '/idb_io/dir/rename_over_existing_not_empty/dir' (OS Error: Directory not empty, errno = 39)
-        expect(e.status, FileSystemException.statusNotEmpty);
+        //expect(e.status, FileSystemException.statusNotEmpty);
+        // travis returns 17!
+        expect(
+            e.status == FileSystemException.statusNotEmpty ||
+                e.status == FileSystemException.statusAlreadyExists,
+            isTrue,
+            reason: e.toString());
       }
     });
 
