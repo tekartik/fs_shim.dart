@@ -1,7 +1,7 @@
 // Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library tekartik_fs_shim.test.lfs_file_test;
+library tekartik_fs_shim.test.fs_shim_file_test;
 
 import 'package:tekartik_fs_shim/fs.dart';
 import 'test_common.dart';
