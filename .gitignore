@@ -3,6 +3,8 @@
 .pub/
 build/
 packages
+.packages
+.idea/
 
 # Or the files created by dart2js.
 *.dart.js
@@ -12,3 +14,6 @@ packages
 
 # Include when developing application packages.
 pubspec.lock
+
+# test
+test_out
