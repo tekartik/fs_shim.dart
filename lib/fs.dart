@@ -363,6 +363,9 @@ abstract class FileSystem {
   /// Checks if type(path) returns FileSystemEntityType.DIRECTORY.
   ///
   Future<bool> isDirectory(String path);
+
+  // fs_shim specific
+  String get name; // io or idb
 }
 
 abstract class OSError {
@@ -387,6 +390,8 @@ abstract class FileSystemException {
   static const int statusIsADirectory =
       21; // when creating a file and it is a dir
   static const int statusNotEmpty = 39; // when deleting a non empty directory
+
+  static const int statusAccessError = 5; // for windows
 
   /// Message describing the error. This does not include any detailed
   /// information form the underlying OS error. Check [osError] for

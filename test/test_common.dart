@@ -44,3 +44,7 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
 devPrintJson(Map json) {
   print(const JsonEncoder.withIndent("  ").convert(json));
 }
+
+bool isIoWindows(FileSystemTestContext ctx) {
+  return (ctx.fs.name == 'io' && context.style == windows.style);
+}

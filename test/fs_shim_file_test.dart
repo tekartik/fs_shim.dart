@@ -208,8 +208,12 @@ void defineTests(FileSystemTestContext ctx) {
         await file2.rename(path);
         fail('should fail');
       } on FileSystemException catch (e) {
-        // [21] FileSystemException: Cannot rename file to '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/rename_over_existing_different_type/dir', path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/rename_over_existing_different_type/file' (OS Error: Is a directory, errno = 21)
-        expect(e.status, FileSystemException.statusIsADirectory);
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusAccessError);
+        } else {
+          // [21] FileSystemException: Cannot rename file to '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/rename_over_existing_different_type/dir', path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/rename_over_existing_different_type/file' (OS Error: Is a directory, errno = 21)
+          expect(e.status, FileSystemException.statusIsADirectory);
+        }
       }
     });
 
@@ -304,9 +308,13 @@ void defineTests(FileSystemTestContext ctx) {
         fail("should fail");
       } on FileSystemException catch (e) {
         _printErr(e);
-        // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
-        // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
-        expect(e.status, FileSystemException.statusNotADirectory);
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusNotFound);
+        } else {
+          // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+          // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+          expect(e.status, FileSystemException.statusNotADirectory);
+        }
       }
 
       await file.delete();
@@ -318,9 +326,13 @@ void defineTests(FileSystemTestContext ctx) {
         fail("should fail");
       } on FileSystemException catch (e) {
         _printErr(e);
-        // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
-        // [21] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
-        expect(e.status, FileSystemException.statusIsADirectory);
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusAccessError);
+        } else {
+          // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+          // [21] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+          expect(e.status, FileSystemException.statusIsADirectory);
+        }
       }
 
       try {
@@ -328,9 +340,13 @@ void defineTests(FileSystemTestContext ctx) {
         fail("should fail");
       } on FileSystemException catch (e) {
         _printErr(e);
-        // [21] FileSystemException: Cannot delete file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
-        // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
-        expect(e.status, FileSystemException.statusIsADirectory);
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusAccessError);
+        } else {
+          // [21] FileSystemException: Cannot delete file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+          // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+          expect(e.status, FileSystemException.statusIsADirectory);
+        }
       }
     });
 
@@ -483,9 +499,13 @@ void defineTests(FileSystemTestContext ctx) {
       try {
         await sink.close();
       } on FileSystemException catch (e) {
-        expect(e.status, FileSystemException.statusIsADirectory);
-        // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
-        // [21] FileSystemException: Write failed, path = '/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusAccessError);
+        } else {
+          expect(e.status, FileSystemException.statusIsADirectory);
+          // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
+          // [21] FileSystemException: Write failed, path = '/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
+        }
       }
     });
 

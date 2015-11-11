@@ -7,11 +7,19 @@ library tekartik_fs_shim.fs_io_test;
 import 'package:tekartik_fs_shim/fs.dart';
 import 'package:dev_test/test.dart';
 import 'fs_test.dart';
+import 'dart:io' as io;
 import 'test_common_io.dart';
+import 'test_common.dart';
 import 'package:path/path.dart';
 
 void main() {
   group('io', () {
+    test('windows', () {
+      expect(isIoWindows(ioFileSystemContext), io.Platform.isWindows);
+    });
+    test('name', () {
+      expect(ioFileSystemContext.fs.name, 'io');
+    });
     test('type', () async {
       expect(await ioFileSystemContext.fs.type(testScriptPath),
           FileSystemEntityType.FILE);

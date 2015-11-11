@@ -24,22 +24,44 @@ int _statusFromException(io.FileSystemException ioFse) {
   int status;
   if (ioFse != null && ioFse.osError != null) {
     int errorCode = ioFse.osError.errorCode;
-    switch (errorCode) {
-      case 2:
-        status = fs.FileSystemException.statusNotFound;
-        break;
-      case 17:
-        status = fs.FileSystemException.statusAlreadyExists;
-        break;
-      case 20:
-        status = fs.FileSystemException.statusNotADirectory;
-        break;
-      case 21:
-        status = fs.FileSystemException.statusIsADirectory;
-        break;
-      case 39:
-        status = fs.FileSystemException.statusNotEmpty; // for recursive delete
-        break;
+
+    if (io.Platform.isWindows) {
+      switch (errorCode) {
+        case 2: // ERROR_FILE_NOT_FOUND
+        case 3: // ERROR_PATH_NOT_FOUND
+          status = fs.FileSystemException.statusNotFound;
+          break;
+        case 5: // ERROR_ACCESS_DENIED
+          status = fs.FileSystemException.statusAccessError;
+          break;
+        case 145: // ERROR_DIR_NOT_EMPTY
+          status =
+              fs.FileSystemException.statusNotEmpty; // for recursive delete
+          break;
+        case 183: // ERROR_ALREADY_EXISTS
+          status = fs.FileSystemException.statusAlreadyExists;
+          break;
+      }
+    } else {
+      // tested mainly on linux
+      switch (errorCode) {
+        case 2:
+          status = fs.FileSystemException.statusNotFound;
+          break;
+        case 17:
+          status = fs.FileSystemException.statusAlreadyExists;
+          break;
+        case 20:
+          status = fs.FileSystemException.statusNotADirectory;
+          break;
+        case 21:
+          status = fs.FileSystemException.statusIsADirectory;
+          break;
+        case 39:
+          status =
+              fs.FileSystemException.statusNotEmpty; // for recursive delete
+          break;
+      }
     }
   }
   return status;
@@ -259,6 +281,8 @@ class IoFileSystem extends Object
   Directory newDirectory(String path) {
     return new Directory(path);
   }
+
+  String get name => 'io';
 }
 
 _wrapError(e) {

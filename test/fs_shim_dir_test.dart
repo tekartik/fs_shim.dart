@@ -172,6 +172,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await dir2.exists(), isTrue);
     });
 
+    // This fails on windows
     test('rename_over_existing_not_empty', () async {
       Directory _dir = await ctx.prepare();
 
@@ -184,8 +185,11 @@ void defineTests(FileSystemTestContext ctx) {
 
       try {
         await dir.rename(path2);
-        fail('should fail');
+        if (!isIoWindows(ctx)) {
+          fail('should fail');
+        }
       } on FileSystemException catch (e) {
+        expect(isIoWindows(ctx), isFalse);
         // [39] FileSystemException: Rename failed, path = '/idb_io/dir/rename_over_existing_not_empty/dir' (OS Error: Directory not empty, errno = 39)
         //expect(e.status, FileSystemException.statusNotEmpty);
         // travis returns 17!
@@ -211,9 +215,16 @@ void defineTests(FileSystemTestContext ctx) {
         await dir.rename(path2);
         fail('should fail');
       } on FileSystemException catch (e) {
-        // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
-        // [20] FileSystemException: Rename failed, path = '/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
-        expect(e.status, FileSystemException.statusNotADirectory);
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusAlreadyExists);
+        } else {
+          print(e);
+          // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
+          // [20] FileSystemException: Rename failed, path = '/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
+          // On windows we have 193!
+
+          expect(e.status, FileSystemException.statusNotADirectory);
+        }
       }
     });
 

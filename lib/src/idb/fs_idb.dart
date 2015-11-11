@@ -321,6 +321,7 @@ class IdbFileStat implements fs.FileStat {
 class IdbFileSystem extends Object
     with FileSystemMixin
     implements fs.FileSystem {
+  String get name => 'idb';
   final idb.IdbFactory _factory;
   final String _dbPath;
   idb.Database _db;
