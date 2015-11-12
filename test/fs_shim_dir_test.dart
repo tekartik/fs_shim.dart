@@ -218,11 +218,9 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAlreadyExists);
         } else {
-          print(e);
           // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
           // [20] FileSystemException: Rename failed, path = '/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
           // On windows we have 193!
-
           expect(e.status, FileSystemException.statusNotADirectory);
         }
       }
