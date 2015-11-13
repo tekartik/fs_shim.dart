@@ -18,5 +18,5 @@ dev_dependencies:
   browser: any
 
 dependency_overrides:
-#  idb_shim:
-#    git: https://github.com/alextekartik/idb_shim.dart
+  idb_shim:
+    git: https://github.com/alextekartik/idb_shim.dart

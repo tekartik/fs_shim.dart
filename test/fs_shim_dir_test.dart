@@ -201,7 +201,7 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
-    test('rename_over_existing_different_type', () async {
+    solo_test('rename_over_existing_different_type', () async {
       Directory _dir = await ctx.prepare();
 
       String path = join(_dir.path, "dir");
