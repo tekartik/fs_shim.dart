@@ -449,13 +449,7 @@ class IdbFileSystem extends Object
         throw _notFoundException(result.path, "Creation failed");
       }
 
-      // check depth
-      if (result.remainingSegments.isNotEmpty) {
-      return _createDirectory(store, result.parent).then((TreeEntity parent) {
-        if (parent == null) {
-          throw _notFoundException(result.path, "Creation failed");
-        }
-
+      Future<TreeEntity> _addFile(TreeEntity parent) {
         // create it!
         entity = new TreeEntity(parent, segments.last,
             fs.FileSystemEntityType.FILE, new DateTime.now(), 0);
@@ -464,7 +458,17 @@ class IdbFileSystem extends Object
           entity.id = id;
           return entity;
         });
-      });
+      }
+      // check depth
+      if (result.parent.remainingSegments.isNotEmpty) {
+        return _createDirectory(store, result.parent).then((TreeEntity parent) {
+          if (parent == null) {
+            throw _notFoundException(result.path, "Creation failed");
+          }
+          return _addFile(parent);
+        });
+      } else {
+        return _addFile(result.highest);
       }
     });
   }
@@ -475,10 +479,9 @@ class IdbFileSystem extends Object
 
     idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadWrite);
     idb.ObjectStore store = txn.objectStore(_treeStore);
-    return  _createFile(store, segments, recursive: recursive).whenComplete(() {
+    return _createFile(store, segments, recursive: recursive).whenComplete(() {
       return txn.completed;
     });
-
   }
 
   Future delete(fs.FileSystemEntityType type, String path,
@@ -575,12 +578,13 @@ class IdbFileSystem extends Object
     List<String> segments = getSegments(path);
 
     idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadOnly);
-    try {
-      idb.ObjectStore store = txn.objectStore(_treeStore);
-      return (await _get(store, segments)).matches;
-    } finally {
-      await txn.completed;
-    }
+
+    idb.ObjectStore store = txn.objectStore(_treeStore);
+    return _get(store, segments).then((result) {
+      return result.matches;
+    }).whenComplete(() {
+      return txn.completed;
+    });
   }
 
   Future<IdbFileStat> stat(String path) async {
@@ -614,58 +618,71 @@ class IdbFileSystem extends Object
 
     idb.Transaction txn =
         _db.transactionList([_treeStore, _fileStore], idb.idbModeReadWrite);
-    try {
-      idb.ObjectStore store = txn.objectStore(_treeStore);
 
-      TreeEntity entity = (await _get(store, segments)).match;
-      _GetTreeSearchResult newResult = await _get(store, newSegments);
-      TreeEntity newEntity = newResult.match;
+    idb.ObjectStore store = txn.objectStore(_treeStore);
+
+    return _get(store, segments).then((_GetTreeSearchResult result) {
+      TreeEntity entity = result.match;
 
       if (entity == null) {
         throw throw _notFoundException(path, "Rename failed");
       }
 
-      TreeEntity newParent;
+      return _get(store, newSegments).then((_GetTreeSearchResult newResult) {
+        TreeEntity newEntity = newResult.match;
 
-      if (newEntity != null) {
-        newParent = newEntity.parent;
-        // Same type ok
-        if (newEntity.type == entity.type) {
-          if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
-            // check if _notEmptyError
-            idb.Index index = store.index(_parentIndex);
-            // any child will matter
-            if ((await index.getKey(newEntity.id)) != null) {
-              throw _notEmptyException(path, "Rename failed");
+        TreeEntity newParent;
+
+        Future _changeParent() {
+          // change _parent
+          entity.parent = newParent;
+
+          entity.name = newSegments.last;
+          return store.put(entity.toMap(), entity.id);
+        }
+        if (newEntity != null) {
+          newParent = newEntity.parent;
+          // Same type ok
+          if (newEntity.type == entity.type) {
+            if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+              // check if _notEmptyError
+              idb.Index index = store.index(_parentIndex);
+              // any child will matter
+              return index.getKey(newEntity.id).then((int parentId) {
+                if (parentId != null) {
+                  throw _notEmptyException(path, "Rename failed");
+                }
+              }).then((_) {
+                // delete existing
+                return store.delete(newEntity.id).then((_) {
+                  return _changeParent();
+                });
+              });
+            } else {
+              return _deleteEntity(txn, newEntity).then((_) {
+                return _changeParent();
+              });
             }
-            // delete existing
-            await store.delete(newEntity.id);
           } else {
-            await _deleteEntity(txn, newEntity);
+            if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+              throw _notADirectoryException(path, "Rename failed");
+            } else {
+              throw _isADirectoryException(path, "Rename failed");
+            }
           }
         } else {
-          if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
-            throw _notADirectoryException(path, "Rename failed");
-          } else {
-            throw _isADirectoryException(path, "Rename failed");
+          // check destination (parent folder must exists)
+          if (newResult.depthDiff > 1) {
+            throw _notFoundException(path, "Rename failed");
           }
+          newParent = newResult.highest; // highest is the parent at depth 1
         }
-      } else {
-        // check destination (parent folder must exists)
-        if (newResult.depthDiff > 1) {
-          throw _notFoundException(path, "Rename failed");
-        }
-        newParent = newResult.highest; // highest is the parent at depth 1
-      }
 
-      // change _parent
-      entity.parent = newParent;
-
-      entity.name = newSegments.last;
-      await store.put(entity.toMap(), entity.id);
-    } finally {
-      await txn.completed;
-    }
+        return _changeParent();
+      }).whenComplete(() {
+        return txn.completed;
+      });
+    });
   }
 
   Future copyFile(String path, String newPath) async {
@@ -848,45 +865,49 @@ class IdbFileSystem extends Object
 
     StreamController<IdbFileSystemEntity> ctlr = new StreamController();
 
-    _ready.then((_) async {
+    _ready.then((_) {
       List<Future> recursives = [];
       idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadOnly);
       idb.ObjectStore store = txn.objectStore(_treeStore);
       idb.Index index = store.index(_parentIndex);
 
-      TreeEntity entity = (await _get(store, segments)).match;
-      if (entity == null) {
-        ctlr.addError(_notFoundException(path, "List failed"));
-      } else {
-        _list(TreeEntity entity) async {
-          await index
-              .openCursor(key: entity.id, autoAdvance: true)
-              .listen((idb.CursorWithValue cwv) {
-            TreeEntity childEntity =
-                new TreeEntity.fromMap(entity, cwv.value, cwv.primaryKey);
-            if (childEntity.type == fs.FileSystemEntityType.DIRECTORY) {
-              IdbDirectory directory = new IdbDirectory(this, childEntity.path);
-              ctlr.add(directory);
-              if (recursive == true) {
-                recursives.add(_list(childEntity));
+      return _get(store, segments).then((result) {
+        TreeEntity entity = result.match;
+        if (entity == null) {
+          ctlr.addError(_notFoundException(path, "List failed"));
+        } else {
+          Future _list(TreeEntity entity) {
+            return index
+                .openCursor(key: entity.id, autoAdvance: true)
+                .listen((idb.CursorWithValue cwv) {
+              TreeEntity childEntity =
+                  new TreeEntity.fromMap(entity, cwv.value, cwv.primaryKey);
+              if (childEntity.type == fs.FileSystemEntityType.DIRECTORY) {
+                IdbDirectory directory =
+                    new IdbDirectory(this, childEntity.path);
+                ctlr.add(directory);
+                if (recursive == true) {
+                  recursives.add(_list(childEntity));
+                }
+              } else if (childEntity.type == fs.FileSystemEntityType.FILE) {
+                IdbFile file = new IdbFile(this, childEntity.path);
+                ctlr.add(file);
+              } else {
+                throw new UnsupportedError(
+                    "type ${childEntity.type} not supported");
               }
-            } else if (childEntity.type == fs.FileSystemEntityType.FILE) {
-              IdbFile file = new IdbFile(this, childEntity.path);
-              ctlr.add(file);
-            } else {
-              throw new UnsupportedError(
-                  "type ${childEntity.type} not supported");
-            }
-          }).asFuture();
+            }).asFuture();
+          }
+          return _list(entity);
         }
-        _list(entity);
-      }
-      await txn.completed;
+      }).whenComplete(() async {
+        await txn.completed;
 
-      // wait after completed to avoid deadlock
-      await Future.wait(recursives);
+        // wait after completed to avoid deadlock
+        await Future.wait(recursives);
 
-      ctlr.close();
+        ctlr.close();
+      });
     });
     return ctlr.stream;
   }
