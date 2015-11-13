@@ -6,11 +6,14 @@ import 'package:path/path.dart';
 import 'package:tekartik_fs_shim/fs_io.dart';
 import 'test_common.dart';
 import 'dart:mirrors';
+import 'package:platform_context/context.dart';
+import 'package:platform_context/context_io.dart';
 
 final IoFileSystemTestContext ioFileSystemContext =
     new IoFileSystemTestContext();
 
 class IoFileSystemTestContext extends FileSystemTestContext {
+  final PlatformContext platform = ioPlatformContext;
   final IoFileSystem fs = new IoFileSystem();
   String outTopPath;
   IoFileSystemTestContext() {

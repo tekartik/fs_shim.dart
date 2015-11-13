@@ -9,9 +9,11 @@ import 'package:tekartik_fs_shim/fs.dart';
 import 'package:tekartik_fs_shim/src/idb/fs_idb.dart';
 import 'package:tekartik_fs_shim/fs_memory.dart';
 import 'dart:convert';
+import 'package:platform_context/context.dart';
 
 // FileSystem context
 abstract class FileSystemTestContext {
+  PlatformContext get platform;
   // The file system used
   FileSystem get fs;
   // The path to use for testing
@@ -37,6 +39,7 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
     new MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  final PlatformContext platform = null;
   final MemoryFileSystem fs = new MemoryFileSystem();
   MemoryFileSystemTestContext();
 }
@@ -46,5 +49,13 @@ devPrintJson(Map json) {
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {
-  return (ctx.fs.name == 'io' && context.style == windows.style);
+  return (isIo(ctx) && ctx.platform.io.isWindows);
+}
+
+bool isIoMac(FileSystemTestContext ctx) {
+  return (isIo(ctx) && ctx.platform.io.isMac);
+}
+
+bool isIo(FileSystemTestContext ctx) {
+  return (ctx.platform != null && ctx.platform.io != null);
 }

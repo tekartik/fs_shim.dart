@@ -323,7 +323,9 @@ void defineTests(FileSystemTestContext ctx) {
       await dir.create();
       try {
         await file.create();
-        fail("should fail");
+        if (!isIoMac(ctx)) {
+          fail("should fail");
+        }
       } on FileSystemException catch (e) {
         _printErr(e);
         if (isIoWindows(ctx)) {

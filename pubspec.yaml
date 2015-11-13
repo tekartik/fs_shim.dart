@@ -9,6 +9,8 @@ environment:
 
 dependencies:
   idb_shim: any
+  platform_context:
+    git: https://github.com/alextekartik/platform_context.dart
 
 dev_dependencies:
   test: any

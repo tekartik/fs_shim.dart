@@ -42,6 +42,27 @@ int _statusFromException(io.FileSystemException ioFse) {
           status = fs.FileSystemException.statusAlreadyExists;
           break;
       }
+    }
+    if (io.Platform.isMacOS) {
+      // http://www.ioplex.com/~miallen/errcmp.html
+      switch (errorCode) {
+        case 2: // No such file or directory
+          status = fs.FileSystemException.statusNotFound;
+          break;
+        case 17:
+          status = fs.FileSystemException.statusAlreadyExists;
+          break;
+        case 20: // Not a directory
+          status = fs.FileSystemException.statusNotADirectory;
+          break;
+        case 21:
+          status = fs.FileSystemException.statusIsADirectory;
+          break;
+        case 66: // Directory not empty
+          status =
+              fs.FileSystemException.statusNotEmpty; // for recursive delete
+          break;
+      }
     } else {
       // tested mainly on linux
       switch (errorCode) {

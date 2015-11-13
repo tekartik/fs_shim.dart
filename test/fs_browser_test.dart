@@ -12,12 +12,15 @@ import 'fs_src_idb_test.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
 import 'dart:async';
+import 'package:platform_context/context.dart';
+import 'package:platform_context/context_browser.dart';
 
 class IdbBrowserFileSystem extends IdbFileSystem {
   IdbBrowserFileSystem([String name]) : super(idbBrowserFactory, name);
 }
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
+  final PlatformContext platform = browserPlatformContext;
   IdbBrowserFileSystem fs = new IdbBrowserFileSystem();
   IdbBrowserFileSystemTestContext();
 

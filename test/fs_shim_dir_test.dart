@@ -297,6 +297,7 @@ void defineTests(FileSystemTestContext ctx) {
         await subDir.delete();
         fail("shoud fail");
       } on FileSystemException catch (e) {
+        // Mac: errno 66 - not empty
         // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
         // [39] FileSystemException: Deletion failed, path = '/default/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
         expect(e.status, FileSystemException.statusNotEmpty);

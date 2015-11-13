@@ -13,6 +13,7 @@ import 'test_common_io.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
 import 'dart:async';
+import 'package:platform_context/context.dart';
 
 class IdbIoFileSystem extends IdbFileSystem {
   IdbIoFileSystem([String name])
@@ -20,6 +21,7 @@ class IdbIoFileSystem extends IdbFileSystem {
 }
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
+  final PlatformContext platform = null;
   IdbIoFileSystem fs = new IdbIoFileSystem();
   IdbIoFileSystemTestContext();
 
