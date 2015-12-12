@@ -6,7 +6,7 @@ import 'package:dev_test/test.dart';
 export 'package:dev_test/test.dart';
 import 'package:path/path.dart';
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/src/idb/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'dart:convert';
 import 'package:platform_context/context.dart';

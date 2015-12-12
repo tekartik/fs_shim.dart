@@ -1,4 +1,4 @@
-library fs_shim.lfs_io;
+library fs_shim.fs_io;
 
 import 'fs.dart' as fs;
 export 'fs.dart' show FileSystemEntityType;
@@ -6,6 +6,7 @@ import 'dart:io' as io;
 import 'dart:async';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'dart:convert';
+import 'src/io/io_link.dart';
 
 final IoFileSystem ioFileSystem = new IoFileSystem();
 
@@ -309,27 +310,6 @@ class Directory extends FileSystemEntity implements fs.Directory {
   Directory get absolute => new Directory._(ioDir.absolute);
 }
 
-/*
-class Link extends FileSystemEntity {
-  io.Link get ioLink =>  ioFileSystemEntity;
-
-  Link._(io.Link dir) {
-    ioFileSystemEntity = dir;
-  }
-  Link(String path) {
-    ioFileSystemEntity = new io.Link(path);
-  }
-
-
-  //@override
-  Future<Link> create(String target, {bool recursive: false}) //
-  =>
-      _wrap(ioLink
-          .create(target, recursive: recursive)
-          .then((io.Link ioLink) => this));
-
-}
-*/
 
 class IoFileSystem extends Object
     with FileSystemMixin
@@ -341,16 +321,16 @@ class IoFileSystem extends Object
           .then((io.FileSystemEntityType ioType) => _fsFileType(ioType));
 
   @override
-  File newFile(String path) {
-    return new File(path);
-  }
+  File newFile(String path) => new File(path);
 
   @override
-  Directory newDirectory(String path) {
-    return new Directory(path);
-  }
+  Directory newDirectory(String path) => new Directory(path);
+
+  @override
+  Link newLink(String path) => new Link(path);
 
   String get name => 'io';
+  bool get supportsLink => true;
 }
 
 _wrapError(e) {

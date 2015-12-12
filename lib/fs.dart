@@ -298,6 +298,45 @@ abstract class Directory extends FileSystemEntity {
       {bool recursive: false, bool followLinks: true});
 }
 
+///
+/// [Link] objects are references to filesystem links.
+///
+abstract class Link implements FileSystemEntity {
+  ///
+  /// Creates a symbolic link. Returns a [:Future<Link>:] that completes with
+  /// the link when it has been created. If the link exists,
+  /// the future will complete with an error.
+  ///
+  /// If [recursive] is false, the default, the link is created
+  /// only if all directories in its path exist.
+  /// If [recursive] is true, all non-existing path
+  /// components are created. The directories in the path of [target] are
+  /// not affected, unless they are also in [path].
+  ///
+  /// On the Windows platform, this will only work with directories, and the
+  /// target directory must exist. The link will be created as a Junction.
+  ///
+  /// Only absolute links will be created, and relative paths to the target
+  /// will be converted to absolute paths by joining them with the path of the
+  /// directory the link is contained in.
+  ///
+  /// On other platforms, the posix symlink() call is used to make a symbolic
+  /// link containing the string [target].  If [target] is a relative path,
+  /// it will be interpreted relative to the directory containing the link.
+  ///
+  Future<Link> create(String target, {bool recursive: false});
+
+  ///
+  /// Returns a [Link] instance whose path is the absolute path to [this].
+  ///
+  /// The absolute path is computed by prefixing
+  /// a relative path with the current working directory, and returning
+  /// an absolute path unchanged.
+  ///
+  Link get absolute;
+}
+
+
 abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 
 ///
@@ -341,6 +380,11 @@ abstract class FileSystem {
   File newFile(String path);
 
   ///
+  // Creates a [Link] object.
+  ///
+  Link newLink(String path);
+
+  ///
   /// Finds the type of file system object that a path points to. Returns
   /// a [:Future<FileSystemEntityType>:] that completes with the result.
   ///
@@ -364,8 +408,14 @@ abstract class FileSystem {
   ///
   Future<bool> isDirectory(String path);
 
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.Link.
+  ///
+  Future<bool> isLink(String path);
+
   // fs_shim specific
   String get name; // io or idb
+  bool get supportsLink;
 }
 
 abstract class OSError {

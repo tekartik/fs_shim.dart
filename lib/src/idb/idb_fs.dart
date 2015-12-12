@@ -1,4 +1,4 @@
-library fs_shim.src.lfs_idb;
+library fs_shim.src.idb_fs;
 
 import '../../fs.dart' as fs;
 import 'package:idb_shim/idb_client.dart' as idb;
@@ -8,6 +8,8 @@ import 'package:path/path.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:path/path.dart' as path_pkg;
+import 'idb_link.dart';
+export 'dart:async';
 
 IdbError get _noSuchPathError => new IdbError(2, "No such file or directory");
 IdbError get _notEmptyError => new IdbError(39, "Directory not empty");
@@ -66,6 +68,7 @@ class IdbFileSystemException implements fs.FileSystemException {
 
 abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   IdbFileSystem _fs;
+  IdbFileSystem get fs => _fs;
 
   @override
   final String path;
@@ -132,7 +135,7 @@ class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
       _fs.list(path, recursive: recursive, followLinks: followLinks);
 
   @override
-  IdbDirectory get absolute => new IdbDirectory(_fs, _makePathAbsolute(path));
+  IdbDirectory get absolute => new IdbDirectory(_fs, idbMakePathAbsolute(path));
 }
 
 class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
@@ -180,7 +183,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
       doWriteAsString(contents, mode: mode, encoding: encoding, flush: flush);
 
   @override
-  IdbFile get absolute => new IdbFile(_fs, _makePathAbsolute(path));
+  IdbFile get absolute => new IdbFile(_fs, idbMakePathAbsolute(path));
 }
 
 const String _treeStore = "tree";
@@ -261,7 +264,7 @@ class TreeEntity {
 }
 
 List<String> _getPathSegments(String path) {
-  path = _makePathAbsolute(path);
+  path = idbMakePathAbsolute(path);
   return split(path);
 }
 
@@ -332,6 +335,9 @@ class IdbFileSystem extends Object
       : _dbPath = path == null ? dbPath : path {}
 
   @override
+  bool get supportsLink => true;
+
+  @override
   Future<fs.FileSystemEntityType> type(String path,
       {bool followLinks: true}) async {
     await _ready;
@@ -352,14 +358,14 @@ class IdbFileSystem extends Object
   }
 
   @override
-  IdbDirectory newDirectory(String path) {
-    return new IdbDirectory(this, path);
-  }
+  IdbDirectory newDirectory(String path) => new IdbDirectory(this, path);
 
   @override
-  IdbFile newFile(String path) {
-    return new IdbFile(this, path);
-  }
+  IdbFile newFile(String path) => new IdbFile(this, path);
+
+  @override
+  IdbLink newLink(String path) => new IdbLink(this, path);
+
 
   Completer _readyCompleter;
   Future get _ready async {
@@ -836,7 +842,7 @@ class IdbFileSystem extends Object
     if (mode == fs.FileMode.READ) {
       throw new ArgumentError("Invalid file mode '${mode}' for this operation");
     }
-    path = _makePathAbsolute(path);
+    path = idbMakePathAbsolute(path);
 
     IdbWriteStreamSink sink = new IdbWriteStreamSink(this, path, mode);
 
@@ -844,7 +850,7 @@ class IdbFileSystem extends Object
   }
 
   Stream<List<int>> openRead(String path, int start, int end) {
-    path = _makePathAbsolute(path);
+    path = idbMakePathAbsolute(path);
     IdbReadStreamCtlr ctlr = new IdbReadStreamCtlr(this, path, start, end);
     /*
     MemoryFileSystemEntityImpl fileImpl = getEntity(path);
@@ -1037,12 +1043,6 @@ class IdbWriteStreamSink extends MemorySink {
   }
 }
 
-String _makePathAbsolute(String path) {
-  if (!isAbsolute(path)) {
-    return join(separator, path);
-  }
-  return path;
-}
 
 List<String> getSegments(String path) {
   List<String> segments = split(path);
@@ -1058,4 +1058,12 @@ String _getParentName(TreeEntity parent, String name) {
   } else {
     return join(parent.id.toString(), name);
   }
+}
+
+
+String idbMakePathAbsolute(String path) {
+  if (!isAbsolute(path)) {
+    return join(separator, path);
+  }
+  return path;
 }
