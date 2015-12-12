@@ -116,6 +116,8 @@ class FileSystemException implements fs.FileSystemException {
 abstract class FileSystemEntity implements fs.FileSystemEntity {
   io.FileSystemEntity ioFileSystemEntity;
 
+  FileSystemEntity _me(_) => this;
+
   @override
   String get path => ioFileSystemEntity.path;
 
@@ -123,14 +125,12 @@ abstract class FileSystemEntity implements fs.FileSystemEntity {
   String toString() => ioFileSystemEntity.toString();
 
   @override
-  Future<bool> exists() => _wrap(ioFileSystemEntity.exists());
+  Future<bool> exists() => _wrap(ioFileSystemEntity.exists()) as Future<bool>;
 
   @override
   Future<fs.FileSystemEntity> delete({bool recursive: false}) //
       =>
-      _wrap(ioFileSystemEntity
-          .delete(recursive: recursive)
-          .then((io.FileSystemEntity ioFileSystemEntity) => this));
+      _wrap(ioFileSystemEntity.delete(recursive: recursive)).then(_me);
 
   @override
   bool get isAbsolute => ioFileSystemEntity.isAbsolute;
@@ -163,6 +163,11 @@ class FileStat implements fs.FileStat {
   String toString() => ioFileStat.toString();
 }
 
+Future<File> _wrapFutureFile(Future<File> future) =>
+    _wrap(future) as Future<File>;
+Future<String> _wrapFutureString(Future<String> future) =>
+    _wrap(future) as Future<String>;
+
 class File extends FileSystemEntity implements fs.File {
   io.File get ioFile => ioFileSystemEntity;
 
@@ -177,8 +182,9 @@ class File extends FileSystemEntity implements fs.File {
   @override
   Future<File> create({bool recursive: false}) //
       =>
-      _wrap(ioFile.create(recursive: recursive).then((io.File ioFile) => this));
+      _wrap(ioFile.create(recursive: recursive)).then(_me);
 
+  // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
       {fs.FileMode mode: fs.FileMode.WRITE, Encoding encoding: UTF8}) {
@@ -187,7 +193,7 @@ class File extends FileSystemEntity implements fs.File {
     return sink;
   }
 
-  // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
+  File _me(_) => this;
 
   @override
   Stream<List<int>> openRead([int start, int end]) {
@@ -195,20 +201,22 @@ class File extends FileSystemEntity implements fs.File {
   }
 
   @override
-  Future<File> rename(String newPath) => _wrap(ioFile.rename(newPath).then(
-      (io.FileSystemEntity ioFileSystemEntity) =>
+  Future<File> rename(String newPath) => _wrapFutureFile(ioFile
+      .rename(newPath)
+      .then((io.FileSystemEntity ioFileSystemEntity) =>
           new File(ioFileSystemEntity.path)));
 
   @override
-  Future<File> copy(String newPath) => _wrap(ioFile.copy(newPath).then(
-      (io.FileSystemEntity ioFileSystemEntity) =>
+  Future<File> copy(String newPath) => _wrapFutureFile(ioFile
+      .copy(newPath)
+      .then((io.FileSystemEntity ioFileSystemEntity) =>
           new File(ioFileSystemEntity.path)));
 
   @override
   Future<File> writeAsBytes(List<int> bytes,
           {fs.FileMode mode: fs.FileMode.WRITE, bool flush: false}) =>
-      _wrap(
-          ioFile.writeAsBytes(bytes, mode: _fileWriteMode(mode), flush: flush));
+      _wrap(ioFile.writeAsBytes(bytes,
+          mode: _fileWriteMode(mode), flush: flush)).then(_me);
 
   @override
   Future<File> writeAsString(String contents,
@@ -216,14 +224,17 @@ class File extends FileSystemEntity implements fs.File {
           Encoding encoding: UTF8,
           bool flush: false}) =>
       _wrap(ioFile.writeAsString(contents,
-          mode: _fileWriteMode(mode), encoding: encoding, flush: flush));
+          mode: _fileWriteMode(mode),
+          encoding: encoding,
+          flush: flush)).then(_me);
 
   @override
-  Future<List<int>> readAsBytes() => _wrap(ioFile.readAsBytes());
+  Future<List<int>> readAsBytes() =>
+      _wrap(ioFile.readAsBytes()) as Future<List<int>>;
 
   @override
   Future<String> readAsString({Encoding encoding: UTF8}) =>
-      _wrap(ioFile.readAsString(encoding: encoding));
+      _wrapFutureString(ioFile.readAsString(encoding: encoding));
 
   @override
   File get absolute => new File._(ioFile.absolute);
@@ -239,24 +250,34 @@ class Directory extends FileSystemEntity implements fs.Directory {
     ioFileSystemEntity = new io.Directory(path);
   }
 
+  Directory _me(_) => this;
+  Directory _ioThen(io.Directory resultIoDir) {
+    if (resultIoDir == null) {
+      return null;
+    }
+    if (resultIoDir.path == ioDir.path) {
+      return this;
+    }
+    return new Directory._(resultIoDir);
+  }
+
   @override
   Future<Directory> create({bool recursive: false}) //
       =>
-      _wrap(ioDir
-          .create(recursive: recursive)
-          .then((io.Directory ioDir) => this));
+      _wrap(ioDir.create(recursive: recursive)).then(_ioThen);
 
   @override
-  Future<Directory> rename(String newPath) => _wrap(ioDir.rename(newPath).then(
+  Future<Directory> rename(String newPath) => _wrap(ioDir.rename(newPath)).then(
       (io.FileSystemEntity ioFileSystemEntity) =>
-          new Directory(ioFileSystemEntity.path)));
+          new Directory(ioFileSystemEntity.path));
 
   @override
   Stream<FileSystemEntity> list(
       {bool recursive: false, bool followLinks: true}) {
-    return ioDir.list(recursive: recursive, followLinks: followLinks).transform(
-        new StreamTransformer<io.FileSystemEntity, FileSystemEntity>(
-            (Stream<io.FileSystemEntity> input, bool cancelOnError) {
+    var ioStream = ioDir.list(recursive: recursive, followLinks: followLinks);
+
+    StreamSubscription<FileSystemEntity> _transformer(
+        Stream<io.FileSystemEntity> input, bool cancelOnError) {
       StreamController<FileSystemEntity> controller;
       //StreamSubscription<io.FileSystemEntity> subscription;
       controller = new StreamController<FileSystemEntity>(onListen: () {
@@ -276,12 +297,39 @@ class Directory extends FileSystemEntity implements fs.Directory {
             cancelOnError: cancelOnError);
       }, sync: true);
       return controller.stream.listen(null);
-    }));
+    }
+
+    // as Stream<io.FileSystemEntity, FileSystemEntity>;
+    return ioStream.transform(
+        new StreamTransformer<io.FileSystemEntity, FileSystemEntity>(
+            _transformer)) as Stream<FileSystemEntity>;
   }
 
   @override
   Directory get absolute => new Directory._(ioDir.absolute);
 }
+
+/*
+class Link extends FileSystemEntity {
+  io.Link get ioLink =>  ioFileSystemEntity;
+
+  Link._(io.Link dir) {
+    ioFileSystemEntity = dir;
+  }
+  Link(String path) {
+    ioFileSystemEntity = new io.Link(path);
+  }
+
+
+  //@override
+  Future<Link> create(String target, {bool recursive: false}) //
+  =>
+      _wrap(ioLink
+          .create(target, recursive: recursive)
+          .then((io.Link ioLink) => this));
+
+}
+*/
 
 class IoFileSystem extends Object
     with FileSystemMixin
@@ -289,9 +337,8 @@ class IoFileSystem extends Object
   @override
   Future<fs.FileSystemEntityType> type(String path, {bool followLinks: true}) //
       =>
-      _wrap(io.FileSystemEntity
-          .type(path, followLinks: true)
-          .then((io.FileSystemEntityType ioType) => _fsFileType(ioType)));
+      _wrap(io.FileSystemEntity.type(path, followLinks: true))
+          .then((io.FileSystemEntityType ioType) => _fsFileType(ioType));
 
   @override
   File newFile(String path) {

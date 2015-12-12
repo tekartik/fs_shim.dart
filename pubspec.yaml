@@ -9,7 +9,9 @@ environment:
 
 dependencies:
   idb_shim: any
-
+test_dependencies:
+  - platform_context
+  - idb_shim
 dev_dependencies:
   test: any
   dev_test: any

@@ -26,7 +26,7 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   IdbIoFileSystemTestContext();
 
   @override
-  Future<Directory> prepare() async {
+  Future<Directory> prepare() {
     fs = new IdbIoFileSystem(join(super.outPath, 'lfs.db'));
     return super.prepare();
   }

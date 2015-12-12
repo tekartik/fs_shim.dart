@@ -29,7 +29,7 @@ class MemorySink implements StreamSink<List<int>> {
 
   Future get done => _done;
 
-  Future addStream(Stream<List> stream) {
+  Future addStream(Stream<List<int>> stream) {
     return stream.listen((List<int> data) {
       add(data);
     }).asFuture();

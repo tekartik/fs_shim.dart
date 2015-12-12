@@ -25,7 +25,7 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   IdbBrowserFileSystemTestContext();
 
   @override
-  Future<Directory> prepare() async {
+  Future<Directory> prepare() {
     fs = new IdbBrowserFileSystem(join(super.outPath, 'lfs.db'));
     return super.prepare();
   }

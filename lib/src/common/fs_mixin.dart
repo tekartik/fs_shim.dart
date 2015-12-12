@@ -37,11 +37,10 @@ abstract class FileMixin {
   }
 
   Future<FileMixin> doWriteAsString(String contents,
-      {FileMode mode: FileMode.WRITE,
-      Encoding encoding: UTF8,
-      bool flush: false}) async {
-    return doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
-  }
+          {FileMode mode: FileMode.WRITE,
+          Encoding encoding: UTF8,
+          bool flush: false}) =>
+      doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
 
   //@override
   Future<List<int>> readAsBytes() async {
