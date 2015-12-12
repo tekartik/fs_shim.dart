@@ -1,9 +1,9 @@
-library tekartik_fs_shim.test.test_common_io;
+library fs_shim.test.test_common_io;
 
 // basically same as the io runner but with extra output
 export 'package:dev_test/test.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_fs_shim/fs_io.dart';
+import 'package:fs_shim/fs_io.dart';
 import 'test_common.dart';
 import 'dart:mirrors';
 import 'package:platform_context/context.dart';

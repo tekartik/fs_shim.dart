@@ -1,12 +1,12 @@
-library tekartik_fs_shim.src.lfs_idb;
+library fs_shim.src.lfs_idb;
 
 import '../../fs.dart' as fs;
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'dart:async';
 import 'dart:convert';
 import 'package:path/path.dart';
-import 'package:tekartik_fs_shim/src/common/fs_mixin.dart';
-import 'package:tekartik_fs_shim/src/common/memory_sink.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
+import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:path/path.dart' as path_pkg;
 
 IdbError get _noSuchPathError => new IdbError(2, "No such file or directory");

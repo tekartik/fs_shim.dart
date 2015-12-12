@@ -1,4 +1,4 @@
-library tekartik_fs_shim.src.lfs_mixin;
+library fs_shim.src.lfs_mixin;
 
 import '../../fs.dart';
 import 'dart:async';

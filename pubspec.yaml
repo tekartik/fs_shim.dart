@@ -1,4 +1,4 @@
-name: tekartik_fs_shim
+name: fs_shim
 description: A portable file system implementation working on io, browser and memory (through idb_shim)
 version: 0.1.0
 author: Alexandre Roux <alex@tekartik.com>
@@ -9,13 +9,13 @@ environment:
 
 dependencies:
   idb_shim: any
-  platform_context:
-    git: https://github.com/alextekartik/platform_context.dart
 
 dev_dependencies:
   test: any
   dev_test: any
   browser: any
+  platform_context:
+    git: https://github.com/alextekartik/platform_context.dart
 
 dependency_overrides:
 #  idb_shim:

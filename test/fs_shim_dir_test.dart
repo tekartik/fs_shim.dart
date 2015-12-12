@@ -1,9 +1,9 @@
 // Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library tekartik_fs_shim.test.fs_shim_dir_test;
+library fs_shim.test.fs_shim_dir_test;
 
-import 'package:tekartik_fs_shim/fs.dart';
+import 'package:fs_shim/fs.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
 
@@ -98,7 +98,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("shoud fail");
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
         // FileSystemException: Creation failed, path = '/default/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
       }
       await subSubDir.create(recursive: true);
@@ -122,7 +122,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("shoud fail");
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
         // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
       }
     });
@@ -152,7 +152,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("shoud fail");
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
         // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
       }
     });
@@ -218,7 +218,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAlreadyExists);
         } else {
-          // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
+          // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
           // [20] FileSystemException: Rename failed, path = '/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
           // On windows we have 193!
           expect(e.status, FileSystemException.statusNotADirectory);
@@ -298,7 +298,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("shoud fail");
       } on FileSystemException catch (e) {
         // Mac: errno 66 - not empty
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
         // [39] FileSystemException: Deletion failed, path = '/default/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
         expect(e.status, FileSystemException.statusNotEmpty);
       }
@@ -313,7 +313,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("shoud fail");
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
         // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
       }
     });

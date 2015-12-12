@@ -1,4 +1,4 @@
-library tekartik_fs_shim.src.memory_sink;
+library fs_shim.src.memory_sink;
 
 import 'dart:async';
 //import 'dart:convert';

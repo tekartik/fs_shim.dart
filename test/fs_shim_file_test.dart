@@ -1,9 +1,9 @@
 // Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library tekartik_fs_shim.test.fs_shim_file_test;
+library fs_shim.test.fs_shim_file_test;
 
-import 'package:tekartik_fs_shim/fs.dart';
+import 'package:fs_shim/fs.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
 
@@ -83,7 +83,7 @@ void defineTests(FileSystemTestContext ctx) {
       } on FileSystemException catch (e) {
         _printErr(e);
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
         // FileSystemException: Creation failed, path = '/default/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
       }
       expect(await (await file.create(recursive: true)).exists(), isTrue);
@@ -108,7 +108,7 @@ void defineTests(FileSystemTestContext ctx) {
       } on FileSystemException catch (e) {
         _printErr(e);
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
         // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
       }
     });
@@ -138,7 +138,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("shoud fail");
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
         // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
       }
     });
@@ -211,7 +211,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
-          // [21] FileSystemException: Cannot rename file to '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/rename_over_existing_different_type/dir', path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/rename_over_existing_different_type/file' (OS Error: Is a directory, errno = 21)
+          // [21] FileSystemException: Cannot rename file to '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/rename_over_existing_different_type/dir', path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/rename_over_existing_different_type/file' (OS Error: Is a directory, errno = 21)
           expect(e.status, FileSystemException.statusIsADirectory);
         }
       }
@@ -294,7 +294,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail("should fail");
       } on FileSystemException catch (e) {
         _printErr(e);
-        // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
+        // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         expect(e.status, FileSystemException.statusAlreadyExists);
       }
@@ -311,7 +311,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusNotFound);
         } else {
-          // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+          // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
           // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
           expect(e.status, FileSystemException.statusNotADirectory);
         }
@@ -331,7 +331,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
-          // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+          // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
           // [21] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
           expect(e.status, FileSystemException.statusIsADirectory);
         }
@@ -345,7 +345,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
-          // [21] FileSystemException: Cannot delete file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+          // [21] FileSystemException: Cannot delete file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
           // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
           expect(e.status, FileSystemException.statusIsADirectory);
         }
@@ -387,7 +387,7 @@ void defineTests(FileSystemTestContext ctx) {
           //content.addAll(data);
         }).asFuture();
       } on FileSystemException catch (e) {
-        // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
+        // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
         // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
         _printErr(e);
         expect(e.status, FileSystemException.statusNotFound);
@@ -428,7 +428,7 @@ void defineTests(FileSystemTestContext ctx) {
         sink.add('test'.codeUnits);
         await sink.close();
       } on FileSystemException catch (e) {
-        // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
+        // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
         // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
         _printErr(e);
       }
@@ -505,7 +505,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
           expect(e.status, FileSystemException.statusIsADirectory);
-          // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/tekartik_fs_shim/test_out/io/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
+          // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
           // [21] FileSystemException: Write failed, path = '/file/write_on_dir/file' (OS Error: Is a directory, errno = 21)
         }
       }

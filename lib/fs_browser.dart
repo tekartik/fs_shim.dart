@@ -1,6 +1,6 @@
-library tekartik_fs_shim.lfs_browser;
+library fs_shim.lfs_browser;
 
-import 'package:tekartik_fs_shim/src/idb/fs_idb.dart';
+import 'package:fs_shim/src/idb/fs_idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 
 class BrowserFileSystem extends IdbFileSystem {

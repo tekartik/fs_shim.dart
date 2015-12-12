@@ -1,6 +1,6 @@
-library tekartik_fs_shim.lfs_memory;
+library fs_shim.lfs_memory;
 
-import 'package:tekartik_fs_shim/src/idb/fs_idb.dart';
+import 'package:fs_shim/src/idb/fs_idb.dart';
 import 'package:idb_shim/idb_client_memory.dart';
 
 ///

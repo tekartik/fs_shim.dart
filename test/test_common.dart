@@ -1,13 +1,13 @@
-library tekartik_fs_shim.test.test_common;
+library fs_shim.test.test_common;
 
 // basically same as the io runner but with extra output
 import 'dart:async';
 import 'package:dev_test/test.dart';
 export 'package:dev_test/test.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_fs_shim/fs.dart';
-import 'package:tekartik_fs_shim/src/idb/fs_idb.dart';
-import 'package:tekartik_fs_shim/fs_memory.dart';
+import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/idb/fs_idb.dart';
+import 'package:fs_shim/fs_memory.dart';
 import 'dart:convert';
 import 'package:platform_context/context.dart';
 

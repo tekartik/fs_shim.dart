@@ -1,10 +1,10 @@
-library tekartik_fs_shim.lfs_io;
+library fs_shim.lfs_io;
 
 import 'fs.dart' as fs;
 export 'fs.dart' show FileSystemEntityType;
 import 'dart:io' as io;
 import 'dart:async';
-import 'package:tekartik_fs_shim/src/common/fs_mixin.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'dart:convert';
 
 final IoFileSystem ioFileSystem = new IoFileSystem();

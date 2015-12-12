@@ -5,7 +5,7 @@ import 'package:path/path.dart';
 /// io_example_test.dart
 /// io_example_fs_shim_test.dart
 /// This file must be the same besides the import above
-import 'package:tekartik_fs_shim/fs_io.dart';
+import 'package:fs_shim/fs_io.dart';
 
 const String groupName = "io_example_fs_shim";
 
