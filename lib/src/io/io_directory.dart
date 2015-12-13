@@ -1,4 +1,4 @@
-library fs_shim.src.io.io_dir;
+library fs_shim.src.io.io_directory;
 
 export '../../fs.dart' show FileSystemEntityType;
 import 'dart:io' as io;

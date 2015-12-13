@@ -1,21 +1,20 @@
-library fs_shim.src.idb.idb_link;
+library fs_shim.src.idb.idb_file;
 
 import 'idb_fs.dart';
 import '../../fs.dart' as fs;
 import 'idb_file_system_entity.dart';
+import '../common/fs_mixin.dart';
 
-class IdbLink extends IdbFileSystemEntity implements fs.Link {
-  IdbLink _me(_) => this;
-  IdbLink(IdbFileSystem fs, String path) : super(fs, path);
+class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
+  IdbFile(IdbFileSystem fs, String path) : super(fs, path);
 
-  fs.FileSystemEntityType get type => fs.FileSystemEntityType.LINK;
+  IdbFileSystem get _fs => super.fs;
 
-  /*
   Future<IdbFile> create({bool recursive: false}) {
     return _fs.createFile(path, recursive: recursive).then((_) => this);
   }
 
-
+  fs.FileSystemEntityType get type => fs.FileSystemEntityType.FILE;
 
   // don't care about encoding - assume UTF8
   @override
@@ -31,7 +30,7 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
   @override
   Future<IdbFile> rename(String newPath) {
     return _fs
-        .rename(_type, path, newPath)
+        .rename(type, path, newPath)
         .then((_) => new IdbFile(_fs, newPath));
   }
 
@@ -51,16 +50,7 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
           Encoding encoding: UTF8,
           bool flush: false}) =>
       doWriteAsString(contents, mode: mode, encoding: encoding, flush: flush);
-  */
-  @override
-  IdbLink get absolute => new IdbLink(super.fs, idbMakePathAbsolute(path));
 
   @override
-  Future<IdbLink> rename(String newPath) {
-    return null;
-  }
-
-  Future<IdbLink> create(String target, {bool recursive: false}) {
-    return super.fs.createLink(path, target, recursive: recursive).then(_me);
-  }
+  IdbFile get absolute => new IdbFile(_fs, idbMakePathAbsolute(path));
 }

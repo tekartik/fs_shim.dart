@@ -4,7 +4,7 @@ import 'fs.dart' as fs;
 export 'fs.dart' show FileSystemEntityType, FileSystemException, FileStat;
 import 'dart:async';
 import 'src/io/io_link.dart';
-import 'src/io/io_dir.dart';
+import 'src/io/io_directory.dart';
 import 'src/io/io_fs.dart';
 import 'src/io/io_file.dart';
 import 'src/io/io_file_system.dart';

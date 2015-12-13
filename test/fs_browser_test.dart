@@ -5,7 +5,7 @@
 library fs_shim.fs_browser_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/src/idb/idb_fs.dart';
+import 'package:fs_shim/fs_idb.dart';
 import 'package:idb_shim/idb_browser.dart';
 import 'package:dev_test/test.dart';
 import 'fs_src_idb_test.dart';
