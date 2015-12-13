@@ -127,6 +127,8 @@ abstract class FileStat {
 }
 
 abstract class File extends FileSystemEntity {
+  File._();
+
   ///
   ///
   ///
@@ -252,6 +254,9 @@ abstract class File extends FileSystemEntity {
 }
 
 abstract class Directory extends FileSystemEntity {
+  /// prevent extends
+  Directory._();
+
   ///
   /// Creates the directory with this name.
   ///
@@ -302,6 +307,8 @@ abstract class Directory extends FileSystemEntity {
 /// [Link] objects are references to filesystem links.
 ///
 abstract class Link implements FileSystemEntity {
+  Link._();
+
   ///
   /// Creates a symbolic link. Returns a [:Future<Link>:] that completes with
   /// the link when it has been created. If the link exists,
@@ -431,6 +438,7 @@ abstract class OSError {
 }
 
 abstract class FileSystemException {
+  FileSystemException._();
   static const int statusNotFound = 2;
   static const int statusAlreadyExists =
       17; // when creating a dir when it exists with another type (file)

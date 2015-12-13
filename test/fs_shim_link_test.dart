@@ -98,7 +98,7 @@ void defineTests(FileSystemTestContext ctx) {
       Directory dir = await ctx.prepare();
 
       String target = join(dir.path, "target");
-      File file = fs.newFile(target)..create();
+      /*File file = */ fs.newFile(target)..create();
       Link link = fs.newLink(join(dir.path, "link"));
       expect(await link.exists(), isFalse);
       expect(await fs.isLink(link.path), isFalse);

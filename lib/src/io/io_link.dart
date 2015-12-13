@@ -1,34 +1,33 @@
-library fs_shim.src.io.fs_io;
+library fs_shim.src.io.io_link;
 
-import '../../fs.dart' as fs;
 export '../../fs.dart' show FileSystemEntityType;
 import 'dart:io' as io;
 import 'dart:async';
 import 'io_fs.dart';
-
+import 'io_file_system_entity.dart';
 import '../../fs_io.dart';
 
-class Link extends FileSystemEntity implements fs.Link {
+class LinkImpl extends FileSystemEntityImpl implements Link {
   io.Link get ioLink => ioFileSystemEntity;
 
-  Link _me(_) => this;
+  LinkImpl _me(_) => this;
 
-  Link._(io.Link dir) {
+  LinkImpl.io(io.Link dir) {
     ioFileSystemEntity = dir;
   }
-  Link(String path) {
+  LinkImpl(String path) {
     ioFileSystemEntity = new io.Link(path);
   }
 
   @override
-  Future<Link> create(String target, {bool recursive: false}) =>
+  Future<LinkImpl> create(String target, {bool recursive: false}) =>
       ioWrap(ioLink.create(target, recursive: recursive)).then(_me);
 
   @override
-  Future<File> rename(String newPath) => ioWrap(ioLink.rename(newPath)).then(
-      (io.FileSystemEntity ioFileSystemEntity) =>
-          new File(ioFileSystemEntity.path));
+  Future<LinkImpl> rename(String newPath) => ioWrap(ioLink.rename(newPath))
+      .then((io.FileSystemEntity ioFileSystemEntity) =>
+          new LinkImpl(ioFileSystemEntity.path));
 
   @override
-  Link get absolute => new Link._(ioLink.absolute);
+  LinkImpl get absolute => new LinkImpl.io(ioLink.absolute);
 }

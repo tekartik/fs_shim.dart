@@ -1,0 +1,109 @@
+library fs_shim.src.io.io_file_system_exception;
+
+import '../../fs.dart' as fs;
+export '../../fs.dart' show FileSystemEntityType;
+import 'dart:io' as io;
+
+class _IoOSError implements fs.OSError {
+  io.OSError ioOSError;
+  _IoOSError(this.ioOSError);
+  int get errorCode => ioOSError.errorCode;
+  String get message => ioOSError.message;
+
+  @override
+  String toString() => ioOSError.toString();
+}
+
+int _statusFromException(io.FileSystemException ioFse) {
+  // linux error code is 2
+  int status;
+  if (ioFse != null && ioFse.osError != null) {
+    int errorCode = ioFse.osError.errorCode;
+
+    if (io.Platform.isWindows) {
+      switch (errorCode) {
+        case 2: // ERROR_FILE_NOT_FOUND
+        case 3: // ERROR_PATH_NOT_FOUND
+          status = fs.FileSystemException.statusNotFound;
+          break;
+        case 5: // ERROR_ACCESS_DENIED
+          status = fs.FileSystemException.statusAccessError;
+          break;
+        case 145: // ERROR_DIR_NOT_EMPTY
+          status =
+              fs.FileSystemException.statusNotEmpty; // for recursive delete
+          break;
+        case 183: // ERROR_ALREADY_EXISTS
+          status = fs.FileSystemException.statusAlreadyExists;
+          break;
+      }
+    }
+    if (io.Platform.isMacOS) {
+      // http://www.ioplex.com/~miallen/errcmp.html
+      switch (errorCode) {
+        case 2: // No such file or directory
+          status = fs.FileSystemException.statusNotFound;
+          break;
+        case 17:
+          status = fs.FileSystemException.statusAlreadyExists;
+          break;
+        case 20: // Not a directory
+          status = fs.FileSystemException.statusNotADirectory;
+          break;
+        case 21:
+          status = fs.FileSystemException.statusIsADirectory;
+          break;
+        case 66: // Directory not empty
+          status =
+              fs.FileSystemException.statusNotEmpty; // for recursive delete
+          break;
+      }
+    } else {
+      // tested mainly on linux
+      switch (errorCode) {
+        case 2:
+          status = fs.FileSystemException.statusNotFound;
+          break;
+        case 17:
+          status = fs.FileSystemException.statusAlreadyExists;
+          break;
+        case 20:
+          status = fs.FileSystemException.statusNotADirectory;
+          break;
+        case 21:
+          status = fs.FileSystemException.statusIsADirectory;
+          break;
+        case 39:
+          status =
+              fs.FileSystemException.statusNotEmpty; // for recursive delete
+          break;
+      }
+    }
+  }
+  return status;
+}
+
+class FileSystemExceptionImpl implements fs.FileSystemException {
+  io.FileSystemException ioFse;
+
+  FileSystemExceptionImpl(io.FileSystemException ioFse)
+      : ioFse = ioFse,
+        osError = new _IoOSError(ioFse.osError),
+        status = _statusFromException(ioFse);
+
+  @override
+  final int status;
+
+  @override
+  final _IoOSError osError;
+
+  @override
+  String get message => ioFse.message;
+
+  @override
+  String get path => ioFse.path;
+
+  @override
+  String toString() =>
+      "${status == null ? '' : '[${status}] '}${ioFse.toString()}";
+}
