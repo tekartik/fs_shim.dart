@@ -60,6 +60,7 @@ int _statusFromException(io.FileSystemException ioFse) {
       }
     } else {
       // tested mainly on linux
+      // http://www-numi.fnal.gov/offline_software/srt_public_context/WebDocs/Errors/unix_system_errors.html
       switch (errorCode) {
         case 2:
           status = fs.FileSystemException.statusNotFound;

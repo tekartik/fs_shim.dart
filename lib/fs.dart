@@ -341,6 +341,18 @@ abstract class Link implements FileSystemEntity {
   /// an absolute path unchanged.
   ///
   Link get absolute;
+
+  ///
+  /// Gets the target of the link. Returns a future that completes with
+  /// the path to the target.
+  ///
+  /// If the returned target is a relative path, it is relative to the
+  /// directory containing the link.
+  ///
+  /// If the link does not exist, or is not a link, the future completes with
+  /// a FileSystemException.
+  ///
+  Future<String> target();
 }
 
 abstract class FileSink implements StreamSink<List<int>>, StringSink {}

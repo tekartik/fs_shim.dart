@@ -8,6 +8,8 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
   IdbLink _me(_) => this;
   IdbLink(IdbFileSystem fs, String path) : super(fs, path);
 
+  IdbFileSystem get _fs => super.fs;
+
   fs.FileSystemEntityType get type => fs.FileSystemEntityType.LINK;
 
   /*
@@ -39,28 +41,21 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
   Future<IdbFile> copy(String newPath) {
     return _fs.copyFile(path, newPath).then((_) => new IdbFile(_fs, newPath));
   }
-
+*/
   @override
-  Future<IdbFile> writeAsBytes(List<int> bytes,
-          {fs.FileMode mode: fs.FileMode.WRITE, bool flush: false}) =>
-      doWriteAsBytes(bytes, mode: mode, flush: flush);
+  Future<String> target() => _fs.linkTarget(path);
 
-  @override
-  Future<IdbFile> writeAsString(String contents,
-          {fs.FileMode mode: fs.FileMode.WRITE,
-          Encoding encoding: UTF8,
-          bool flush: false}) =>
-      doWriteAsString(contents, mode: mode, encoding: encoding, flush: flush);
-  */
   @override
   IdbLink get absolute => new IdbLink(super.fs, idbMakePathAbsolute(path));
 
   @override
   Future<IdbLink> rename(String newPath) {
-    return null;
+    return _fs
+        .rename(type, path, newPath)
+        .then((_) => new IdbLink(_fs, newPath));
   }
 
   Future<IdbLink> create(String target, {bool recursive: false}) {
-    return super.fs.createLink(path, target, recursive: recursive).then(_me);
+    return _fs.createLink(path, target, recursive: recursive).then(_me);
   }
 }

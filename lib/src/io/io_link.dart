@@ -29,5 +29,8 @@ class LinkImpl extends FileSystemEntityImpl implements Link {
           new LinkImpl(ioFileSystemEntity.path));
 
   @override
+  Future<String> target() => ioWrap(ioLink.target()) as Future<String>;
+
+  @override
   LinkImpl get absolute => new LinkImpl.io(ioLink.absolute);
 }

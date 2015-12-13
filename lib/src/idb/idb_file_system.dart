@@ -36,7 +36,7 @@ class TreeEntity {
   fs.FileSystemEntityType type;
   int size;
   DateTime modified;
-  String target; // for Links only
+  List<String> targetSegments; // for Links only
 
   TreeEntity(this.parent, this.name, this.type, this.modified, this.size,
       [this.id]) {
@@ -58,7 +58,7 @@ class TreeEntity {
     fs.FileSystemEntityType type = _typeFromString(map[_type]);
 
     return new TreeEntity(parent, name, type, modified, size, id)
-      ..target = map[_target];
+      ..targetSegments = (map[_target] as List<String>);
   }
 
   Map toMap() {
@@ -72,8 +72,8 @@ class TreeEntity {
     if (size != null) {
       map[_size] = size;
     }
-    if (target != null) {
-      map[_target] = target;
+    if (targetSegments != null) {
+      map[_target] = targetSegments;
     }
     map[_parentName] = parentName;
     return map;
@@ -100,6 +100,11 @@ class TreeEntity {
 
 List<String> _getPathSegments(String path) {
   path = idbMakePathAbsolute(path);
+  return split(path);
+}
+
+// might not be absolute
+List<String> _getTargetSegments(String path) {
   return split(path);
 }
 
@@ -470,8 +475,12 @@ class IdbFileSystem extends Object
 
       Future<TreeEntity> _addLink(TreeEntity parent) {
         // create it!
-        entity = new TreeEntity(parent, segments.last,
-            fs.FileSystemEntityType.LINK, new DateTime.now(), 0);
+        entity = new TreeEntity(
+            parent,
+            segments.last,
+            fs.FileSystemEntityType.LINK,
+            new DateTime.now(),
+            0)..targetSegments = _getTargetSegments(target);
         //print('adding ${entity}');
         return store.add(entity.toMap()).then((int id) {
           entity.id = id;
@@ -609,7 +618,6 @@ class IdbFileSystem extends Object
     List<String> segments = getSegments(path);
 
     idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadOnly);
-
     idb.ObjectStore store = txn.objectStore(_treeStore);
     Future<bool> exists = _get(store, segments).then((result) {
       return result.matches;
@@ -715,6 +723,23 @@ class IdbFileSystem extends Object
         return txn.completed;
       });
     });
+  }
+
+  Future<String> linkTarget(String path) async {
+    await _ready;
+    List<String> segments = getSegments(path);
+
+    idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadOnly);
+    idb.ObjectStore store = txn.objectStore(_treeStore);
+    Future<String> target =
+        _get(store, segments).then((_GetTreeSearchResult result) {
+      if (result.matches) {
+        return joinAll(result.match.targetSegments);
+      }
+    }).whenComplete(() {
+      return txn.completed;
+    }) as Future<String>;
+    return await target;
   }
 
   Future copyFile(String path, String newPath) async {

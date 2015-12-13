@@ -94,6 +94,24 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
+    test('target', () async {
+      Directory dir = await ctx.prepare();
+
+      String target = "target";
+      Link link = fs.newLink(join(dir.path, "link"));
+      try {
+        await link.target();
+      } on FileSystemException catch (e) {
+        _printErr(e);
+        expect(e.status, FileSystemException.statusNotFound);
+        // [2] FileSystemException: Cannot get target of link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/target/link' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
+      }
+
+      await link.create(target);
+
+      expect(await link.target(), target);
+    });
+
     test('create_file', () async {
       Directory dir = await ctx.prepare();
 
@@ -125,84 +143,83 @@ void defineTests(FileSystemTestContext ctx) {
         // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
       }
     });
-  });
-
-  /*
-  skip_group('file', () {
-
 
     test('create_recursive', () async {
       Directory dir = await ctx.prepare();
 
       Directory subDir = fs.newDirectory(join(dir.path, "sub"));
 
-      File file = fs.newFile(join(subDir.path, "file"));
+      Link link = fs.newLink(join(subDir.path, "file"));
 
       try {
-        await file.create();
+        await link.create('target');
         fail("shoud fail");
       } on FileSystemException catch (e) {
         _printErr(e);
         expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
-        // FileSystemException: Creation failed, path = '/default/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
+        // [2] FileSystemException: Cannot create link to target 'target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_recursive/sub/file' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
       }
-      expect(await (await file.create(recursive: true)).exists(), isTrue);
-      await file.create(recursive: true);
-      await file.create();
+      expect(await (await link.create('target', recursive: true)).exists(),
+          isTrue);
     });
 
     test('delete', () async {
       Directory dir = await ctx.prepare();
 
-      File file = fs.newFile(join(dir.path, "file"));
-      expect(await (await file.create()).exists(), isTrue);
-      expect(await fs.isFile(file.path), isTrue);
+      Link link = fs.newLink(join(dir.path, "file"));
+      expect(await (await link.create('target')).exists(), isTrue);
+      expect(await fs.isLink(link.path), isTrue);
 
       // delete
-      expect(await (await file.delete()).exists(), isFalse);
-      expect(await fs.isFile(file.path), isFalse);
+      expect(await (await link.delete()).exists(), isFalse);
+      expect(await fs.isLink(link.path), isFalse);
 
       try {
-        await file.delete();
+        await link.delete();
         fail("shoud fail");
       } on FileSystemException catch (e) {
         _printErr(e);
-        expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
-        // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // expect(e.status, FileSystemException.statusNotFound);
+        // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
       }
     });
 
     test('rename', () async {
       Directory _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "file");
-      String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
-      await file.create();
-      File file2 = await file.rename(path2);
-      expect(file2.path, path2);
-      expect(await file.exists(), isFalse);
-      expect(await file2.exists(), isTrue);
-      expect(await fs.isFile(file2.path), isTrue);
+      String path = join(_dir.path, "link");
+      String path2 = join(_dir.path, "link2");
+      Link link = fs.newLink(path);
+      await link.create('target');
+      Link link2 = await link.rename(path2);
+      expect(link2.path, path2);
+      expect(await link.exists(), isFalse);
+      expect(await link2.exists(), isTrue);
+      expect(await fs.isLink(link2.path), isTrue);
     });
 
     test('rename_notfound', () async {
       Directory _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "file");
-      String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
+      String path = join(_dir.path, "link");
+      String path2 = join(_dir.path, "link2");
+      Link file = fs.newLink(path);
       try {
         await file.rename(path2);
         fail("shoud fail");
       } on FileSystemException catch (e) {
-        expect(e.status, FileSystemException.statusNotFound);
-        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
-        // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        _printErr(e);
+        // <22> not parsed invalid argument FileSystemException: Cannot rename link to '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link2', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
       }
     });
+  });
+
+  /*
+  skip_group('file', () {
+
+
+
+
 
     test('rename_with_content', () async {
       Directory _dir = await ctx.prepare();
