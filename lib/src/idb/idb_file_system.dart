@@ -311,17 +311,36 @@ class IdbFileSystem extends Object
 
     List<String> segments = _getPathSegments(path);
 
-    idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadWrite);
-    try {
-      idb.ObjectStore store = txn.objectStore(_treeStore);
-      TreeEntity entity = (await _get(store, segments)).match;
-      if (entity == null) {
-        return fs.FileSystemEntityType.NOT_FOUND;
-      }
-      return entity.type;
-    } finally {
-      await txn.completed;
+    TreeEntity entity =
+        await _getTreeEntity(segments, followLinks: followLinks);
+
+    if (entity == null) {
+      return fs.FileSystemEntityType.NOT_FOUND;
     }
+
+    return entity.type;
+  }
+
+  Future<TreeEntity> _getTreeEntity(List<String> segments,
+      {bool followLinks: true}) {
+    idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadWrite);
+    idb.ObjectStore store = txn.objectStore(_treeStore);
+
+    __get(List<String> segments) {
+      return _get(store, segments).then((_GetTreeSearchResult result) {
+        TreeEntity entity = result.match;
+        if (entity == null) {
+          return null;
+        }
+        if (followLinks && entity.type == fs.FileSystemEntityType.LINK) {
+          return __get(entity.targetSegments);
+        }
+        return entity;
+      });
+    }
+    return __get(segments).whenComplete(() async {
+      await txn.completed;
+    }) as Future<TreeEntity>;
   }
 
   @override
@@ -617,14 +636,8 @@ class IdbFileSystem extends Object
     await _ready;
     List<String> segments = getSegments(path);
 
-    idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadOnly);
-    idb.ObjectStore store = txn.objectStore(_treeStore);
-    Future<bool> exists = _get(store, segments).then((result) {
-      return result.matches;
-    }).whenComplete(() {
-      return txn.completed;
-    }) as Future<bool>;
-    return await exists;
+    TreeEntity entity = await _getTreeEntity(segments, followLinks: false);
+    return entity != null;
   }
 
   Future<IdbFileStat> stat(String path) async {

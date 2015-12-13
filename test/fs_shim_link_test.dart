@@ -212,6 +212,24 @@ void defineTests(FileSystemTestContext ctx) {
         // <22> not parsed invalid argument FileSystemException: Cannot rename link to '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link2', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
       }
     });
+
+    test('file_follow_links', () async {
+      Directory _dir = await ctx.prepare();
+      File file = fs.newFile(join(_dir.path, 'file'));
+      Link link = await fs.newLink(join(_dir.path, "link")).create(file.path);
+
+      expect(await fs.type(link.path, followLinks: false),
+          FileSystemEntityType.LINK);
+      expect(await fs.type(link.path, followLinks: true),
+          FileSystemEntityType.NOT_FOUND);
+
+      await file.create();
+
+      expect(await fs.type(link.path, followLinks: false),
+          FileSystemEntityType.LINK);
+      expect(await fs.type(link.path, followLinks: true),
+          FileSystemEntityType.FILE);
+    });
   });
 
   /*
