@@ -310,14 +310,13 @@ class Directory extends FileSystemEntity implements fs.Directory {
   Directory get absolute => new Directory._(ioDir.absolute);
 }
 
-
 class IoFileSystem extends Object
     with FileSystemMixin
     implements fs.FileSystem {
   @override
   Future<fs.FileSystemEntityType> type(String path, {bool followLinks: true}) //
       =>
-      _wrap(io.FileSystemEntity.type(path, followLinks: true))
+      _wrap(io.FileSystemEntity.type(path, followLinks: followLinks))
           .then((io.FileSystemEntityType ioType) => _fsFileType(ioType));
 
   @override

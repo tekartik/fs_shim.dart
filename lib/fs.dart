@@ -336,7 +336,6 @@ abstract class Link implements FileSystemEntity {
   Link get absolute;
 }
 
-
 abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 
 ///

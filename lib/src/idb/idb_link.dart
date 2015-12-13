@@ -4,6 +4,7 @@ import 'idb_fs.dart';
 import '../../fs.dart' as fs;
 
 class IdbLink extends IdbFileSystemEntity implements fs.Link {
+  IdbLink _me(_) => this;
   IdbLink(IdbFileSystem fs, String path) : super(fs, path);
 
   /*
@@ -57,6 +58,6 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
   }
 
   Future<IdbLink> create(String target, {bool recursive: false}) {
-    return null;
+    return super.fs.createLink(path, target, recursive: recursive).then(_me);
   }
 }

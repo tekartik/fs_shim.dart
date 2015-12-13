@@ -197,6 +197,7 @@ const String _parentIndex = _parent;
 const String _type = "type";
 const String _modified = "modified";
 const String _size = "size";
+const String _target = "target"; // Link only
 
 class TreeEntity {
   int id;
@@ -206,6 +207,7 @@ class TreeEntity {
   fs.FileSystemEntityType type;
   int size;
   DateTime modified;
+  String target; // for Links only
 
   TreeEntity(this.parent, this.name, this.type, this.modified, this.size,
       [this.id]) {
@@ -226,7 +228,8 @@ class TreeEntity {
     int size = map[_size];
     fs.FileSystemEntityType type = _typeFromString(map[_type]);
 
-    return new TreeEntity(parent, name, type, modified, size, id);
+    return new TreeEntity(parent, name, type, modified, size, id)
+      ..target = map[_target];
   }
 
   Map toMap() {
@@ -239,6 +242,9 @@ class TreeEntity {
     }
     if (size != null) {
       map[_size] = size;
+    }
+    if (target != null) {
+      map[_target] = target;
     }
     map[_parentName] = parentName;
     return map;
@@ -366,7 +372,6 @@ class IdbFileSystem extends Object
   @override
   IdbLink newLink(String path) => new IdbLink(this, path);
 
-
   Completer _readyCompleter;
   Future get _ready async {
     if (_readyCompleter == null) {
@@ -447,8 +452,11 @@ class IdbFileSystem extends Object
         if (entity.type == fs.FileSystemEntityType.FILE) {
           return entity;
         }
-        //TODO assume dir for now
-        throw _isADirectoryException(result.path, "Creation failed");
+        if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+          throw _isADirectoryException(result.path, "Creation failed");
+        } else {
+          throw _alreadyExistsException(result.path, "Already exists");
+        }
       }
 
       // not recursive and too deep, cancel
@@ -480,6 +488,54 @@ class IdbFileSystem extends Object
     }) as Future<TreeEntity>;
   }
 
+  Future<TreeEntity> _createLink(
+      idb.ObjectStore store, List<String> segments, String target,
+      {bool recursive: false}) {
+    // Try to find the file if it exists
+    return _get(store, segments).then((_GetTreeSearchResult result) {
+      TreeEntity entity = result.match;
+      if (entity != null) {
+        throw _alreadyExistsException(result.path, "Already exists");
+        /*
+        if (entity.type == fs.FileSystemEntityType.LINK) {
+          return entity;
+        }
+        //TODO assume dir for now
+        if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+          throw _isADirectoryException(result.path, "Creation failed");
+        }
+        */
+      }
+
+      // not recursive and too deep, cancel
+      if ((result.depthDiff > 1) && (recursive != true)) {
+        throw _notFoundException(result.path, "Creation failed");
+      }
+
+      Future<TreeEntity> _addLink(TreeEntity parent) {
+        // create it!
+        entity = new TreeEntity(parent, segments.last,
+            fs.FileSystemEntityType.LINK, new DateTime.now(), 0);
+        //print('adding ${entity}');
+        return store.add(entity.toMap()).then((int id) {
+          entity.id = id;
+          return entity;
+        }) as Future<TreeEntity>;
+      }
+      // check depth
+      if (result.parent.remainingSegments.isNotEmpty) {
+        return _createDirectory(store, result.parent).then((TreeEntity parent) {
+          if (parent == null) {
+            throw _notFoundException(result.path, "Creation failed");
+          }
+          return _addLink(parent);
+        });
+      } else {
+        return _addLink(result.highest);
+      }
+    }) as Future<TreeEntity>;
+  }
+
   Future createFile(String path, {bool recursive: false}) async {
     await _ready;
     List<String> segments = getSegments(path);
@@ -487,6 +543,18 @@ class IdbFileSystem extends Object
     idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadWrite);
     idb.ObjectStore store = txn.objectStore(_treeStore);
     return _createFile(store, segments, recursive: recursive).whenComplete(() {
+      return txn.completed;
+    });
+  }
+
+  Future createLink(String path, String target, {bool recursive: false}) async {
+    await _ready;
+    List<String> segments = getSegments(path);
+
+    idb.Transaction txn = _db.transaction(_treeStore, idb.idbModeReadWrite);
+    idb.ObjectStore store = txn.objectStore(_treeStore);
+    return _createLink(store, segments, target, recursive: recursive)
+        .whenComplete(() {
       return txn.completed;
     });
   }
@@ -1043,7 +1111,6 @@ class IdbWriteStreamSink extends MemorySink {
   }
 }
 
-
 List<String> getSegments(String path) {
   List<String> segments = split(path);
   if (!isAbsolute(path)) {
@@ -1059,7 +1126,6 @@ String _getParentName(TreeEntity parent, String name) {
     return join(parent.id.toString(), name);
   }
 }
-
 
 String idbMakePathAbsolute(String path) {
   if (!isAbsolute(path)) {

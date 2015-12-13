@@ -7,7 +7,8 @@ import 'dart:convert';
 abstract class FileSystemMixin implements FileSystem {
   Future<FileSystemEntityType> type(String path, {bool followLinks: true});
 
-  Future<bool> _isType(String path, FileSystemEntityType type_, {bool followLinks: true}) async {
+  Future<bool> _isType(String path, FileSystemEntityType type_,
+      {bool followLinks: true}) async {
     return (await type(path, followLinks: followLinks)) == type_;
   }
 
@@ -23,7 +24,8 @@ abstract class FileSystemMixin implements FileSystem {
   // helper
   // do not follow links for link check
   @override
-  Future<bool> isLink(String path) => _isType(path, FileSystemEntityType.LINK, followLinks: false);
+  Future<bool> isLink(String path) =>
+      _isType(path, FileSystemEntityType.LINK, followLinks: false);
 }
 
 abstract class FileMixin {

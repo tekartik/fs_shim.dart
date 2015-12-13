@@ -14,14 +14,12 @@ main() {
 FileSystemTestContext _ctx;
 FileSystem get fs => _ctx.fs;
 
-/*
 final bool _doPrintErr = false;
 _printErr(e) {
   if (_doPrintErr) {
     print("${e} ${[e.runtimeType]}");
   }
 }
-*/
 
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
@@ -67,23 +65,71 @@ void defineTests(FileSystemTestContext ctx) {
       Link file = fs.newLink(join(dir.path, "link"));
       expect(await file.exists(), isFalse);
     });
-  });
 
-  /*
-  skip_group('file', () {
     test('create', () async {
       Directory dir = await ctx.prepare();
 
       String target = "target";
       Link link = fs.newLink(join(dir.path, "link"));
       expect(await link.exists(), isFalse);
-      expect(await fs.isFile(link.path), isFalse);
+      expect(await fs.isLink(link.path), isFalse);
       expect(await (await link.create(target)).exists(), isTrue);
-      expect(await fs.isFile(link.path), isTrue);
+      expect(await fs.isLink(link.path), isTrue);
 
-      // second time fine too
-      await link.create(target);
+      // second time should fail
+      try {
+        await link.create(target);
+      } on FileSystemException catch (e) {
+        _printErr(e);
+        expect(e.status, FileSystemException.statusAlreadyExists);
+        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+      }
+      // different target fails too
+      try {
+        await link.create("other_target");
+      } on FileSystemException catch (e) {
+        _printErr(e);
+        expect(e.status, FileSystemException.statusAlreadyExists);
+        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+      }
     });
+
+    test('create_file', () async {
+      Directory dir = await ctx.prepare();
+
+      String target = join(dir.path, "target");
+      File file = fs.newFile(target)..create();
+      Link link = fs.newLink(join(dir.path, "link"));
+      expect(await link.exists(), isFalse);
+      expect(await fs.isLink(link.path), isFalse);
+      expect(await (await link.create(target)).exists(), isTrue);
+      expect(await fs.isLink(link.path), isTrue);
+
+      // second time should fail
+      try {
+        await link.create(target);
+        fail("shoud fail");
+      } on FileSystemException catch (e) {
+        _printErr(e);
+        expect(e.status, FileSystemException.statusAlreadyExists);
+        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+      }
+
+      // different target fails too
+      try {
+        await link.create(join(dir.path, "other_target"));
+        fail("shoud fail");
+      } on FileSystemException catch (e) {
+        _printErr(e);
+        expect(e.status, FileSystemException.statusAlreadyExists);
+        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+      }
+    });
+  });
+
+  /*
+  skip_group('file', () {
+
 
     test('create_recursive', () async {
       Directory dir = await ctx.prepare();
