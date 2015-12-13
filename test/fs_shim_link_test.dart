@@ -24,16 +24,14 @@ _printErr(e) {
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
 
-  bool _linkSupported = null;
-  setUpAll(() {
-    _linkSupported = fs.supportsLink;
+  bool _linkSupported = fs.supportsLink;
+
+  test('isSupported', () {
+    expect(fs.supportsLink, _linkSupported);
   });
-  group('link', () {
-    test('isSupported', () {
-      expect(fs.supportsLink, _linkSupported);
-    });
-    test('new', () {
-      if (_linkSupported) {
+  if (_linkSupported) {
+    group('link', () {
+      test('new', () {
         Link link = fs.newLink("dummy");
         expect(link.path, "dummy");
 
@@ -49,190 +47,237 @@ void defineTests(FileSystemTestContext ctx) {
         } on ArgumentError catch (_) {
           // Invalid argument(s): null is not a String
         }
-      }
-    });
-    test('absolute', () {
-      Link link = fs.newLink("dummy");
-      expect(link.isAbsolute, isFalse);
+      });
+      test('absolute', () {
+        Link link = fs.newLink("dummy");
+        expect(link.isAbsolute, isFalse);
 
-      link = link.absolute;
-      expect(link.isAbsolute, isTrue);
-      expect(link.absolute.path, link.path);
-    });
+        link = link.absolute;
+        expect(link.isAbsolute, isTrue);
+        expect(link.absolute.path, link.path);
+      });
 
-    test('exists', () async {
-      Directory dir = await ctx.prepare();
-      Link file = fs.newLink(join(dir.path, "link"));
-      expect(await file.exists(), isFalse);
-    });
+      test('exists', () async {
+        Directory dir = await ctx.prepare();
+        Link file = fs.newLink(join(dir.path, "link"));
+        expect(await file.exists(), isFalse);
+      });
 
-    test('create', () async {
-      Directory dir = await ctx.prepare();
+      solo_test('create', () async {
+        Directory dir = await ctx.prepare();
 
-      String target = "target";
-      Link link = fs.newLink(join(dir.path, "link"));
-      expect(await link.exists(), isFalse);
-      expect(await fs.isLink(link.path), isFalse);
-      expect(await (await link.create(target)).exists(), isTrue);
-      expect(await fs.isLink(link.path), isTrue);
+        String target = "target";
+        Link link = fs.newLink(join(dir.path, "link"));
+        expect(await link.exists(), isFalse);
+        expect(await fs.isLink(link.path), isFalse);
+        expect(await (await link.create(target)).exists(), isTrue);
+        expect(await fs.isLink(link.path), isTrue);
 
-      // second time should fail
-      try {
+        // second time should fail
+        try {
+          await link.create(target);
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          expect(e.status, FileSystemException.statusAlreadyExists);
+          // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+        }
+        // different target fails too
+        try {
+          await link.create("other_target");
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          expect(e.status, FileSystemException.statusAlreadyExists);
+          // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+        }
+      });
+
+      test('target', () async {
+        Directory dir = await ctx.prepare();
+
+        String target = "target";
+        Link link = fs.newLink(join(dir.path, "link"));
+        try {
+          await link.target();
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          expect(e.status, FileSystemException.statusNotFound);
+          // [2] FileSystemException: Cannot get target of link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/target/link' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
+        }
+
         await link.create(target);
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        expect(e.status, FileSystemException.statusAlreadyExists);
-        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
-      }
-      // different target fails too
-      try {
-        await link.create("other_target");
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        expect(e.status, FileSystemException.statusAlreadyExists);
-        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
-      }
-    });
 
-    test('target', () async {
-      Directory dir = await ctx.prepare();
+        expect(await link.target(), target);
+      });
 
-      String target = "target";
-      Link link = fs.newLink(join(dir.path, "link"));
-      try {
-        await link.target();
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        expect(e.status, FileSystemException.statusNotFound);
-        // [2] FileSystemException: Cannot get target of link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/target/link' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
-      }
+      test('create_file', () async {
+        Directory dir = await ctx.prepare();
 
-      await link.create(target);
+        String target = join(dir.path, "target");
+        /*File file = */
+        fs.newFile(target)..create();
+        Link link = fs.newLink(join(dir.path, "link"));
+        expect(await link.exists(), isFalse);
+        expect(await fs.isLink(link.path), isFalse);
+        expect(await (await link.create(target)).exists(), isTrue);
+        expect(await fs.isLink(link.path), isTrue);
 
-      expect(await link.target(), target);
-    });
+        // second time should fail
+        try {
+          await link.create(target);
+          fail("shoud fail");
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          expect(e.status, FileSystemException.statusAlreadyExists);
+          // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+        }
 
-    test('create_file', () async {
-      Directory dir = await ctx.prepare();
+        // different target fails too
+        try {
+          await link.create(join(dir.path, "other_target"));
+          fail("shoud fail");
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          expect(e.status, FileSystemException.statusAlreadyExists);
+          // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
+        }
+      });
 
-      String target = join(dir.path, "target");
-      /*File file = */ fs.newFile(target)..create();
-      Link link = fs.newLink(join(dir.path, "link"));
-      expect(await link.exists(), isFalse);
-      expect(await fs.isLink(link.path), isFalse);
-      expect(await (await link.create(target)).exists(), isTrue);
-      expect(await fs.isLink(link.path), isTrue);
+      test('create_recursive', () async {
+        Directory dir = await ctx.prepare();
 
-      // second time should fail
-      try {
-        await link.create(target);
-        fail("shoud fail");
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        expect(e.status, FileSystemException.statusAlreadyExists);
-        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
-      }
+        Directory subDir = fs.newDirectory(join(dir.path, "sub"));
 
-      // different target fails too
-      try {
-        await link.create(join(dir.path, "other_target"));
-        fail("shoud fail");
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        expect(e.status, FileSystemException.statusAlreadyExists);
-        // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
-      }
-    });
+        Link link = fs.newLink(join(subDir.path, "file"));
 
-    test('create_recursive', () async {
-      Directory dir = await ctx.prepare();
+        try {
+          await link.create('target');
+          fail("shoud fail");
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          expect(e.status, FileSystemException.statusNotFound);
+          // [2] FileSystemException: Cannot create link to target 'target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_recursive/sub/file' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
+        }
+        expect(await (await link.create('target', recursive: true)).exists(),
+            isTrue);
+      });
 
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
+      test('delete', () async {
+        Directory dir = await ctx.prepare();
 
-      Link link = fs.newLink(join(subDir.path, "file"));
+        Link link = fs.newLink(join(dir.path, "file"));
+        expect(await (await link.create('target')).exists(), isTrue);
+        expect(await fs.isLink(link.path), isTrue);
 
-      try {
+        // delete
+        expect(await (await link.delete()).exists(), isFalse);
+        expect(await fs.isLink(link.path), isFalse);
+
+        try {
+          await link.delete();
+          fail("shoud fail");
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          // expect(e.status, FileSystemException.statusNotFound);
+          // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
+        }
+      });
+
+      test('rename', () async {
+        Directory _dir = await ctx.prepare();
+
+        String path = join(_dir.path, "link");
+        String path2 = join(_dir.path, "link2");
+        Link link = fs.newLink(path);
         await link.create('target');
-        fail("shoud fail");
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        expect(e.status, FileSystemException.statusNotFound);
-        // [2] FileSystemException: Cannot create link to target 'target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_recursive/sub/file' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
-      }
-      expect(await (await link.create('target', recursive: true)).exists(),
-          isTrue);
+        Link link2 = await link.rename(path2);
+        expect(link2.path, path2);
+        expect(await link.exists(), isFalse);
+        expect(await link2.exists(), isTrue);
+        expect(await fs.isLink(link2.path), isTrue);
+      });
+
+      test('rename_notfound', () async {
+        Directory _dir = await ctx.prepare();
+
+        String path = join(_dir.path, "link");
+        String path2 = join(_dir.path, "link2");
+        Link file = fs.newLink(path);
+        try {
+          await file.rename(path2);
+          fail("shoud fail");
+        } on FileSystemException catch (e) {
+          _printErr(e);
+          // <22> not parsed invalid argument FileSystemException: Cannot rename link to '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link2', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
+        }
+      });
+
+      test('file_follow_links', () async {
+        Directory _dir = await ctx.prepare();
+        File file = fs.newFile(join(_dir.path, 'file'));
+        Link link = await fs.newLink(join(_dir.path, "link")).create(file.path);
+
+        expect(await fs.type(link.path, followLinks: false),
+            FileSystemEntityType.LINK);
+        expect(await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.NOT_FOUND);
+
+        await file.create();
+
+        expect(await fs.type(link.path, followLinks: false),
+            FileSystemEntityType.LINK);
+        expect(await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.FILE);
+      });
+
+      test('link_read_string', () async {
+        String text = "test";
+        Directory _dir = await ctx.prepare();
+        var filePath = join(_dir.path, "file");
+        File file = fs.newFile(filePath);
+        await file.writeAsString(text, flush: true);
+        // check content
+        expect(await file.readAsString(), text);
+
+        // create a link to the file
+        Link link = await fs.newLink(join(_dir.path, "link")).create(filePath);
+        expect(await fs.isLink(link.path), isTrue);
+
+        // check again content
+        expect(await file.readAsString(), text);
+
+        // and a file object on the link
+        file = fs.newFile(link.path);
+        expect(await file.readAsString(), text);
+      });
+
+      test('link_write_string', () async {
+        String text = "test";
+        Directory _dir = await ctx.prepare();
+        var filePath = join(_dir.path, "file");
+        File file = fs.newFile(filePath);
+        ;
+
+        // create a link to the file
+        Link link = await fs.newLink(join(_dir.path, "link")).create(filePath);
+
+        expect(await fs.isLink(link.path), isTrue);
+
+        // and a file object on the link
+        File linkFile = fs.newFile(link.path);
+        await linkFile.writeAsString(text, flush: true);
+        expect(await linkFile.readAsString(), text);
+        expect(await file.readAsString(), text);
+
+        expect(await fs.isLink(link.path), isTrue);
+        expect(await fs.isLink(linkFile.path), isTrue);
+        expect(await fs.isLink(file.path), isFalse);
+        expect(await fs.isFile(file.path), isTrue);
+        expect(await fs.isFile(link.path), isTrue);
+        expect(await fs.isFile(linkFile.path), isTrue);
+      });
     });
 
-    test('delete', () async {
-      Directory dir = await ctx.prepare();
-
-      Link link = fs.newLink(join(dir.path, "file"));
-      expect(await (await link.create('target')).exists(), isTrue);
-      expect(await fs.isLink(link.path), isTrue);
-
-      // delete
-      expect(await (await link.delete()).exists(), isFalse);
-      expect(await fs.isLink(link.path), isFalse);
-
-      try {
-        await link.delete();
-        fail("shoud fail");
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        // expect(e.status, FileSystemException.statusNotFound);
-        // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
-      }
-    });
-
-    test('rename', () async {
-      Directory _dir = await ctx.prepare();
-
-      String path = join(_dir.path, "link");
-      String path2 = join(_dir.path, "link2");
-      Link link = fs.newLink(path);
-      await link.create('target');
-      Link link2 = await link.rename(path2);
-      expect(link2.path, path2);
-      expect(await link.exists(), isFalse);
-      expect(await link2.exists(), isTrue);
-      expect(await fs.isLink(link2.path), isTrue);
-    });
-
-    test('rename_notfound', () async {
-      Directory _dir = await ctx.prepare();
-
-      String path = join(_dir.path, "link");
-      String path2 = join(_dir.path, "link2");
-      Link file = fs.newLink(path);
-      try {
-        await file.rename(path2);
-        fail("shoud fail");
-      } on FileSystemException catch (e) {
-        _printErr(e);
-        // <22> not parsed invalid argument FileSystemException: Cannot rename link to '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link2', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
-      }
-    });
-
-    test('file_follow_links', () async {
-      Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, 'file'));
-      Link link = await fs.newLink(join(_dir.path, "link")).create(file.path);
-
-      expect(await fs.type(link.path, followLinks: false),
-          FileSystemEntityType.LINK);
-      expect(await fs.type(link.path, followLinks: true),
-          FileSystemEntityType.NOT_FOUND);
-
-      await file.create();
-
-      expect(await fs.type(link.path, followLinks: false),
-          FileSystemEntityType.LINK);
-      expect(await fs.type(link.path, followLinks: true),
-          FileSystemEntityType.FILE);
-    });
-  });
-
-  /*
+    /*
   skip_group('file', () {
 
 
@@ -644,4 +689,5 @@ void defineTests(FileSystemTestContext ctx) {
     });
   });
   */
+  }
 }
