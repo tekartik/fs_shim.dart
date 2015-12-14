@@ -103,7 +103,8 @@ main() {
       expect(await storage.getChildNode(dir, "file", true), file);
       expect(await storage.getChildNode(dir, "file", false), file);
 
-      Node link = new Node.link(dir, "link", targetSegments: [separator, "file"]);
+      Node link =
+          new Node.link(dir, "link", targetSegments: [separator, "file"]);
       await storage.addNode(link);
 
       expect(await storage.getNode([separator, "link"], false), link);
@@ -118,8 +119,8 @@ main() {
       await storage.addNode(dir);
       Node file = new Node.file(dir, "file");
       await storage.addNode(file);
-      Node link =
-          new Node.link(top, "link", targetSegments: [separator, "dir", "file"]);
+      Node link = new Node.link(top, "link",
+          targetSegments: [separator, "dir", "file"]);
       await storage.addNode(link);
 
       expect(await storage.getNode([separator, "link"], true), file);

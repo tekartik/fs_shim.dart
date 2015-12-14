@@ -463,7 +463,7 @@ abstract class FileSystemException {
   static const int statusIsADirectory =
       21; // when creating a file and it is a dir
   static const int statusInvalidArgument =
-  22; // when acting on a link where the argument is not a link
+      22; // when acting on a link where the argument is not a link
   static const int statusNotEmpty = 39; // when deleting a non empty directory
 
   static const int statusAccessError = 5; // for windows
