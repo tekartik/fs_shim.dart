@@ -8,6 +8,7 @@ library fs_shim;
 
 import 'dart:async';
 import 'dart:convert';
+import 'package:path/path.dart';
 
 abstract class FileSystemEntity {
   ///
@@ -91,7 +92,7 @@ abstract class FileSystemEntity {
 
   /// fs_shim specific
   /// holds a reference to the file system
-  FileSystem fs;
+  FileSystem get fs;
 }
 
 class FileMode {
@@ -448,6 +449,7 @@ abstract class FileSystem {
   String get name; // io or idb
   bool get supportsLink;
   bool get supportsFileLink; // windows does not support file link
+  Context get pathContext;
 }
 
 abstract class OSError {

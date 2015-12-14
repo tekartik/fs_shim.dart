@@ -7,6 +7,7 @@ import 'dart:async';
 import 'io_fs.dart';
 import '../../src/common/fs_mixin.dart';
 import '../../fs_io.dart';
+import 'package:path/path.dart';
 
 class IoFileSystemImpl extends Object
     with FileSystemMixin
@@ -45,4 +46,7 @@ class IoFileSystemImpl extends Object
   bool operator ==(o) {
     return o is IoFileSystemImpl;
   }
+
+  @override
+  Context get pathContext => context;
 }

@@ -188,6 +188,9 @@ class IdbFileSystem extends Object
   @override
   bool get supportsFileLink => true;
 
+  @override
+  Context get pathContext => context;
+
   // when storage is ready
   Future get _ready => _storage.ready;
 
