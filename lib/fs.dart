@@ -306,7 +306,7 @@ abstract class Directory extends FileSystemEntity {
 ///
 /// [Link] objects are references to filesystem links.
 ///
-abstract class Link implements FileSystemEntity {
+abstract class Link extends FileSystemEntity {
   Link._();
 
   ///
@@ -353,6 +353,9 @@ abstract class Link implements FileSystemEntity {
   /// a FileSystemException.
   ///
   Future<String> target();
+
+  @override
+  Future<Link> rename(String newPath);
 }
 
 abstract class FileSink implements StreamSink<List<int>>, StringSink {}

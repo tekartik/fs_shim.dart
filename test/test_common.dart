@@ -6,7 +6,7 @@ import 'package:dev_test/test.dart';
 export 'package:dev_test/test.dart';
 import 'package:path/path.dart';
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'dart:convert';
 import 'package:platform_context/context.dart';
@@ -40,7 +40,7 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = null;
-  final MemoryFileSystem fs = new MemoryFileSystem();
+  final IdbFileSystem fs = newMemoryFileSystem();
   MemoryFileSystemTestContext();
 }
 

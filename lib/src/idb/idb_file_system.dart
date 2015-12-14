@@ -44,7 +44,7 @@ class IdbReadStreamCtlr {
       try {
         // Try to find the file if it exists
         List<String> segments = getSegments(path);
-        Node entity = await _fs.txnGetTreeEntity(store, segments, true);
+        Node entity = await _fs._storage.txnGetNode(store, segments, true);
         if (entity == null) {
           _ctlr.addError(idbNotFoundException(path, "Read failed"));
           return;
@@ -93,7 +93,7 @@ class IdbWriteStreamSink extends MemorySink {
     try {
       // Try to find the file if it exists
       List<String> segments = getSegments(path);
-      Node entity = await _fs.txnGetTreeEntity(treeStore, segments, true);
+      Node entity = await _fs._storage.txnGetNode(treeStore, segments, true);
       if (entity == null) {
         if (mode == fs.FileMode.WRITE || mode == fs.FileMode.APPEND) {
           entity = await _fs._txnCreateFile(treeStore, segments);
@@ -187,28 +187,13 @@ class IdbFileSystem extends Object
 
     List<String> segments = _getPathSegments(path);
 
-    Node entity = await _getTreeEntity(segments, followLinks);
+    Node entity = await _storage.getNode(segments, followLinks);
 
     if (entity == null) {
       return fs.FileSystemEntityType.NOT_FOUND;
     }
 
     return entity.type;
-  }
-
-  // Return a matching result
-  Future<Node> txnGetTreeEntity(
-          idb.ObjectStore store, List<String> segments, bool followLinks) =>
-      _storage.txnGetNode(store, segments, followLinks);
-
-  Future<Node> _getTreeEntity(List<String> segments, bool followLinks) {
-    idb.Transaction txn = _db.transaction(treeStoreName, idb.idbModeReadWrite);
-    idb.ObjectStore store = txn.objectStore(treeStoreName);
-
-    return txnGetTreeEntity(store, segments, followLinks)
-        .whenComplete(() async {
-      await txn.completed;
-    });
   }
 
   @override
@@ -230,7 +215,7 @@ class IdbFileSystem extends Object
     idb.ObjectStore store = txn.objectStore(treeStoreName);
     try {
       // Try to find the file if it exists
-      NodeSearchResult result = await txnSearch(store, segments, true);
+      NodeSearchResult result = await txnSearch(store, segments, false);
       Node entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
@@ -257,7 +242,7 @@ class IdbFileSystem extends Object
   Future<Node> _txnCreateFile(idb.ObjectStore store, List<String> segments,
       {bool recursive: false}) {
     // Try to find the file if it exists
-    return txnSearch(store, segments, true).then((NodeSearchResult result) {
+    return txnSearch(store, segments, false).then((NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.FILE) {
@@ -265,13 +250,19 @@ class IdbFileSystem extends Object
         }
         if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
           throw idbIsADirectoryException(result.path, "Creation failed");
-        } else /*if (entity.isLink) {
+        } else if (entity.isLink) {
+          // Ok if targetSegments is set
+
+          List<String> targetSegments =
+              getAbsoluteSegments(entity, entity.targetSegments);
+
+          return _txnCreateFile(store, targetSegments, recursive: recursive);
+
           // Should not happen
           // Need actually write on the target then...
           // Resolve the target
-          throw idbAlreadyExistsException(result.path, "Already exists");
-        } else*/
-        {
+          // throw idbAlreadyExistsException(result.path, "Already exists");
+        } else {
           throw 'unsupported type ${entity.type}';
         }
       }
@@ -306,7 +297,8 @@ class IdbFileSystem extends Object
         if (result.depthDiff == 1 && result.targetSegments != null) {
           List<String> fileSegments = result.targetSegments;
           // find parent dir
-          return txnGetTreeEntity(store, getParentSegments(fileSegments), true)
+          return _storage
+              .txnGetNode(store, getParentSegments(fileSegments), true)
               .then((Node _parent) {
             return _addFileWithSegments(_parent, fileSegments);
           });
@@ -354,7 +346,7 @@ class IdbFileSystem extends Object
             modified: new DateTime.now(),
             targetSegments: _getTargetSegments(target));
         //print('adding ${entity}');
-        return _storage.addNode(entity);
+        return _storage.txnAddNode(store, entity);
       }
       // check depth
       if (result.parent.remainingSegments.isNotEmpty) {
@@ -376,10 +368,8 @@ class IdbFileSystem extends Object
 
     idb.Transaction txn = _db.transaction(treeStoreName, idb.idbModeReadWrite);
     idb.ObjectStore store = txn.objectStore(treeStoreName);
-    return _txnCreateFile(store, segments, recursive: recursive)
-        .whenComplete(() {
-      return txn.completed;
-    });
+    await _txnCreateFile(store, segments, recursive: recursive);
+    await txn.completed;
   }
 
   Future createLink(String path, String target, {bool recursive: false}) async {
@@ -388,10 +378,8 @@ class IdbFileSystem extends Object
 
     idb.Transaction txn = _db.transaction(treeStoreName, idb.idbModeReadWrite);
     idb.ObjectStore store = txn.objectStore(treeStoreName);
-    return _createLink(store, segments, target, recursive: recursive)
-        .whenComplete(() {
-      return txn.completed;
-    });
+    await _createLink(store, segments, target, recursive: recursive);
+    await txn.completed;
   }
 
   Future delete(fs.FileSystemEntityType type, String path,
@@ -402,11 +390,8 @@ class IdbFileSystem extends Object
     idb.Transaction txn = _db.transactionList(
         [treeStoreName, fileStoreName], idb.idbModeReadWrite);
 
-    try {
-      await _delete(txn, type, segments, recursive: recursive);
-    } finally {
-      await txn.completed;
-    }
+    await _delete(txn, type, segments, recursive: recursive);
+    await txn.completed;
   }
 
   Future _deleteEntity(idb.Transaction txn, Node entity,
@@ -464,7 +449,8 @@ class IdbFileSystem extends Object
       idb.Transaction txn, fs.FileSystemEntityType type, List<String> segments,
       {bool recursive: false}) {
     idb.ObjectStore store = txn.objectStore(treeStoreName);
-    return txnSearch(store, segments, true).then((NodeSearchResult result) {
+    // Don't follow last link
+    return txnSearch(store, segments, false).then((NodeSearchResult result) {
       Node entity = result.match;
       // not existing throw error
       if (entity == null) {
@@ -486,7 +472,7 @@ class IdbFileSystem extends Object
     await _ready;
     List<String> segments = getSegments(path);
 
-    Node entity = await _getTreeEntity(segments, false);
+    Node entity = await _storage.getNode(segments, false);
     return entity != null;
   }
 
@@ -497,8 +483,10 @@ class IdbFileSystem extends Object
     idb.Transaction txn = _db.transaction(treeStoreName, idb.idbModeReadOnly);
     try {
       idb.ObjectStore store = txn.objectStore(treeStoreName);
-      //TODO test follow link?
-      Node entity = (await txnSearch(store, segments, false)).match;
+
+      // Follow last link
+      // the stat is on the destination
+      Node entity = (await txnSearch(store, segments, true)).match;
 
       IdbFileStat stat = new IdbFileStat();
       if (entity == null) {
@@ -525,7 +513,8 @@ class IdbFileSystem extends Object
 
     idb.ObjectStore store = txn.objectStore(treeStoreName);
 
-    return txnSearch(store, segments, true).then((NodeSearchResult result) {
+    // Don't follow last link
+    return txnSearch(store, segments, false).then((NodeSearchResult result) {
       Node entity = result.match;
 
       if (entity == null) {

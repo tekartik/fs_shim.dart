@@ -19,11 +19,22 @@ const String modifiedKey = "modified";
 const String sizeKey = "size";
 const String targetKey = "target"; // Link only
 
-bool segmentsAreAbsolute(List<String> segments) {
+bool segmentsAreAbsolute(Iterable<String> segments) {
   return segments.isNotEmpty && segments.first.startsWith(separator);
 }
 
-bool segmentsAreRelative(List<String> segments) => !segmentsAreAbsolute(segments);
+bool segmentsAreRelative(Iterable<String> segments) =>
+    !segmentsAreAbsolute(segments);
+
+Iterable<String> getAbsoluteSegments(Node origin, List<String> target) {
+  if (segmentsAreAbsolute(target)) {
+    return target;
+  }
+  List<String> targetSegments =
+      new List.from(getParentSegments(origin.segments));
+  targetSegments.addAll(target);
+  return targetSegments;
+}
 
 // not exported
 class IdbFileSystemStorage {
@@ -82,11 +93,8 @@ class IdbFileSystemStorage {
         Node entity = new Node.fromMap(parent, map, id);
         if (followLink && entity.isLink) {
           // convert to absolute
-          List<String> targetSegments = entity.targetSegments;
-          if (segmentsAreRelative(targetSegments)) {
-            targetSegments = new List.from(getParentSegments(entity.segments));
-            targetSegments.addAll(entity.targetSegments);
-          }
+          List<String> targetSegments =
+              getAbsoluteSegments(entity, entity.targetSegments);
           return txnGetNode(treeStore, targetSegments, followLink);
         }
         return entity;
@@ -351,7 +359,14 @@ class NodeSearchResult {
   List<String> targetSegments; // if the result is a link
   int get depth => highest != null ? highest._depth : 0;
   int get depthDiff => segments.length - depth;
-  bool get matches => highest != null && depthDiff == 0;
+  // To force match
+  bool _matches;
+  bool get matches {
+    if (_matches != null) {
+      return _matches;
+    }
+    return highest != null && depthDiff == 0;
+  }
 
   Node get match => matches ? highest : null;
 
