@@ -4,7 +4,7 @@ import 'dart:async';
 //import 'package:logging/logging.dart' as log;
 import 'package:path/path.dart';
 import '../fs.dart';
-
+import '../src/common/fs_path.dart';
 /// Copy the file content
 Future<int> _copyFileContent(File src, File dst) async {
   var inStream = src.openRead();
@@ -73,10 +73,28 @@ Future<int> _copyFileSystemEntity(FileSystem srcFileSystem, String srcPath,
 
   // to ignore?
   if (options.exclude != null) {
+    if (options.exclude.contains(basename(srcPath))) {
+      return 0;
+    }
+
+    String name = posixPath(srcPath);
+
+    //bool excluded = false;
+    for (String matcher in options.exclude) {
+      List<String> parts = posix.split(matcher);
+      if (parts.length > 1) {
+        if (name.contains(matcher)) {
+          return 0;
+        }
+      }
+    }
+    /*
     // basic exclude
     if (options.exclude.contains(basename(srcPath))) {
       return 0;
     }
+    posixPath
+    */
   }
 
   if (await srcFileSystem.isDirectory(srcPath)) {

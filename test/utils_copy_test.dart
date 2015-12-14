@@ -120,6 +120,45 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
+    test('copy_dir_exclude', () async {
+      Directory top = await ctx.prepare();
+      Directory srcDir = fs.newDirectory(join(top.path, "dir"));
+      File srcFile1 = fs.newFile(join(srcDir.path, "file1"));
+      File srcFile2 = fs.newFile(join(srcDir.path, "file2"));
+      Directory dstDir = fs.newDirectory(join(top.path, "dst"));
+
+      await srcDir.create();
+      await srcFile1.writeAsString("test1", flush: true);
+      await srcFile2.writeAsString("test2", flush: true);
+      expect(await copyFileSystemEntity(srcDir, dstDir, options: new CopyOptions(recursive: true, exclude: ['file1'])), 2);
+
+      expect(await dstDir.exists(), isTrue);
+
+      expect(await fs.newFile(join(dstDir.path, "file2")).readAsString(), "test2");
+      expect(await fs.newFile(join(dstDir.path, "file1")).exists(), isFalse);
+      expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+    });
+
+    test('copy_sub_dir_exclude', () async {
+      Directory top = await ctx.prepare();
+      Directory srcDir = fs.newDirectory(join(top.path, "dir"));
+      Directory subDir = fs.newDirectory(join(srcDir.path, "sub"));
+      File srcFile1 = fs.newFile(join(subDir.path, "file1"));
+      File srcFile2 = fs.newFile(join(subDir.path, "file2"));
+      Directory dstDir = fs.newDirectory(join(top.path, "dst"));
+
+      await subDir.create(recursive: true);
+      await srcFile1.writeAsString("test1", flush: true);
+      await srcFile2.writeAsString("test2", flush: true);
+      expect(await copyFileSystemEntity(srcDir, dstDir, options: new CopyOptions(recursive: true, exclude: ['sub/file1'])), 3);
+
+      expect(await dstDir.exists(), isTrue);
+
+      expect(await fs.newFile(join(dstDir.path, "sub", "file2")).readAsString(), "test2");
+      expect(await fs.newFile(join(dstDir.path, "sub", "file1")).exists(), isFalse);
+      expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+    });
+
     test('link_file', () async {
       if (fs.supportsLink) {
         Directory top = await ctx.prepare();
