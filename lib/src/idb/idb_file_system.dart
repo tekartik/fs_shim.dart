@@ -175,6 +175,14 @@ class IdbFileSystem extends Object
             new IdbFileSystemStorage(factory, path == null ? dbPath : path) {}
 
   @override
+  bool operator ==(o) {
+    if (o is IdbFileSystem) {
+      return o._storage == _storage;
+    }
+    return false;
+  }
+
+  @override
   bool get supportsLink => true;
 
   @override

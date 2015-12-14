@@ -7,6 +7,7 @@ import 'dart:async';
 import 'io_fs.dart';
 import '../../fs_io.dart';
 import 'io_file_stat.dart';
+import 'io_directory.dart';
 
 abstract class FileSystemEntityImpl implements FileSystemEntity {
   io.FileSystemEntity ioFileSystemEntity;
@@ -14,10 +15,16 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   FileSystemEntity _me(_) => this;
 
   @override
+  fs.FileSystem get fs => ioFileSystem;
+
+  @override
   String get path => ioFileSystemEntity.path;
 
   @override
   String toString() => ioFileSystemEntity.toString();
+
+  @override
+  DirectoryImpl get parent => new DirectoryImpl.io(ioFileSystemEntity.parent);
 
   @override
   Future<bool> exists() => ioWrap(ioFileSystemEntity.exists()) as Future<bool>;

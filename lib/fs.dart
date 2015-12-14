@@ -82,6 +82,16 @@ abstract class FileSystemEntity {
   /// FileSystemEntityType.NOT_FOUND and the other fields invalid.
   ///
   Future<FileStat> stat();
+
+  ///
+  /// The directory containing [this].  If [this] is a root
+  /// directory, returns [this].
+  ///
+  Directory get parent;
+
+  /// fs_shim specific
+  /// holds a reference to the file system
+  FileSystem fs;
 }
 
 class FileMode {

@@ -7,6 +7,9 @@ import 'test_common.dart';
 import 'fs_shim_dir_test.dart' as dir_test;
 import 'fs_shim_file_test.dart' as file_test;
 import 'fs_shim_link_test.dart' as link_test;
+import 'fs_shim_file_system_test.dart' as file_system_test;
+
+import 'utils_copy_test.dart' as utils_cp_test;
 
 main() {
   group('default', () {
@@ -18,4 +21,6 @@ void defineTests(FileSystemTestContext ctx) {
   dir_test.defineTests(ctx);
   file_test.defineTests(ctx);
   link_test.defineTests(ctx);
+  file_system_test.defineTests(ctx);
+  utils_cp_test.defineTests(ctx);
 }

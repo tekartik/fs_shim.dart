@@ -20,6 +20,10 @@ void main() {
     test('name', () {
       expect(ioFileSystemContext.fs.name, 'io');
     });
+    test('equals', () {
+      // Files cannot be compared!
+      expect(new io.File("test"), isNot(new io.File("test")));
+    });
     test('type', () async {
       expect(await ioFileSystemContext.fs.type(testScriptPath),
           FileSystemEntityType.FILE);

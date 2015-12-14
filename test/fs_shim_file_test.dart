@@ -28,6 +28,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('new', () {
       File file = fs.newFile("dummy");
       expect(file.path, "dummy");
+      expect(file.fs, fs);
       file = fs.newFile(r"\root/dummy");
       expect(file.path, r"\root/dummy");
       file = fs.newFile(r"\");
@@ -49,6 +50,12 @@ void defineTests(FileSystemTestContext ctx) {
       file = file.absolute;
       expect(file.isAbsolute, isTrue);
       expect(file.absolute.path, file.path);
+    });
+
+    test('parent', () {
+      File file = fs.newFile("/dummy");
+      expect(file.isAbsolute, isTrue);
+      expect(file.parent.path, fs.newDirectory('/').path);
     });
 
     test('exists', () async {

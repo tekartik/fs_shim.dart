@@ -34,4 +34,15 @@ class IoFileSystemImpl extends Object
 
   @override
   bool get supportsFileLink => !io.Platform.isWindows;
+
+  @override
+  String toString() => name;
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
+  bool operator ==(o) {
+    return o is IoFileSystemImpl;
+  }
 }

@@ -3,9 +3,12 @@ library fs_shim.src.idb.idb_file_system_entity;
 import 'idb_fs.dart';
 import '../../fs.dart' as fs;
 import 'package:path/path.dart' as path_pkg;
+import 'idb_directory.dart';
 
 abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   IdbFileSystem _fs;
+
+  @override
   IdbFileSystem get fs => _fs;
 
   @override
@@ -13,6 +16,9 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
 
   // subclass type
   fs.FileSystemEntityType get type;
+
+  @override
+  IdbDirectory get parent => fs.newDirectory(path_pkg.dirname(path));
 
   IdbFileSystemEntity(this._fs, this.path) {
     if (path == null) {
