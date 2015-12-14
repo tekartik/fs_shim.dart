@@ -44,11 +44,17 @@ void main() {
         File file = new File("file");
         expect(file.fs, fs);
         expect(dir.fs, fs);
-
       });
 
       test('current', () {
         expect(Directory.current.path, io.Directory.current.path);
+      });
+
+      test('FileSystemEntity', () async {
+        expect(await FileSystemEntity.isLink(Directory.current.path), isFalse);
+        expect(
+            await FileSystemEntity.isDirectory(Directory.current.path), isTrue);
+        expect(await FileSystemEntity.isFile(Directory.current.path), isFalse);
       });
     });
 

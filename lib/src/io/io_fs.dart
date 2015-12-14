@@ -89,4 +89,3 @@ class IoReadFileStreamCtrl {
   StreamController<List<int>> _ctlr;
   Stream<List<int>> get stream => _ctlr.stream;
 }
-

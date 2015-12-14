@@ -8,7 +8,8 @@ import 'io_file_system_entity.dart';
 import '../../fs_io.dart';
 import 'io_file.dart';
 
-DirectoryImpl get currentDirectory => new DirectoryImpl.io(io.Directory.current);
+DirectoryImpl get currentDirectory =>
+    new DirectoryImpl.io(io.Directory.current);
 
 class DirectoryImpl extends FileSystemEntityImpl implements Directory {
   io.Directory get ioDir => ioFileSystemEntity;

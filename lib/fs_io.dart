@@ -10,7 +10,8 @@ export 'dart:io'
         FileSystemEntityType,
         FileSystemException,
         FileStat;
-export 'fs.dart' show FileSystem, FileSystemEntityType, FileSystemException, FileStat;
+export 'fs.dart'
+    show FileSystem, FileSystemEntityType, FileSystemException, FileStat;
 import 'dart:async';
 import 'src/io/io_link.dart';
 import 'src/io/io_directory.dart';
@@ -51,10 +52,24 @@ abstract class Link extends fs.Link {
 
 /// File System Entity
 abstract class FileSystemEntity extends fs.FileSystemEntity {
-  // io helper
+  ///
+  /// Checks if type(path, followLinks: false) returns
+  /// FileSystemEntityType.LINK.
+  ///
+  static Future<bool> isLink(String path) => ioFileSystem.isLink(path);
+
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.FILE.
+  ///
+
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.DIRECTORY.
+  ///
   static Future<bool> isDirectory(String path) =>
       ioFileSystem.isDirectory(path);
 
-  // io helper
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.FILE.
+  ///
   static Future<bool> isFile(String path) => ioFileSystem.isFile(path);
 }
