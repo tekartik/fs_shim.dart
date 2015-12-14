@@ -36,6 +36,12 @@ abstract class Directory extends fs.Directory {
 
   Stream<FileSystemEntity> list(
       {bool recursive: false, bool followLinks: true});
+
+  ///
+  /// Creates a directory object pointing to the current working
+  /// directory.
+  ///
+  static Directory get current => currentDirectory;
 }
 
 /// Link

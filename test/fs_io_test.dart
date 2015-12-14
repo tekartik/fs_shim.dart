@@ -46,6 +46,10 @@ void main() {
         expect(dir.fs, fs);
 
       });
+
+      test('current', () {
+        expect(Directory.current.path, io.Directory.current.path);
+      });
     });
 
     // All tests
