@@ -19,6 +19,12 @@ const String modifiedKey = "modified";
 const String sizeKey = "size";
 const String targetKey = "target"; // Link only
 
+bool segmentsAreAbsolute(List<String> segments) {
+  return segments.isNotEmpty && segments.first.startsWith(separator);
+}
+
+bool segmentsAreRelative(List<String> segments) => !segmentsAreAbsolute(segments);
+
 // not exported
 class IdbFileSystemStorage {
   idb.IdbFactory idbFactory;
@@ -75,7 +81,13 @@ class IdbFileSystemStorage {
       return index.get(parentName).then((Map map) {
         Node entity = new Node.fromMap(parent, map, id);
         if (followLink && entity.isLink) {
-          return txnGetNode(treeStore, entity.targetSegments, followLink);
+          // convert to absolute
+          List<String> targetSegments = entity.targetSegments;
+          if (segmentsAreRelative(targetSegments)) {
+            targetSegments = new List.from(getParentSegments(entity.segments));
+            targetSegments.addAll(entity.targetSegments);
+          }
+          return txnGetNode(treeStore, targetSegments, followLink);
         }
         return entity;
       });
@@ -101,7 +113,7 @@ class IdbFileSystemStorage {
       return txnSearch(store, segments, followLastLink)
           .then((NodeSearchResult result) {
         Node entity = result.match;
-        print('##${entity}');
+        //print('##${entity}');
         if (entity == null) {
           return null;
         }
@@ -125,7 +137,7 @@ class IdbFileSystemStorage {
     idb.ObjectStore store = txn.objectStore(treeStoreName);
 
     Node entity = await txnGetNode(store, segments, followLastLink);
-    print('##-${entity}');
+    //print('##-${entity}');
     await txn.completed;
     return entity;
   }

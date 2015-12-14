@@ -328,7 +328,7 @@ class IdbFileSystem extends Object
       idb.ObjectStore store, List<String> segments, String target,
       {bool recursive: false}) {
     // Try to find the file if it exists
-    return txnSearch(store, segments, true).then((NodeSearchResult result) {
+    return txnSearch(store, segments, false).then((NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
         throw idbAlreadyExistsException(result.path, "Already exists");
