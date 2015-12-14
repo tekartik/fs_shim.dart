@@ -240,15 +240,12 @@ void defineTests(FileSystemTestContext ctx) {
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          if (isIoWindows(ctx)) {
+          if (isIo(ctx)) {
+            // win, linux, mac
             expect(e.status, FileSystemException.statusNotFound);
           } else {
-            if (isIo(ctx) && !isIoMac(ctx)) {
-              expect(e.status, FileSystemException.statusNotFound);
-            } else {
-              // idb & mac: err 17
-              expect(e.status, FileSystemException.statusAlreadyExists);
-            }
+            // idb: err 17
+            expect(e.status, FileSystemException.statusAlreadyExists);
           }
         }
 
@@ -292,17 +289,14 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          if (isIoWindows(ctx)) {
+          if (isIo(ctx)) {
+            // win, linux, mac
             // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\delete\file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
             expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
-            if (isIo(ctx) && !isIoMac(ctx)) {
-              expect(e.status, FileSystemException.statusInvalidArgument);
-            } else {
-              // mac, idb
-              expect(e.status, FileSystemException.statusNotFound);
-              // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
-            }
+            // idb
+            expect(e.status, FileSystemException.statusNotFound);
+            // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
           }
         }
       });
@@ -332,7 +326,7 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          if (isIo(ctx) && !isIoMac(ctx)) {
+          if (isIo(ctx)) {
             expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
             // mac, idb
@@ -700,7 +694,7 @@ void defineTests(FileSystemTestContext ctx) {
           } else {
             // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
             // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
-            if (isIo(ctx) && !isIoMac(ctx)) {
+            if (isIo(ctx)) {
               // linux/android
               expect(e.status, FileSystemException.statusInvalidArgument);
             } else {
@@ -733,18 +727,12 @@ void defineTests(FileSystemTestContext ctx) {
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          if (isIoWindows(ctx)) {
+          if (isIo(ctx)) {
+            // win, mac, linux
             expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
-            // Invalid argument for links
-            // idb?linux?
-            if (isIo(ctx) && !isIoMac(ctx)) {
-              // linux/android
-              expect(e.status, FileSystemException.statusInvalidArgument);
-            } else {
-              // mac, idb
-              expect(e.status, FileSystemException.statusIsADirectory);
-            }
+            // idb
+            expect(e.status, FileSystemException.statusIsADirectory);
           }
         }
 
