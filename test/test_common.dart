@@ -24,6 +24,7 @@ abstract class FileSystemTestContext {
     try {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {
+      //print(e);
       expect(e.status, FileSystemException.statusNotFound);
     }
     await dir.create(recursive: true);

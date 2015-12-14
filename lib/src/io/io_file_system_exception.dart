@@ -21,6 +21,7 @@ int _statusFromException(io.FileSystemException ioFse) {
     int errorCode = ioFse.osError.errorCode;
 
     if (io.Platform.isWindows) {
+      // https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
       switch (errorCode) {
         case 2: // ERROR_FILE_NOT_FOUND
         case 3: // ERROR_PATH_NOT_FOUND
@@ -35,6 +36,9 @@ int _statusFromException(io.FileSystemException ioFse) {
           break;
         case 183: // ERROR_ALREADY_EXISTS
           status = fs.FileSystemException.statusAlreadyExists;
+          break;
+        case 4390: // ERROR_NOT_A_REPARSE_POINT (links)
+          status = fs.FileSystemException.statusInvalidArgument;
           break;
       }
     }
@@ -52,6 +56,9 @@ int _statusFromException(io.FileSystemException ioFse) {
           break;
         case 21:
           status = fs.FileSystemException.statusIsADirectory;
+          break;
+        case 22:
+          status = fs.FileSystemException.statusInvalidArgument;
           break;
         case 66: // Directory not empty
           status =
@@ -73,6 +80,9 @@ int _statusFromException(io.FileSystemException ioFse) {
           break;
         case 21:
           status = fs.FileSystemException.statusIsADirectory;
+          break;
+        case 22:
+          status = fs.FileSystemException.statusInvalidArgument;
           break;
         case 39:
           status =

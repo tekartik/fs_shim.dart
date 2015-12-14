@@ -28,6 +28,10 @@ class IoFileSystemImpl extends Object
 
   @override
   String get name => 'io';
+
   @override
   bool get supportsLink => true;
+
+  @override
+  bool get supportsFileLink => !io.Platform.isWindows;
 }

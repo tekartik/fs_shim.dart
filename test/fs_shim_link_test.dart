@@ -26,8 +26,16 @@ void defineTests(FileSystemTestContext ctx) {
 
   bool _linkSupported = fs.supportsLink;
 
-  test('isSupported', () {
+  test('supportsLink', () {
     expect(fs.supportsLink, _linkSupported);
+  });
+  test('supportsFileLink', () {
+    // currently only windows io does not
+    if (isIoWindows(ctx)) {
+      expect(fs.supportsFileLink, isFalse);
+    } else  {
+      expect(fs.supportsFileLink, isTrue);
+    }
   });
   if (_linkSupported) {
     group('link', () {
@@ -106,7 +114,12 @@ void defineTests(FileSystemTestContext ctx) {
 
         await link.create(target);
 
-        expect(await link.target(), target);
+        if (isIoWindows(ctx)) {
+          // on io windows link are absolute
+          expect(await link.target(), join(dir.path, target));
+        } else {
+          expect(await link.target(), target);
+        }
       });
 
       test('link_target', () async {
@@ -160,6 +173,14 @@ void defineTests(FileSystemTestContext ctx) {
 
         File file = fs.newFile(join(dir.path, "file"));
         Link link = fs.newLink(join(dir.path, "link"));
+
+        if (isIoWindows(ctx)) {
+          try {
+          await link.create(file.path);
+          } catch (_) {
+            print(_);
+          }
+        } else {
         await link.create(file.path);
         File linkFile = fs.newFile(link.path);
 
@@ -168,6 +189,7 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.isLink(link.path), isTrue);
         expect(await fs.isFile(link.path), isTrue);
         expect(await fs.isFile(file.path), isTrue);
+        }
       });
 
       test('create_dir', () async {
@@ -218,8 +240,12 @@ void defineTests(FileSystemTestContext ctx) {
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
+          if (isIoWindows(ctx)) {
+            expect(e.status, FileSystemException.statusNotFound);
+          } else {
           // idb & mac: err 17
           expect(e.status, FileSystemException.statusAlreadyExists);
+          }
         }
 
         expect(await fs.isLink(link.path), isTrue);
@@ -262,9 +288,15 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
+          if (isIoWindows(ctx)) {
+            // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\delete\file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
+            expect(e.status, FileSystemException.statusInvalidArgument);
+
+          } else {
           // mac
           expect(e.status, FileSystemException.statusNotFound);
           // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
+          }
         }
       });
 
@@ -300,6 +332,7 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('file_follow_links', () async {
+        if (fs.supportsFileLink) {
         Directory _dir = await ctx.prepare();
         File file = fs.newFile(join(_dir.path, 'file'));
         Link link = await fs.newLink(join(_dir.path, "link")).create(file.path);
@@ -315,9 +348,35 @@ void defineTests(FileSystemTestContext ctx) {
             FileSystemEntityType.LINK);
         expect(await fs.type(link.path, followLinks: true),
             FileSystemEntityType.FILE);
+        }
+      });
+
+      test('dir_follow_links', () async {
+        Directory top = await ctx.prepare();
+        Directory dir = fs.newDirectory(join(top.path, 'dir'));
+        Link link = await fs.newLink(join(top.path, "link")).create(dir.path);
+
+        expect(await fs.type(link.path, followLinks: false),
+            FileSystemEntityType.LINK);
+        // on windows following a missing link return the link
+        if (isIoWindows(ctx)) {
+          expect(await fs.type(link.path, followLinks: true),
+              FileSystemEntityType.LINK);
+        } else {
+        expect(await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.NOT_FOUND);
+        }
+
+        await dir.create();
+
+        expect(await fs.type(link.path, followLinks: false),
+            FileSystemEntityType.LINK);
+        expect(await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.DIRECTORY);
       });
 
       test('link_read_string', () async {
+        if (fs.supportsFileLink) {
         String text = "test";
         Directory _dir = await ctx.prepare();
         var filePath = join(_dir.path, "file");
@@ -336,9 +395,11 @@ void defineTests(FileSystemTestContext ctx) {
         // and a file object on the link
         file = fs.newFile(link.path);
         expect(await file.readAsString(), text);
+        }
       });
 
       test('link_write_string', () async {
+        if (fs.supportsFileLink) {
         String text = "test";
         Directory _dir = await ctx.prepare();
         var filePath = join(_dir.path, "file");
@@ -362,30 +423,59 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.isFile(file.path), isTrue);
         expect(await fs.isFile(link.path), isTrue);
         expect(await fs.isFile(linkFile.path), isTrue);
+        }
       });
 
       test('link_to_subfile', () async {
-        String text = "test";
-        Directory top = await ctx.prepare();
+        if (fs.supportsFileLink) {
+          String text = "test";
+          Directory top = await ctx.prepare();
 
-        Directory dir = fs.newDirectory(join(top.path, 'dir'));
-        File file = fs.newFile(join(dir.path, 'file'));
+          Directory dir = fs.newDirectory(join(top.path, 'dir'));
+          File file = fs.newFile(join(dir.path, 'file'));
 
-        Link link = fs.newLink(join(top.path, "link"));
-        await link.create('dir/file');
-        expect(await link.target(), join('dir', 'file'));
+          Link link = fs.newLink(join(top.path, "link"));
+          await link.create('dir/file');
+          expect(await link.target(), join('dir', 'file'));
 
-        await file.create(recursive: true);
-        expect(await fs.isFile(link.path), isTrue);
-        expect(await fs.isLink(link.path), isTrue);
+          await file.create(recursive: true);
+          expect(await fs.isFile(link.path), isTrue);
+          expect(await fs.isLink(link.path), isTrue);
 
-        File linkFile = fs.newFile(link.path);
-        await linkFile.writeAsString(text, flush: true);
-        expect(await linkFile.readAsString(), text);
-        expect(await file.readAsString(), text);
+          File linkFile = fs.newFile(link.path);
+          await linkFile.writeAsString(text, flush: true);
+          expect(await linkFile.readAsString(), text);
+          expect(await file.readAsString(), text);
+        }
+      });
+
+      test('link_to_subdir', () async {
+
+          Directory top = await ctx.prepare();
+
+          Directory dir = fs.newDirectory(join(top.path, 'dir'));
+          Directory sub = fs.newDirectory(join(dir.path, 'sub'));
+
+          Link link = fs.newLink(join(top.path, "link"));
+          await link.create('dir/sub');
+
+          if (isIoWindows(ctx)) {
+           // absolute on windows
+            expect(await link.target(), join(dir.path, 'sub'));
+          } else {
+          expect(await link.target(), join('dir', 'sub'));
+          }
+
+          await sub.create(recursive: true);
+          expect(await fs.isDirectory(link.path), isTrue);
+          expect(await fs.isLink(link.path), isTrue);
+
+
+
       });
 
       test('link_to_subfile_create', () async {
+        if (fs.supportsFileLink) {
         String text = "test";
         Directory top = await ctx.prepare();
 
@@ -401,6 +491,7 @@ void defineTests(FileSystemTestContext ctx) {
         await linkFile.writeAsString(text, flush: true);
         expect(await linkFile.readAsString(), text);
         expect(await file.readAsString(), text);
+        }
       });
 
       test('link_to_topdir', () async {
@@ -412,7 +503,13 @@ void defineTests(FileSystemTestContext ctx) {
 
         Link link = fs.newLink(join(top.path, "link"));
         await link.create('dir');
+
+        if (isIoWindows(ctx)) {
+          // absollute on windows
+          expect(await link.target(), dir.path);
+        } else {
         expect(await link.target(), 'dir');
+        }
 
         await file.create(recursive: true);
         File linkFile = fs.newFile(join(link.path, 'file'));
@@ -427,6 +524,7 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('link_append_string', () async {
+        if (fs.supportsFileLink) {
         String text = "test";
         Directory _dir = await ctx.prepare();
         var filePath = join(_dir.path, "file");
@@ -454,9 +552,11 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.isFile(file.path), isTrue);
         expect(await fs.isFile(link.path), isTrue);
         expect(await fs.isFile(linkFile.path), isTrue);
+        }
       });
 
-      test('stat', () async {
+      test('file_stat', () async {
+        if (fs.supportsFileLink) {
         Directory _dir = await ctx.prepare();
 
         Link link = fs.newLink(join(_dir.path, "link"));
@@ -485,6 +585,49 @@ void defineTests(FileSystemTestContext ctx) {
         expect(stat.type, FileSystemEntityType.FILE);
         expect(stat.size, 4);
         expect(stat.modified, isNotNull);
+        }
+      });
+
+      test('dir_stat', () async {
+          Directory top = await ctx.prepare();
+
+          Link link = fs.newLink(join(top.path, "link"));
+          FileStat stat = await link.stat();
+          expect(stat.type, FileSystemEntityType.NOT_FOUND);
+          expect(stat.size, -1);
+          expect(stat.modified, null);
+
+          await link.create("dir");
+          stat = await link.stat();
+          // on windows it assumes a directort
+          if (isIoWindows(ctx)) {
+            expect(stat.type, FileSystemEntityType.LINK);
+            expect(stat.size, 0);
+            expect(stat.modified, isNotNull);
+          } else {
+          expect(stat.type, FileSystemEntityType.NOT_FOUND);
+          expect(stat.size, -1);
+          expect(stat.modified, isNull);
+          }
+
+
+
+          Directory dir = fs.newDirectory(join(top.path, 'dir'));
+          await dir.create();
+          stat = await link.stat();
+
+          // on windows we get the link stat..
+          if (isIoWindows(ctx)) {
+          expect(stat.type, FileSystemEntityType.LINK);
+          } else {
+            expect(stat.type, FileSystemEntityType.DIRECTORY);
+
+          }
+          expect(stat.size, isNot(-1));
+          expect(stat.size, isNotNull);
+          expect(stat.modified, isNotNull);
+
+
       });
 
       test('rename_over_existing_different_type', () async {
@@ -511,23 +654,26 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('create_dir_or_file', () async {
-        Directory _dir = await ctx.prepare();
+        Directory top = await ctx.prepare();
 
-        String path = join(_dir.path, "dir_or_file");
+        String path = join(top.path, "dir_or_file");
 
         File file = fs.newFile(path);
         Directory dir = fs.newDirectory(path);
         Link link = fs.newLink(path);
-        expect(await (await file.create()).exists(), isTrue);
-        await file.create();
+        await dir.create();
         try {
           await link.create("target");
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
+          if (isIoWindows(ctx)) {
+            // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant.      , errno = 183)
+            expect(e.status, FileSystemException.statusAlreadyExists);
+          } else {
           // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
           expect(e.status, FileSystemException.statusAlreadyExists);
+          }
         }
 
         // however this is fine!
@@ -543,17 +689,18 @@ void defineTests(FileSystemTestContext ctx) {
           // Invalid argument for link
 
           if (isIoWindows(ctx)) {
-            expect(e.status, FileSystemException.statusNotFound);
+            // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
+            expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
             // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
             // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
-            // mac
-            expect(e.status, FileSystemException.statusNotADirectory);
+            // mac?
+            expect(e.status, FileSystemException.statusIsADirectory);
           }
 
         }
 
-        await file.delete();
+        await dir.delete();
 
         await dir.create();
         try {
@@ -562,7 +709,8 @@ void defineTests(FileSystemTestContext ctx) {
         } on FileSystemException catch (e) {
           _printErr(e);
           if (isIoWindows(ctx)) {
-            expect(e.status, FileSystemException.statusAccessError);
+            // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant., errno = 183)
+            expect(e.status, FileSystemException.statusAlreadyExists);
           } else {
             // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
             // [21] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
@@ -576,7 +724,7 @@ void defineTests(FileSystemTestContext ctx) {
         } on FileSystemException catch (e) {
           _printErr(e);
           if (isIoWindows(ctx)) {
-            expect(e.status, FileSystemException.statusAccessError);
+            expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
             // Invalid argument for links
             // idb?linux?

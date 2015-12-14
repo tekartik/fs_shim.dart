@@ -5,6 +5,7 @@ library fs_shim.test.path_exp_test;
 
 import 'test_common.dart';
 import 'package:path/path.dart';
+import 'package:fs_shim/src/common/fs_path.dart' as fs;
 
 main() {
   group('path_exp', () {
@@ -16,12 +17,16 @@ main() {
       expect(posix.basename('a/b'), 'b');
       expect(posix.basename('a\\b'),
           'a\\b'); // !!!! posix does not convert windows style correctly
+
+      expect(fs.posixPath('a/b'), 'a/b');
+      expect(fs.posixPath('a\\b'), 'a/b');
     });
 
     test('convert', () {
       String path = 'c:\\windows\\system';
       expect(windows.joinAll(windows.split(path)), path);
       String posixPath = posix.joinAll(windows.split(path));
+      expect(fs.posixPath(path), posixPath);
       expect(windows.joinAll(posix.split(posixPath)), path);
       expect(
           windows.joinAll(windows.split(posixPath)), path); // !event this works
