@@ -4,15 +4,16 @@
 
 library fs_shim.fs_io_test;
 
-import 'package:fs_shim/fs.dart';
 import 'package:dev_test/test.dart';
 import 'fs_test.dart';
 import 'dart:io' as io;
+import 'package:fs_shim/fs_io.dart';
 import 'test_common_io.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
 
 void main() {
+  FileSystem fs = ioFileSystemContext.fs;
   group('io', () {
     test('windows', () {
       expect(isIoWindows(ioFileSystemContext), io.Platform.isWindows);
@@ -35,6 +36,16 @@ void main() {
           join(dirname(dirname(testScriptPath)), "test_out"));
       expect(ioFileSystemContext.outPath,
           join(ioFileSystemContext.outTopPath, joinAll(testDescriptions)));
+    });
+
+    group('raw', () {
+      test('dir', () {
+        Directory dir = new Directory("dir");
+        File file = new File("file");
+        expect(file.fs, fs);
+        expect(dir.fs, fs);
+
+      });
     });
 
     // All tests

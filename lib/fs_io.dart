@@ -1,7 +1,16 @@
 library fs_shim.fs_io;
 
 import 'fs.dart' as fs;
-export 'fs.dart' show FileSystemEntityType, FileSystemException, FileStat;
+export 'dart:io'
+    hide
+        File,
+        Directory,
+        Link,
+        FileSystemEntity,
+        FileSystemEntityType,
+        FileSystemException,
+        FileStat;
+export 'fs.dart' show FileSystem, FileSystemEntityType, FileSystemException, FileStat;
 import 'dart:async';
 import 'src/io/io_link.dart';
 import 'src/io/io_directory.dart';

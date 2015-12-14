@@ -26,5 +26,20 @@ void defineTests(FileSystemTestContext ctx) {
       // for now all are the same as current
       expect(fs.pathContext, context);
     });
+
+    test('prepare', () async {
+      Directory top = await ctx.prepare();
+
+      List<String> parts = ctx.fs.pathContext.split(top.path);
+      expect(parts, contains("prepare"));
+      parts = split(top.path);
+      expect(parts, contains("prepare"));
+      parts = windows.split(top.path);
+      expect(parts, contains("prepare"));
+      parts = url.split(top.path);
+      expect(parts, contains("prepare"));
+      parts = posix.split(top.path);
+      expect(parts, contains("prepare"));
+    });
   });
 }
