@@ -3,6 +3,7 @@ library fs_shim.utils.copy;
 import 'dart:async';
 //import 'package:logging/logging.dart' as log;
 import 'package:path/path.dart';
+import 'package:path/path.dart' as _path;
 import '../fs.dart';
 import 'glob.dart';
 import '../src/common/import.dart';
@@ -183,10 +184,12 @@ class CopyEntity extends Object
 
   // Main one not used
   //CopyEntity.main(this.fs, String top) : _top = top;
-  CopyEntity(this.parent, this.basename) {
+  CopyEntity(this.parent, String relative) {
+    //relative = _path.relative(relative, from: parent.path);
+    basename = _path.basename(relative);
     _parts = new List.from(parent.parts);
-    _parts.add(basename);
-    _sub = fs.pathContext.join(parent.sub, basename);
+    _parts.addAll(splitParts(relative));
+    _sub = fs.pathContext.join(parent.sub, relative);
   }
 
   @override
@@ -199,10 +202,17 @@ abstract class CopyNode {
   CopyOptions get options;
 }
 
-abstract class CopyNodeMixin {
+abstract class CopyNodeMixin implements CopyNode {
   static int _static_id = 0;
   int _id;
   int get id => _id;
+
+  Future<int> runChild(String srcRelative, [String dstRelative]) {
+    ChildCopy copy = new ChildCopy(this, srcRelative, dstRelative);
+
+    // exclude?
+    return copy.run();
+  }
 }
 
 class TopCopy extends Object with CopyNodeMixin implements CopyNode {
@@ -223,6 +233,7 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
     if (_fsCopyDebug) {
       print(this);
     }
+    // Somehow the top folder is accessed using an empty part
     ChildCopy copy = new ChildCopy(this, '');
     return await copy.run();
   }
@@ -234,14 +245,14 @@ class ChildCopy extends Object with CopyNodeMixin implements CopyNode {
   final CopyNode parent;
   CopyOptions get options => parent.options;
 
-  ChildCopy(this.parent, String srcBasename, [String dstBasename]) {
+  ChildCopy(this.parent, String srcRelative, [String dstRelative]) {
     _id = ++CopyNodeMixin._static_id;
 
-    dstBasename = dstBasename ?? srcBasename;
+    dstRelative = dstRelative ?? srcRelative;
     //CopyEntity srcParent = parent.srcEntity;
 
-    src = parent.src.child(srcBasename);
-    dst = parent.dst.child(dstBasename);
+    src = parent.src.child(srcRelative);
+    dst = parent.dst.child(dstRelative);
 
     //srcEntity = new CopyEntity()
   }
@@ -249,13 +260,6 @@ class ChildCopy extends Object with CopyNodeMixin implements CopyNode {
 
   @override
   String toString() => '  [$id] $src => $dst';
-
-  Future<int> runChild(String srcBasename) {
-    ChildCopy copy = new ChildCopy(this, srcBasename);
-
-    // exclude?
-    return copy.run();
-  }
 
   Future<int> run() async {
     int count = 0;

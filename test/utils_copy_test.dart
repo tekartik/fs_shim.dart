@@ -39,6 +39,19 @@ void defineTests(FileSystemTestContext ctx) {
       expect(entity.path, join(top.path, "entity"));
     });
 
+    test('CopyEntity_sub', () async {
+      // fsCopyDebug = true;
+      Directory top = await ctx.prepare();
+      TopEntity topEntity = topEntityPath(fs, top.path);
+      CopyEntity entity = new CopyEntity(topEntity, join("entity", "sub"));
+      expect(entity.parent, topEntity);
+      expect(entity.basename, "sub");
+      expect(entity.parts, ["entity", "sub"]);
+      expect(entity.sub, join("entity", "sub"));
+      expect(entity.top, top.path);
+      expect(entity.path, join(top.path, "entity", "sub"));
+    });
+
     test('CopyEntity_child', () async {
       // fsCopyDebug = true;
       Directory top = await ctx.prepare();
@@ -89,6 +102,19 @@ void defineTests(FileSystemTestContext ctx) {
       TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
       ChildCopy childCopy = new ChildCopy(copy, "file");
       await childCopy.run();
+      expect(await readString(childFile(dst, "file")), "test");
+    });
+
+    test('CopyNode_runChilde', () async {
+      // fsCopyDebug = true;
+      Directory top = await ctx.prepare();
+      Directory src = childDirectory(top, "src");
+      Directory dst = childDirectory(top, "dst");
+
+      await writeString(childFile(src, "file"), "test");
+      TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
+
+      await copy.runChild("file");
       expect(await readString(childFile(dst, "file")), "test");
     });
 
