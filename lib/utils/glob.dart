@@ -1,6 +1,7 @@
 library fs_shim.utils.glob;
 
 import 'package:path/path.dart';
+import '../src/common/import.dart';
 
 //
 // Matcher for a single path portion
@@ -191,9 +192,15 @@ class Glob {
 
   /// true if the name matches the pattern
   bool matches(String name) {
-    _GlobMatchRunner runner = new _GlobMatchRunner(this, split(name));
+    _GlobMatchRunner runner = new _GlobMatchRunner(this, splitParts(name));
     return runner.matches();
   }
 
-  toString() => '$_expressionParts';
+  bool matchesParts(List<String> parts) {
+    _GlobMatchRunner runner = new _GlobMatchRunner(this, parts);
+    return runner.matches();
+  }
+
+  @override
+  String toString() => '$_expressionParts';
 }

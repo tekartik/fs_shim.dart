@@ -1,7 +1,6 @@
 library fs_shim.test.utils_copy_tests;
 
 import 'package:fs_shim/utils/glob.dart';
-import 'package:fs_shim/src/common/fs_path.dart';
 import 'test_common.dart';
 
 main() {

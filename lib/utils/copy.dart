@@ -4,8 +4,23 @@ import 'dart:async';
 //import 'package:logging/logging.dart' as log;
 import 'package:path/path.dart';
 import '../fs.dart';
-import '../src/common/fs_path.dart';
 import 'glob.dart';
+import '../src/common/import.dart';
+
+bool _fsCopyDebug = false;
+bool get fsCopyDebug => _fsCopyDebug;
+
+///
+/// deprecated to prevent permanant use
+///
+/// Use:
+///
+///     fsCopyDebug = true;
+///
+/// for debugging only
+///
+@deprecated
+set fsCopyDebug(bool debug) => _fsCopyDebug = debug;
 
 /// Copy the file content
 Future<int> _copyFileContent(File src, File dst) async {
@@ -76,16 +91,286 @@ CopyOptions _safeOptions(CopyOptions options) {
   return options;
 }
 
+abstract class EntityNode {
+  EntityNode get parent; // can be null
+  FileSystem get fs; // cannot be null
+  String get top;
+  String get sub;
+  String get basename;
+  Iterable<String> get parts;
+  String get path; // full path
+  /// create a child
+  CopyEntity child(String basename);
+  Directory asDirectory();
+  File asFile();
+  Link asLink();
+  Future<bool> isDirectory();
+  Future<bool> isFile();
+  Future<bool> isLink();
+  Future<FileSystemEntityType> type({bool followLinks: true});
+
+  String toString() => '$sub';
+}
+
+abstract class EntityNodeFsMixin implements EntityNode {
+  Directory asDirectory() => fs.newDirectory(path);
+  File asFile() => fs.newFile(path);
+  Link asLink() => fs.newLink(path);
+  Future<bool> isDirectory() => fs.isDirectory(path);
+  Future<bool> isFile() => fs.isFile(path);
+  Future<bool> isLink() => fs.isLink(path);
+  Future<FileSystemEntityType> type({bool followLinks: true}) =>
+      fs.type(path, followLinks: followLinks);
+}
+
+abstract class EntityChildMixin implements EntityNode {
+  @override
+  CopyEntity child(String basename) => new CopyEntity(this, basename);
+}
+
+/*
+abstract class EntityPartsMixin implements EntityNode {
+  String _parts;
+  @override
+  String get parts => _parts;
+}
+*/
+
+abstract class EntityPathMixin implements EntityNode {
+  String _path;
+  @override
+  String get path {
+    if (_path == null) {
+      _path = fs.pathContext.join(top, sub);
+    }
+    return _path;
+  }
+}
+
+class TopEntity extends Object
+    with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
+    implements EntityNode {
+  EntityNode get parent => null;
+  final FileSystem fs;
+  final String top;
+  String get sub => '';
+  String get basename => '';
+  List<String> get parts => [];
+
+  //TopEntity.parts(this.fs, List<String> parts);
+  TopEntity(this.fs, this.top);
+
+  String toString() => top;
+}
+
+TopEntity topEntityPath(FileSystem fs, String top) => new TopEntity(fs, top);
+TopEntity fsTopEntity(FileSystemEntity entity) =>
+    new TopEntity(entity.fs, entity.path);
+
+class DirCopyEntity extends CopyEntity {}
+
+class CopyEntity extends Object
+    with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
+    implements EntityNode {
+  EntityNode parent; // cannot be null
+  FileSystem get fs => parent.fs;
+  String get top => parent.top;
+  String basename;
+  String _sub;
+  String get sub => _sub;
+  List<String> _parts;
+  Iterable<String> get parts => _parts;
+
+  // Main one not used
+  //CopyEntity.main(this.fs, String top) : _top = top;
+  CopyEntity(this.parent, this.basename) {
+    _parts = new List.from(parent.parts);
+    _parts.add(basename);
+    _sub = fs.pathContext.join(parent.sub, basename);
+  }
+
+  @override
+  String toString() => '$sub';
+}
+
+abstract class CopyNode {
+  EntityNode get src;
+  EntityNode get dst;
+  CopyOptions get options;
+}
+
+abstract class CopyNodeMixin {
+  static int _static_id = 0;
+  int _id;
+  int get id => _id;
+}
+
+class TopCopy extends Object with CopyNodeMixin implements CopyNode {
+  CopyOptions _options;
+  TopCopy(this.src, this.dst, {CopyOptions options}) {
+    _id = ++CopyNodeMixin._static_id;
+    _options = options ?? recursiveLinkOrCopyNewerOptions;
+  }
+
+  int count = 0;
+  CopyOptions get options => _options;
+  final TopEntity src;
+  final TopEntity dst;
+  @override
+  String toString() => '[$id] $src => $dst';
+
+  Future<int> run() async {
+    if (_fsCopyDebug) {
+      print(this);
+    }
+    ChildCopy copy = new ChildCopy(this, '');
+    return await copy.run();
+  }
+}
+
+class ChildCopy extends Object with CopyNodeMixin implements CopyNode {
+  CopyEntity src;
+  CopyEntity dst;
+  final CopyNode parent;
+  CopyOptions get options => parent.options;
+
+  ChildCopy(this.parent, String srcBasename, [String dstBasename]) {
+    _id = ++CopyNodeMixin._static_id;
+
+    dstBasename = dstBasename ?? srcBasename;
+    //CopyEntity srcParent = parent.srcEntity;
+
+    src = parent.src.child(srcBasename);
+    dst = parent.dst.child(dstBasename);
+
+    //srcEntity = new CopyEntity()
+  }
+  //List<String> _
+
+  @override
+  String toString() => '  [$id] $src => $dst';
+
+  Future<int> runChild(String srcBasename) {
+    ChildCopy copy = new ChildCopy(this, srcBasename);
+
+    // exclude?
+    return copy.run();
+  }
+
+  Future<int> run() async {
+    int count = 0;
+    if (_fsCopyDebug) {
+      print("$this");
+    }
+
+    if (await src.fs.isLink(src.path) && (!options.followLinks)) {
+      return 0;
+    }
+
+    // to ignore?
+    if (options.excludeGlobs.isNotEmpty) {
+      // only test on sub
+      for (Glob glob in options.excludeGlobs) {
+        if (glob.matches(src.sub)) {
+          return 0;
+        }
+      }
+    }
+
+    if (await src.fs.isDirectory(src.path)) {
+      Directory dstDirectory = dst.asDirectory();
+      if (!await dstDirectory.exists()) {
+        await dstDirectory.create(recursive: true);
+        count++;
+      }
+
+      // recursive
+      if (options.recursive) {
+        Directory srcDirectory = src.asDirectory();
+
+        List<Future> futures = [];
+        await srcDirectory
+            .list(recursive: false, followLinks: options.followLinks)
+            .listen((FileSystemEntity srcEntity) {
+          String basename = src.fs.pathContext.basename(srcEntity.path);
+          futures.add(runChild(basename).then((int count_) {
+            count += count_;
+          }));
+        }).asFuture();
+        await Future.wait(futures);
+      }
+    } else if (await src.fs.isFile(src.path)) {
+      File srcFile = src.asFile();
+      File dstFile = dst.asFile();
+
+      // Try to link first
+      // allow link if asked and on the same file system
+      if (options.tryToLinkFile &&
+          (src.fs == dst.fs) &&
+          src.fs.supportsFileLink) {
+        String srcTarget = src.path;
+        // Check if dst is link
+        FileSystemEntityType type = await dst.type(followLinks: false);
+
+        bool deleteDst = false;
+        if (type != FileSystemEntityType.NOT_FOUND) {
+          if (type == FileSystemEntityType.LINK) {
+            // check target
+            if (await dst.asLink().target() != srcTarget) {
+              deleteDst = true;
+            } else {
+              // nothing to do
+              return 0;
+            }
+          } else {
+            deleteDst = true;
+          }
+        }
+
+        if (deleteDst) {
+          await dstFile.delete();
+        }
+
+        await dst.asLink().create(srcTarget, recursive: true);
+        count++;
+        return count;
+      }
+
+      // Handle modified date
+      if (options.checkSizeAndModifiedDate == true) {
+        FileStat srcStat = await srcFile.stat();
+        FileStat dstStat = await dstFile.stat();
+        if ((srcStat.size == dstStat.size) &&
+            (srcStat.modified.compareTo(dstStat.modified) <= 0)) {
+          // should be same...
+          return 0;
+        }
+      }
+
+      count += await _copyFileContent(srcFile, dstFile);
+    }
+
+    return count;
+  }
+}
+
 // Copy a file to its destination
 Future<int> copyFileSystemEntity(FileSystemEntity src, FileSystemEntity dst,
     {CopyOptions options}) {
   options = _safeOptions(options);
+  if (_fsCopyDebug) {
+    print("${src.path} => ${dst.path}");
+  }
   return _copyFileSystemEntity(src.fs, src.path, dst.fs, dst.path, options);
 }
 
 Future<int> _copyFileSystemEntity(FileSystem srcFileSystem, String srcPath,
     FileSystem dstFileSystem, String dstPath, CopyOptions options) async {
   int count = 0;
+
+  if (_fsCopyDebug) {
+    print("$srcPath => $dstPath");
+  }
 
   if (await srcFileSystem.isLink(srcPath) && (!options.followLinks)) {
     return 0;
