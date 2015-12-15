@@ -168,8 +168,6 @@ TopEntity topEntityPath(FileSystem fs, String top) => new TopEntity(fs, top);
 TopEntity fsTopEntity(FileSystemEntity entity) =>
     new TopEntity(entity.fs, entity.path);
 
-class DirCopyEntity extends CopyEntity {}
-
 class CopyEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {

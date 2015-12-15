@@ -38,6 +38,24 @@ void main() {
           join(ioFileSystemContext.outTopPath, joinAll(testDescriptions)));
     });
 
+    group('conversion', () {
+      test('file', () {
+        io.File ioFile = new io.File('dir');
+        File file = wrapIoFile(ioFile);
+        expect(unwrapIoFile(file), ioFile);
+      });
+      test('dir', () {
+        io.Directory ioDirectory = new io.Directory('dir');
+        Directory dir = wrapIoDirectory(ioDirectory);
+        expect(unwrapIoDirectory(dir), ioDirectory);
+      });
+      test('link', () {
+        io.Link ioLink = new io.Link('dir');
+        Link link = wrapIoLink(ioLink);
+        expect(unwrapIoLink(link), ioLink);
+      });
+    });
+
     group('raw', () {
       test('dir', () {
         Directory dir = new Directory("dir");

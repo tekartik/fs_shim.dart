@@ -1,6 +1,7 @@
 library fs_shim.fs_io;
 
 import 'fs.dart' as fs;
+import 'dart:io' as io;
 export 'dart:io'
     hide
         File,
@@ -31,6 +32,10 @@ abstract class File extends fs.File {
   factory File(String path) => new FileImpl(path);
 }
 
+// Wrap/unwrap
+File wrapIoFile(io.File ioFile) => new FileImpl.io(ioFile);
+io.File unwrapIoFile(File file) => (file as FileImpl).ioFile;
+
 /// Directory
 abstract class Directory extends fs.Directory {
   factory Directory(String path) => new DirectoryImpl(path);
@@ -45,10 +50,19 @@ abstract class Directory extends fs.Directory {
   static Directory get current => currentDirectory;
 }
 
+// Wrap/unwrap
+Directory wrapIoDirectory(io.Directory ioDirectory) =>
+    new DirectoryImpl.io(ioDirectory);
+io.Directory unwrapIoDirectory(Directory dir) => (dir as DirectoryImpl).ioDir;
+
 /// Link
 abstract class Link extends fs.Link {
   factory Link(String path) => new LinkImpl(path);
 }
+
+// Wrap/unwrap
+Link wrapIoLink(io.Link ioLink) => new LinkImpl.io(ioLink);
+io.Link unwrapIoLink(Link dir) => (dir as LinkImpl).ioLink;
 
 /// File System Entity
 abstract class FileSystemEntity extends fs.FileSystemEntity {
