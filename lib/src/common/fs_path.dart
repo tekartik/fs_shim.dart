@@ -6,3 +6,8 @@ String posixPath(String anyPath) {
   List<String> parts = windows.split(anyPath);
   return posix.joinAll(parts);
 }
+
+String contextPath(String anyPath) {
+  List<String> parts = windows.split(anyPath);
+  return joinAll(parts);
+}

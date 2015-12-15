@@ -130,11 +130,15 @@ void defineTests(FileSystemTestContext ctx) {
       await srcDir.create();
       await srcFile1.writeAsString("test1", flush: true);
       await srcFile2.writeAsString("test2", flush: true);
-      expect(await copyFileSystemEntity(srcDir, dstDir, options: new CopyOptions(recursive: true, exclude: ['file1'])), 2);
+      expect(
+          await copyFileSystemEntity(srcDir, dstDir,
+              options: new CopyOptions(recursive: true, exclude: ['file1'])),
+          2);
 
       expect(await dstDir.exists(), isTrue);
 
-      expect(await fs.newFile(join(dstDir.path, "file2")).readAsString(), "test2");
+      expect(
+          await fs.newFile(join(dstDir.path, "file2")).readAsString(), "test2");
       expect(await fs.newFile(join(dstDir.path, "file1")).exists(), isFalse);
       expect(await copyFileSystemEntity(srcDir, dstDir), 0);
     });
@@ -150,12 +154,18 @@ void defineTests(FileSystemTestContext ctx) {
       await subDir.create(recursive: true);
       await srcFile1.writeAsString("test1", flush: true);
       await srcFile2.writeAsString("test2", flush: true);
-      expect(await copyFileSystemEntity(srcDir, dstDir, options: new CopyOptions(recursive: true, exclude: ['sub/file1'])), 3);
+      expect(
+          await copyFileSystemEntity(srcDir, dstDir,
+              options:
+                  new CopyOptions(recursive: true, exclude: ['sub/file1'])),
+          3);
 
       expect(await dstDir.exists(), isTrue);
 
-      expect(await fs.newFile(join(dstDir.path, "sub", "file2")).readAsString(), "test2");
-      expect(await fs.newFile(join(dstDir.path, "sub", "file1")).exists(), isFalse);
+      expect(await fs.newFile(join(dstDir.path, "sub", "file2")).readAsString(),
+          "test2");
+      expect(await fs.newFile(join(dstDir.path, "sub", "file1")).exists(),
+          isFalse);
       expect(await copyFileSystemEntity(srcDir, dstDir), 0);
     });
 

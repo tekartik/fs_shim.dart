@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:path/path.dart';
 import '../fs.dart';
 import '../src/common/fs_path.dart';
+import 'glob.dart';
+
 /// Copy the file content
 Future<int> _copyFileContent(File src, File dst) async {
   var inStream = src.openRead();
@@ -28,13 +30,31 @@ Future emptyOrCreateDirectory(Directory dir) async {
   await dir.create(recursive: true);
 }
 
+List<Glob> _globList(List<String> expressions) {
+  List<Glob> globs = [];
+  if (expressions != null) {
+    for (String expression in expressions) {
+      globs.add(new Glob(expression));
+    }
+  }
+  return globs;
+}
+
 class CopyOptions {
   final bool checkSizeAndModifiedDate;
   final bool tryToLinkFile;
   final bool tryToLinkDir; // not supported yet
   final bool followLinks;
   final bool recursive;
-  final List<String> exclude;
+  final List<String> exclude; // follow glob
+  List<Glob> _excludeGlobs;
+  List<Glob> get excludeGlobs {
+    if (_excludeGlobs == null) {
+      _excludeGlobs = _globList(exclude);
+    }
+    return _excludeGlobs;
+  }
+
   CopyOptions(
       {this.recursive: false,
       this.checkSizeAndModifiedDate: false,
@@ -72,9 +92,11 @@ Future<int> _copyFileSystemEntity(FileSystem srcFileSystem, String srcPath,
   }
 
   // to ignore?
-  if (options.exclude != null) {
-    if (options.exclude.contains(basename(srcPath))) {
-      return 0;
+  if (options.excludeGlobs.isNotEmpty) {
+    for (Glob glob in options.excludeGlobs) {
+      if (glob.matches(srcPath)) {
+        return 0;
+      }
     }
 
     String name = posixPath(srcPath);

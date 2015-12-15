@@ -3,16 +3,18 @@
 A portable file system library to allow working on io and browser (though idb_shim) and memory (through idb_shim), 
 and soon google storage (through storage api), google drive (through google drive api)
 
+[![Build Status](https://travis-ci.org/tekartik/fs_shim.dart.svg?branch=master)](https://travis-ci.org/tekartik/fs_shim.dart)
+
 ## Usage
 
 ### In memory
 
 A simple usage example:
 
-    import 'package:tekartik_fs_shim/fs.dart';
+    import 'package:tekartik_fs_shim/fs_memory.dart';
 
     main() async {
-      FileSystem fs = new MemoryFileSystem();
+      FileSystem fs = newMemoryFileSystem();
       Directory dir = fs.newDirectory("dummy");
       await dir.create();
     }
