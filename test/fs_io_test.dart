@@ -38,9 +38,9 @@ void main() {
           join(ioFileSystemContext.outTopPath, joinAll(testDescriptions)));
     });
 
-    solo_group('conversion', () {
+    group('conversion', () {
       test('file', () {
-        io.File ioFile = new io.File('dir');
+        io.File ioFile = new io.File('file');
         File file = wrapIoFile(ioFile);
         expect(unwrapIoFile(file), ioFile);
       });
@@ -50,20 +50,42 @@ void main() {
         expect(unwrapIoDirectory(dir), ioDirectory);
       });
       test('link', () {
-        io.Link ioLink = new io.Link('dir');
+        io.Link ioLink = new io.Link('link');
         Link link = wrapIoLink(ioLink);
         expect(unwrapIoLink(link), ioLink);
       });
 
+      test('filesystementity', () {
+        io.FileSystemEntity ioFse = new io.Link('link');
+        FileSystemEntity fse = wrapIoLink(ioFse as io.Link);
+        expect(ioFse.path, fse.path);
+
+        ioFse = new io.Directory('dir');
+        fse = wrapIoDirectory(ioFse as io.Directory);
+
+        ioFse = new io.File('file');
+        fse = wrapIoFile(ioFse as io.File);
+      });
+
       test('oserror', () {
         io.OSError ioOSError = new io.OSError();
-        //OSError osError = wrapIoOSError(ioOSError);
+        OSError osError = wrapIoOSError(ioOSError);
+        expect(unwrapIoOSError(osError), ioOSError);
       });
 
       test('filestat', () async {
         io.FileStat ioFileStat = await io.Directory.current.stat();
         FileStat fileStat = wrapIoFileStat(ioFileStat);
         expect(unwrapIoFileStat(fileStat), ioFileStat);
+      });
+
+      test('filesystemexception', () {
+        io.FileSystemException ioFileSystemException =
+            new io.FileSystemException();
+        FileSystemException fileSystemException =
+            wrapIoFileSystemException(ioFileSystemException);
+        expect(unwrapIoFileSystemException(fileSystemException),
+            ioFileSystemException);
       });
     });
 

@@ -47,6 +47,20 @@ main() {
 
       File file2 = await file.copy(join(dir.path, "file2"));
       expect(await file2.readAsString(), "test");
+
+      // stat
+      FileStat stat = await file.stat();
+      expect(stat.size, greaterThan(3));
+
+      // error
+      try {
+        await new File(join(dir.path, 't', 'o', 'o', 'deep'))
+            .create(recursive: false);
+        fail('should fail');
+      } on FileSystemException catch (e) {
+        OSError osError = e.osError;
+        expect(osError.errorCode, isNotNull);
+      }
     });
   });
 }

@@ -1,6 +1,6 @@
 library fs_shim.fs_io;
 
-import 'fs.dart' as fs;
+import 'fs.dart' as fs show File, Directory, Link, FileSystemEntity;
 import 'dart:io' as io;
 export 'dart:io'
     hide
@@ -10,9 +10,22 @@ export 'dart:io'
         FileSystemEntity,
         FileSystemEntityType,
         FileSystemException,
-        FileStat;
+        FileStat,
+        OSError;
+import 'fs.dart'
+    show
+        FileSystem,
+        FileSystemEntityType,
+        FileSystemException,
+        FileStat,
+        OSError;
 export 'fs.dart'
-    show FileSystem, FileSystemEntityType, FileSystemException, FileStat;
+    show
+        FileSystem,
+        FileSystemEntityType,
+        FileSystemException,
+        FileStat,
+        OSError;
 import 'dart:async';
 import 'src/io/io_link.dart';
 import 'src/io/io_directory.dart';
@@ -22,15 +35,15 @@ import 'src/io/io_file_system.dart';
 import 'src/io/io_file_stat.dart';
 import 'src/io/io_file_system_exception.dart';
 
-final fs.FileSystem ioFileSystem = new IoFileSystem();
+final FileSystem ioFileSystem = new IoFileSystem();
 
 /// File system
-abstract class IoFileSystem extends fs.FileSystem {
+abstract class IoFileSystem extends FileSystem {
   factory IoFileSystem() => new IoFileSystemImpl();
 }
 
 /// File
-abstract class File extends fs.File {
+abstract class File extends fs.File implements FileSystemEntity {
   factory File(String path) => new FileImpl(path);
 }
 
@@ -39,7 +52,7 @@ File wrapIoFile(io.File ioFile) => new FileImpl.io(ioFile);
 io.File unwrapIoFile(File file) => (file as FileImpl).ioFile;
 
 /// Directory
-abstract class Directory extends fs.Directory {
+abstract class Directory extends fs.Directory implements FileSystemEntity {
   factory Directory(String path) => new DirectoryImpl(path);
 
   Stream<FileSystemEntity> list(
@@ -58,7 +71,7 @@ Directory wrapIoDirectory(io.Directory ioDirectory) =>
 io.Directory unwrapIoDirectory(Directory dir) => (dir as DirectoryImpl).ioDir;
 
 /// Link
-abstract class Link extends fs.Link {
+abstract class Link extends fs.Link implements FileSystemEntity {
   factory Link(String path) => new LinkImpl(path);
 }
 
@@ -106,10 +119,21 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
       ioFileSystem.type(path, followLinks: followLinks);
 }
 
-// OSError
+// FileSystemException Wrap/unwrap
+FileSystemException wrapIoFileSystemException(
+        io.FileSystemException ioFileSystemException) =>
+    new FileSystemExceptionImpl.io(ioFileSystemException);
+io.FileSystemException unwrapIoFileSystemException(
+        FileSystemException fileSystemException) =>
+    (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
+
+// OSError Wrap/unwrap
+OSError wrapIoOSError(io.OSError ioOSError) => new OSErrorImpl.io(ioOSError);
+io.OSError unwrapIoOSError(OSError osError) =>
+    (osError as OSErrorImpl).ioOSError;
 
 // FileStat Wrap/unwrap
-fs.FileStat wrapIoFileStat(io.FileStat ioFileStat) =>
+FileStat wrapIoFileStat(io.FileStat ioFileStat) =>
     new FileStatImpl.io(ioFileStat);
-io.FileStat unwrapIoFileStat(fs.FileStat fileStat) =>
+io.FileStat unwrapIoFileStat(FileStat fileStat) =>
     (fileStat as FileStatImpl).ioFileStat;

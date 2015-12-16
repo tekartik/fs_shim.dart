@@ -4,9 +4,9 @@ import '../../fs.dart' as fs;
 export '../../fs.dart' show FileSystemEntityType;
 import 'dart:io' as io;
 
-class _IoOSError implements fs.OSError {
+class OSErrorImpl implements fs.OSError {
   io.OSError ioOSError;
-  _IoOSError(this.ioOSError);
+  OSErrorImpl.io(this.ioOSError);
   int get errorCode => ioOSError.errorCode;
   String get message => ioOSError.message;
 
@@ -95,26 +95,26 @@ int _statusFromException(io.FileSystemException ioFse) {
 }
 
 class FileSystemExceptionImpl implements fs.FileSystemException {
-  io.FileSystemException ioFse;
+  io.FileSystemException ioFileSystemException;
 
-  FileSystemExceptionImpl(io.FileSystemException ioFse)
-      : ioFse = ioFse,
-        osError = new _IoOSError(ioFse.osError),
+  FileSystemExceptionImpl.io(io.FileSystemException ioFse)
+      : ioFileSystemException = ioFse,
+        osError = new OSErrorImpl.io(ioFse.osError),
         status = _statusFromException(ioFse);
 
   @override
   final int status;
 
   @override
-  final _IoOSError osError;
+  final OSErrorImpl osError;
 
   @override
-  String get message => ioFse.message;
+  String get message => ioFileSystemException.message;
 
   @override
-  String get path => ioFse.path;
+  String get path => ioFileSystemException.path;
 
   @override
   String toString() =>
-      "${status == null ? '' : '[${status}] '}${ioFse.toString()}";
+      "${status == null ? '' : '[${status}] '}${ioFileSystemException.toString()}";
 }

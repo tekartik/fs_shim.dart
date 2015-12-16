@@ -27,7 +27,7 @@ io.FileMode fileMode(fs.FileMode fsFileMode) {
 
 ioWrapError(e) {
   if (e is io.FileSystemException) {
-    return new FileSystemExceptionImpl(e);
+    return new FileSystemExceptionImpl.io(e);
   }
   return e;
 }
