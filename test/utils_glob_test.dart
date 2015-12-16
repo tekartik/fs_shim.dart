@@ -1,4 +1,4 @@
-library fs_shim.test.utils_copy_tests;
+library fs_shim.test.utils_glob_test;
 
 import 'package:fs_shim/utils/glob.dart';
 import 'test_common.dart';

@@ -1,4 +1,4 @@
-library fs_shim.test.utils_copy_tests;
+library fs_shim.test.utils_entity_tests;
 
 import 'package:fs_shim/utils/entity.dart';
 import 'package:path/path.dart';

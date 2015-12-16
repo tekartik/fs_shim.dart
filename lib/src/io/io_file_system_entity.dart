@@ -37,5 +37,5 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
 
   @override
   Future<FileStat> stat() => ioWrap(ioFileSystemEntity.stat())
-      .then((io.FileStat stat) => new FileStatImpl(stat));
+      .then((io.FileStat stat) => new FileStatImpl.io(stat));
 }

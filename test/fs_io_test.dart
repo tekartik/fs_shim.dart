@@ -38,7 +38,7 @@ void main() {
           join(ioFileSystemContext.outTopPath, joinAll(testDescriptions)));
     });
 
-    group('conversion', () {
+    solo_group('conversion', () {
       test('file', () {
         io.File ioFile = new io.File('dir');
         File file = wrapIoFile(ioFile);
@@ -54,6 +54,17 @@ void main() {
         Link link = wrapIoLink(ioLink);
         expect(unwrapIoLink(link), ioLink);
       });
+
+      test('oserror', () {
+        io.OSError ioOSError = new io.OSError();
+        //OSError osError = wrapIoOSError(ioOSError);
+      });
+
+      test('filestat', () async {
+        io.FileStat ioFileStat = await io.Directory.current.stat();
+        FileStat fileStat = wrapIoFileStat(ioFileStat);
+        expect(unwrapIoFileStat(fileStat), ioFileStat);
+      });
     });
 
     group('raw', () {
@@ -62,6 +73,12 @@ void main() {
         File file = new File("file");
         expect(file.fs, fs);
         expect(dir.fs, fs);
+      });
+
+      test('filestat', () async {
+        io.FileStat ioFileStat = await io.Directory.current.stat();
+        FileStat fileStat = await Directory.current.stat();
+        expect(fileStat.size, ioFileStat.size);
       });
 
       test('current', () {
@@ -73,6 +90,14 @@ void main() {
         expect(
             await FileSystemEntity.isDirectory(Directory.current.path), isTrue);
         expect(await FileSystemEntity.isFile(Directory.current.path), isFalse);
+        expect(
+            await FileSystemEntity.type(Directory.current.path,
+                followLinks: true),
+            FileSystemEntityType.DIRECTORY);
+        expect(
+            await FileSystemEntity.type(Directory.current.path,
+                followLinks: false),
+            FileSystemEntityType.DIRECTORY);
       });
     });
 

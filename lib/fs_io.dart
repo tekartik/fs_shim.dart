@@ -19,6 +19,8 @@ import 'src/io/io_directory.dart';
 import 'src/io/io_fs.dart';
 import 'src/io/io_file.dart';
 import 'src/io/io_file_system.dart';
+import 'src/io/io_file_stat.dart';
+import 'src/io/io_file_system_exception.dart';
 
 final fs.FileSystem ioFileSystem = new IoFileSystem();
 
@@ -86,4 +88,28 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
   /// Checks if type(path) returns FileSystemEntityType.FILE.
   ///
   static Future<bool> isFile(String path) => ioFileSystem.isFile(path);
+
+  ///
+  /// Finds the type of file system object that a path points to. Returns
+  /// a [:Future<FileSystemEntityType>:] that completes with the result.
+  ///
+  /// [FileSystemEntityType] has the constant instances FILE, DIRECTORY,
+  /// LINK, and NOT_FOUND.  [type] will return LINK only if the optional
+  /// named argument [followLinks] is false, and [path] points to a link.
+  /// If the path does not point to a file system object, or any other error
+  /// occurs in looking up the path, NOT_FOUND is returned.  The only
+  /// error or exception that may be put on the returned future is ArgumentError,
+  /// caused by passing the wrong type of arguments to the function.
+  ///
+  static Future<FileSystemEntityType> type(String path,
+          {bool followLinks: true}) =>
+      ioFileSystem.type(path, followLinks: followLinks);
 }
+
+// OSError
+
+// FileStat Wrap/unwrap
+fs.FileStat wrapIoFileStat(io.FileStat ioFileStat) =>
+    new FileStatImpl.io(ioFileStat);
+io.FileStat unwrapIoFileStat(fs.FileStat fileStat) =>
+    (fileStat as FileStatImpl).ioFileStat;

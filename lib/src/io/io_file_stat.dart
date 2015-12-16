@@ -7,7 +7,7 @@ import 'io_fs.dart';
 import '../../fs_io.dart';
 
 class FileStatImpl implements FileStat {
-  FileStatImpl(this.ioFileStat);
+  FileStatImpl.io(this.ioFileStat);
   io.FileStat ioFileStat;
 
   @override
