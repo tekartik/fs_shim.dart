@@ -1,6 +1,5 @@
 library fs_shim.test.utils_copy_tests;
 
-import 'package:fs_shim/utils/copy.dart';
 import 'package:path/path.dart';
 import 'package:fs_shim/fs.dart';
 import 'test_common.dart';
