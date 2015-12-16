@@ -59,8 +59,8 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('parent', () {
       File file = fs.newFile(join(separator, "dummy"));
-      if (!isIoWindows(ctx)) {
-        // somehow absolute meeans more on windows
+      if (!contextIsWindows) {
+        // somehow absolute means more on windows
         expect(file.isAbsolute, isTrue);
         expect(file.parent.path, fs.newDirectory('/').path);
       }
