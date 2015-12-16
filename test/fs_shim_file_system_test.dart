@@ -32,14 +32,6 @@ void defineTests(FileSystemTestContext ctx) {
 
       List<String> parts = ctx.fs.pathContext.split(top.path);
       expect(parts, contains("prepare"));
-      parts = split(top.path);
-      expect(parts, contains("prepare"));
-      parts = windows.split(top.path);
-      expect(parts, contains("prepare"));
-      parts = url.split(top.path);
-      expect(parts, contains("prepare"));
-      parts = posix.split(top.path);
-      expect(parts, contains("prepare"));
     });
   });
 }

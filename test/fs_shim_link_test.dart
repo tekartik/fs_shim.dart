@@ -326,10 +326,10 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          if (isIo(ctx)) {
+          if (isIo(ctx) && !isIoWindows(ctx)) {
             expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
-            // mac, idb
+            // mac, windows, idb
             expect(e.status, FileSystemException.statusNotFound);
             // <22> not parsed invalid argument FileSystemException: Cannot rename link to '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link2', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
           }

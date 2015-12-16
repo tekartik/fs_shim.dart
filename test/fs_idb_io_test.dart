@@ -9,7 +9,7 @@ import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_io.dart';
 import 'package:dev_test/test.dart';
-import 'fs_src_idb_test.dart';
+import 'fs_idb_test.dart';
 import 'test_common_io.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';

@@ -11,3 +11,5 @@ String contextPath(String anyPath) {
   List<String> parts = splitParts(anyPath);
   return joinAll(parts);
 }
+
+bool get contextIsWindows => context.style == windows.style;

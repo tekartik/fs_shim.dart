@@ -14,7 +14,7 @@ FileSystem get fs => _ctx.fs;
 
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
-  group('child_copy_class', () {
+  group('copy_class', () {
     test('TopEntity', () async {
       // fsCopyDebug = true;
       Directory top = await ctx.prepare();
@@ -356,9 +356,9 @@ void defineTests(FileSystemTestContext ctx) {
         }
         expect(await fs.isFile(dstFile.path), isTrue);
 
-        // do it again
-        expect(
-            await copyFileSystemEntity(srcFile, dstFile, options: options), 0);
+        // do it again if file link supported nothing is done
+        expect(await copyFileSystemEntity(srcFile, dstFile, options: options),
+            fs.supportsFileLink ? 0 : 1);
       }
     });
 
@@ -376,16 +376,19 @@ void defineTests(FileSystemTestContext ctx) {
       await srcFile.create(recursive: true);
       await srcFile.writeAsString("test", flush: true);
 
+      // copy file and dir
       expect(await copyFileSystemEntity(srcDir, dstDir, options: options), 2);
+      // copy file only
       expect(await copyFileSystemEntity(srcDir, dstDir, options: options), 1);
       expect(
           await copyFileSystemEntity(srcDir, dstDir, options: copyNewerOptions),
           0);
 
+      // If no file link, nothing changed
       expect(
           await copyFileSystemEntity(srcDir, dstDir,
               options: recursiveLinkOrCopyNewerOptions),
-          1);
+          fs.supportsFileLink ? 1 : 0);
       expect(
           await copyFileSystemEntity(srcDir, dstDir,
               options: recursiveLinkOrCopyNewerOptions),
