@@ -87,6 +87,38 @@ void main() {
         expect(unwrapIoFileSystemException(fileSystemException),
             ioFileSystemException);
       });
+
+      test('filemode', () async {
+        io.FileMode ioFileMode = io.FileMode.READ;
+        FileMode fileMode = wrapIoFileMode(ioFileMode);
+        expect(unwrapIoFileMode(fileMode), ioFileMode);
+
+        ioFileMode = io.FileMode.WRITE;
+        fileMode = wrapIoFileMode(ioFileMode);
+        expect(unwrapIoFileMode(fileMode), ioFileMode);
+
+        ioFileMode = io.FileMode.APPEND;
+        fileMode = wrapIoFileMode(ioFileMode);
+        expect(unwrapIoFileMode(fileMode), ioFileMode);
+      });
+
+      test('fileentitytype', () async {
+        io.FileSystemEntityType ioFset = io.FileSystemEntityType.NOT_FOUND;
+        FileSystemEntityType fset = wrapIoFileSystemEntityType(ioFset);
+        expect(unwrapIoFileSystemEntityType(fset), ioFset);
+
+        ioFset = io.FileSystemEntityType.FILE;
+        fset = wrapIoFileSystemEntityType(ioFset);
+        expect(unwrapIoFileSystemEntityType(fset), ioFset);
+
+        ioFset = io.FileSystemEntityType.DIRECTORY;
+        fset = wrapIoFileSystemEntityType(ioFset);
+        expect(unwrapIoFileSystemEntityType(fset), ioFset);
+
+        ioFset = io.FileSystemEntityType.LINK;
+        fset = wrapIoFileSystemEntityType(ioFset);
+        expect(unwrapIoFileSystemEntityType(fset), ioFset);
+      });
     });
 
     group('raw', () {

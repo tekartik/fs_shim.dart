@@ -9,10 +9,10 @@ export 'dart:convert';
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
   if (fsFileMode == null) fsFileMode = fs.FileMode.WRITE;
-  return fileMode(fsFileMode);
+  return unwrapIofileModeImpl(fsFileMode);
 }
 
-io.FileMode fileMode(fs.FileMode fsFileMode) {
+io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
   switch (fsFileMode) {
     case fs.FileMode.WRITE:
       return io.FileMode.WRITE;
@@ -20,6 +20,19 @@ io.FileMode fileMode(fs.FileMode fsFileMode) {
       return io.FileMode.READ;
     case fs.FileMode.APPEND:
       return io.FileMode.APPEND;
+    default:
+      throw null;
+  }
+}
+
+fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
+  switch (ioFileMode) {
+    case io.FileMode.WRITE:
+      return fs.FileMode.WRITE;
+    case io.FileMode.READ:
+      return fs.FileMode.READ;
+    case io.FileMode.APPEND:
+      return fs.FileMode.APPEND;
     default:
       throw null;
   }
@@ -38,7 +51,8 @@ Future ioWrap(Future future) {
   }, test: (e) => (e is io.FileSystemException));
 }
 
-fs.FileSystemEntityType ioFsFileType(io.FileSystemEntityType type) {
+fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
+    io.FileSystemEntityType type) {
   switch (type) {
     case io.FileSystemEntityType.FILE:
       return fs.FileSystemEntityType.FILE;
@@ -48,6 +62,22 @@ fs.FileSystemEntityType ioFsFileType(io.FileSystemEntityType type) {
       return fs.FileSystemEntityType.LINK;
     case io.FileSystemEntityType.NOT_FOUND:
       return fs.FileSystemEntityType.NOT_FOUND;
+    default:
+      throw type;
+  }
+}
+
+io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
+    fs.FileSystemEntityType type) {
+  switch (type) {
+    case fs.FileSystemEntityType.FILE:
+      return io.FileSystemEntityType.FILE;
+    case fs.FileSystemEntityType.DIRECTORY:
+      return io.FileSystemEntityType.DIRECTORY;
+    case fs.FileSystemEntityType.LINK:
+      return io.FileSystemEntityType.LINK;
+    case fs.FileSystemEntityType.NOT_FOUND:
+      return io.FileSystemEntityType.NOT_FOUND;
     default:
       throw type;
   }

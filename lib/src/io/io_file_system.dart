@@ -15,8 +15,9 @@ class IoFileSystemImpl extends Object
   @override
   Future<fs.FileSystemEntityType> type(String path, {bool followLinks: true}) //
       =>
-      ioWrap(io.FileSystemEntity.type(path, followLinks: followLinks))
-          .then((io.FileSystemEntityType ioType) => ioFsFileType(ioType));
+      ioWrap(io.FileSystemEntity.type(path, followLinks: followLinks)).then(
+          (io.FileSystemEntityType ioType) =>
+              wrapIoFileSystemEntityTypeImpl(ioType));
 
   @override
   File newFile(String path) => new File(path);

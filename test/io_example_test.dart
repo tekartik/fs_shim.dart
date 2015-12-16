@@ -28,7 +28,8 @@ main() {
       expect(await FileSystemEntity.isFile(file.path), isFalse);
       expect(file.absolute.isAbsolute, isTrue);
 
-      var sink = file.openWrite();
+      // file mode
+      var sink = file.openWrite(mode: FileMode.WRITE);
       sink.add('test'.codeUnits);
       await sink.close();
       expect(await FileSystemEntity.isFile(file.path), isTrue);
@@ -61,6 +62,10 @@ main() {
         OSError osError = e.osError;
         expect(osError.errorCode, isNotNull);
       }
+
+      // file entity type
+      expect(
+          await FileSystemEntity.type(file2.path), FileSystemEntityType.FILE);
     });
   });
 }

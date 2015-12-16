@@ -9,6 +9,7 @@ export 'dart:io'
         Link,
         FileSystemEntity,
         FileSystemEntityType,
+        FileMode,
         FileSystemException,
         FileStat,
         OSError;
@@ -18,6 +19,7 @@ import 'fs.dart'
         FileSystemEntityType,
         FileSystemException,
         FileStat,
+        FileMode,
         OSError;
 export 'fs.dart'
     show
@@ -25,6 +27,7 @@ export 'fs.dart'
         FileSystemEntityType,
         FileSystemException,
         FileStat,
+        FileMode,
         OSError;
 import 'dart:async';
 import 'src/io/io_link.dart';
@@ -137,3 +140,17 @@ FileStat wrapIoFileStat(io.FileStat ioFileStat) =>
     new FileStatImpl.io(ioFileStat);
 io.FileStat unwrapIoFileStat(FileStat fileStat) =>
     (fileStat as FileStatImpl).ioFileStat;
+
+// FileMode Wrap/unwrap
+FileMode wrapIoFileMode(io.FileMode ioFileMode) =>
+    wrapIofileModeImpl(ioFileMode);
+io.FileMode unwrapIoFileMode(FileMode fileMode) =>
+    unwrapIofileModeImpl(fileMode);
+
+// FileSystemEntityType Wrap/unwrap
+FileSystemEntityType wrapIoFileSystemEntityType(
+        io.FileSystemEntityType ioFileSystemEntityType) =>
+    wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
+io.FileSystemEntityType unwrapIoFileSystemEntityType(
+        FileSystemEntityType fileSystemEntityType) =>
+    unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);

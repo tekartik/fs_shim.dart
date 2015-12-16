@@ -17,7 +17,8 @@ class FileStatImpl implements FileStat {
   int get size => ioFileStat.size;
 
   @override
-  fs.FileSystemEntityType get type => ioFsFileType(ioFileStat.type);
+  fs.FileSystemEntityType get type =>
+      wrapIoFileSystemEntityTypeImpl(ioFileStat.type);
 
   @override
   String toString() => ioFileStat.toString();
