@@ -34,6 +34,11 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
+    test('toString', () {
+      Directory dir = fs.newDirectory("dir");
+      expect(dir.toString(), "Directory: '${dir.path}'");
+    });
+
     test('absolute', () {
       Directory dir = fs.newDirectory("dummy");
       expect(dir.isAbsolute, isFalse);

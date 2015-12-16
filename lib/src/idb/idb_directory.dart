@@ -32,4 +32,7 @@ class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
   @override
   IdbDirectory get absolute =>
       new IdbDirectory(super.fs, idbMakePathAbsolute(path));
+
+  @override
+  String toString() => "Directory: '$path'";
 }

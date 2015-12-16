@@ -58,4 +58,7 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
   Future<IdbLink> create(String target, {bool recursive: false}) {
     return _fs.createLink(path, target, recursive: recursive).then(_me);
   }
+
+  @override
+  String toString() => "Link: '$path'";
 }

@@ -56,6 +56,12 @@ void defineTests(FileSystemTestContext ctx) {
           // Invalid argument(s): null is not a String
         }
       });
+
+      test('toString', () {
+        Link link = fs.newLink("link");
+        expect(link.toString(), "Link: '${link.path}'");
+      });
+
       test('absolute', () {
         Link link = fs.newLink("dummy");
         expect(link.isAbsolute, isFalse);

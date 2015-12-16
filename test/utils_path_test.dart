@@ -16,7 +16,7 @@ void defineTests(FileSystemTestContext ctx) {
   group('path', () {
     test('posixPath', () async {
       expect(posixPath('a\\b'), 'a/b');
-          });
+    });
 
     test('contextPath', () async {
       expect(contextPath('a\\b'), join('a', 'b'));

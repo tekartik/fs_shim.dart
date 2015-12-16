@@ -43,6 +43,11 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
+    test('toString', () {
+      File file = fs.newFile("file");
+      expect(file.toString(), "File: '${file.path}'");
+    });
+
     test('absolute', () {
       File file = fs.newFile("dummy");
       expect(file.isAbsolute, isFalse);

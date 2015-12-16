@@ -53,4 +53,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
 
   @override
   IdbFile get absolute => new IdbFile(_fs, idbMakePathAbsolute(path));
+
+  @override
+  String toString() => "File: '$path'";
 }

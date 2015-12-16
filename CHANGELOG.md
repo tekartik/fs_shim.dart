@@ -1,18 +1,19 @@
 # Changelog
 
-## 0.0.1
+## 0.2.0
 
-Initial version, support for IO API:
+Classes
 
-- File
-- Link
-- Directory
-- FileSystemEntity
+- File (create, openWrite, openRead, writeAsBytes, writeAsString, copy)
+- Link (create, target)
+- Directory (create, list)
+- FileSystem (newDirectory, newFile, newLink, type, isFile, isDirectory, isLink)
+- FileSystemEntity (path, exists, delete, rename, absolute, isAbsolute, state, parent)
 - FileStat
 - FileSystemEntityType,
 - FileSystemException,
 
-Static method
+Static method (IO only)
 
 - Directory.current
 - FileSystemEntity.isFile
