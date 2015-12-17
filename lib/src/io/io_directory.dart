@@ -65,10 +65,10 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
             controller.addError(new UnsupportedError(
                 'type ${data} ${data.runtimeType} not supported'));
           }
-        },
-            onError: controller.addError,
-            onDone: controller.close,
-            cancelOnError: cancelOnError);
+        }, onError: (e) {
+          // Important here to wrap the error
+          controller.addError(ioWrapError(e));
+        }, onDone: controller.close, cancelOnError: cancelOnError);
       }, sync: true);
       return controller.stream.listen(null);
     }

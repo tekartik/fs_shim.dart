@@ -751,14 +751,14 @@ class IdbFileSystem extends Object
     return null;
   }
 
-  fs.FileSystemEntity linkNodeToFileSystemEntity(Node linkNode, Node node) {
-    if (node.isDir) {
-      return new IdbDirectory(this, linkNode.path);
-    } else if (node.isFile) {
-      return new IdbFile(this, linkNode.path);
-    } else if (node.isLink) {
+  fs.FileSystemEntity linkNodeToFileSystemEntity(String path, Node targetNode) {
+    if (targetNode.isDir) {
+      return new IdbDirectory(this, path);
+    } else if (targetNode.isFile) {
+      return new IdbFile(this, path);
+    } else if (targetNode.isLink) {
       // should not happen...
-      return new IdbLink(this, linkNode.path);
+      return new IdbLink(this, path);
     }
     return null;
   }
@@ -775,35 +775,42 @@ class IdbFileSystem extends Object
       idb.ObjectStore treeStore = txn.objectStore(treeStoreName);
       idb.Index index = treeStore.index(parentIndexName);
 
-      return txnSearch(treeStore, segments, followLinks).then((result) {
+      // Always follow the parameter if it is a link
+      return txnSearch(treeStore, segments, true).then((result) {
         Node entity = result.match;
         if (entity == null) {
           ctlr.addError(idbNotFoundException(path, "List failed"));
         } else {
-          Future _list(Node entity) {
+          Future _list(String path, Node entity) {
             return index
                 .openCursor(key: entity.id, autoAdvance: true)
                 .listen((idb.CursorWithValue cwv) {
-              Node childeNode =
+              // We have a node but the parent might not match!
+              // So create a fake
+              Node childNode =
                   new Node.fromMap(entity, cwv.value, cwv.primaryKey);
-              if (childeNode.isDir) {
-                ctlr.add(nodeToFileSystemEntity(childeNode));
+              String relativePath = join(path, childNode.name);
+              if (childNode.isDir) {
+                IdbDirectory dir = new IdbDirectory(this, relativePath);
+                ctlr.add(dir);
                 if (recursive == true) {
-                  recursives.add(_list(childeNode));
+                  recursives.add(_list(dir.path, childNode));
                 }
-              } else if (childeNode.isFile) {
-                ctlr.add(nodeToFileSystemEntity(childeNode));
-              } else if (childeNode.isLink) {
-                IdbLink link = nodeToFileSystemEntity(childeNode);
+              } else if (childNode.isFile) {
+                ctlr.add(new IdbFile(this, relativePath));
+                //ctlr.add(nodeToFileSystemEntity(childNode));
+              } else if (childNode.isLink) {
+
+                IdbLink link = new IdbLink(this, relativePath);
 
                 if (followLinks) {
                   recursives.add(new Future.sync(() {
                     return _storage
-                        .txnResolveLinkNode(treeStore, childeNode)
+                        .txnResolveLinkNode(treeStore, childNode)
                         .then((Node entity) {
                       if (entity != null) {
                         ctlr.add(
-                            linkNodeToFileSystemEntity(childeNode, entity));
+                            linkNodeToFileSystemEntity(relativePath, entity));
                       } else {
                         ctlr.add(link);
                       }
@@ -814,11 +821,11 @@ class IdbFileSystem extends Object
                 }
               } else {
                 throw new UnsupportedError(
-                    "type ${childeNode.type} not supported");
+                    "type ${childNode.type} not supported");
               }
             }).asFuture();
           }
-          return _list(entity);
+          return _list(path, entity);
         }
       }).whenComplete(() async {
         await txn.completed;

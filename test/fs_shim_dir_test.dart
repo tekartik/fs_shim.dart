@@ -362,6 +362,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(list.length, 2);
       expect(indexOf(list, dir1), isNot(-1));
       expect(indexOf(list, dir2), isNot(-1));
+      expect(getInList(list, dir2), new isInstanceOf<Directory>());
 
       // recursive
       list = await _dir.list(recursive: true).toList();
@@ -369,45 +370,19 @@ void defineTests(FileSystemTestContext ctx) {
       expect(indexOf(list, dir1), isNot(-1));
       expect(indexOf(list, dir1), lessThan(indexOf(list, subDir)));
       expect(indexOf(list, subDir), lessThan(indexOf(list, file)));
+      expect(getInList(list, file), new isInstanceOf<File>());
       expect(indexOf(list, dir2), isNot(-1));
     });
 
-    test('list_with_links', () async {
-      if (fs.supportsLink) {
-        Directory top = await ctx.prepare();
-
-        Directory dir = childDirectory(top, 'dir');
-        Link link = childLink(top, 'link');
-        await link.create(dir.path);
-
-        List<FileSystemEntity> list =
-            await top.list(followLinks: false).toList();
-        expect(list.length, 1);
-        expect(indexOf(list, link), 0);
-        expect(list[0], new isInstanceOf<Link>());
-
-        list = await top.list(followLinks: true).toList();
-        expect(list.length, 1);
-        expect(indexOf(list, link), 0);
-        expect(list[0], new isInstanceOf<Link>());
-
-        await dir.create();
-
-        list = await top.list().toList();
-        expect(list.length, 2);
-        expect(getInList(list, link), new isInstanceOf<Directory>());
-        expect(getInList(list, dir), new isInstanceOf<Directory>());
-
-        list = await top.list(followLinks: false).toList();
-        expect(list.length, 2);
-        expect(getInList(list, link), new isInstanceOf<Link>());
-        expect(getInList(list, dir), new isInstanceOf<Directory>());
-
-        list = await top.list(followLinks: true).toList();
-        expect(list.length, 2);
-        expect(getInList(list, link), new isInstanceOf<Directory>());
-        expect(getInList(list, dir), new isInstanceOf<Directory>());
+    test('list_no_dir', () async {
+      Directory top = await ctx.prepare();
+      Directory dir = childDirectory(top, "dir");
+      try {
+        await dir.list().toList();
+      } on FileSystemException catch (e) {
+        expect(e.status, FileSystemException.statusNotFound);
       }
     });
+
   });
 }

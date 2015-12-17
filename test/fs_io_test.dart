@@ -123,12 +123,20 @@ void main() {
     });
 
     group('raw', () {
-      test('dir', () {
+      test('dir', () async {
         Directory dir = new Directory("dir");
         File file = new File("file");
         expect(file.fs, fs);
         expect(dir.fs, fs);
+
+        try {
+          dir = new Directory(join(Directory.current.path, "never_exist_such_a_dummy_dir_for_fs_shim_testing"));
+          await dir.list().toList();
+        } catch (_) {
+        }
       });
+
+
 
       test('filestat', () async {
         io.FileStat ioFileStat = await io.Directory.current.stat();
