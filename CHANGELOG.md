@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+
+Add support for links in Directory.list
+
 ## 0.2.0
 
 Classes
