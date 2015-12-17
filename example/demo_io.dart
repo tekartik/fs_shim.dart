@@ -11,7 +11,9 @@ main() async {
   Directory dir = new Directory(dirPath);
 
   // delete its content
-  await dir.delete(recursive: true);
+  if (await dir.exists()) {
+    await dir.delete(recursive: true);
+  }
 
   // and a file in it
   // fs.newFile(join(dir.path, "file"));

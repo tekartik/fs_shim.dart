@@ -128,6 +128,6 @@ main() async {
 
 ## Features and bugs
 
-* On windows file link are not supported (fs.supportsFileLink returns false)
+* On windows file links are not supported (fs.supportsFileLink returns false)
 * On windows directory link target are absolutes
 
