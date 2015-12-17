@@ -37,7 +37,7 @@ void defineTests(FileSystemTestContext ctx) {
       File file = childFile(src, "file");
       await file.writeAsString("test", flush: true);
 
-      if (fs.supportsLink) {
+      if (fs.supportsFileLink) {
         Link link = childLink(src, 'link');
         await link.create(file.path);
         expect(await fs.isLink(link.path), isTrue);
@@ -50,7 +50,7 @@ void defineTests(FileSystemTestContext ctx) {
       File dstFile = childFile(dst, "file");
       expect(await dstFile.readAsString(), 'test');
 
-      if (fs.supportsLink) {
+      if (fs.supportsFileLink) {
         File dstLink = childFile(dst, "link");
         expect(await dstLink.readAsString(), 'test');
         expect(await fs.isLink(dstLink.path), isFalse);
@@ -63,7 +63,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       expect(indexOf(list, src), isNot(-1));
       expect(indexOf(list, dst), isNot(-1));
-      expect(list.length, fs.supportsLink ? 6 : 4);
+      expect(list.length, fs.supportsFileLink ? 6 : 4);
     });
   });
 }
