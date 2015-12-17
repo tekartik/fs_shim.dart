@@ -331,6 +331,15 @@ void defineTests(FileSystemTestContext ctx) {
       }
       return -1;
     }
+    FileSystemEntity getInList(
+        List<FileSystemEntity> list, FileSystemEntity entity) {
+      for (int i = 0; i < list.length; i++) {
+        if (list[i].path == entity.path) {
+          return list[i];
+        }
+      }
+      return null;
+    }
 
     test('list', () async {
       Directory _dir = await ctx.prepare();
@@ -361,6 +370,44 @@ void defineTests(FileSystemTestContext ctx) {
       expect(indexOf(list, dir1), lessThan(indexOf(list, subDir)));
       expect(indexOf(list, subDir), lessThan(indexOf(list, file)));
       expect(indexOf(list, dir2), isNot(-1));
+    });
+
+    test('list_with_links', () async {
+      if (fs.supportsLink) {
+        Directory top = await ctx.prepare();
+
+        Directory dir = childDirectory(top, 'dir');
+        Link link = childLink(top, 'link');
+        await link.create(dir.path);
+
+        List<FileSystemEntity> list =
+            await top.list(followLinks: false).toList();
+        expect(list.length, 1);
+        expect(indexOf(list, link), 0);
+        expect(list[0], new isInstanceOf<Link>());
+
+        list = await top.list(followLinks: true).toList();
+        expect(list.length, 1);
+        expect(indexOf(list, link), 0);
+        expect(list[0], new isInstanceOf<Link>());
+
+        await dir.create();
+
+        list = await top.list().toList();
+        expect(list.length, 2);
+        expect(getInList(list, link), new isInstanceOf<Directory>());
+        expect(getInList(list, dir), new isInstanceOf<Directory>());
+
+        list = await top.list(followLinks: false).toList();
+        expect(list.length, 2);
+        expect(getInList(list, link), new isInstanceOf<Link>());
+        expect(getInList(list, dir), new isInstanceOf<Directory>());
+
+        list = await top.list(followLinks: true).toList();
+        expect(list.length, 2);
+        expect(getInList(list, link), new isInstanceOf<Directory>());
+        expect(getInList(list, dir), new isInstanceOf<Directory>());
+      }
     });
   });
 }

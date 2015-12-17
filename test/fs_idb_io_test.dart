@@ -26,7 +26,7 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
 
   @override
   Future<Directory> prepare() {
-    fs = newIdbIoFileSystem(join(super.outPath, 'lfs.db'));
+    fs = newIdbIoFileSystem(join(super.outPath, 'fs.db'));
     return super.prepare();
   }
 }

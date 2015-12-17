@@ -7,6 +7,7 @@ import 'io_fs.dart';
 import 'io_file_system_entity.dart';
 import '../../fs_io.dart';
 import 'io_file.dart';
+import 'io_link.dart';
 
 DirectoryImpl get currentDirectory =>
     new DirectoryImpl.io(io.Directory.current);
@@ -58,6 +59,8 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
             controller.add(new FileImpl.io(data));
           } else if (data is io.Directory) {
             controller.add(new DirectoryImpl.io(data));
+          } else if (data is io.Link) {
+            controller.add(new LinkImpl.io(data));
           } else {
             controller.addError(new UnsupportedError(
                 'type ${data} ${data.runtimeType} not supported'));

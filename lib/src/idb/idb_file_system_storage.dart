@@ -82,7 +82,7 @@ class IdbFileSystemStorage {
   }
 
   Future<Node> txnGetChildNode(idb.ObjectStore treeStore, idb.Index index,
-      Node parent, String name, bool followLink) {
+      Node parent, String name, bool followLastLink) {
     String parentName = getParentName(parent, name);
 
     return index.getKey(parentName).then((int id) {
@@ -91,11 +91,8 @@ class IdbFileSystemStorage {
       }
       return index.get(parentName).then((Map map) {
         Node entity = new Node.fromMap(parent, map, id);
-        if (followLink && entity.isLink) {
-          // convert to absolute
-          List<String> targetSegments =
-              getAbsoluteSegments(entity, entity.targetSegments);
-          return txnGetNode(treeStore, targetSegments, followLink);
+        if (followLastLink && entity.isLink) {
+          return txnResolveLinkNode(treeStore, entity);
         }
         return entity;
       });
@@ -112,6 +109,13 @@ class IdbFileSystemStorage {
 
     await txn.completed;
     return entity;
+  }
+
+  Future<Node> txnResolveLinkNode(idb.ObjectStore treeStore, Node link) {
+    // convert to absolute
+    List<String> targetSegments =
+        getAbsoluteSegments(link, link.targetSegments);
+    return txnGetNode(treeStore, targetSegments, true);
   }
 
   // Return a matching result

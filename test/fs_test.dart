@@ -17,6 +17,8 @@ import 'utils_part_test.dart' as utils_part_test;
 import 'utils_path_test.dart' as utils_path_test;
 import 'utils_read_write_test.dart' as utils_read_write_test;
 
+import 'fs_shim_sanity_test.dart' as fs_shim_sanity_test;
+
 main() {
   group('default', () {
     defineTests(memoryFileSystemTestContext);
@@ -30,6 +32,9 @@ void defineTests(FileSystemTestContext ctx) {
   file_stat_test.defineTests(ctx);
   file_system_test.defineTests(ctx);
   file_system_exception_test.defineTests(ctx);
+
+  fs_shim_sanity_test.defineTests(ctx);
+
   utils_copy_test.defineTests(ctx);
   utils_entity_test.defineTests(ctx);
   // no: utils_glob_test.defineTests(ctx);

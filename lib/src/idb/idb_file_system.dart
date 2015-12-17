@@ -674,8 +674,8 @@ class IdbFileSystem extends Object
   }
 
   Future<Node> txnGetWithParent(idb.ObjectStore treeStore, idb.Index index,
-          Node parent, String name, bool followLinks) =>
-      _storage.txnGetChildNode(treeStore, index, parent, name, followLinks);
+          Node parent, String name, bool followLastLink) =>
+      _storage.txnGetChildNode(treeStore, index, parent, name, followLastLink);
 
   // follow link only for last one
   Future<NodeSearchResult> txnSearch(
@@ -740,6 +740,29 @@ class IdbFileSystem extends Object
     return ctlr.stream;
   }
 
+  fs.FileSystemEntity nodeToFileSystemEntity(Node node) {
+    if (node.isDir) {
+      return new IdbDirectory(this, node.path);
+    } else if (node.isFile) {
+      return new IdbFile(this, node.path);
+    } else if (node.isLink) {
+      return new IdbLink(this, node.path);
+    }
+    return null;
+  }
+
+  fs.FileSystemEntity linkNodeToFileSystemEntity(Node linkNode, Node node) {
+    if (node.isDir) {
+      return new IdbDirectory(this, linkNode.path);
+    } else if (node.isFile) {
+      return new IdbFile(this, linkNode.path);
+    } else if (node.isLink) {
+      // should not happen...
+      return new IdbLink(this, linkNode.path);
+    }
+    return null;
+  }
+
   Stream<IdbFileSystemEntity> list(String path,
       {bool recursive: false, bool followLinks: true}) {
     List<String> segments = getSegments(path);
@@ -749,10 +772,10 @@ class IdbFileSystem extends Object
     _ready.then((_) {
       List<Future> recursives = [];
       idb.Transaction txn = _db.transaction(treeStoreName, idb.idbModeReadOnly);
-      idb.ObjectStore store = txn.objectStore(treeStoreName);
-      idb.Index index = store.index(parentIndexName);
+      idb.ObjectStore treeStore = txn.objectStore(treeStoreName);
+      idb.Index index = treeStore.index(parentIndexName);
 
-      return txnSearch(store, segments, followLinks).then((result) {
+      return txnSearch(treeStore, segments, followLinks).then((result) {
         Node entity = result.match;
         if (entity == null) {
           ctlr.addError(idbNotFoundException(path, "List failed"));
@@ -761,21 +784,37 @@ class IdbFileSystem extends Object
             return index
                 .openCursor(key: entity.id, autoAdvance: true)
                 .listen((idb.CursorWithValue cwv) {
-              Node childEntity =
+              Node childeNode =
                   new Node.fromMap(entity, cwv.value, cwv.primaryKey);
-              if (childEntity.type == fs.FileSystemEntityType.DIRECTORY) {
-                IdbDirectory directory =
-                    new IdbDirectory(this, childEntity.path);
-                ctlr.add(directory);
+              if (childeNode.isDir) {
+                ctlr.add(nodeToFileSystemEntity(childeNode));
                 if (recursive == true) {
-                  recursives.add(_list(childEntity));
+                  recursives.add(_list(childeNode));
                 }
-              } else if (childEntity.type == fs.FileSystemEntityType.FILE) {
-                IdbFile file = new IdbFile(this, childEntity.path);
-                ctlr.add(file);
+              } else if (childeNode.isFile) {
+                ctlr.add(nodeToFileSystemEntity(childeNode));
+              } else if (childeNode.isLink) {
+                IdbLink link = nodeToFileSystemEntity(childeNode);
+
+                if (followLinks) {
+                  recursives.add(new Future.sync(() {
+                    return _storage
+                        .txnResolveLinkNode(treeStore, childeNode)
+                        .then((Node entity) {
+                      if (entity != null) {
+                        ctlr.add(
+                            linkNodeToFileSystemEntity(childeNode, entity));
+                      } else {
+                        ctlr.add(link);
+                      }
+                    });
+                  }));
+                } else {
+                  ctlr.add(link);
+                }
               } else {
                 throw new UnsupportedError(
-                    "type ${childEntity.type} not supported");
+                    "type ${childeNode.type} not supported");
               }
             }).asFuture();
           }

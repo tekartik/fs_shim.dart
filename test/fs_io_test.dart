@@ -24,6 +24,7 @@ void main() {
     test('equals', () {
       // Files cannot be compared!
       expect(new io.File("test"), isNot(new io.File("test")));
+      expect(new io.Directory("test"), isNot(new io.Directory("test")));
     });
     test('type', () async {
       expect(await ioFileSystemContext.fs.type(testScriptPath),
