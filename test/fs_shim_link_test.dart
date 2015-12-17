@@ -824,7 +824,6 @@ void defineTests(FileSystemTestContext ctx) {
             Directory linkDir = asDirectory(link);
             await link.create(dir.path);
 
-
             try {
               await linkDir.list().toList();
               fail('should fail');
@@ -834,8 +833,7 @@ void defineTests(FileSystemTestContext ctx) {
 
             await dir.create();
 
-           list =
-                await linkDir.list(followLinks: false).toList();
+            list = await linkDir.list(followLinks: false).toList();
             expect(list, isEmpty);
 
             list = await linkDir.list(followLinks: true).toList();
@@ -859,7 +857,7 @@ void defineTests(FileSystemTestContext ctx) {
           }
         });
 
-        solo_test('list_dir_link', () async {
+        test('list_dir_link_recursive', () async {
           if (fs.supportsLink) {
             List<FileSystemEntity> list;
             Directory top = await ctx.prepare();
@@ -872,36 +870,28 @@ void defineTests(FileSystemTestContext ctx) {
             Directory dir = childDirectory(top, 'dir');
             Link link = childLink(dir, 'link');
 
-            /*
-            Link link = childLink(top, 'link');
-
-            // target
             File linkSubFile = childFile(asDirectory(link), 'subFile');
-            File linkSubDir = childFile(asDirectory(link), 'subDir');
-            File linkSubLink = childFile(asDirectory(link), 'subLink');
 
-            Directory linkDir = asDirectory(link);
-            */
             await subFile.create(recursive: true);
             await link.create(target.path, recursive: true);
 
-            list = await dir.list(followLinks: true).toList();
-            print(list);
-            /*
-            expect(list.length, 3);
+            list = await dir.list(followLinks: true, recursive: true).toList();
+            expect(list.length, 2);
+            expect(getInList(list, link), new isInstanceOf<Directory>());
             expect(getInList(list, linkSubFile), new isInstanceOf<File>());
-            expect(getInList(list, linkSubDir), new isInstanceOf<Directory>());
-            expect(getInList(list, linkSubLink), new isInstanceOf<Directory>());
-            */
+
+            list = await dir.list(followLinks: false, recursive: true).toList();
+            expect(list.length, 1);
+            expect(getInList(list, link), new isInstanceOf<Link>());
+
+            // not recursive
+            list = await dir.list(followLinks: true).toList();
+            expect(list.length, 1);
+            expect(getInList(list, link), new isInstanceOf<Directory>());
 
             list = await dir.list(followLinks: false).toList();
-            print(list);
-            /*
-            expect(list.length, 3);
-            expect(getInList(list, linkSubFile), new isInstanceOf<File>());
-            expect(getInList(list, linkSubDir), new isInstanceOf<Directory>());
-            expect(getInList(list, linkSubLink), new isInstanceOf<Link>());
-            */
+            expect(list.length, 1);
+            expect(getInList(list, link), new isInstanceOf<Link>());
           }
         });
       });

@@ -383,6 +383,5 @@ void defineTests(FileSystemTestContext ctx) {
         expect(e.status, FileSystemException.statusNotFound);
       }
     });
-
   });
 }

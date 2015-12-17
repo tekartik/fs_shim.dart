@@ -794,13 +794,12 @@ class IdbFileSystem extends Object
                 IdbDirectory dir = new IdbDirectory(this, relativePath);
                 ctlr.add(dir);
                 if (recursive == true) {
-                  recursives.add(_list(dir.path, childNode));
+                  recursives.add(_list(relativePath, childNode));
                 }
               } else if (childNode.isFile) {
                 ctlr.add(new IdbFile(this, relativePath));
                 //ctlr.add(nodeToFileSystemEntity(childNode));
               } else if (childNode.isLink) {
-
                 IdbLink link = new IdbLink(this, relativePath);
 
                 if (followLinks) {
@@ -811,6 +810,11 @@ class IdbFileSystem extends Object
                       if (entity != null) {
                         ctlr.add(
                             linkNodeToFileSystemEntity(relativePath, entity));
+
+                        // recursive?
+                        if (entity.isDir && recursive == true) {
+                          recursives.add(_list(relativePath, entity));
+                        }
                       } else {
                         ctlr.add(link);
                       }
