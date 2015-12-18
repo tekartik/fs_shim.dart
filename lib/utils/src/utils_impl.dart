@@ -127,28 +127,24 @@ Future<File> createFile(File file, {CreateOptions options}) async {
 Future deleteDirectory(Directory dir, {DeleteOptions options}) async {
   options ??= defaultDeleteOptions;
 
-  if (await dir.fs.isDirectory(dir.path)) {
-    try {
-      await dir.delete(recursive: options.recursive);
-    } catch (e) {
-      if (e is FileSystemException) {
-        if (e.status != FileSystemException.statusNotFound) {
-          if (options.recursive == false &&
-              e.status == FileSystemException.statusNotEmpty) {
-            // ok
-          } else {
-            print('delete $dir failed $e');
-          }
+  try {
+    await dir.delete(recursive: options.recursive);
+  } catch (e) {
+    if (e is FileSystemException) {
+      if (e.status != FileSystemException.statusNotFound) {
+        if (options.recursive == false &&
+            e.status == FileSystemException.statusNotEmpty) {
+          // ok
+        } else {
+          print('delete $dir failed $e');
         }
-      } else {
-        print('delete $dir failed $e');
       }
+    } else {
+      print('delete $dir failed $e');
     }
-    if (options.create) {
-      await dir.create(recursive: true);
-    }
-  } else {
-    throw new ArgumentError('not a directort ($dir)');
+  }
+  if (options.create) {
+    await dir.create(recursive: true);
   }
 }
 
@@ -156,23 +152,19 @@ Future deleteDirectory(Directory dir, {DeleteOptions options}) async {
 Future deleteFile(File file, {DeleteOptions options}) async {
   options ??= defaultDeleteOptions;
 
-  if (await file.fs.isFile(file.path)) {
-    try {
-      await file.delete(recursive: options.recursive);
-    } catch (e) {
-      if (e is FileSystemException) {
-        if (e.status != FileSystemException.statusNotFound) {
-          print('delete $file failed $e');
-        }
-      } else {
+  try {
+    await file.delete(recursive: options.recursive);
+  } catch (e) {
+    if (e is FileSystemException) {
+      if (e.status != FileSystemException.statusNotFound) {
         print('delete $file failed $e');
       }
+    } else {
+      print('delete $file failed $e');
     }
-    if (options.create) {
-      await file.create(recursive: true);
-    }
-  } else {
-    throw new ArgumentError('not a file ($file)');
+  }
+  if (options.create) {
+    await file.create(recursive: true);
   }
 }
 
@@ -182,7 +174,7 @@ Future<int> copyDirectoryImpl(Directory src, FileSystemEntity dst,
   if (await src.fs.isDirectory(src.path)) {
     // delete destination first?
     if (options.delete) {
-      await dst.delete(recursive: true);
+      await deleteDirectory(dst);
     }
     return await new TopCopy(
         new TopEntity(src.fs, src.path), new TopEntity(dst.fs, dst.path),

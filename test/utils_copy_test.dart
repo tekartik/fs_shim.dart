@@ -73,6 +73,10 @@ void defineTests(FileSystemTestContext ctx) {
         Directory top = await ctx.prepare();
         Directory src = childDirectory(top, "src");
         File file = childFile(src, 'file');
+
+        // not exists ok
+        await deleteDirectory(src);
+
         await writeString(file, "test");
         await deleteDirectory(src);
         expect(await file.exists(), isFalse);
@@ -108,10 +112,9 @@ void defineTests(FileSystemTestContext ctx) {
       test('file', () async {
         Directory top = await ctx.prepare();
         File srcFile = fs.newFile(join(top.path, "file"));
-        try {
-          await deleteFile(srcFile);
-          fail('should fail');
-        } on ArgumentError catch (_) {}
+
+        // not exists ok
+        await deleteFile(srcFile);
 
         await srcFile.writeAsString("test", flush: true);
 
@@ -143,9 +146,15 @@ void defineTests(FileSystemTestContext ctx) {
         await copyDirectory(src, dst);
         expect(await dstFile.exists(), isTrue);
 
+        // delete existing
         await copyDirectory(src, dst,
             options: defaultCopyOptions.clone..delete = true);
         expect(await dstFile.exists(), isFalse);
+
+        // delete before copying with delete
+        await deleteDirectory(dst);
+        await copyDirectory(src, dst,
+            options: defaultCopyOptions.clone..delete = true);
       });
 
       test('file', () async {
