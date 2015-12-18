@@ -1,6 +1,8 @@
 library fs_shim.test.utils_copy_tests;
 
 import 'package:fs_shim/utils/copy.dart';
+import 'package:fs_shim/utils/src/utils_impl.dart'
+    show copyFileSystemEntityImpl;
 import 'package:path/path.dart';
 import 'package:fs_shim/fs.dart';
 import 'test_common.dart';
@@ -65,6 +67,59 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await file.exists(), isTrue);
       });
     });
+    group('delete', () {
+      test('dir', () async {
+        // fsCopyDebug = true;
+        Directory top = await ctx.prepare();
+        Directory src = childDirectory(top, "src");
+        File file = childFile(src, 'file');
+        await writeString(file, "test");
+        await deleteDirectory(src);
+        expect(await file.exists(), isFalse);
+      });
+
+      test('file_create', () async {
+        Directory top = await ctx.prepare();
+        File file = childFile(top, 'file');
+        expect(await createFile(file), file);
+        expect(await file.exists(), isTrue);
+        await deleteFile(file);
+        expect(await file.exists(), isFalse);
+        expect(await createFile(file), file);
+        await deleteFile(file, options: new DeleteOptions());
+        expect(await file.exists(), isFalse);
+        expect(await createFile(file), file);
+        await deleteFile(file, options: new DeleteOptions()..create = true);
+        expect(await file.exists(), isTrue);
+      });
+
+      test('dir_with_content', () async {
+        //fsDeleteDebug = true;
+        Directory top = await ctx.prepare();
+        Directory src = childDirectory(top, "src");
+        File file1 = await writeString(childFile(src, "file1"), "test");
+        File file2 = await writeString(childFile(src, "file2"), "test");
+        await deleteDirectory(src,
+            options: new DeleteOptions()..recursive = true);
+        expect(await entityExists(file1), isFalse);
+        expect(await entityExists(file2), isFalse);
+      });
+
+      test('file', () async {
+        Directory top = await ctx.prepare();
+        File srcFile = fs.newFile(join(top.path, "file"));
+        try {
+          await deleteFile(srcFile);
+          fail('should fail');
+        } on ArgumentError catch (_) {}
+
+        await srcFile.writeAsString("test", flush: true);
+
+        await deleteFile(srcFile);
+
+        expect(await srcFile.exists(), isFalse);
+      });
+    });
     group('copy', () {
       test('dir', () async {
         // fsCopyDebug = true;
@@ -75,6 +130,22 @@ void defineTests(FileSystemTestContext ctx) {
 
         await copyDirectory(src, dst);
         expect(await readString(childFile(dst, "file")), "test");
+      });
+
+      test('dir_delete', () async {
+        // fsCopyDebug = true;
+        Directory top = await ctx.prepare();
+        Directory src = childDirectory(top, "src");
+        Directory dst = childDirectory(top, "dst");
+        await src.create();
+        File dstFile = await createFile(childFile(dst, "file"));
+
+        await copyDirectory(src, dst);
+        expect(await dstFile.exists(), isTrue);
+
+        await copyDirectory(src, dst,
+            options: defaultCopyOptions.clone..delete = true);
+        expect(await dstFile.exists(), isFalse);
       });
 
       test('file', () async {
@@ -142,7 +213,7 @@ void defineTests(FileSystemTestContext ctx) {
             dstDir);
       });
 
-      group('copy_scenarii', () {
+      group('scenario', () {
         Directory top;
         Directory src;
         Directory dst;
@@ -153,13 +224,22 @@ void defineTests(FileSystemTestContext ctx) {
           dst = childDirectory(top, "dst");
         }
 
-        test('exclude', () async {
+        test('copy_exclude_file', () async {
           await _prepare();
           await writeString(childFile(src, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
           await copyDirectory(src, dst,
               options: new CopyOptions(recursive: true, exclude: ["file1"]));
           expect(await entityExists(childFile(dst, "file1")), isFalse);
+          expect(await readString(childFile(dst, "file2")), "test");
+        });
+        test('copy_exclude_dir', () async {
+          await _prepare();
+          await writeString(childFile(src, "file1"), "test");
+          await writeString(childFile(src, "file2"), "test");
+          await copyDirectory(src, dst,
+              options: new CopyOptions(recursive: true, exclude: ["file1/"]));
+          expect(await entityExists(childFile(dst, "file1")), isTrue);
           expect(await readString(childFile(dst, "file2")), "test");
         });
       });
@@ -305,15 +385,15 @@ void defineTests(FileSystemTestContext ctx) {
         Directory srcDir = fs.newDirectory(join(top.path, "dir"));
         Directory dstDir = fs.newDirectory(join(top.path, "dir2"));
 
-        expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir), 0);
 
         await srcDir.create();
 
-        expect(await copyFileSystemEntity(srcDir, dstDir), 1);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir), 1);
 
         expect(await dstDir.exists(), isTrue);
 
-        expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir), 0);
       });
 
       test('copy_file', () async {
@@ -321,21 +401,21 @@ void defineTests(FileSystemTestContext ctx) {
         File srcFile = fs.newFile(join(top.path, "file"));
         File dstFile = fs.newFile(join(top.path, "file2"));
 
-        expect(await copyFileSystemEntity(srcFile, dstFile), 0);
+        expect(await copyFileSystemEntityImpl(srcFile, dstFile), 0);
 
         await srcFile.writeAsString("test", flush: true);
 
-        expect(await copyFileSystemEntity(srcFile, dstFile), 1);
+        expect(await copyFileSystemEntityImpl(srcFile, dstFile), 1);
 
         expect(await dstFile.exists(), isTrue);
         expect(await dstFile.readAsString(), "test");
 
         // do it again
-        expect(await copyFileSystemEntity(srcFile, dstFile), 1);
+        expect(await copyFileSystemEntityImpl(srcFile, dstFile), 1);
 
         // again with option
         expect(
-            await copyFileSystemEntity(srcFile, dstFile,
+            await copyFileSystemEntityImpl(srcFile, dstFile,
                 options: new CopyOptions(checkSizeAndModifiedDate: true)),
             0);
 
@@ -344,11 +424,11 @@ void defineTests(FileSystemTestContext ctx) {
 
         // again with option
         expect(
-            await copyFileSystemEntity(srcFile, dstFile,
+            await copyFileSystemEntityImpl(srcFile, dstFile,
                 options: new CopyOptions(checkSizeAndModifiedDate: true)),
             1);
         expect(
-            await copyFileSystemEntity(srcFile, dstFile,
+            await copyFileSystemEntityImpl(srcFile, dstFile,
                 options: new CopyOptions(checkSizeAndModifiedDate: true)),
             0);
       });
@@ -359,19 +439,19 @@ void defineTests(FileSystemTestContext ctx) {
         Link srcLink = fs.newLink(join(top.path, 'link'));
         Directory dstDir = fs.newDirectory(join(top.path, "dir2"));
 
-        expect(await copyFileSystemEntity(srcLink, dstDir), 0);
+        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
 
         await srcLink.create(srcDir.path);
 
-        expect(await copyFileSystemEntity(srcLink, dstDir), 0);
+        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
 
         await srcDir.create();
 
-        expect(await copyFileSystemEntity(srcLink, dstDir), 1);
+        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 1);
 
         expect(await dstDir.exists(), isTrue);
 
-        expect(await copyFileSystemEntity(srcLink, dstDir), 0);
+        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
       });
 
       test('copy_link_file', () async {
@@ -381,21 +461,21 @@ void defineTests(FileSystemTestContext ctx) {
           Link srcLink = fs.newLink(join(top.path, 'link'));
           File dstFile = fs.newFile(join(top.path, "file2"));
 
-          expect(await copyFileSystemEntity(srcLink, dstFile), 0);
+          expect(await copyFileSystemEntityImpl(srcLink, dstFile), 0);
 
           await srcLink.create(srcFile.path);
 
-          expect(await copyFileSystemEntity(srcLink, dstFile), 0);
+          expect(await copyFileSystemEntityImpl(srcLink, dstFile), 0);
 
           await srcFile.writeAsString("test", flush: true);
 
-          expect(await copyFileSystemEntity(srcLink, dstFile), 1);
+          expect(await copyFileSystemEntityImpl(srcLink, dstFile), 1);
 
           expect(await dstFile.exists(), isTrue);
           expect(await dstFile.readAsString(), "test");
 
           // do it again
-          expect(await copyFileSystemEntity(srcLink, dstFile), 1);
+          expect(await copyFileSystemEntityImpl(srcLink, dstFile), 1);
         }
       });
 
@@ -410,7 +490,7 @@ void defineTests(FileSystemTestContext ctx) {
         await srcFile1.writeAsString("test1", flush: true);
         await srcFile2.writeAsString("test2", flush: true);
         expect(
-            await copyFileSystemEntity(srcDir, dstDir,
+            await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: new CopyOptions(recursive: true, exclude: ['file1'])),
             2);
 
@@ -419,10 +499,15 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.newFile(join(dstDir.path, "file2")).readAsString(),
             "test2");
         expect(await fs.newFile(join(dstDir.path, "file1")).exists(), isFalse);
-        expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+        expect(
+            await copyFileSystemEntityImpl(srcDir, dstDir,
+                options: new CopyOptions(recursive: false)),
+            0);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir), 2);
       });
 
       test('copy_dir_exclude_relative', () async {
+        //fsCopyDebug = true;
         // exclude test on purpose to see if it get ejected as it is part of the while file
         Directory top = await ctx.prepare();
         Directory srcDir = fs.newDirectory(join(top.path, "dir"));
@@ -434,7 +519,7 @@ void defineTests(FileSystemTestContext ctx) {
         await srcFile1.writeAsString("test1", flush: true);
         await srcFile2.writeAsString("test2", flush: true);
         expect(
-            await copyFileSystemEntity(srcDir, dstDir,
+            await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: new CopyOptions(recursive: true, exclude: ['test'])),
             2);
 
@@ -443,7 +528,11 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.newFile(join(dstDir.path, "file2")).readAsString(),
             "test2");
         expect(await fs.newFile(join(dstDir.path, "test")).exists(), isFalse);
-        expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+        expect(
+            await copyFileSystemEntityImpl(srcDir, dstDir,
+                options: new CopyOptions(recursive: false)),
+            0);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir), 2);
       });
 
       test('copy_sub_dir_exclude', () async {
@@ -458,7 +547,7 @@ void defineTests(FileSystemTestContext ctx) {
         await srcFile1.writeAsString("test1", flush: true);
         await srcFile2.writeAsString("test2", flush: true);
         expect(
-            await copyFileSystemEntity(srcDir, dstDir,
+            await copyFileSystemEntityImpl(srcDir, dstDir,
                 options:
                     new CopyOptions(recursive: true, exclude: ['sub/file1'])),
             3);
@@ -470,7 +559,11 @@ void defineTests(FileSystemTestContext ctx) {
             "test2");
         expect(await fs.newFile(join(dstDir.path, "sub", "file1")).exists(),
             isFalse);
-        expect(await copyFileSystemEntity(srcDir, dstDir), 0);
+        expect(
+            await copyFileSystemEntityImpl(srcDir, dstDir,
+                options: new CopyOptions(recursive: false)),
+            0);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir), 2);
       });
 
       test('link_file', () async {
@@ -481,12 +574,16 @@ void defineTests(FileSystemTestContext ctx) {
 
           CopyOptions options = new CopyOptions(tryToLinkFile: true);
 
-          expect(await copyFileSystemEntity(srcFile, dstFile, options: options),
+          expect(
+              await copyFileSystemEntityImpl(srcFile, dstFile,
+                  options: options),
               0);
 
           await srcFile.writeAsString("test", flush: true);
 
-          expect(await copyFileSystemEntity(srcFile, dstFile, options: options),
+          expect(
+              await copyFileSystemEntityImpl(srcFile, dstFile,
+                  options: options),
               1);
 
           expect(await dstFile.exists(), isTrue);
@@ -498,7 +595,9 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await fs.isFile(dstFile.path), isTrue);
 
           // do it again if file link supported nothing is done
-          expect(await copyFileSystemEntity(srcFile, dstFile, options: options),
+          expect(
+              await copyFileSystemEntityImpl(srcFile, dstFile,
+                  options: options),
               fs.supportsFileLink ? 0 : 1);
         }
       });
@@ -512,27 +611,30 @@ void defineTests(FileSystemTestContext ctx) {
 
         File srcFile = fs.newFile(join(srcDir.path, "file"));
 
-        expect(await copyFileSystemEntity(srcDir, dstDir, options: options), 0);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir, options: options),
+            0);
 
         await srcFile.create(recursive: true);
         await srcFile.writeAsString("test", flush: true);
 
         // copy file and dir
-        expect(await copyFileSystemEntity(srcDir, dstDir, options: options), 2);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir, options: options),
+            2);
         // copy file only
-        expect(await copyFileSystemEntity(srcDir, dstDir, options: options), 1);
+        expect(await copyFileSystemEntityImpl(srcDir, dstDir, options: options),
+            1);
         expect(
-            await copyFileSystemEntity(srcDir, dstDir,
+            await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: copyNewerOptions),
             0);
 
         // If no file link, nothing changed
         expect(
-            await copyFileSystemEntity(srcDir, dstDir,
+            await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: recursiveLinkOrCopyNewerOptions),
             fs.supportsFileLink ? 1 : 0);
         expect(
-            await copyFileSystemEntity(srcDir, dstDir,
+            await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: recursiveLinkOrCopyNewerOptions),
             0);
       });

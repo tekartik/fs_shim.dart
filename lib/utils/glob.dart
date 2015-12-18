@@ -203,4 +203,6 @@ class Glob {
 
   @override
   String toString() => '$_expressionParts';
+
+  bool get isDir => expression.endsWith(posix.separator);
 }

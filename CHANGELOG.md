@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.6.0
+
+Add copy utilities:
+- copyDirectory
+- copyFile
+- createDirectory
+- createFile
+- deleteDirectory
+- deleteFile
+
 ## 0.5.0
 
 Add support for links in Directory.list

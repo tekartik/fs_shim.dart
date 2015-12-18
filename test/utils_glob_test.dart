@@ -83,5 +83,14 @@ main() {
 
       checkMatch("**/a", "b", isFalse);
     });
+
+    test('isDir', () {
+      expect(new Glob('/').isDir, isTrue);
+      expect(new Glob('a/').isDir, isTrue);
+      expect(new Glob('a/b/').isDir, isTrue);
+      expect(new Glob('a').isDir, isFalse);
+      expect(new Glob('a/b').isDir, isFalse);
+      expect(new Glob('a/b\\').isDir, isFalse);
+    });
   });
 }
