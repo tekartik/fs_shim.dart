@@ -11,11 +11,7 @@ import 'fs_shim_file_stat_test.dart' as file_stat_test;
 import 'fs_shim_file_system_test.dart' as file_system_test;
 import 'fs_shim_file_system_exception_test.dart' as file_system_exception_test;
 
-import 'utils_copy_test.dart' as utils_copy_test;
-import 'utils_entity_test.dart' as utils_entity_test;
-import 'utils_part_test.dart' as utils_part_test;
-import 'utils_path_test.dart' as utils_path_test;
-import 'utils_read_write_test.dart' as utils_read_write_test;
+import 'utils_test.dart' as utils_test;
 
 import 'fs_shim_sanity_test.dart' as fs_shim_sanity_test;
 
@@ -35,10 +31,5 @@ void defineTests(FileSystemTestContext ctx) {
 
   fs_shim_sanity_test.defineTests(ctx);
 
-  utils_copy_test.defineTests(ctx);
-  utils_entity_test.defineTests(ctx);
-  // no: utils_glob_test.defineTests(ctx);
-  utils_part_test.defineTests(ctx);
-  utils_path_test.defineTests(ctx);
-  utils_read_write_test.defineTests(ctx);
+  utils_test.defineTests(ctx);
 }
