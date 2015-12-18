@@ -124,7 +124,7 @@ main() async {
 ### Utilities
 
 * Lightweight glob support (`**`, `*` and `?` in a posix style path)
-* Copy classes (alpha)
+* Copy utilities (copy files, directories recursively)
 
 ## Features and bugs
 
