@@ -10,4 +10,4 @@ dartanalyzer --fatal-warnings \
   lib/fs_memory.dart \
 
 pub run test -p vm
-pub run test -p firefox -j 1 --reporter expanded
+# pub run test -p firefox -j 1 --reporter expanded
