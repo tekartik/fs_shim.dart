@@ -34,7 +34,7 @@ abstract class FileMixin {
       {FileMode mode: FileMode.WRITE, Encoding encoding: UTF8});
   // implemented by IdbFile
   Stream<List<int>> openRead([int start, int end]);
-  // implement by IdbFileSystemEntity
+  // implemented by IdbFileSystemEntity
   String get path;
 
   Future<FileMixin> doWriteAsBytes(List<int> bytes,

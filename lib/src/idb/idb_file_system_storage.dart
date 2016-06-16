@@ -85,18 +85,23 @@ class IdbFileSystemStorage {
       Node parent, String name, bool followLastLink) {
     String parentName = getParentName(parent, name);
 
-    return index.getKey(parentName).then((int id) {
+    _nodeFromKey(int id) {
       if (id == null) {
         return null;
       }
-      return index.get(parentName).then((Map map) {
+
+      _nodeFromMap(Map map) {
         Node entity = new Node.fromMap(parent, map, id);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
         }
         return entity;
-      });
-    }) as Future<Node>;
+      }
+
+      return index.get(parentName).then(_nodeFromMap);
+    }
+
+    return index.getKey(parentName).then(_nodeFromKey) as Future<Node>;
   }
 
   Future<Node> getChildNode(Node parent, String name, bool followLink) async {
@@ -138,7 +143,7 @@ class IdbFileSystemStorage {
         */
 
         return entity;
-      }) as Future<Node>;
+      });
     }
     return __get(segments);
   }
@@ -238,7 +243,7 @@ class IdbFileSystemStorage {
     return store.add(entity.toMap()).then((int id) {
       entity.id = id;
       return entity;
-    }) as Future<Node>;
+    });
   }
 
   Future<Node> addNode(Node entity) async {

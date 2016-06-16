@@ -52,31 +52,33 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
         Stream<io.FileSystemEntity> input, bool cancelOnError) {
       StreamController<FileSystemEntity> controller;
       //StreamSubscription<io.FileSystemEntity> subscription;
-      controller = new StreamController<FileSystemEntity>(onListen: () {
-        input.listen((io.FileSystemEntity data) {
-          // Duplicate the data.
-          if (data is io.File) {
-            controller.add(new FileImpl.io(data));
-          } else if (data is io.Directory) {
-            controller.add(new DirectoryImpl.io(data));
-          } else if (data is io.Link) {
-            controller.add(new LinkImpl.io(data));
-          } else {
-            controller.addError(new UnsupportedError(
-                'type ${data} ${data.runtimeType} not supported'));
-          }
-        }, onError: (e) {
-          // Important here to wrap the error
-          controller.addError(ioWrapError(e));
-        }, onDone: controller.close, cancelOnError: cancelOnError);
-      }, sync: true);
+      controller = new StreamController<FileSystemEntity>(
+          onListen: () {
+            input.listen((io.FileSystemEntity data) {
+              // Duplicate the data.
+              if (data is io.File) {
+                controller.add(new FileImpl.io(data));
+              } else if (data is io.Directory) {
+                controller.add(new DirectoryImpl.io(data));
+              } else if (data is io.Link) {
+                controller.add(new LinkImpl.io(data));
+              } else {
+                controller.addError(new UnsupportedError(
+                    'type ${data} ${data.runtimeType} not supported'));
+              }
+            }, onError: (e) {
+              // Important here to wrap the error
+              controller.addError(ioWrapError(e));
+            }, onDone: controller.close, cancelOnError: cancelOnError);
+          },
+          sync: true);
       return controller.stream.listen(null);
     }
 
     // as Stream<io.FileSystemEntity, FileSystemEntity>;
     return ioStream.transform(
         new StreamTransformer<io.FileSystemEntity, FileSystemEntity>(
-            _transformer)) as Stream<FileSystemEntity>;
+            _transformer));
   }
 
   @override

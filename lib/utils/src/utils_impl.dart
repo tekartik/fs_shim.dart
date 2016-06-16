@@ -3,7 +3,6 @@ library fs_shim.utils.src.utils_impl;
 import 'dart:async';
 
 //import 'package:logging/logging.dart' as log;
-import 'package:path/path.dart';
 import 'package:path/path.dart' as _path;
 import '../../fs.dart';
 import '../glob.dart';
@@ -177,8 +176,9 @@ Future<int> copyDirectoryImpl(Directory src, FileSystemEntity dst,
       await deleteDirectory(dst);
     }
     return await new TopCopy(
-        new TopEntity(src.fs, src.path), new TopEntity(dst.fs, dst.path),
-        options: options).run();
+            new TopEntity(src.fs, src.path), new TopEntity(dst.fs, dst.path),
+            options: options)
+        .run();
   } else {
     throw new ArgumentError('not a directory ($src)');
   }
@@ -199,9 +199,9 @@ Future<int> copyFileImpl(File src, FileSystemEntity dst,
       await dst.delete(recursive: true);
     }
     return await new TopCopy(new TopEntity(src.fs, src.parent.path),
-        new TopEntity(dst.fs, dst.parent.path),
-        options: options).runChild(src.fs.pathContext.basename(src.path),
-        dst.fs.pathContext.basename(dst.path));
+            new TopEntity(dst.fs, dst.parent.path), options: options)
+        .runChild(src.fs.pathContext.basename(src.path),
+            dst.fs.pathContext.basename(dst.path));
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
     throw new ArgumentError('not a file ($src)');

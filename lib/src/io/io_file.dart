@@ -61,7 +61,8 @@ class FileImpl extends FileSystemEntityImpl implements File {
   Future<FileImpl> writeAsBytes(List<int> bytes,
           {fs.FileMode mode: fs.FileMode.WRITE, bool flush: false}) =>
       ioWrap(ioFile.writeAsBytes(bytes,
-          mode: fileWriteMode(mode), flush: flush)).then(_me);
+              mode: fileWriteMode(mode), flush: flush))
+          .then(_me);
 
   @override
   Future<FileImpl> writeAsString(String contents,
@@ -69,9 +70,8 @@ class FileImpl extends FileSystemEntityImpl implements File {
           Encoding encoding: UTF8,
           bool flush: false}) =>
       ioWrap(ioFile.writeAsString(contents,
-          mode: fileWriteMode(mode),
-          encoding: encoding,
-          flush: flush)).then(_me);
+              mode: fileWriteMode(mode), encoding: encoding, flush: flush))
+          .then(_me);
 
   @override
   Future<List<int>> readAsBytes() =>

@@ -255,8 +255,7 @@ class IdbFileSystem extends Object
 
   Future<Node> _txnCreateFile(idb.ObjectStore store, List<String> segments,
       {bool recursive: false}) {
-    // Try to find the file if it exists
-    return txnSearch(store, segments, false).then((NodeSearchResult result) {
+    _nodeFromSearchResult(NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.FILE) {
@@ -302,7 +301,7 @@ class IdbFileSystem extends Object
           return store.add(entity.toMap()).then((int id) {
             entity.id = id;
             return entity;
-          }) as Future<Node>;
+          });
         }
         Future<Node> _addFile(Node parent) =>
             _addFileWithSegments(parent, segments);
@@ -327,14 +326,17 @@ class IdbFileSystem extends Object
           return _addFile(result.highest);
         }
       }
-    }) as Future<Node>;
+    }
+    // Try to find the file if it exists
+    return txnSearch(store, segments, false).then(_nodeFromSearchResult)
+        as Future<Node>;
   }
 
   Future<Node> _createLink(
       idb.ObjectStore store, List<String> segments, String target,
       {bool recursive: false}) {
     // Try to find the file if it exists
-    return txnSearch(store, segments, false).then((NodeSearchResult result) {
+    _nodeFromSearchResult(NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
         throw idbAlreadyExistsException(result.path, "Already exists");
@@ -373,7 +375,9 @@ class IdbFileSystem extends Object
       } else {
         return _addLink(result.highest);
       }
-    }) as Future<Node>;
+    }
+    return txnSearch(store, segments, false).then(_nodeFromSearchResult)
+        as Future<Node>;
   }
 
   Future createFile(String path, {bool recursive: false}) async {
@@ -401,8 +405,8 @@ class IdbFileSystem extends Object
     await _ready;
     List<String> segments = getSegments(path);
 
-    idb.Transaction txn = _db.transactionList(
-        [treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    idb.Transaction txn = _db
+        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
 
     await _delete(txn, type, segments, recursive: recursive);
     await txn.completed;
@@ -433,19 +437,21 @@ class IdbFileSystem extends Object
       parentIndex
           .openCursor(key: entity.id, autoAdvance: false)
           .listen((idb.CursorWithValue cwv) {
-        Node child = new Node.fromMap(entity, cwv.value, cwv.primaryKey);
-        if (recursive == true) {
-          futures.add(_deleteEntity(txn, child, recursive: true));
-          cwv.next();
-        } else {
-          error = idbNotEmptyException(entity.path, "Deletion failed");
-          done.complete();
-        }
-      }).asFuture().then((_) {
-        if (!done.isCompleted) {
-          done.complete();
-        }
-      });
+            Node child = new Node.fromMap(entity, cwv.value, cwv.primaryKey);
+            if (recursive == true) {
+              futures.add(_deleteEntity(txn, child, recursive: true));
+              cwv.next();
+            } else {
+              error = idbNotEmptyException(entity.path, "Deletion failed");
+              done.complete();
+            }
+          })
+          .asFuture()
+          .then((_) {
+            if (!done.isCompleted) {
+              done.complete();
+            }
+          });
       return done.future.then((_) {
         if (error != null) {
           throw error;
@@ -522,8 +528,8 @@ class IdbFileSystem extends Object
     List<String> segments = getSegments(path);
     List<String> newSegments = getSegments(newPath);
 
-    idb.Transaction txn = _db.transactionList(
-        [treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    idb.Transaction txn = _db
+        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
 
     idb.ObjectStore store = txn.objectStore(treeStoreName);
 
@@ -607,7 +613,7 @@ class IdbFileSystem extends Object
       }
     }).whenComplete(() {
       return txn.completed;
-    }) as Future<String>;
+    });
     return await target;
   }
 
@@ -618,8 +624,8 @@ class IdbFileSystem extends Object
 
     DateTime _modified = new DateTime.now();
 
-    idb.Transaction txn = _db.transactionList(
-        [treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    idb.Transaction txn = _db
+        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
     try {
       idb.ObjectStore store = txn.objectStore(treeStoreName);
 
