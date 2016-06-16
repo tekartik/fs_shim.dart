@@ -3,7 +3,7 @@
 # Fast fail the script on failures.
 set -e
 
-dartanalyzer --fatal-warnings
+dartanalyzer --fatal-warnings \
   lib/fs.dart \
   lib/fs_idb.dart \
   lib/fs_io.dart \
