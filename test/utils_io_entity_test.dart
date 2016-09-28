@@ -1,3 +1,4 @@
+@TestOn("vm")
 library fs_shim.test.utils_entity_tests;
 
 import 'package:fs_shim/utils/io/entity.dart';
