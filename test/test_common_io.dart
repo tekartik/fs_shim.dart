@@ -9,7 +9,7 @@ import 'dart:mirrors';
 import 'package:platform_context/context.dart';
 import 'package:platform_context/context_io.dart';
 
-final IoFileSystemTestContext ioFileSystemContext =
+final IoFileSystemTestContext ioFileSystemTestContext =
     new IoFileSystemTestContext();
 
 class IoFileSystemTestContext extends FileSystemTestContext {

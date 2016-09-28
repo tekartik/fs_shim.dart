@@ -376,8 +376,7 @@ class IdbFileSystem extends Object
         return _addLink(result.highest);
       }
     }
-    return txnSearch(store, segments, false).then(_nodeFromSearchResult)
-        as Future<Node>;
+    return txnSearch(store, segments, false).then(_nodeFromSearchResult);
   }
 
   Future createFile(String path, {bool recursive: false}) async {
@@ -710,7 +709,7 @@ class IdbFileSystem extends Object
     }
     return _next().then((_) {
       return entity;
-    }) as Future<Node>;
+    });
   }
 
   StreamSink<List<int>> openWrite(String path,

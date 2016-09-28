@@ -13,13 +13,13 @@ import 'test_common.dart';
 import 'package:path/path.dart';
 
 void main() {
-  FileSystem fs = ioFileSystemContext.fs;
+  FileSystem fs = ioFileSystemTestContext.fs;
   group('io', () {
     test('windows', () {
-      expect(isIoWindows(ioFileSystemContext), io.Platform.isWindows);
+      expect(isIoWindows(ioFileSystemTestContext), io.Platform.isWindows);
     });
     test('name', () {
-      expect(ioFileSystemContext.fs.name, 'io');
+      expect(ioFileSystemTestContext.fs.name, 'io');
     });
     test('equals', () {
       // Files cannot be compared!
@@ -27,16 +27,16 @@ void main() {
       expect(new io.Directory("test"), isNot(new io.Directory("test")));
     });
     test('type', () async {
-      expect(await ioFileSystemContext.fs.type(testScriptPath),
+      expect(await ioFileSystemTestContext.fs.type(testScriptPath),
           FileSystemEntityType.FILE);
-      expect(await ioFileSystemContext.fs.type(dirname(testScriptPath)),
+      expect(await ioFileSystemTestContext.fs.type(dirname(testScriptPath)),
           FileSystemEntityType.DIRECTORY);
     });
     test('test_path', () async {
-      expect(ioFileSystemContext.outTopPath,
+      expect(ioFileSystemTestContext.outTopPath,
           join(dirname(dirname(testScriptPath)), "test_out"));
-      expect(ioFileSystemContext.outPath,
-          join(ioFileSystemContext.outTopPath, joinAll(testDescriptions)));
+      expect(ioFileSystemTestContext.outPath,
+          join(ioFileSystemTestContext.outTopPath, joinAll(testDescriptions)));
     });
 
     group('conversion', () {
@@ -163,6 +163,6 @@ void main() {
     });
 
     // All tests
-    defineTests(ioFileSystemContext);
+    defineTests(ioFileSystemTestContext);
   });
 }

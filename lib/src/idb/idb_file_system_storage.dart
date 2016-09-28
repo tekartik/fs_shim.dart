@@ -212,7 +212,7 @@ class IdbFileSystemStorage {
     }
     return _next().then((_) {
       return result;
-    }) as Future<NodeSearchResult>;
+    });
     /*
     for (String segment in segments) {
       entity = await _getWithParent(index, parent, segment);
