@@ -1,11 +1,11 @@
 library fs_shim.utils.entity;
 
 import 'dart:async';
-//import 'package:logging/logging.dart' as log;
-import 'package:path/path.dart';
 import 'dart:io';
-import '../entity.dart' as fs;
-import '../../fs_io.dart' as fs;
+
+import 'package:path/path.dart';
+//import 'package:logging/logging.dart' as log;
+
 ///
 /// convert to a directory object if necessary
 ///
@@ -55,5 +55,6 @@ Link childLink(Directory dir, String sub) {
 }
 
 Future<bool> entityExists(FileSystemEntity entity) async {
-  return (await FileSystemEntity.type(entity.path)) != FileSystemEntityType.NOT_FOUND;
+  return (await FileSystemEntity.type(entity.path)) !=
+      FileSystemEntityType.NOT_FOUND;
 }
