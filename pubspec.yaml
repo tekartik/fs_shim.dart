@@ -8,8 +8,8 @@ environment:
   sdk: '>=1.17.1 <2.0.0'
 
 dependencies:
-  idb_shim: any
-  path: any
+  idb_shim: '>=1.3.5'
+  path: '>=1.3.9'
 
 test_dependencies:
   - platform_context
