@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.3
+
+Add io entity utils
+
 ## 0.6.0
 
 Add copy utilities:
