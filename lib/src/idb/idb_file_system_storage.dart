@@ -145,6 +145,7 @@ class IdbFileSystemStorage {
         return entity;
       });
     }
+
     return __get(segments);
   }
 
@@ -210,6 +211,7 @@ class IdbFileSystemStorage {
         } else {}
       });
     }
+
     return _next().then((_) {
       return result;
     });

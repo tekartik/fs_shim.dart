@@ -10,10 +10,12 @@ main() {
       expect(glob.matches(contextPath(name)), matcher,
           reason: "'$glob' '$name'");
     }
+
     checkPart(String expression, String name, Matcher matcher) {
       expect(Glob.matchPart(expression, name), matcher,
           reason: "'$expression' '$name'");
     }
+
     test('part', () {
       // null part
       checkPart("", null, isFalse);

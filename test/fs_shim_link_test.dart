@@ -757,6 +757,7 @@ void defineTests(FileSystemTestContext ctx) {
           }
           return -1;
         }
+
         FileSystemEntity getInList(
             List<FileSystemEntity> list, FileSystemEntity entity) {
           for (int i = 0; i < list.length; i++) {
@@ -766,6 +767,7 @@ void defineTests(FileSystemTestContext ctx) {
           }
           return null;
         }
+
         test('list_with_links', () async {
           if (fs.supportsLink) {
             Directory top = await ctx.prepare();

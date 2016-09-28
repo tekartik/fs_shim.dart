@@ -303,6 +303,7 @@ class IdbFileSystem extends Object
             return entity;
           });
         }
+
         Future<Node> _addFile(Node parent) =>
             _addFileWithSegments(parent, segments);
 
@@ -327,6 +328,7 @@ class IdbFileSystem extends Object
         }
       }
     }
+
     // Try to find the file if it exists
     return txnSearch(store, segments, false).then(_nodeFromSearchResult)
         as Future<Node>;
@@ -364,6 +366,7 @@ class IdbFileSystem extends Object
         //print('adding ${entity}');
         return _storage.txnAddNode(store, entity);
       }
+
       // check depth
       if (result.parent.remainingSegments.isNotEmpty) {
         return _createDirectory(store, result.parent).then((Node parent) {
@@ -376,6 +379,7 @@ class IdbFileSystem extends Object
         return _addLink(result.highest);
       }
     }
+
     return txnSearch(store, segments, false).then(_nodeFromSearchResult);
   }
 
@@ -553,6 +557,7 @@ class IdbFileSystem extends Object
           entity.name = newSegments.last;
           return store.put(entity.toMap(), entity.id);
         }
+
         if (newEntity != null) {
           newParent = newEntity.parent;
           // Same type ok
@@ -707,6 +712,7 @@ class IdbFileSystem extends Object
         }
       });
     }
+
     return _next().then((_) {
       return entity;
     });
@@ -834,6 +840,7 @@ class IdbFileSystem extends Object
               }
             }).asFuture();
           }
+
           return _list(path, entity);
         }
       }).whenComplete(() async {
