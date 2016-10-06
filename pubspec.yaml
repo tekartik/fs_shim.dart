@@ -21,3 +21,6 @@ dev_dependencies:
   browser: any
   platform_context:
     git: https://github.com/alextekartik/platform_context.dart
+  chrome_travis:
+    git: git://github.com/tekartik/chrome_travis.dart
+    version: '>=0.1.3'
