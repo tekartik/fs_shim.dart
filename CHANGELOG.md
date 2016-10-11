@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.4
+
+Add read_write io utils
+
 ## 0.6.3
 
 Add io entity utils
