@@ -1,4 +1,4 @@
-// Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
+// Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
 /// The fs_shim library.
@@ -8,6 +8,7 @@ library fs_shim;
 
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:path/path.dart';
 
 abstract class FileSystemEntity {

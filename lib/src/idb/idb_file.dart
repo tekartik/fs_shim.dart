@@ -1,9 +1,7 @@
-library fs_shim.src.idb.idb_file;
-
-import 'idb_fs.dart';
 import '../../fs.dart' as fs;
-import 'idb_file_system_entity.dart';
 import '../common/fs_mixin.dart';
+import 'idb_file_system_entity.dart';
+import 'idb_fs.dart';
 
 class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
   IdbFile(IdbFileSystem fs, String path) : super(fs, path);

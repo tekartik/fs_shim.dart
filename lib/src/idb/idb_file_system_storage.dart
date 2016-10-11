@@ -1,10 +1,10 @@
-library fs_shim.src.idb.idb_file_system_storage;
-
-import 'idb_fs.dart';
-import 'package:idb_shim/idb_client.dart' as idb;
 import 'dart:async';
-import '../../fs.dart' as fs;
+
+import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:path/path.dart';
+
+import '../../fs.dart' as fs;
+import 'idb_fs.dart';
 
 const String treeStoreName = "tree";
 const String fileStoreName = "file";
@@ -359,9 +359,13 @@ class Node {
   @override
   String toString() => toMap().toString();
 
+  @override
   bool operator ==(o) {
     return o.id == id;
   }
+
+  @override
+  int get hashCode => id;
 }
 
 class NodeSearchResult {

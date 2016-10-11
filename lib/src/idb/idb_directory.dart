@@ -1,8 +1,6 @@
-library fs_shim.src.idb.idb_directory;
-
-import 'idb_fs.dart';
 import '../../fs.dart' as fs;
 import 'idb_file_system_entity.dart';
+import 'idb_fs.dart';
 
 class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
   IdbDirectory(IdbFileSystem fs, String path) : super(fs, path);

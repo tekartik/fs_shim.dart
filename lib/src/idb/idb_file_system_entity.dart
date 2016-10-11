@@ -1,9 +1,9 @@
-library fs_shim.src.idb.idb_file_system_entity;
-
-import 'idb_fs.dart';
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs.dart' show FileSystemEntityType, FileStat;
 import 'package:path/path.dart' as path_pkg;
+
 import 'idb_directory.dart';
+import 'idb_fs.dart';
 
 abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   IdbFileSystem _fs;
@@ -17,7 +17,7 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   String get path => _path;
 
   // subclass type
-  fs.FileSystemEntityType get type;
+  FileSystemEntityType get type;
 
   @override
   IdbDirectory get parent => fs.newDirectory(path_pkg.dirname(path));
@@ -38,7 +38,7 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   }
 
   @override
-  Future<fs.FileStat> stat() {
+  Future<FileStat> stat() {
     return _fs.stat(path);
   }
 

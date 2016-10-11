@@ -1,20 +1,19 @@
-library fs_shim.src.idb.idb_file_system;
-
-import 'idb_fs.dart';
-import '../../fs.dart' as fs;
-import 'idb_file_system_entity.dart';
-import '../common/fs_mixin.dart';
-import 'package:idb_shim/idb_client.dart' as idb;
 import 'dart:async';
-import 'package:path/path.dart';
+
+import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
-import 'idb_link.dart';
+import 'package:idb_shim/idb_client.dart' as idb;
+import 'package:path/path.dart';
+
 import 'idb_directory.dart';
 import 'idb_file.dart';
-import 'idb_file_system_exception.dart';
 import 'idb_file_stat.dart';
+import 'idb_file_system_entity.dart';
+import 'idb_file_system_exception.dart';
 import 'idb_file_system_storage.dart';
+import 'idb_fs.dart';
+import 'idb_link.dart';
 
 List<String> _getPathSegments(String path) {
   path = idbMakePathAbsolute(path);
@@ -181,6 +180,9 @@ class IdbFileSystem extends Object
     }
     return false;
   }
+
+  @override
+  int get hashCode => _storage.hashCode;
 
   @override
   bool get supportsLink => true;

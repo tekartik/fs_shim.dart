@@ -9,7 +9,7 @@ main() async {
   // Create a top level directory
   // fs.newDirectory('/dir');
   Directory dir = new Directory(dirPath);
-
+  print('dir: $dir');
   // delete its content
   if (await dir.exists()) {
     await dir.delete(recursive: true);

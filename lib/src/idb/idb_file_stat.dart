@@ -1,5 +1,3 @@
-library fs_shim.src.idb.idb_file_stat;
-
 import '../../fs.dart' as fs;
 
 class IdbFileStat implements fs.FileStat {

@@ -3,6 +3,8 @@
 # Fast fail the script on failures.
 set -e
 
+# Check dart2js warning: using dart2js example/demo_idb.dart --show-package-warnings -o /tmp/out.js
+
 dartanalyzer --fatal-warnings \
   lib/fs.dart \
   lib/fs_idb.dart \

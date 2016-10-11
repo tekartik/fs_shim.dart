@@ -1,8 +1,6 @@
-library fs_shim.src.idb.idb_link;
-
-import 'idb_fs.dart';
 import '../../fs.dart' as fs;
 import 'idb_file_system_entity.dart';
+import 'idb_fs.dart';
 
 class IdbLink extends IdbFileSystemEntity implements fs.Link {
   IdbLink _me(_) => this;

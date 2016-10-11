@@ -1,5 +1,3 @@
-library fs_shim.src.idb.idb_file_system_exception;
-
 import '../../fs.dart' as fs;
 
 IdbError get _noSuchPathError => new IdbError(2, "No such file or directory");
