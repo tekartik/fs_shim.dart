@@ -46,8 +46,8 @@ main() async {
 
   // list dir content
   print('Listing dir: $dir');
-  (await dir.list(recursive: true, followLinks: true).toList()).forEach((
-      FileSystemEntity fse) {
+  (await dir.list(recursive: true, followLinks: true).toList())
+      .forEach((FileSystemEntity fse) {
     print('  found: $fse');
   });
 }

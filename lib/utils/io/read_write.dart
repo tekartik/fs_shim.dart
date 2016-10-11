@@ -12,7 +12,6 @@ Future<File> writeString(File file, String content) async {
   return fs.unwrapIoFile(await fs.writeString(fs.wrapIoFile(file), content));
 }
 
-
 // Read string content
 Future<String> readString(File file) => fs.readString(fs.wrapIoFile(file));
 
