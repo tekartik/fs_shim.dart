@@ -2,21 +2,25 @@ library fs_shim.test.test_common;
 
 // basically same as the io runner but with extra output
 import 'dart:async';
+import 'dart:convert';
+
+import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_memory.dart';
+import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:path/path.dart';
+import 'package:platform_context/context.dart';
+
 export 'dart:async';
 export 'dart:convert';
-import 'package:dev_test/test.dart';
+
 export 'package:dev_test/test.dart';
-import 'package:path/path.dart';
-import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/src/idb/idb_file_system.dart';
-export 'package:fs_shim/utils/read_write.dart';
-export 'package:fs_shim/utils/entity.dart';
-export 'package:fs_shim/utils/path.dart';
-export 'package:fs_shim/utils/part.dart';
 export 'package:fs_shim/utils/copy.dart';
-import 'package:fs_shim/fs_memory.dart';
-import 'dart:convert';
-import 'package:platform_context/context.dart';
+export 'package:fs_shim/utils/entity.dart';
+export 'package:fs_shim/utils/glob.dart';
+export 'package:fs_shim/utils/part.dart';
+export 'package:fs_shim/utils/path.dart';
+export 'package:fs_shim/utils/read_write.dart';
 
 // FileSystem context
 abstract class FileSystemTestContext {

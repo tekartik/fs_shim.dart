@@ -1,10 +1,11 @@
 library fs_shim.test.utils_copy_tests;
 
+import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/copy.dart';
 import 'package:fs_shim/utils/src/utils_impl.dart'
     show copyFileSystemEntityImpl;
 import 'package:path/path.dart';
-import 'package:fs_shim/fs.dart';
+
 import 'test_common.dart';
 
 main() {
@@ -17,6 +18,23 @@ FileSystem get fs => _ctx.fs;
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('copy', () {
+    group('copy_options', () {
+      test('include_exclude', () {
+        CopyOptions options = recursiveLinkOrCopyNewerOptions;
+        expect(options.include, isNull);
+        expect(options.exclude, isNull);
+        options.include = ['test'];
+        expect(options.include, ['test']);
+        expect(options.includeGlobs, [new Glob('test')]);
+        options.exclude = ['test'];
+        expect(options.exclude, ['test']);
+        expect(options.excludeGlobs, [new Glob('test')]);
+
+        options = recursiveLinkOrCopyNewerOptions;
+        expect(options.include, isNull);
+        expect(options.exclude, isNull);
+      });
+    });
     group('create_delete', () {
       test('create_', () async {
         Directory top = await ctx.prepare();
@@ -222,7 +240,7 @@ void defineTests(FileSystemTestContext ctx) {
             dstDir);
       });
 
-      group('scenario', () {
+      group('exclude', () {
         Directory top;
         Directory src;
         Directory dst;
@@ -242,6 +260,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await entityExists(childFile(dst, "file1")), isFalse);
           expect(await readString(childFile(dst, "file2")), "test");
         });
+
         test('copy_exclude_dir', () async {
           await _prepare();
           await writeString(childFile(src, "file1"), "test");
@@ -250,6 +269,41 @@ void defineTests(FileSystemTestContext ctx) {
               options: new CopyOptions(recursive: true, exclude: ["file1/"]));
           expect(await entityExists(childFile(dst, "file1")), isTrue);
           expect(await readString(childFile(dst, "file2")), "test");
+        });
+      });
+
+      group('include', () {
+        Directory top;
+        Directory src;
+        Directory dst;
+
+        Future _prepare() async {
+          top = await ctx.prepare();
+          src = childDirectory(top, "src");
+          dst = childDirectory(top, "dst");
+        }
+
+        test('copy_include_file', () async {
+          await _prepare();
+          await writeString(childFile(src, "file1"), "test");
+          await writeString(childFile(src, "file2"), "test");
+          await copyDirectory(src, dst,
+              options: new CopyOptions(recursive: true, include: ["file1"]));
+          expect(await readString(childFile(dst, "file1")), "test");
+          expect(await entityExists(childFile(dst, "file2")), isFalse);
+        });
+
+        test('copy_include_dir', () async {
+          await _prepare();
+          Directory dir1 = childDirectory(src, "dir1");
+          await writeString(childFile(dir1, "file1"), "test");
+          await writeString(childFile(src, "file2"), "test");
+          await copyDirectory(src, dst,
+              options: new CopyOptions(recursive: true, include: ["dir1"]));
+          expect(
+              await readString(childFile(childDirectory(dst, "dir1"), "file1")),
+              "test");
+          expect(await entityExists(childFile(dst, "file2")), isFalse);
         });
       });
     });
@@ -329,7 +383,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         await writeString(childFile(src, "file"), "test");
         TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
-        ChildCopy childCopy = new ChildCopy(copy, "file");
+        ChildCopy childCopy = new ChildCopy(copy, null, "file");
         await childCopy.run();
         expect(await readString(childFile(dst, "file")), "test");
       });
@@ -343,7 +397,7 @@ void defineTests(FileSystemTestContext ctx) {
         await writeString(childFile(src, "file"), "test");
         TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
 
-        await copy.runChild("file");
+        await copy.runChild(null, "file");
         expect(await readString(childFile(dst, "file")), "test");
       });
 

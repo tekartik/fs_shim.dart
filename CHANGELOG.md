@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.5
+
+Add copy io utils. Support including files
+
 ## 0.6.4
 
 Add read_write io utils

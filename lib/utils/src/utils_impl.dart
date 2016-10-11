@@ -2,12 +2,14 @@ library fs_shim.utils.src.utils_impl;
 
 import 'dart:async';
 
-//import 'package:logging/logging.dart' as log;
 import 'package:path/path.dart' as _path;
+
 import '../../fs.dart';
-import '../glob.dart';
 import '../../src/common/import.dart';
 import '../copy.dart';
+import '../glob.dart';
+//import 'package:logging/logging.dart' as log;
+
 
 /*
 bool _fsUtilsDebug = false;
@@ -28,7 +30,6 @@ set fsUtilsDebug(bool debug) => fsShimUtilsDebug = debug;
 
 set fsShimUtilsDebug(bool debug) => _fsUtilsDebug = debug;
 */
-
 bool _fsCopyDebug = false;
 bool get fsCopyDebug => _fsCopyDebug;
 
@@ -88,7 +89,14 @@ class OptionsFollowLinksMixin {
 }
 
 class OptionsExcludeMixin {
-  List<String> exclude;
+  List<String> _exclude;
+
+  List<String> get exclude => _exclude;
+
+  set exclude(List<String> exclude) {
+    _exclude = exclude;
+    _excludeGlobs = null;
+  }
 
   // follow glob
   List<Glob> _excludeGlobs;
@@ -98,6 +106,27 @@ class OptionsExcludeMixin {
       _excludeGlobs = globList(exclude);
     }
     return _excludeGlobs;
+  }
+}
+
+class OptionsIncludeMixin {
+  List<String> _include;
+
+  List<String> get include => _include;
+
+  set include(List<String> include) {
+    _include = include;
+    _includeGlobs = null;
+  }
+
+  // follow glob
+  List<Glob> _includeGlobs;
+
+  List<Glob> get includeGlobs {
+    if (_includeGlobs == null) {
+      _includeGlobs = globList(include);
+    }
+    return _includeGlobs;
   }
 }
 
@@ -200,7 +229,7 @@ Future<int> copyFileImpl(File src, FileSystemEntity dst,
     }
     return await new TopCopy(new TopEntity(src.fs, src.parent.path),
             new TopEntity(dst.fs, dst.parent.path), options: options)
-        .runChild(src.fs.pathContext.basename(src.path),
+        .runChild(null, src.fs.pathContext.basename(src.path),
             dst.fs.pathContext.basename(dst.path));
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
@@ -486,8 +515,9 @@ abstract class CopyNodeMixin implements CopyNode {
   int _id;
   int get id => _id;
 
-  Future<int> runChild(String srcRelative, [String dstRelative]) {
-    ChildCopy copy = new ChildCopy(this, srcRelative, dstRelative);
+  Future<int> runChild(CopyOptions options, String srcRelative,
+      [String dstRelative]) {
+    ChildCopy copy = new ChildCopy(this, options, srcRelative, dstRelative);
 
     // exclude?
     return copy.run();
@@ -513,23 +543,32 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildCopy copy = new ChildCopy(this, '');
+    ChildCopy copy = new ChildCopy(this, null, '');
     return await copy.run();
   }
 }
 
 class ChildCopy extends Object
-    with CopyNodeMixin, NodeExcludeMixin
+    with CopyNodeMixin, NodeExcludeMixin, NodeIncludeMixin
     implements CopyNode {
   CopyEntity src;
   CopyEntity dst;
   final CopyNode parent;
-  CopyOptions get options => parent.options;
+  CopyOptions options;
+
+  OptionsExcludeMixin get excludeOptions => options;
+
+  OptionsIncludeMixin get includeOptions => options;
 
   @override
   String get srcSub => src.sub;
 
-  ChildCopy(this.parent, String srcRelative, [String dstRelative]) {
+  // if [options] is null, we'll use the parent options
+  ChildCopy(this.parent, this.options, String srcRelative,
+      [String dstRelative]) {
+    if (options == null) {
+      options = parent.options;
+    }
     _id = ++ActionNodeMixin._static_id;
 
     dstRelative = dstRelative ?? srcRelative;
@@ -561,6 +600,15 @@ class ChildCopy extends Object
         return 0;
       }
 
+      CopyOptions options = this.options;
+
+      if (hasIncludeRules) {
+        // when including dir, sub include options will be ignored
+        if (shouldIncludeDir) {
+          options = options.clone..include = null;
+        }
+      }
+
       Directory dstDirectory = dst.asDirectory();
       if (!await dstDirectory.exists()) {
         await dstDirectory.create(recursive: true);
@@ -576,7 +624,7 @@ class ChildCopy extends Object
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
           String basename = src.fs.pathContext.basename(srcEntity.path);
-          futures.add(runChild(basename).then((int count_) {
+          futures.add(runChild(options, basename).then((int count_) {
             count += count_;
           }));
         }).asFuture();
@@ -588,6 +636,12 @@ class ChildCopy extends Object
         return 0;
       }
 
+      if (hasIncludeRules) {
+        if (!shouldIncludeFile) {
+          return 0;
+        }
+      }
+
       File srcFile = src.asFile();
       File dstFile = dst.asFile();
 
@@ -596,7 +650,7 @@ class ChildCopy extends Object
       if (options.tryToLinkFile &&
           (src.fs == dst.fs) &&
           src.fs.supportsFileLink) {
-        String srcTarget = src.path;
+        String srcTarget = srcFile.absolute.path;
         // Check if dst is link
         FileSystemEntityType type = await dst.type(followLinks: false);
 
@@ -616,7 +670,9 @@ class ChildCopy extends Object
         }
 
         if (deleteDst) {
-          await dstFile.delete();
+          //devPrint('Deleting $dstFile');
+          await dstFile.delete(recursive: true);
+          //devPrint('Deleted $dstFile');
         }
 
         await dst.asLink().create(srcTarget, recursive: true);
@@ -643,14 +699,14 @@ class ChildCopy extends Object
 }
 
 abstract class NodeExcludeMixin {
-  OptionsExcludeMixin get options;
+  OptionsExcludeMixin get excludeOptions;
   String get srcSub;
 
   bool get shouldExclude {
     // to ignore?
-    if (options.excludeGlobs.isNotEmpty) {
+    if (excludeOptions.excludeGlobs.isNotEmpty) {
       // only test on sub
-      for (Glob glob in options.excludeGlobs) {
+      for (Glob glob in excludeOptions.excludeGlobs) {
         if (glob.matches(srcSub)) {
           return true;
         }
@@ -661,9 +717,47 @@ abstract class NodeExcludeMixin {
 
   bool get shouldExcludeFile {
     // to ignore?
-    if (options.excludeGlobs.isNotEmpty) {
+    if (excludeOptions.excludeGlobs.isNotEmpty) {
       // only test on sub
-      for (Glob glob in options.excludeGlobs) {
+      for (Glob glob in excludeOptions.excludeGlobs) {
+        if (!glob.isDir) {
+          if (glob.matches(srcSub)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+}
+
+abstract class NodeIncludeMixin {
+  OptionsIncludeMixin get includeOptions;
+
+  String get srcSub;
+
+  bool get hasIncludeRules => includeOptions.include != null;
+
+  bool get shouldIncludeDir {
+    // to ignore?
+    if (includeOptions.includeGlobs.isNotEmpty) {
+      // only test on sub
+      for (Glob glob in includeOptions.includeGlobs) {
+        if (glob.isDir) {
+          if (glob.matches(srcSub)) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  bool get shouldIncludeFile {
+    // to ignore?
+    if (includeOptions.includeGlobs.isNotEmpty) {
+      // only test on sub
+      for (Glob glob in includeOptions.includeGlobs) {
         if (!glob.isDir) {
           if (glob.matches(srcSub)) {
             return true;

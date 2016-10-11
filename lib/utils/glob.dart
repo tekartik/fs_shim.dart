@@ -1,6 +1,7 @@
 library fs_shim.utils.glob;
 
 import 'package:path/path.dart';
+
 import '../src/common/import.dart';
 
 //
@@ -205,4 +206,15 @@ class Glob {
   String toString() => '$_expressionParts';
 
   bool get isDir => expression.endsWith(posix.separator);
+
+  @override
+  int get hashCode => expression.hashCode;
+
+  @override
+  bool operator ==(o) {
+    if (o is Glob) {
+      return o.expression == expression;
+    }
+    return false;
+  }
 }

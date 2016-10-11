@@ -1,6 +1,7 @@
 library fs_shim.test.utils_glob_test;
 
 import 'package:fs_shim/utils/glob.dart';
+
 import 'test_common.dart';
 
 main() {
@@ -15,6 +16,16 @@ main() {
       expect(Glob.matchPart(expression, name), matcher,
           reason: "'$expression' '$name'");
     }
+
+    test('equals', () {
+      Glob glob1 = new Glob('test');
+      Glob glob2 = new Glob('other');
+      Glob glob3 = new Glob('test');
+      expect(glob1, glob3);
+      expect(glob1, isNot(glob2));
+      expect(glob1.hashCode, glob3.hashCode);
+      expect(glob1.hashCode, isNot(glob2.hashCode));
+    });
 
     test('part', () {
       // null part

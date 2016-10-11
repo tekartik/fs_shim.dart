@@ -2,8 +2,10 @@ library fs_shim.src.io.io_fs;
 
 import 'dart:async';
 import 'dart:io' as io;
-import 'io_file_system_exception.dart';
+
 import '../../fs.dart' as fs;
+import 'io_file_system_exception.dart';
+
 export 'dart:async';
 export 'dart:convert';
 
@@ -45,10 +47,13 @@ ioWrapError(e) {
   return e;
 }
 
-Future ioWrap(Future future) {
-  return future.catchError((e) {
+Future ioWrap(Future future) async {
+  try {
+    return await future;
+  } on io.FileSystemException catch (e) {
+    //io.stderr.writeln(st);
     throw ioWrapError(e);
-  }, test: (e) => (e is io.FileSystemException));
+  }
 }
 
 fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
