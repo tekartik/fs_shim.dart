@@ -23,7 +23,6 @@ export 'src/utils_impl.dart'
 //import 'package:path/path.dart' as _path;
 // SOON not exported any more
 
-
 /// Main entry point
 ///
 /// returns dst directory
@@ -35,6 +34,9 @@ Future<Directory> copyDirectory(Directory src, Directory dst,
 Future<File> copyFile(File src, File dst, {CopyOptions options}) =>
     _impl.copyFile(src, dst, options: options);
 
+Future<List<File>> copyDirectoryListFiles(Directory src,
+    {CopyOptions options}) =>
+    _impl.copyDirectoryListFiles(src, options: options);
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
 // Copy a file or a directory

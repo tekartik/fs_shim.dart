@@ -10,7 +10,6 @@ import '../copy.dart';
 import '../glob.dart';
 //import 'package:logging/logging.dart' as log;
 
-
 /*
 bool _fsUtilsDebug = false;
 
@@ -234,6 +233,18 @@ Future<int> copyFileImpl(File src, FileSystemEntity dst,
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
     throw new ArgumentError('not a file ($src)');
+  }
+}
+
+Future<List<File>> copyDirectoryListFiles(Directory src,
+    {CopyOptions options}) async {
+  options ??= defaultCopyOptions;
+  if (await src.fs.isDirectory(src.path)) {
+    return await new TopSourceNode(new TopEntity(src.fs, src.path),
+        options: options)
+        .run();
+  } else {
+    throw new ArgumentError('not a directory ($src)');
   }
 }
 
@@ -501,14 +512,32 @@ class CopyEntity extends Object
   String toString() => '$sub';
 }
 
-abstract class CopyNode {
-  EntityNode get src;
+abstract class CopyNode extends SourceNode {
   EntityNode get dst;
+}
+
+abstract class SourceNode {
+  EntityNode get src;
   CopyOptions get options;
 }
 
 abstract class ActionNodeMixin {
   static int _static_id = 0;
+}
+
+abstract class SourceNodeMixin implements SourceNode {
+  int _id;
+
+  int get id => _id;
+
+  Future<List<File>> runChild(CopyOptions options, String srcRelative,
+      [String dstRelative]) {
+    ChildSourceNode sourceNode =
+    new ChildSourceNode(this, options, srcRelative);
+
+    // exclude?
+    return sourceNode.run();
+  }
 }
 
 abstract class CopyNodeMixin implements CopyNode {
@@ -545,6 +574,32 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
     // Somehow the top folder is accessed using an empty part
     ChildCopy copy = new ChildCopy(this, null, '');
     return await copy.run();
+  }
+}
+
+class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
+  CopyOptions _options;
+
+  TopSourceNode(this.src, {CopyOptions options}) {
+    _id = ++ActionNodeMixin._static_id;
+    _options = options ?? recursiveLinkOrCopyNewerOptions;
+  }
+
+  int count = 0;
+
+  CopyOptions get options => _options;
+  final TopEntity src;
+
+  @override
+  String toString() => '[$id] $src';
+
+  Future<List<File>> run() async {
+    if (fsCopyDebug) {
+      print(this);
+    }
+    // Somehow the top folder is accessed using an empty part
+    ChildSourceNode sourceNode = new ChildSourceNode(this, null, '');
+    return await sourceNode.run();
   }
 }
 
@@ -695,6 +750,96 @@ class ChildCopy extends Object
     }
 
     return count;
+  }
+}
+
+class ChildSourceNode extends Object
+    with SourceNodeMixin, NodeExcludeMixin, NodeIncludeMixin
+    implements SourceNode {
+  CopyEntity src;
+  final SourceNode parent;
+  CopyOptions options;
+
+  OptionsExcludeMixin get excludeOptions => options;
+
+  OptionsIncludeMixin get includeOptions => options;
+
+  @override
+  String get srcSub => src.sub;
+
+  // if [options] is null, we'll use the parent options
+  ChildSourceNode(this.parent, this.options, String srcRelative) {
+    if (options == null) {
+      options = parent.options;
+    }
+    _id = ++ActionNodeMixin._static_id;
+
+    src = parent.src.child(srcRelative);
+  }
+
+  //List<String> _
+
+  @override
+  String toString() => '  [$id] $src';
+
+  Future<List<File>> run() async {
+    List<File> entities = [];
+    if (fsCopyDebug) {
+      print("$this");
+    }
+
+    if (await src.fs.isLink(src.path) && (!options.followLinks)) {
+      return entities;
+    }
+
+    if (await src.fs.isDirectory(src.path)) {
+      // to ignore?
+      if (shouldExclude) {
+        return entities;
+      }
+
+      CopyOptions options = this.options;
+
+      if (hasIncludeRules) {
+        // when including dir, sub include options will be ignored
+        if (shouldIncludeDir) {
+          options = options.clone..include = null;
+        }
+      }
+      // recursive
+      if (options.recursive) {
+        Directory srcDirectory = src.asDirectory();
+
+        List<Future> futures = [];
+        await srcDirectory
+            .list(recursive: false, followLinks: options.followLinks)
+            .listen((FileSystemEntity srcEntity) {
+          String basename = src.fs.pathContext.basename(srcEntity.path);
+          futures
+              .add(runChild(options, basename).then((List<File> childEntities) {
+            entities.addAll(childEntities);
+          }));
+        }).asFuture();
+        await Future.wait(futures);
+      }
+    } else if (await src.fs.isFile(src.path)) {
+      // to ignore?
+      if (shouldExcludeFile) {
+        return entities;
+      }
+
+      if (hasIncludeRules) {
+        if (!shouldIncludeFile) {
+          return entities;
+        }
+      }
+
+      File srcFile = src.asFile();
+
+      entities.add(srcFile);
+    }
+
+    return entities;
   }
 }
 

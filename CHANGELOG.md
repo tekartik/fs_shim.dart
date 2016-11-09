@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.6.6
+
+Add copyDirectoryListFiles
+
 ## 0.6.5
 
 Add copy io utils. Support including files

@@ -151,6 +151,10 @@ void defineTests(FileSystemTestContext ctx) {
 
         await copyDirectory(src, dst);
         expect(await readString(childFile(dst, "file")), "test");
+
+        List<File> files = await copyDirectoryListFiles(src);
+        expect(files, hasLength(1));
+        expect(relative(files[0].path, from: src.path), "file");
       });
 
       test('dir_delete', () async {
@@ -238,6 +242,10 @@ void defineTests(FileSystemTestContext ctx) {
             await copyDirectory(srcDir, dstDir,
                 options: recursiveLinkOrCopyNewerOptions),
             dstDir);
+
+        List<File> files = await copyDirectoryListFiles(srcDir);
+        expect(files, hasLength(1));
+        expect(relative(files[0].path, from: srcDir.path), "file");
       });
 
       group('exclude', () {
@@ -255,10 +263,16 @@ void defineTests(FileSystemTestContext ctx) {
           await _prepare();
           await writeString(childFile(src, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
-          await copyDirectory(src, dst,
-              options: new CopyOptions(recursive: true, exclude: ["file1"]));
+          CopyOptions options =
+          new CopyOptions(recursive: true, exclude: ["file1"]);
+          await copyDirectory(src, dst, options: options);
           expect(await entityExists(childFile(dst, "file1")), isFalse);
           expect(await readString(childFile(dst, "file2")), "test");
+
+          List<File> files =
+          await copyDirectoryListFiles(src, options: options);
+          expect(files, hasLength(1));
+          expect(relative(files[0].path, from: src.path), "file2");
         });
 
         test('copy_exclude_dir', () async {
@@ -287,10 +301,15 @@ void defineTests(FileSystemTestContext ctx) {
           await _prepare();
           await writeString(childFile(src, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
-          await copyDirectory(src, dst,
-              options: new CopyOptions(recursive: true, include: ["file1"]));
+          var options = new CopyOptions(recursive: true, include: ["file1"]);
+          await copyDirectory(src, dst, options: options);
           expect(await readString(childFile(dst, "file1")), "test");
           expect(await entityExists(childFile(dst, "file2")), isFalse);
+
+          List<File> files =
+          await copyDirectoryListFiles(src, options: options);
+          expect(files, hasLength(1));
+          expect(relative(files[0].path, from: src.path), "file1");
         });
 
         test('copy_include_dir', () async {
