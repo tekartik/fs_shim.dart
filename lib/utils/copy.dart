@@ -13,6 +13,7 @@ export 'src/utils_impl.dart'
         fsDeleteDebug,
         fsTopEntity,
         TopCopy,
+        TopSourceNode,
         CopyEntity,
         ChildCopy,
         TopEntity,

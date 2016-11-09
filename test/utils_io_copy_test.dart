@@ -1,9 +1,10 @@
+@TestOn("vm")
 import 'dart:io';
 
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_io.dart' show unwrapIoDirectory;
+import 'package:fs_shim/utils/copy.dart' show TopSourceNode;
 import 'package:fs_shim/utils/io/copy.dart';
-@TestOn("vm")
 import 'package:fs_shim/utils/io/entity.dart';
 import 'package:fs_shim/utils/io/read_write.dart';
 import 'package:path/path.dart';
@@ -46,6 +47,12 @@ main() {
 
       expect(await dstFile.exists(), isTrue);
       expect(await dstFile.readAsString(), "test");
+    });
+
+    test('top_source_node', () {
+      // just check the export
+      TopSourceNode topSourceNode = new TopSourceNode(null);
+      expect(topSourceNode, isNotNull);
     });
   });
 }
