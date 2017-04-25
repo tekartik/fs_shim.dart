@@ -4,8 +4,9 @@
 library fs_shim.test.fs_shim_file_test;
 
 import 'package:fs_shim/fs.dart';
-import 'test_common.dart';
 import 'package:path/path.dart';
+
+import 'test_common.dart';
 
 main() {
   defineTests(memoryFileSystemTestContext);
@@ -311,7 +312,12 @@ void defineTests(FileSystemTestContext ctx) {
         _printErr(e);
         // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
-        expect(e.status, FileSystemException.statusAlreadyExists);
+        if (isIo(ctx)) {
+      // tested on linux
+      expect(e.status, FileSystemException.statusNotADirectory);
+      } else {
+      expect(e.status, FileSystemException.statusAlreadyExists);
+      }
       }
 
       // however this is fine!

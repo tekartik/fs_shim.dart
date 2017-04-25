@@ -296,6 +296,8 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
+          expect(e.status, FileSystemException.statusNotFound);
+          /*
           if (isIo(ctx)) {
             // win, linux, mac
             // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\delete\file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
@@ -305,6 +307,7 @@ void defineTests(FileSystemTestContext ctx) {
             expect(e.status, FileSystemException.statusNotFound);
             // <not parsed on linux: 22> FileSystemException: Cannot delete link, path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/delete/file' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
           }
+          */
         }
       });
 
@@ -322,7 +325,7 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.isLink(link2.path), isTrue);
       });
 
-      test('rename_notfound', () async {
+      test('rename_not_found', () async {
         Directory _dir = await ctx.prepare();
 
         String path = join(_dir.path, "link");
@@ -333,6 +336,8 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
+          expect(e.status, FileSystemException.statusNotFound);
+          /*
           if (isIo(ctx) && !isIoWindows(ctx)) {
             expect(e.status, FileSystemException.statusInvalidArgument);
           } else {
@@ -340,6 +345,7 @@ void defineTests(FileSystemTestContext ctx) {
             expect(e.status, FileSystemException.statusNotFound);
             // <22> not parsed invalid argument FileSystemException: Cannot rename link to '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link2', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/rename_notfound/link' (OS Error: Invalid argument, errno = 22) [FileSystemExceptionImpl]
           }
+          */
         }
       });
 
@@ -703,13 +709,16 @@ void defineTests(FileSystemTestContext ctx) {
           } else {
             // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
             // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+            expect(e.status, FileSystemException.statusIsADirectory);
+            /*
             if (isIo(ctx)) {
-              // linux/android
+              // linux/android/mac
               expect(e.status, FileSystemException.statusInvalidArgument);
             } else {
               // mac, idb
               expect(e.status, FileSystemException.statusIsADirectory);
             }
+            */
           }
         }
 
@@ -736,6 +745,8 @@ void defineTests(FileSystemTestContext ctx) {
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
+          expect(e.status, FileSystemException.statusIsADirectory);
+          /*
           if (isIo(ctx)) {
             // win, mac, linux
             expect(e.status, FileSystemException.statusInvalidArgument);
@@ -743,6 +754,7 @@ void defineTests(FileSystemTestContext ctx) {
             // idb
             expect(e.status, FileSystemException.statusIsADirectory);
           }
+          */
         }
 
         // however this is fine!
