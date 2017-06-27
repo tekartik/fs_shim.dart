@@ -313,11 +313,11 @@ void defineTests(FileSystemTestContext ctx) {
         // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         if (isIo(ctx)) {
-      // tested on linux
-      expect(e.status, FileSystemException.statusNotADirectory);
-      } else {
-      expect(e.status, FileSystemException.statusAlreadyExists);
-      }
+          // tested on linux
+          expect(e.status, FileSystemException.statusNotADirectory);
+        } else {
+          expect(e.status, FileSystemException.statusAlreadyExists);
+        }
       }
 
       // however this is fine!

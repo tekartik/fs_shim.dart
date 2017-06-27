@@ -126,6 +126,13 @@ main() async {
 * Lightweight glob support (`**`, `*` and `?` in a posix style path)
 * Copy utilities (copy files, directories recursively)
 
+## Testing
+
+### Testing with dartdevc
+
+    pub serve test --web-compiler=dartdevc --port=8079
+    pub run test -p chrome --pub-serve=8079
+
 ## Features and bugs
 
 * On windows file links are not supported (fs.supportsFileLink returns false)

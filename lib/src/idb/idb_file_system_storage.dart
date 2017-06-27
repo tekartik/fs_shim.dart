@@ -126,6 +126,7 @@ class IdbFileSystemStorage {
   // Return a matching result
   Future<Node> txnGetNode(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
+    //idb.idbDevPrint("#XX");
     Future<Node> __get(List<String> segments) {
       return txnSearch(store, segments, followLastLink)
           .then((NodeSearchResult result) {
@@ -199,7 +200,7 @@ class IdbFileSystemStorage {
         if (entity != null) {
           // Change segments if changing parent
           if (entity.parent != parent) {
-            print('### ${segment}');
+            //print('### ${segment}');
           }
           //segments = entity.segments;
           result.highest = entity;

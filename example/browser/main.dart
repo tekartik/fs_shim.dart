@@ -1,4 +1,5 @@
 import 'dart:core' hide print;
+import 'dart:core' as core;
 import 'dart:html' hide FileSystem, File;
 
 import 'package:fs_shim/fs_memory.dart';
@@ -15,7 +16,6 @@ print(msg) {
 
 main() async {
   FileSystem fs = newMemoryFileSystem();
-
   // Create a top level directory
   Directory dir = fs.newDirectory('/dir');
 
