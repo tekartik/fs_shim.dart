@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:fs_shim/utils/copy.dart';
+
 import '../../fs_io.dart' as fs;
 import '../copy.dart' as fs;
 import 'copy.dart' show CopyOptions;
@@ -18,6 +20,15 @@ Future<File> copyFile(File src, File dst, {CopyOptions options}) async {
   return fs.unwrapIoFile(await fs
       .copyFile(fs.wrapIoFile(src), fs.wrapIoFile(dst), options: options));
 }
+
+// delete a file, no fail
+Future deleteFile(File file, {DeleteOptions options}) async {
+  return await fs.deleteFile(fs.wrapIoFile(file), options: options);
+}
+
+/// Delete a directory recursively
+Future deleteDirectory(Directory dir, {DeleteOptions options}) =>
+    fs.deleteDirectory(fs.wrapIoDirectory(dir), options: options);
 
 Future<List<File>> copyDirectoryListFiles(Directory src,
     {CopyOptions options}) async {

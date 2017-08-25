@@ -128,6 +128,17 @@ main() async {
 
 ## Testing
 
+### Dev dependencies
+
+Stable
+
+    fs_shim: any
+
+Bleeding age
+
+    fs_shim:
+        git: git://github.com/tekartik/fs_shim.dart
+
 ### Testing with dartdevc
 
     pub serve test --web-compiler=dartdevc --port=8079

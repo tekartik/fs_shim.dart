@@ -54,5 +54,14 @@ main() {
       TopSourceNode topSourceNode = new TopSourceNode(null);
       expect(topSourceNode, isNotNull);
     });
+
+    test('delete', () async {
+      Directory top = unwrapIoDirectory(await ctx.prepare());
+      File file = childFile(top, "file");
+      await writeString(file, "test");
+      expect(await file.exists(), isTrue);
+      await deleteFile(file);
+      expect(await file.exists(), isFalse);
+    });
   });
 }

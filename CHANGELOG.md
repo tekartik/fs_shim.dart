@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.7.1
+
+Add io, deleteFile and deleteDirectory io helpers
+
 ## 0.6.6
 
 Add copyDirectoryListFiles
