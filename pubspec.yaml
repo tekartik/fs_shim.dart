@@ -16,7 +16,7 @@ test_dependencies:
   - idb_shim
 
 dev_dependencies:
-  test: any
+  test: '>=0.12.24+8'
   dev_test: any
   browser: any
   platform_context:
