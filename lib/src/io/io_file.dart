@@ -1,17 +1,18 @@
 library fs_shim.src.io.io_file;
 
-import '../../fs.dart' as fs;
-export '../../fs.dart' show FileSystemEntityType;
-import 'dart:io' as io;
 import 'dart:async';
-import 'io_fs.dart';
+import 'dart:io' as io;
+
+import '../../fs.dart' as fs;
 import '../../fs_io.dart';
 import 'io_file_system_entity.dart';
+import 'io_fs.dart';
 
-Future<File> _wrapFutureFile(Future<File> future) =>
-    ioWrap(future) as Future<File>;
-Future<String> _wrapFutureString(Future<String> future) =>
-    ioWrap(future) as Future<String>;
+export '../../fs.dart' show FileSystemEntityType;
+
+Future<File> _wrapFutureFile(Future<File> future) => ioWrap(future);
+
+Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
 class FileImpl extends FileSystemEntityImpl implements File {
   io.File get ioFile => ioFileSystemEntity;
@@ -74,8 +75,7 @@ class FileImpl extends FileSystemEntityImpl implements File {
           .then(_me);
 
   @override
-  Future<List<int>> readAsBytes() =>
-      ioWrap(ioFile.readAsBytes()) as Future<List<int>>;
+  Future<List<int>> readAsBytes() => ioWrap(ioFile.readAsBytes());
 
   @override
   Future<String> readAsString({Encoding encoding: UTF8}) =>

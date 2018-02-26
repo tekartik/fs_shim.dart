@@ -1,11 +1,12 @@
 library fs_shim.src.io.io_file_system_entity;
 
-import 'dart:io' as io;
 import 'dart:async';
-import 'io_fs.dart';
+import 'dart:io' as io;
+
 import '../../fs_io.dart';
-import 'io_file_stat.dart';
 import 'io_directory.dart';
+import 'io_file_stat.dart';
+import 'io_fs.dart';
 
 abstract class FileSystemEntityImpl implements FileSystemEntity {
   io.FileSystemEntity ioFileSystemEntity;
@@ -25,7 +26,7 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   DirectoryImpl get parent => new DirectoryImpl.io(ioFileSystemEntity.parent);
 
   @override
-  Future<bool> exists() => ioWrap(ioFileSystemEntity.exists()) as Future<bool>;
+  Future<bool> exists() => ioWrap(ioFileSystemEntity.exists());
 
   @override
   Future<FileSystemEntity> delete({bool recursive: false}) //

@@ -85,12 +85,12 @@ class IdbFileSystemStorage {
       Node parent, String name, bool followLastLink) {
     String parentName = getParentName(parent, name);
 
-    _nodeFromKey(int id) {
+    _nodeFromKey(dynamic id) {
       if (id == null) {
         return null;
       }
 
-      _nodeFromMap(Map map) {
+      _nodeFromMap(dynamic map) {
         Node entity = new Node.fromMap(parent, map, id);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
@@ -243,7 +243,7 @@ class IdbFileSystemStorage {
 
   Future<Node> txnAddNode(idb.ObjectStore store, Node entity) {
     //print('adding ${entity}');
-    return store.add(entity.toMap()).then((int id) {
+    return store.add(entity.toMap()).then((dynamic id) {
       entity.id = id;
       return entity;
     });

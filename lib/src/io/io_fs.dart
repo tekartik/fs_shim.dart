@@ -47,7 +47,7 @@ ioWrapError(e) {
   return e;
 }
 
-Future ioWrap(Future future) async {
+Future<T> ioWrap<T>(Future<T> future) async {
   try {
     return await future;
   } on io.FileSystemException catch (e) {

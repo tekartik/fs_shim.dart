@@ -1,11 +1,13 @@
 library fs_shim.src.io.io_link;
 
-export '../../fs.dart' show FileSystemEntityType;
-import 'dart:io' as io;
 import 'dart:async';
-import 'io_fs.dart';
-import 'io_file_system_entity.dart';
+import 'dart:io' as io;
+
 import '../../fs_io.dart';
+import 'io_file_system_entity.dart';
+import 'io_fs.dart';
+
+export '../../fs.dart' show FileSystemEntityType;
 
 class LinkImpl extends FileSystemEntityImpl implements Link, FileSystemEntity {
   io.Link get ioLink => ioFileSystemEntity;
@@ -29,7 +31,7 @@ class LinkImpl extends FileSystemEntityImpl implements Link, FileSystemEntity {
           new LinkImpl(ioFileSystemEntity.path));
 
   @override
-  Future<String> target() => ioWrap(ioLink.target()) as Future<String>;
+  Future<String> target() => ioWrap(ioLink.target());
 
   @override
   LinkImpl get absolute => new LinkImpl.io(ioLink.absolute);

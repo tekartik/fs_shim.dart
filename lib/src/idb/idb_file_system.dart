@@ -300,8 +300,8 @@ class IdbFileSystem extends Object
           entity = new Node(parent, segments.last, fs.FileSystemEntityType.FILE,
               new DateTime.now(), 0);
           //print('adding ${entity}');
-          return store.add(entity.toMap()).then((int id) {
-            entity.id = id;
+          return store.add(entity.toMap()).then((dynamic id) {
+            entity.id = id as int;
             return entity;
           });
         }
@@ -568,7 +568,7 @@ class IdbFileSystem extends Object
               // check if _notEmptyError
               idb.Index index = store.index(parentIndexName);
               // any child will matter
-              return index.getKey(newEntity.id).then((int parentId) {
+              return index.getKey(newEntity.id).then((dynamic parentId) {
                 if (parentId != null) {
                   throw idbNotEmptyException(path, "Rename failed");
                 }
@@ -707,7 +707,7 @@ class IdbFileSystem extends Object
       entity = new Node(parent, segment, fs.FileSystemEntityType.DIRECTORY,
           new DateTime.now(), 0);
       //print('adding ${entity}');
-      return store.add(entity.toMap()).then((int id) {
+      return store.add(entity.toMap()).then((dynamic id) {
         entity.id = id;
         if (i++ < remainings.length - 1) {
           return _next();
