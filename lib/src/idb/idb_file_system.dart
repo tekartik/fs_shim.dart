@@ -442,7 +442,8 @@ class IdbFileSystem extends Object
       parentIndex
           .openCursor(key: entity.id, autoAdvance: false)
           .listen((idb.CursorWithValue cwv) {
-            Node child = new Node.fromMap(entity, cwv.value, cwv.primaryKey);
+        Node child = new Node.fromMap(
+            entity, cwv.value as Map, cwv.primaryKey as int);
             if (recursive == true) {
               futures.add(_deleteEntity(txn, child, recursive: true));
               cwv.next();
@@ -662,7 +663,7 @@ class IdbFileSystem extends Object
         newEntity = new Node(newParent, newSegments.last,
             fs.FileSystemEntityType.FILE, _modified, 0);
         // add file
-        newEntity.id = await store.add(newEntity.toMap());
+        newEntity.id = await store.add(newEntity.toMap()) as int;
       }
 
       // update content
@@ -690,8 +691,8 @@ class IdbFileSystem extends Object
       _storage.txnGetChildNode(treeStore, index, parent, name, followLastLink);
 
   // follow link only for last one
-  Future<NodeSearchResult> txnSearch(
-          idb.ObjectStore store, List<String> segments, followLastLink) =>
+  Future<NodeSearchResult> txnSearch(idb.ObjectStore store,
+      List<String> segments, bool followLastLink) =>
       _storage.txnSearch(store, segments, followLastLink);
 
   Future<Node> _createDirectory(
@@ -708,7 +709,7 @@ class IdbFileSystem extends Object
           new DateTime.now(), 0);
       //print('adding ${entity}');
       return store.add(entity.toMap()).then((dynamic id) {
-        entity.id = id;
+        entity.id = id as int;
         if (i++ < remainings.length - 1) {
           return _next();
         }
@@ -800,8 +801,8 @@ class IdbFileSystem extends Object
                 .listen((idb.CursorWithValue cwv) {
               // We have a node but the parent might not match!
               // So create a fake
-              Node childNode =
-                  new Node.fromMap(entity, cwv.value, cwv.primaryKey);
+              Node childNode = new Node.fromMap(
+                  entity, cwv.value as Map, cwv.primaryKey as int);
               String relativePath = join(path, childNode.name);
               if (childNode.isDir) {
                 IdbDirectory dir = new IdbDirectory(this, relativePath);
@@ -822,7 +823,8 @@ class IdbFileSystem extends Object
                         .then((Node entity) {
                       if (entity != null) {
                         ctlr.add(
-                            linkNodeToFileSystemEntity(relativePath, entity));
+                            linkNodeToFileSystemEntity(relativePath, entity)
+                            as IdbFileSystemEntity);
 
                         // recursive?
                         if (entity.isDir && recursive == true) {

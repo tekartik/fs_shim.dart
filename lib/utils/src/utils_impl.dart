@@ -195,7 +195,7 @@ Future deleteFile(File file, {DeleteOptions options}) async {
   }
 }
 
-Future<int> copyDirectoryImpl(Directory src, FileSystemEntity dst,
+Future<int> copyDirectoryImpl(Directory src, Directory dst,
     {CopyOptions options}) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
@@ -212,7 +212,7 @@ Future<int> copyDirectoryImpl(Directory src, FileSystemEntity dst,
   }
 }
 
-Future<Directory> copyDirectory(Directory src, FileSystemEntity dst,
+Future<Directory> copyDirectory(Directory src, Directory dst,
     {CopyOptions options}) async {
   await copyDirectoryImpl(src, dst, options: options);
   return asDirectory(dst);
@@ -276,7 +276,8 @@ Future<FileSystemEntity> copyFileSystemEntity(
 Future<int> copyFileSystemEntityImpl(FileSystemEntity src, FileSystemEntity dst,
     {CopyOptions options}) async {
   if (await src.fs.isDirectory(src.path)) {
-    return await copyDirectoryImpl(asDirectory(src), dst, options: options);
+    return await copyDirectoryImpl(asDirectory(src), asDirectory(dst),
+        options: options);
   } else if (await src.fs.isFile(src.path)) {
     return await copyFileImpl(asFile(src), dst, options: options);
   }

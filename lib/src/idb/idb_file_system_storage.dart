@@ -91,7 +91,7 @@ class IdbFileSystemStorage {
       }
 
       _nodeFromMap(dynamic map) {
-        Node entity = new Node.fromMap(parent, map, id);
+        Node entity = new Node.fromMap(parent, map as Map, id as int);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
         }
@@ -162,8 +162,8 @@ class IdbFileSystemStorage {
   }
 
   // follow link only for last one
-  Future<NodeSearchResult> txnSearch(
-      idb.ObjectStore store, List<String> segments, followLastLink) {
+  Future<NodeSearchResult> txnSearch(idb.ObjectStore store,
+      List<String> segments, bool followLastLink) {
     NodeSearchResult result = new NodeSearchResult()..segments = segments;
     idb.Index index = store.index(parentNameIndexName);
     Node parent;
@@ -244,7 +244,7 @@ class IdbFileSystemStorage {
   Future<Node> txnAddNode(idb.ObjectStore store, Node entity) {
     //print('adding ${entity}');
     return store.add(entity.toMap()).then((dynamic id) {
-      entity.id = id;
+      entity.id = id as int;
       return entity;
     });
   }
@@ -318,7 +318,7 @@ class Node {
       modified = DateTime.parse(modifiedString);
     }
     int size = map[sizeKey];
-    fs.FileSystemEntityType type = typeFromString(map[typeKey]);
+    fs.FileSystemEntityType type = typeFromString(map[typeKey] as String);
 
     return new Node(parent, name, type, modified, size, id)
       ..targetSegments = (map[targetKey] as List<String>);

@@ -15,7 +15,7 @@ Future<File> _wrapFutureFile(Future<File> future) => ioWrap(future);
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
 class FileImpl extends FileSystemEntityImpl implements File {
-  io.File get ioFile => ioFileSystemEntity;
+  io.File get ioFile => ioFileSystemEntity as io.File;
 
   FileImpl.io(io.File file) {
     ioFileSystemEntity = file;
@@ -50,13 +50,13 @@ class FileImpl extends FileSystemEntityImpl implements File {
   Future<FileImpl> rename(String newPath) => _wrapFutureFile(ioFile
       .rename(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new FileImpl(ioFileSystemEntity.path)));
+  new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
 
   @override
   Future<FileImpl> copy(String newPath) => _wrapFutureFile(ioFile
       .copy(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new FileImpl(ioFileSystemEntity.path)));
+  new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
 
   @override
   Future<FileImpl> writeAsBytes(List<int> bytes,

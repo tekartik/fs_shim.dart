@@ -106,7 +106,7 @@ class IoWriteFileSink implements StreamSink<List<int>> {
 
   Future get done => ioWrap(ioSink.done);
 
-  Future addStream(Stream<List> stream) => ioSink.addStream(stream);
+  Future addStream(Stream<List<int>> stream) => ioSink.addStream(stream);
 }
 
 class IoReadFileStreamCtrl {

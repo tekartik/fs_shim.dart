@@ -196,7 +196,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(stat.modified, isNotNull);
 
       // rename
-      file = await file.rename(join(_dir.path, "file2"));
+      file = await file.rename(join(_dir.path, "file2")) as File;
       stat = await file.stat();
       expect(stat.type, FileSystemEntityType.FILE);
       expect(stat.size, 4);
@@ -242,7 +242,7 @@ void defineTests(FileSystemTestContext ctx) {
       File file2 = fs.newFile(path2);
       await file.writeAsString("test", flush: true);
       await file2.writeAsString("test2", flush: true);
-      file2 = await file.rename(path2);
+      file2 = await file.rename(path2) as File;
       expect(file2.path, path2);
       expect(await file.exists(), isFalse);
       expect(await file2.exists(), isTrue);
