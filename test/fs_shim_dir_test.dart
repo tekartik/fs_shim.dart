@@ -4,8 +4,9 @@
 library fs_shim.test.fs_shim_dir_test;
 
 import 'package:fs_shim/fs.dart';
-import 'test_common.dart';
 import 'package:path/path.dart';
+
+import 'test_common.dart';
 
 main() {
   defineTests(memoryFileSystemTestContext);
@@ -139,7 +140,7 @@ void defineTests(FileSystemTestContext ctx) {
       String path2 = join(_dir.path, "dir2");
       Directory dir = fs.newDirectory(path);
       await dir.create();
-      Directory dir2 = await dir.rename(path2);
+      Directory dir2 = await dir.rename(path2) as Directory;
       expect(dir2.path, path2);
       expect(await dir.exists(), isFalse);
       expect(await dir2.exists(), isTrue);
@@ -240,7 +241,7 @@ void defineTests(FileSystemTestContext ctx) {
       File file2 = fs.newFile(join(path2, "file"));
       await file.create(recursive: true);
       Directory dir = fs.newDirectory(path);
-      Directory dir2 = await dir.rename(path2);
+      Directory dir2 = await dir.rename(path2) as Directory;
       expect(dir2.path, path2);
       expect(await dir.exists(), isFalse);
       expect(await dir2.exists(), isTrue);

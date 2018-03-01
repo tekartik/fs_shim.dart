@@ -136,7 +136,7 @@ void defineTests(FileSystemTestContext ctx) {
       String path2 = join(_dir.path, "file2");
       File file = fs.newFile(path);
       await file.create();
-      File file2 = await file.rename(path2);
+      File file2 = await file.rename(path2) as File;
       expect(file2.path, path2);
       expect(await file.exists(), isFalse);
       expect(await file2.exists(), isTrue);
@@ -166,7 +166,7 @@ void defineTests(FileSystemTestContext ctx) {
       String path2 = join(_dir.path, "file2");
       File file = fs.newFile(path);
       await file.writeAsString("test", flush: true);
-      File file2 = await file.rename(path2);
+      File file2 = await file.rename(path2) as File;
       expect(file2.path, path2);
       expect(await file.exists(), isFalse);
       expect(await file2.exists(), isTrue);

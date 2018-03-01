@@ -26,7 +26,7 @@ bool segmentsAreAbsolute(Iterable<String> segments) {
 bool segmentsAreRelative(Iterable<String> segments) =>
     !segmentsAreAbsolute(segments);
 
-Iterable<String> getAbsoluteSegments(Node origin, List<String> target) {
+List<String> getAbsoluteSegments(Node origin, List<String> target) {
   if (segmentsAreAbsolute(target)) {
     return target;
   }
@@ -307,17 +307,17 @@ class Node {
   }
 
   factory Node.fromMap(Node parent, Map map, int id) {
-    int parentId = map[parentKey];
+    int parentId = map[parentKey] as int;
     if (parentId != null || parent != null) {
       assert(parent.id == parentId);
     }
-    String name = map[nameKey];
-    String modifiedString = map[modifiedKey];
+    String name = map[nameKey] as String;
+    String modifiedString = map[modifiedKey] as String;
     DateTime modified;
     if (modifiedString != null) {
       modified = DateTime.parse(modifiedString);
     }
-    int size = map[sizeKey];
+    int size = map[sizeKey] as int;
     fs.FileSystemEntityType type = typeFromString(map[typeKey] as String);
 
     return new Node(parent, name, type, modified, size, id)

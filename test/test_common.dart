@@ -52,7 +52,7 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = null;
-  final IdbFileSystem fs = newMemoryFileSystem();
+  final IdbFileSystem fs = newMemoryFileSystem() as IdbFileSystem;
   MemoryFileSystemTestContext();
 }
 

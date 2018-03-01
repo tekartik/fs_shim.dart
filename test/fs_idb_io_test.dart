@@ -23,7 +23,7 @@ FileSystem newIdbIoFileSystem([String name]) =>
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = null;
-  IdbFileSystem fs = newIdbIoFileSystem();
+  IdbFileSystem fs = newIdbIoFileSystem() as IdbFileSystem;
   IdbIoFileSystemTestContext();
 
   @override

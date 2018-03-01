@@ -1,11 +1,15 @@
-@TestOn("vm")
-import 'test_common_io.dart';
-import 'package:path/path.dart';
-
 /// io_example_test.dart
 /// io_example_fs_shim_test.dart
 /// This file must be the same besides the import above
 import 'package:fs_shim/fs_io.dart';
+import 'package:path/path.dart';
+
+@TestOn("vm")
+import 'test_common_io.dart';
+/// io_example_test.dart
+/// io_example_fs_shim_test.dart
+/// This file must be the same besides the import above
+
 
 const String groupName = "io_example_fs_shim";
 
@@ -46,7 +50,7 @@ main() {
         expect(entity, new isInstanceOf<File>());
       }).asFuture();
 
-      File file2 = await file.copy(join(dir.path, "file2"));
+      File file2 = await file.copy(join(dir.path, "file2")) as File;
       expect(await file2.readAsString(), "test");
 
       // stat
