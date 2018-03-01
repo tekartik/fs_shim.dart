@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.3
+
+* Add support `implicit-cast: false`
+
+## 0.7.2
+
+* Add `deleteFile`, `deleteDirectory`
+
 ## 0.7.1
 
 Add io, deleteFile and deleteDirectory io helpers
