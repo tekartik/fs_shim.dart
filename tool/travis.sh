@@ -13,4 +13,5 @@ pub run test -p chrome
 # pub run test -p firefox -j 1 --reporter expanded
 
 # test dartdevc support
-pub build example/browser --web-compiler=dartdevc
+# pub build example/browser --web-compiler=dartdevc
+pub build example/browser
