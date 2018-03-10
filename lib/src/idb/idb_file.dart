@@ -48,7 +48,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
           Encoding encoding: UTF8,
           bool flush: false}) =>
       doWriteAsString(contents, mode: mode, encoding: encoding, flush: flush)
-      as Future<IdbFile>;
+          as Future<IdbFile>;
 
   @override
   IdbFile get absolute => new IdbFile(_fs, idbMakePathAbsolute(path));

@@ -24,13 +24,13 @@ FileSystem newIdbBrowserFileSystem([String name]) =>
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = browserPlatformContext;
   IdbFileSystem fs = newIdbBrowserFileSystem()
-  as IdbFileSystem; // Needed for initialization (supportsLink)
+      as IdbFileSystem; // Needed for initialization (supportsLink)
   IdbBrowserFileSystemTestContext();
 
   @override
   Future<Directory> prepare() {
     fs =
-    newIdbBrowserFileSystem(join(super.outPath, 'lfs.db')) as IdbFileSystem;
+        newIdbBrowserFileSystem(join(super.outPath, 'lfs.db')) as IdbFileSystem;
     return super.prepare();
   }
 }

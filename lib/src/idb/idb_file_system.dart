@@ -442,8 +442,8 @@ class IdbFileSystem extends Object
       parentIndex
           .openCursor(key: entity.id, autoAdvance: false)
           .listen((idb.CursorWithValue cwv) {
-        Node child = new Node.fromMap(
-            entity, cwv.value as Map, cwv.primaryKey as int);
+            Node child = new Node.fromMap(
+                entity, cwv.value as Map, cwv.primaryKey as int);
             if (recursive == true) {
               futures.add(_deleteEntity(txn, child, recursive: true));
               cwv.next();
@@ -691,8 +691,8 @@ class IdbFileSystem extends Object
       _storage.txnGetChildNode(treeStore, index, parent, name, followLastLink);
 
   // follow link only for last one
-  Future<NodeSearchResult> txnSearch(idb.ObjectStore store,
-      List<String> segments, bool followLastLink) =>
+  Future<NodeSearchResult> txnSearch(
+          idb.ObjectStore store, List<String> segments, bool followLastLink) =>
       _storage.txnSearch(store, segments, followLastLink);
 
   Future<Node> _createDirectory(
@@ -824,7 +824,7 @@ class IdbFileSystem extends Object
                       if (entity != null) {
                         ctlr.add(
                             linkNodeToFileSystemEntity(relativePath, entity)
-                            as IdbFileSystemEntity);
+                                as IdbFileSystemEntity);
 
                         // recursive?
                         if (entity.isDir && recursive == true) {

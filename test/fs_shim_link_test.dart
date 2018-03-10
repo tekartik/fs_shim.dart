@@ -296,7 +296,11 @@ void defineTests(FileSystemTestContext ctx) {
           fail("shoud fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          expect(e.status, FileSystemException.statusNotFound);
+          if (isIoWindows(ctx)) {
+            expect(e.status, FileSystemException.statusInvalidArgument);
+          } else {
+            expect(e.status, FileSystemException.statusNotFound);
+          }
           /*
           if (isIo(ctx)) {
             // win, linux, mac
@@ -745,7 +749,11 @@ void defineTests(FileSystemTestContext ctx) {
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          expect(e.status, FileSystemException.statusIsADirectory);
+          if (isIoWindows(ctx)) {
+            expect(e.status, FileSystemException.statusInvalidArgument);
+          } else {
+            expect(e.status, FileSystemException.statusIsADirectory);
+          }
           /*
           if (isIo(ctx)) {
             // win, mac, linux

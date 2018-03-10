@@ -6,12 +6,12 @@ import 'dart:io' as io;
 import 'fs.dart' as fs show File, Directory, Link, FileSystemEntity;
 import 'fs.dart'
     show
-    FileSystem,
-    FileSystemEntityType,
-    FileSystemException,
-    FileStat,
-    FileMode,
-    OSError;
+        FileSystem,
+        FileSystemEntityType,
+        FileSystemException,
+        FileStat,
+        FileMode,
+        OSError;
 import 'src/io/io_directory.dart';
 import 'src/io/io_file.dart';
 import 'src/io/io_file_stat.dart';

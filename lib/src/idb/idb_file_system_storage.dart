@@ -162,8 +162,8 @@ class IdbFileSystemStorage {
   }
 
   // follow link only for last one
-  Future<NodeSearchResult> txnSearch(idb.ObjectStore store,
-      List<String> segments, bool followLastLink) {
+  Future<NodeSearchResult> txnSearch(
+      idb.ObjectStore store, List<String> segments, bool followLastLink) {
     NodeSearchResult result = new NodeSearchResult()..segments = segments;
     idb.Index index = store.index(parentNameIndexName);
     Node parent;

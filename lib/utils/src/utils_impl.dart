@@ -241,7 +241,7 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
     return await new TopSourceNode(new TopEntity(src.fs, src.path),
-        options: options)
+            options: options)
         .run();
   } else {
     throw new ArgumentError('not a directory ($src)');
@@ -534,7 +534,7 @@ abstract class SourceNodeMixin implements SourceNode {
   Future<List<File>> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
     ChildSourceNode sourceNode =
-    new ChildSourceNode(this, options, srcRelative);
+        new ChildSourceNode(this, options, srcRelative);
 
     // exclude?
     return sourceNode.run();

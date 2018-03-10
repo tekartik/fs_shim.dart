@@ -50,13 +50,13 @@ class FileImpl extends FileSystemEntityImpl implements File {
   Future<FileImpl> rename(String newPath) => _wrapFutureFile(ioFile
       .rename(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-  new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
+          new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
 
   @override
   Future<FileImpl> copy(String newPath) => _wrapFutureFile(ioFile
       .copy(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-  new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
+          new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
 
   @override
   Future<FileImpl> writeAsBytes(List<int> bytes,

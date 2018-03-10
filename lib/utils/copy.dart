@@ -36,7 +36,7 @@ Future<File> copyFile(File src, File dst, {CopyOptions options}) =>
     _impl.copyFile(src, dst, options: options);
 
 Future<List<File>> copyDirectoryListFiles(Directory src,
-    {CopyOptions options}) =>
+        {CopyOptions options}) =>
     _impl.copyDirectoryListFiles(src, options: options);
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
@@ -93,15 +93,12 @@ class CopyOptions extends Object
 CopyOptions get copyNewerOptions =>
     new CopyOptions(checkSizeAndModifiedDate: true);
 
-CopyOptions get recursiveLinkOrCopyNewerOptions =>
-    new CopyOptions(
+CopyOptions get recursiveLinkOrCopyNewerOptions => new CopyOptions(
     recursive: true, checkSizeAndModifiedDate: true, tryToLinkFile: true);
 
 CopyOptions get defaultCloneOptions => new CopyOptions(tryToLinkFile: true);
 
-CopyOptions get defaultCopyOptions =>
-    new CopyOptions()
-      ..recursive = true;
+CopyOptions get defaultCopyOptions => new CopyOptions()..recursive = true;
 
 /// Delete a directory recursively
 Future deleteDirectory(Directory dir, {DeleteOptions options}) =>
