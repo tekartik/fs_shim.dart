@@ -28,5 +28,6 @@ class _TestUtils {
 }
 
 String get testScriptPath => _TestUtils.scriptPath;
-String get testOutTopPath => join(dirname(dirname(testScriptPath)), "test_out");
+String get testOutTopPath =>
+    join(dirname(dirname(testScriptPath)), ".dart_tool", "fs_shim", "test_out");
 String get testOutPath => join(testOutTopPath, joinAll(testDescriptions));

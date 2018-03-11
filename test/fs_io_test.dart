@@ -33,8 +33,10 @@ void main() {
           FileSystemEntityType.DIRECTORY);
     });
     test('test_path', () async {
-      expect(ioFileSystemTestContext.outTopPath,
-          join(dirname(dirname(testScriptPath)), "test_out"));
+      expect(
+          ioFileSystemTestContext.outTopPath,
+          join(dirname(dirname(testScriptPath)), ".dart_tool", "fs_shim",
+              "test_out"));
       expect(ioFileSystemTestContext.outPath,
           join(ioFileSystemTestContext.outTopPath, joinAll(testDescriptions)));
     });
