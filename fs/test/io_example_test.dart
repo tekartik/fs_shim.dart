@@ -6,6 +6,7 @@ import 'package:path/path.dart';
 /// io_example_fs_shim_test.dart
 /// This file must be the same besides the import above
 import 'dart:io';
+import 'package:dart2_constant/io.dart' as constant;
 
 const String groupName = "io_example";
 
@@ -29,7 +30,7 @@ main() {
       expect(file.absolute.isAbsolute, isTrue);
 
       // file mode
-      var sink = file.openWrite(mode: FileMode.WRITE);
+      var sink = file.openWrite(mode: constant.FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
       expect(await FileSystemEntity.isFile(file.path), isTrue);
@@ -64,8 +65,8 @@ main() {
       }
 
       // file entity type
-      expect(
-          await FileSystemEntity.type(file2.path), FileSystemEntityType.FILE);
+      expect(await FileSystemEntity.type(file2.path),
+          constant.FileSystemEntityType.file);
     });
   });
 }

@@ -12,7 +12,7 @@ class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
       super.fs.createDirectory(path, recursive: recursive).then(_me);
 
   @override
-  fs.FileSystemEntityType get type => fs.FileSystemEntityType.DIRECTORY;
+  fs.FileSystemEntityType get type => fs.FileSystemEntityType.directory;
 
   @override
   Future<IdbDirectory> rename(String newPath) {

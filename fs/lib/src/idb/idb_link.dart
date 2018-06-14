@@ -8,7 +8,7 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
 
   IdbFileSystem get _fs => super.fs;
 
-  fs.FileSystemEntityType get type => fs.FileSystemEntityType.LINK;
+  fs.FileSystemEntityType get type => fs.FileSystemEntityType.link;
 
   /*
   Future<IdbFile> create({bool recursive: false}) {

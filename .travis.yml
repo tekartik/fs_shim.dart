@@ -10,7 +10,7 @@ jobs:
       script: ./tool/travis.sh
       dart: stable
     - stage: dev
-      script: ./tool/travis.sh
+      script: ./tool/travis_dev.sh
       dart: dev
 
 stages:

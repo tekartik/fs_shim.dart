@@ -20,13 +20,22 @@ class IoFileSystemImpl extends Object
               wrapIoFileSystemEntityTypeImpl(ioType));
 
   @override
-  File newFile(String path) => new File(path);
+  File newFile(String path) => file(path);
 
   @override
-  Directory newDirectory(String path) => new Directory(path);
+  Directory newDirectory(String path) => directory(path);
 
   @override
-  Link newLink(String path) => new Link(path);
+  Link newLink(String path) => link(path);
+
+  @override
+  File file(String path) => new File(path);
+
+  @override
+  Directory directory(String path) => new Directory(path);
+
+  @override
+  Link link(String path) => new Link(path);
 
   @override
   String get name => 'io';

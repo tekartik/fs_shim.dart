@@ -27,7 +27,7 @@ main() {
       expect(file.absolute.isAbsolute, isTrue);
 
       // file mode
-      var sink = file.openWrite(mode: FileMode.WRITE);
+      var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
       expect(await FileSystemEntity.isFile(file.path), isTrue);
@@ -63,7 +63,7 @@ main() {
 
       // file entity type
       expect(
-          await FileSystemEntity.type(file2.path), FileSystemEntityType.FILE);
+          await FileSystemEntity.type(file2.path), FileSystemEntityType.file);
     });
   });
 }

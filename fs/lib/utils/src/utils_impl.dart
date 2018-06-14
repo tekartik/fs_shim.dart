@@ -711,8 +711,8 @@ class ChildCopy extends Object
         FileSystemEntityType type = await dst.type(followLinks: false);
 
         bool deleteDst = false;
-        if (type != FileSystemEntityType.NOT_FOUND) {
-          if (type == FileSystemEntityType.LINK) {
+        if (type != FileSystemEntityType.notFound) {
+          if (type == FileSystemEntityType.link) {
             // check target
             if (await dst.asLink().target() != srcTarget) {
               deleteDst = true;

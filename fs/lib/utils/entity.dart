@@ -55,5 +55,5 @@ Link childLink(Directory dir, String sub) {
 }
 
 Future<bool> entityExists(FileSystemEntity entity) async {
-  return (await entity.fs.type(entity.path)) != FileSystemEntityType.NOT_FOUND;
+  return (await entity.fs.type(entity.path)) != FileSystemEntityType.notFound;
 }

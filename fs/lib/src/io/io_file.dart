@@ -9,6 +9,7 @@ import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 
 export '../../fs.dart' show FileSystemEntityType;
+import 'package:dart2_constant/convert.dart' as convert;
 
 Future<File> _wrapFutureFile(Future<File> future) => ioWrap(future);
 
@@ -33,7 +34,7 @@ class FileImpl extends FileSystemEntityImpl implements File {
   // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
-      {fs.FileMode mode: fs.FileMode.WRITE, Encoding encoding: UTF8}) {
+      {fs.FileMode mode: fs.FileMode.write, Encoding encoding: convert.utf8}) {
     IoWriteFileSink sink = new IoWriteFileSink(
         ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
     return sink;
@@ -60,15 +61,15 @@ class FileImpl extends FileSystemEntityImpl implements File {
 
   @override
   Future<FileImpl> writeAsBytes(List<int> bytes,
-          {fs.FileMode mode: fs.FileMode.WRITE, bool flush: false}) =>
+          {fs.FileMode mode: fs.FileMode.write, bool flush: false}) =>
       ioWrap(ioFile.writeAsBytes(bytes,
               mode: fileWriteMode(mode), flush: flush))
           .then(_me);
 
   @override
   Future<FileImpl> writeAsString(String contents,
-          {fs.FileMode mode: fs.FileMode.WRITE,
-          Encoding encoding: UTF8,
+          {fs.FileMode mode: fs.FileMode.write,
+          Encoding encoding: convert.utf8,
           bool flush: false}) =>
       ioWrap(ioFile.writeAsString(contents,
               mode: fileWriteMode(mode), encoding: encoding, flush: flush))
@@ -78,7 +79,7 @@ class FileImpl extends FileSystemEntityImpl implements File {
   Future<List<int>> readAsBytes() => ioWrap(ioFile.readAsBytes());
 
   @override
-  Future<String> readAsString({Encoding encoding: UTF8}) =>
+  Future<String> readAsString({Encoding encoding: convert.utf8}) =>
       _wrapFutureString(ioFile.readAsString(encoding: encoding));
 
   @override

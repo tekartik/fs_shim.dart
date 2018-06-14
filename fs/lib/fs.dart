@@ -10,6 +10,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:path/path.dart';
+import 'package:dart2_constant/convert.dart' as convert;
 
 abstract class FileSystemEntity {
   ///
@@ -98,16 +99,23 @@ abstract class FileSystemEntity {
 
 class FileMode {
   /// The mode for opening a file only for reading.
-  static const READ = const FileMode._internal(0);
+  static const read = const FileMode._internal(0);
+  @deprecated
+  static const READ = read;
 
   /// The mode for opening a file for reading and writing. The file is
   /// overwritten if it already exists. The file is created if it does not
   /// already exist.
-  static const WRITE = const FileMode._internal(1);
+  static const write = const FileMode._internal(1);
+  @deprecated
+  static const WRITE = write;
 
   /// The mode for opening a file for reading and writing to the
   /// end of it. The file is created if it does not already exist.
-  static const APPEND = const FileMode._internal(2);
+  static const append = const FileMode._internal(2);
+  @deprecated
+  static const APPEND = append;
+
   final int _mode;
 
   int get mode => _mode;
@@ -176,7 +184,7 @@ abstract class File extends FileSystemEntity {
   /// [IOSink] has been created.
   ///
   StreamSink<List<int>> openWrite(
-      {FileMode mode: FileMode.WRITE, Encoding encoding: UTF8});
+      {FileMode mode: FileMode.write, Encoding encoding: convert.utf8});
 
   ///
   /// Create a new independent [Stream] for the contents of this file.
@@ -202,13 +210,13 @@ abstract class File extends FileSystemEntity {
   ///
   /// By default [writeAsBytes] creates the file for writing and truncates the
   /// file if it already exists. In order to append the bytes to an existing
-  /// file, pass [FileMode.APPEND] as the optional mode parameter.
+  /// file, pass [FileMode.append] as the optional mode parameter.
   ///
   /// If the argument [flush] is set to `true`, the data written will be
   /// flushed to the file system before the returned future completes.
   ///
   Future<File> writeAsBytes(List<int> bytes,
-      {FileMode mode: FileMode.WRITE, bool flush: false});
+      {FileMode mode: FileMode.write, bool flush: false});
 
   ///
   /// Write a string to a file.
@@ -219,14 +227,14 @@ abstract class File extends FileSystemEntity {
   ///
   /// By default [writeAsString] creates the file for writing and truncates the
   /// file if it already exists. In order to append the bytes to an existing
-  /// file, pass [FileMode.APPEND] as the optional mode parameter.
+  /// file, pass [FileMode.append] as the optional mode parameter.
   ///
   /// If the argument [flush] is set to `true`, the data written will be
   /// flushed to the file system before the returned future completes.
   ///
   Future<File> writeAsString(String contents,
-      {FileMode mode: FileMode.WRITE,
-      Encoding encoding: UTF8,
+      {FileMode mode: FileMode.write,
+      Encoding encoding: convert.utf8,
       bool flush: false});
 
   ///
@@ -243,7 +251,7 @@ abstract class File extends FileSystemEntity {
   /// Returns a [:Future<String>:] that completes with the string once
   /// the file contents has been read.
   ///
-  Future<String> readAsString({Encoding encoding: UTF8});
+  Future<String> readAsString({Encoding encoding: convert.utf8});
 
   ///
   /// Copy this file. Returns a `Future<File>` that completes
@@ -379,10 +387,22 @@ abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 /// to indicate the object's type.
 ///
 class FileSystemEntityType {
-  static const FILE = const FileSystemEntityType._internal(0);
-  static const DIRECTORY = const FileSystemEntityType._internal(1);
-  static const LINK = const FileSystemEntityType._internal(2);
-  static const NOT_FOUND = const FileSystemEntityType._internal(3);
+  static const file = const FileSystemEntityType._internal(0);
+  @deprecated
+  static const FILE = file;
+
+  static const directory = const FileSystemEntityType._internal(1);
+  @deprecated
+  static const DIRECTORY = directory;
+
+  static const link = const FileSystemEntityType._internal(2);
+  @deprecated
+  static const LINK = link;
+
+  static const notFound = const FileSystemEntityType._internal(3);
+  @deprecated
+  static const NOT_FOUND = notFound;
+
   final int _type;
 
   const FileSystemEntityType._internal(this._type);
@@ -399,6 +419,8 @@ abstract class FileSystem {
   /// If [path] is an absolute path, it will be immune to changes to the
   /// current working directory.
   ///
+  Directory directory(String path);
+  // Will be deprecated
   Directory newDirectory(String path);
 
   ///
@@ -410,11 +432,15 @@ abstract class FileSystem {
   /// If [path] is an absolute path, it will be immune to changes to the
   /// current working directory.
   ///
+  File file(String path);
+  // Will be deprecated
   File newFile(String path);
 
   ///
   // Creates a [Link] object.
   ///
+  Link link(String path);
+  // Will be deprecated
   Link newLink(String path);
 
   ///

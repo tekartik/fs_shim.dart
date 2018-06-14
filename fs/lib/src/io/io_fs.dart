@@ -8,20 +8,21 @@ import 'io_file_system_exception.dart';
 
 export 'dart:async';
 export 'dart:convert';
+import 'package:dart2_constant/io.dart' as constant;
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
-  if (fsFileMode == null) fsFileMode = fs.FileMode.WRITE;
+  if (fsFileMode == null) fsFileMode = fs.FileMode.write;
   return unwrapIofileModeImpl(fsFileMode);
 }
 
 io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
   switch (fsFileMode) {
-    case fs.FileMode.WRITE:
-      return io.FileMode.WRITE;
-    case fs.FileMode.READ:
-      return io.FileMode.READ;
-    case fs.FileMode.APPEND:
-      return io.FileMode.APPEND;
+    case fs.FileMode.write:
+      return constant.FileMode.write;
+    case fs.FileMode.read:
+      return constant.FileMode.read;
+    case fs.FileMode.append:
+      return constant.FileMode.append;
     default:
       throw null;
   }
@@ -29,12 +30,12 @@ io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
 
 fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
   switch (ioFileMode) {
-    case io.FileMode.WRITE:
-      return fs.FileMode.WRITE;
-    case io.FileMode.READ:
-      return fs.FileMode.READ;
-    case io.FileMode.APPEND:
-      return fs.FileMode.APPEND;
+    case constant.FileMode.write:
+      return fs.FileMode.write;
+    case constant.FileMode.read:
+      return fs.FileMode.read;
+    case constant.FileMode.append:
+      return fs.FileMode.append;
     default:
       throw null;
   }
@@ -59,14 +60,14 @@ Future<T> ioWrap<T>(Future<T> future) async {
 fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
     io.FileSystemEntityType type) {
   switch (type) {
-    case io.FileSystemEntityType.FILE:
-      return fs.FileSystemEntityType.FILE;
-    case io.FileSystemEntityType.DIRECTORY:
-      return fs.FileSystemEntityType.DIRECTORY;
-    case io.FileSystemEntityType.LINK:
-      return fs.FileSystemEntityType.LINK;
-    case io.FileSystemEntityType.NOT_FOUND:
-      return fs.FileSystemEntityType.NOT_FOUND;
+    case constant.FileSystemEntityType.file:
+      return fs.FileSystemEntityType.file;
+    case constant.FileSystemEntityType.directory:
+      return fs.FileSystemEntityType.directory;
+    case constant.FileSystemEntityType.link:
+      return fs.FileSystemEntityType.link;
+    case constant.FileSystemEntityType.notFound:
+      return fs.FileSystemEntityType.notFound;
     default:
       throw type;
   }
@@ -75,14 +76,14 @@ fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
 io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
     fs.FileSystemEntityType type) {
   switch (type) {
-    case fs.FileSystemEntityType.FILE:
-      return io.FileSystemEntityType.FILE;
-    case fs.FileSystemEntityType.DIRECTORY:
-      return io.FileSystemEntityType.DIRECTORY;
-    case fs.FileSystemEntityType.LINK:
-      return io.FileSystemEntityType.LINK;
-    case fs.FileSystemEntityType.NOT_FOUND:
-      return io.FileSystemEntityType.NOT_FOUND;
+    case fs.FileSystemEntityType.file:
+      return constant.FileSystemEntityType.file;
+    case fs.FileSystemEntityType.directory:
+      return constant.FileSystemEntityType.directory;
+    case fs.FileSystemEntityType.link:
+      return constant.FileSystemEntityType.link;
+    case fs.FileSystemEntityType.notFound:
+      return constant.FileSystemEntityType.notFound;
     default:
       throw type;
   }

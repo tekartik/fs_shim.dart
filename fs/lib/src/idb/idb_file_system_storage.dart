@@ -262,9 +262,9 @@ class IdbFileSystemStorage {
 }
 
 List<fs.FileSystemEntityType> _allTypes = [
-  fs.FileSystemEntityType.FILE,
-  fs.FileSystemEntityType.DIRECTORY,
-  fs.FileSystemEntityType.LINK
+  fs.FileSystemEntityType.file,
+  fs.FileSystemEntityType.directory,
+  fs.FileSystemEntityType.link
 ];
 fs.FileSystemEntityType typeFromString(String typeString) {
   for (fs.FileSystemEntityType type in _allTypes) {
@@ -272,7 +272,7 @@ fs.FileSystemEntityType typeFromString(String typeString) {
       return type;
     }
   }
-  return fs.FileSystemEntityType.NOT_FOUND;
+  return fs.FileSystemEntityType.notFound;
 }
 
 class Node {
@@ -281,23 +281,23 @@ class Node {
   int _depth;
   String name;
   fs.FileSystemEntityType type;
-  bool get isLink => type == fs.FileSystemEntityType.LINK;
-  bool get isDir => type == fs.FileSystemEntityType.DIRECTORY;
-  bool get isFile => type == fs.FileSystemEntityType.FILE;
+  bool get isLink => type == fs.FileSystemEntityType.link;
+  bool get isDir => type == fs.FileSystemEntityType.directory;
+  bool get isFile => type == fs.FileSystemEntityType.file;
   int size;
   DateTime modified;
   List<String> targetSegments; // for Links only
 
   Node.file(Node parent, String name, {DateTime modified})
-      : this.node(fs.FileSystemEntityType.FILE, parent, name,
+      : this.node(fs.FileSystemEntityType.file, parent, name,
             modified: modified);
 
   Node.directory(Node parent, String name, {DateTime modified})
-      : this(parent, name, fs.FileSystemEntityType.DIRECTORY, modified, 0);
+      : this(parent, name, fs.FileSystemEntityType.directory, modified, 0);
 
   Node.link(Node parent, String name,
       {List<String> targetSegments, DateTime modified})
-      : this.node(fs.FileSystemEntityType.LINK, parent, name,
+      : this.node(fs.FileSystemEntityType.link, parent, name,
             modified: modified, targetSegments: targetSegments);
 
   Node.node(this.type, this.parent, this.name,

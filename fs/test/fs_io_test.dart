@@ -11,6 +11,7 @@ import 'package:fs_shim/fs_io.dart';
 import 'test_common_io.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
+import 'package:dart2_constant/io.dart' as constant;
 
 void main() {
   FileSystem fs = ioFileSystemTestContext.fs;
@@ -28,9 +29,9 @@ void main() {
     });
     test('type', () async {
       expect(await ioFileSystemTestContext.fs.type(testScriptPath),
-          FileSystemEntityType.FILE);
+          FileSystemEntityType.file);
       expect(await ioFileSystemTestContext.fs.type(dirname(testScriptPath)),
-          FileSystemEntityType.DIRECTORY);
+          FileSystemEntityType.directory);
     });
     test('test_path', () async {
       expect(
@@ -92,33 +93,33 @@ void main() {
       });
 
       test('filemode', () async {
-        io.FileMode ioFileMode = io.FileMode.READ;
+        io.FileMode ioFileMode = constant.FileMode.read;
         FileMode fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
 
-        ioFileMode = io.FileMode.WRITE;
+        ioFileMode = constant.FileMode.write;
         fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
 
-        ioFileMode = io.FileMode.APPEND;
+        ioFileMode = constant.FileMode.append;
         fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
       });
 
       test('fileentitytype', () async {
-        io.FileSystemEntityType ioFset = io.FileSystemEntityType.NOT_FOUND;
+        io.FileSystemEntityType ioFset = constant.FileSystemEntityType.notFound;
         FileSystemEntityType fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
-        ioFset = io.FileSystemEntityType.FILE;
+        ioFset = constant.FileSystemEntityType.file;
         fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
-        ioFset = io.FileSystemEntityType.DIRECTORY;
+        ioFset = constant.FileSystemEntityType.directory;
         fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
-        ioFset = io.FileSystemEntityType.LINK;
+        ioFset = constant.FileSystemEntityType.link;
         fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
       });
@@ -156,11 +157,11 @@ void main() {
         expect(
             await FileSystemEntity.type(Directory.current.path,
                 followLinks: true),
-            FileSystemEntityType.DIRECTORY);
+            FileSystemEntityType.directory);
         expect(
             await FileSystemEntity.type(Directory.current.path,
                 followLinks: false),
-            FileSystemEntityType.DIRECTORY);
+            FileSystemEntityType.directory);
       });
     });
 

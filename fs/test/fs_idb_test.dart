@@ -68,7 +68,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
 
       File file = ctx.fs.newFile(join(dir.path, "file"));
       await file.create();
-      var sink = file.openWrite(mode: FileMode.WRITE);
+      var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
 

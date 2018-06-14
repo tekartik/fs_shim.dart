@@ -1,0 +1,10 @@
+# Files and directories created by dart
+.dart_tool/
+.packages
+.pub/
+build/
+pubspec.lock
+
+# Intellij
+.idea/
+*.iml

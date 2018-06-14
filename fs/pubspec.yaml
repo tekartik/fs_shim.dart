@@ -10,6 +10,7 @@ environment:
 dependencies:
   idb_shim: '>=1.4.1'
   path: '>=1.3.9'
+  dart2_constant: any
 
 test_dependencies:
   - platform_context
@@ -20,7 +21,7 @@ dev_dependencies:
   dev_test: any
   browser: any
   platform_context:
-    git: https://github.com/alextekartik/platform_context.dart
+    git: https://github.com/tekartik/platform_context.dart
   chrome_travis:
     git: git://github.com/tekartik/chrome_travis.dart
     version: '>=0.1.3'

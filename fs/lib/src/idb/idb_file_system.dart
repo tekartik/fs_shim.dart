@@ -48,7 +48,7 @@ class IdbReadStreamCtlr {
           _ctlr.addError(idbNotFoundException(path, "Read failed"));
           return;
         }
-        if (entity.type != fs.FileSystemEntityType.FILE) {
+        if (entity.type != fs.FileSystemEntityType.file) {
           _ctlr.addError(idbIsADirectoryException(path, "Read failed"));
           return;
         }
@@ -94,14 +94,14 @@ class IdbWriteStreamSink extends MemorySink {
       List<String> segments = getSegments(path);
       Node entity = await _fs._storage.txnGetNode(treeStore, segments, true);
       if (entity == null) {
-        if (mode == fs.FileMode.WRITE || mode == fs.FileMode.APPEND) {
+        if (mode == fs.FileMode.write || mode == fs.FileMode.append) {
           entity = await _fs._txnCreateFile(treeStore, segments);
         }
       }
       if (entity == null) {
         throw idbNotFoundException(path, "Write failed");
       }
-      if (entity.type != fs.FileSystemEntityType.FILE) {
+      if (entity.type != fs.FileSystemEntityType.file) {
         throw idbIsADirectoryException(path, "Write failed");
       }
       // else {      throw new UnsupportedError("TODO");      }
@@ -110,7 +110,7 @@ class IdbWriteStreamSink extends MemorySink {
       idb.ObjectStore fileStore = txn.objectStore(fileStoreName);
       List<int> content;
       bool exists = false;
-      if (mode == fs.FileMode.WRITE) {
+      if (mode == fs.FileMode.write) {
         content == null;
       } else {
         content = await fileStore.getObject(entity.id) as List<int>;
@@ -206,20 +206,29 @@ class IdbFileSystem extends Object
     Node entity = await _storage.getNode(segments, followLinks);
 
     if (entity == null) {
-      return fs.FileSystemEntityType.NOT_FOUND;
+      return fs.FileSystemEntityType.notFound;
     }
 
     return entity.type;
   }
 
   @override
-  IdbDirectory newDirectory(String path) => new IdbDirectory(this, path);
+  IdbDirectory newDirectory(String path) => directory(path);
 
   @override
-  IdbFile newFile(String path) => new IdbFile(this, path);
+  IdbFile newFile(String path) => file(path);
 
   @override
-  IdbLink newLink(String path) => new IdbLink(this, path);
+  IdbLink newLink(String path) => link(path);
+
+  @override
+  IdbDirectory directory(String path) => new IdbDirectory(this, path);
+
+  @override
+  IdbFile file(String path) => new IdbFile(this, path);
+
+  @override
+  IdbLink link(String path) => new IdbLink(this, path);
 
   Future createDirectory(String path, {bool recursive: false}) async {
     await _ready;
@@ -234,7 +243,7 @@ class IdbFileSystem extends Object
       NodeSearchResult result = await txnSearch(store, segments, false);
       Node entity = result.match;
       if (entity != null) {
-        if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+        if (entity.type == fs.FileSystemEntityType.directory) {
           return null;
         }
         throw idbAlreadyExistsException(path, "Creation failed");
@@ -260,10 +269,10 @@ class IdbFileSystem extends Object
     _nodeFromSearchResult(NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
-        if (entity.type == fs.FileSystemEntityType.FILE) {
+        if (entity.type == fs.FileSystemEntityType.file) {
           return entity;
         }
-        if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+        if (entity.type == fs.FileSystemEntityType.directory) {
           throw idbIsADirectoryException(result.path, "Creation failed");
         } else if (entity.isLink) {
           // Ok if targetSegments is set
@@ -297,7 +306,7 @@ class IdbFileSystem extends Object
                 result.path, "Creation failed - parent not a directory");
           }
           // create it!
-          entity = new Node(parent, segments.last, fs.FileSystemEntityType.FILE,
+          entity = new Node(parent, segments.last, fs.FileSystemEntityType.file,
               new DateTime.now(), 0);
           //print('adding ${entity}');
           return store.add(entity.toMap()).then((dynamic id) {
@@ -426,14 +435,14 @@ class IdbFileSystem extends Object
     _delete() {
       return store.delete(entity.id).then((_) {
         // For file delete content as well
-        if (entity.type == fs.FileSystemEntityType.FILE) {
+        if (entity.type == fs.FileSystemEntityType.file) {
           store = txn.objectStore(fileStoreName);
           return store.delete(entity.id);
         }
       });
     }
 
-    if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+    if (entity.type == fs.FileSystemEntityType.directory) {
       // check children first
       idb.Index parentIndex = store.index(parentIndexName);
       Completer done = new Completer.sync();
@@ -483,7 +492,7 @@ class IdbFileSystem extends Object
         throw idbNotFoundException(result.path, "Deletion failed");
       } else if (type != null) {
         if (type != entity.type) {
-          if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+          if (entity.type == fs.FileSystemEntityType.directory) {
             throw idbIsADirectoryException(result.path, "Deletion failed");
           }
           throw idbNotADirectoryException(result.path, "Deletion failed");
@@ -516,7 +525,7 @@ class IdbFileSystem extends Object
 
       IdbFileStat stat = new IdbFileStat();
       if (entity == null) {
-        stat.type = fs.FileSystemEntityType.NOT_FOUND;
+        stat.type = fs.FileSystemEntityType.notFound;
       } else {
         stat.type = entity.type;
         stat.size = entity.size;
@@ -565,7 +574,7 @@ class IdbFileSystem extends Object
           newParent = newEntity.parent;
           // Same type ok
           if (newEntity.type == entity.type) {
-            if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+            if (entity.type == fs.FileSystemEntityType.directory) {
               // check if _notEmptyError
               idb.Index index = store.index(parentIndexName);
               // any child will matter
@@ -585,7 +594,7 @@ class IdbFileSystem extends Object
               });
             }
           } else {
-            if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+            if (entity.type == fs.FileSystemEntityType.directory) {
               throw idbNotADirectoryException(path, "Rename failed");
             } else {
               throw idbIsADirectoryException(path, "Rename failed");
@@ -647,7 +656,7 @@ class IdbFileSystem extends Object
       if (newEntity != null) {
         // Same type ok
         if (newEntity.type != entity.type) {
-          if (entity.type == fs.FileSystemEntityType.DIRECTORY) {
+          if (entity.type == fs.FileSystemEntityType.directory) {
             throw idbNotADirectoryException(path, "Copy failed");
           } else {
             throw idbIsADirectoryException(path, "Copy failed");
@@ -661,7 +670,7 @@ class IdbFileSystem extends Object
 
         Node newParent = newResult.highest; // highest is the parent at depth 1
         newEntity = new Node(newParent, newSegments.last,
-            fs.FileSystemEntityType.FILE, _modified, 0);
+            fs.FileSystemEntityType.file, _modified, 0);
         // add file
         newEntity.id = await store.add(newEntity.toMap()) as int;
       }
@@ -705,7 +714,7 @@ class IdbFileSystem extends Object
       String segment = remainings[i];
       Node parent = entity;
       // create it!
-      entity = new Node(parent, segment, fs.FileSystemEntityType.DIRECTORY,
+      entity = new Node(parent, segment, fs.FileSystemEntityType.directory,
           new DateTime.now(), 0);
       //print('adding ${entity}');
       return store.add(entity.toMap()).then((dynamic id) {
@@ -722,11 +731,11 @@ class IdbFileSystem extends Object
   }
 
   StreamSink<List<int>> openWrite(String path,
-      {fs.FileMode mode: fs.FileMode.WRITE}) {
+      {fs.FileMode mode: fs.FileMode.write}) {
     if (mode == null) {
-      mode = fs.FileMode.WRITE;
+      mode = fs.FileMode.write;
     }
-    if (mode == fs.FileMode.READ) {
+    if (mode == fs.FileMode.read) {
       throw new ArgumentError("Invalid file mode '${mode}' for this operation");
     }
     path = idbMakePathAbsolute(path);
