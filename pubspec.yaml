@@ -1,11 +1,11 @@
-name: tekartik_http_repo
-description: Http repo (tools)
+name: tekartik_fs_shim_repo
+description: fs shim repo (tools)
 version: 0.0.1
 #homepage: https://www.example.com
 #author: alex <email@example.com>
 
 environment:
-  sdk: '>=2.0.0-dev.54 <2.0.0'
+  sdk: '>=1.24.3 <2.0.0'
 
 dev_dependencies:
   test: ">=0.12.37"
