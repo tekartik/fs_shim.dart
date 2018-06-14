@@ -1,0 +1,16 @@
+name: tekartik_http_repo
+description: Http repo (tools)
+version: 0.0.1
+#homepage: https://www.example.com
+#author: alex <email@example.com>
+
+environment:
+  sdk: '>=2.0.0-dev.54 <2.0.0'
+
+dev_dependencies:
+  test: ">=0.12.37"
+  dev_test: any
+  grinder: any
+  tekartik_build_utils:
+    git: git://github.com/tekartik/build_utils.dart
+    version: '>=0.3.4'

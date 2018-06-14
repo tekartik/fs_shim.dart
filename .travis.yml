@@ -1,0 +1,26 @@
+language: dart
+
+sudo: required
+addons:
+  chrome: stable
+
+jobs:
+  include:
+    - stage: stable
+      script: ./tool/travis.sh
+      dart: stable
+    - stage: dev
+      script: ./tool/travis.sh
+      dart: dev
+
+stages:
+  - stable
+  - dev
+
+# Only building master means that we don't run two builds for each pull request.
+branches:
+  only: [master]
+
+cache:
+  directories:
+    - $HOME/.pub-cache
