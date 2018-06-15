@@ -2,6 +2,7 @@ library fs_shim.src.io.io_file_system_exception;
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs.dart';
+import 'package:tekartik_fs_node/src/utils.dart';
 import 'import_common_node.dart' as io;
 
 // OSError Wrap/unwrap
@@ -111,10 +112,22 @@ int _statusFromException(io.FileSystemException ioFse) {
 class FileSystemExceptionNode implements fs.FileSystemException {
   io.FileSystemException ioFileSystemException;
 
+  FileSystemExceptionNode({this.status, String message})
+      : _message = message,
+        ioFileSystemException = null,
+        osError = null;
+
+  FileSystemExceptionNode.fromString(String e)
+      : _message = e,
+        status = statusFromMessage(e),
+        ioFileSystemException = null,
+        osError = osErrorFromMessage(e);
+
   FileSystemExceptionNode.io(io.FileSystemException ioFse)
       : ioFileSystemException = ioFse,
         osError = new OSErrorNode.io(ioFse.osError),
-        status = _statusFromException(ioFse);
+        status = _statusFromException(ioFse),
+        _message = ioFse.message;
 
   @override
   final int status;
@@ -122,13 +135,18 @@ class FileSystemExceptionNode implements fs.FileSystemException {
   @override
   final OSErrorNode osError;
 
+  final String _message;
+
   @override
-  String get message => ioFileSystemException.message;
+  String get message => _message;
 
   @override
   String get path => ioFileSystemException.path;
 
   @override
-  String toString() =>
-      "${status == null ? '' : '[${status}] '}${ioFileSystemException.toString()}";
+  String toString() => "${status == null ? '' : '[${status}] '}${message}";
+}
+
+OSErrorNode osErrorFromMessage(String message) {
+  return null;
 }

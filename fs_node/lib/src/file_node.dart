@@ -4,22 +4,23 @@ import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 
 import 'import_common_node.dart' as io;
+import 'dart:io' as vm_io;
 
 Future<File> _wrapFutureFile(Future<File> future) => ioWrap(future);
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
 // Wrap/unwrap
-FileNode wrapIoFile(io.File ioFile) =>
+FileNode wrapIoFile(vm_io.File ioFile) =>
     ioFile != null ? new FileNode.io(ioFile) : null;
 
-io.File unwrapIoFile(File file) =>
+vm_io.File unwrapIoFile(File file) =>
     file != null ? (file as FileNode).ioFile : null;
 
 class FileNode extends FileSystemEntityNode implements File {
-  io.File get ioFile => nativeInstance as io.File;
+  vm_io.File get ioFile => nativeInstance as io.File;
 
-  FileNode.io(io.File file) : super(file);
+  FileNode.io(vm_io.File file) : super(file);
 
   FileNode(String path) : super(new io.File(path));
 
@@ -47,13 +48,13 @@ class FileNode extends FileSystemEntityNode implements File {
   @override
   Future<FileNode> rename(String newPath) => _wrapFutureFile(ioFile
       .rename(newPath)
-      .then((io.FileSystemEntity ioFileSystemEntity) =>
+      .then((vm_io.FileSystemEntity ioFileSystemEntity) =>
           new FileNode(ioFileSystemEntity.path))) as Future<FileNode>;
 
   @override
   Future<FileNode> copy(String newPath) => _wrapFutureFile(ioFile
       .copy(newPath)
-      .then((io.FileSystemEntity ioFileSystemEntity) =>
+      .then((vm_io.FileSystemEntity ioFileSystemEntity) =>
           new FileNode(ioFileSystemEntity.path))) as Future<FileNode>;
 
   @override

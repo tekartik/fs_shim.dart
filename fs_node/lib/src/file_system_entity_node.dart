@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'package:fs_shim/fs.dart';
+import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/file_stat_node.dart';
-import 'import_common_node.dart' as io;
+import 'package:tekartik_fs_node/src/import_common.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
 import 'package:tekartik_fs_node/src/file_system_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
+import 'dart:io' as io;
 
 abstract class FileSystemEntityNode implements FileSystemEntity {
   final io.FileSystemEntity nativeInstance;
@@ -26,7 +28,7 @@ abstract class FileSystemEntityNode implements FileSystemEntity {
   DirectoryNode get parent => new DirectoryNode(nativeInstance.parent.path);
 
   @override
-  Future<bool> exists() => ioWrap(nativeInstance.exists());
+  Future<bool> exists() async => pathExists(path);
 
   @override
   Future<FileSystemEntity> delete({bool recursive: false}) //
@@ -37,8 +39,21 @@ abstract class FileSystemEntityNode implements FileSystemEntity {
   bool get isAbsolute => nativeInstance.isAbsolute;
 
   @override
-  Future<FileStat> stat() async {
-    var stat = await ioWrap(nativeInstance.stat());
-    return new FileStatNode.io(stat);
+  Future<FileStat> stat() async => pathFileStat(path);
+}
+
+Future<bool> pathExists(String path) async {
+  var stat = await pathFileStat(path);
+  return stat.type != FileSystemEntityType.notFound;
+}
+
+Future pathRecursiveCreateParent(String path) async {
+  devPrint("#create $path");
+  var parent = dirname(path);
+  if (parent != path) {
+    if (!await pathExists(parent)) {
+      await pathRecursiveCreateParent(parent);
+      await new DirectoryNode(parent).create();
+    }
   }
 }

@@ -10,7 +10,9 @@ environment:
 dependencies:
   fs_shim: any
   platform_context:
-    git: https://github.com/tekartik/platform_context.dart
+    git: git://github.com/tekartik/platform_context.dart
+  tekartik_common_utils:
+    git: git://github.com/tekartik/common_utils.dart
   test: ">=0.12.37"
   dev_test: any
 

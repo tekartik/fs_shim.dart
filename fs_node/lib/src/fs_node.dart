@@ -4,6 +4,7 @@ import 'dart:async';
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs.dart';
+import 'package:tekartik_fs_node/src/import_common.dart';
 import 'file_system_exception_node.dart';
 import 'import_common_node.dart' as io;
 
@@ -61,8 +62,11 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
 ioWrapError(e) {
   if (e is io.FileSystemException) {
     return new FileSystemExceptionNode.io(e);
+  } else {
+    print(e.toString());
+    return new FileSystemExceptionNode.fromString(e.toString());
   }
-  return e;
+  // return e;
 }
 
 Future<T> ioWrap<T>(Future<T> future) async {
@@ -70,6 +74,9 @@ Future<T> ioWrap<T>(Future<T> future) async {
     return await future;
   } on io.FileSystemException catch (e) {
     //io.stderr.writeln(st);
+    throw ioWrapError(e);
+  } catch (e) {
+    // catch anything in javascript
     throw ioWrapError(e);
   }
 }
