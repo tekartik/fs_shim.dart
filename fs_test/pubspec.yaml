@@ -21,5 +21,3 @@ dependencies:
 dependency_overrides:
   fs_shim:
     path: ../fs
-  tekartik_platform:
-    path: /media/ssd/devx/git/github.com/tekartik/platform.dart/platform
