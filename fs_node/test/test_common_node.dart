@@ -6,22 +6,8 @@ import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/file_system_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'package:tekartik_fs_test/test_common.dart';
-import 'package:platform_context/context.dart';
-
-class PlatformContextNode implements PlatformContext {
-  @override
-  Browser get browser => null;
-
-  @override
-  Io get io => null;
-
-  @override
-  Map toMap() {
-    return {};
-  }
-}
-
-PlatformContextNode platformContextNode = new PlatformContextNode();
+import 'package:tekartik_platform/context.dart';
+import 'package:tekartik_platform_node/context_node.dart';
 
 final FileSystemTestContextNode fileSystemTestContextNode =
     new FileSystemTestContextNode();

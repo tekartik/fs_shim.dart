@@ -43,20 +43,8 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   Future<DirectoryNode> delete({bool recursive: false}) async {
     recursive ??= false;
     if (recursive) {
-      List<FileSystemEntityNode> entities = await list().toList();
-      for (var entity in entities) {
-        if (entity is DirectoryNode) {
-          await entity.delete(recursive: recursive);
-        } else if (entity is FileNode) {
-          await entity.delete();
-        } else {
-          // TODO handle link
-          print("entity unsupported ${entity} ${entity.runtimeType}");
-          // throw new UnsupportedError(
-          //    'entity ${entity} type ${entity.runtimeType} not supported');
-
-        }
-      }
+      await fs.deleteAny(path);
+      return this;
     }
     await super.delete();
     return this;
@@ -163,4 +151,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
 
   @override
   DirectoryNode get absolute => new DirectoryNode.io(ioDir.absolute);
+
+  @override
+  String toString() => "Directory: '$path'";
 }

@@ -104,15 +104,15 @@ void defineTests(FileSystemTestContext ctx) {
         Directory top = await ctx.prepare();
         File file = childFile(top, 'file');
         expect(await createFile(file), file);
-        expect(await file.exists(), isTrue);
+        expect(await file.exists(), isTrue, reason: "file created");
         await deleteFile(file);
-        expect(await file.exists(), isFalse);
+        expect(await file.exists(), isFalse, reason: "file deleted");
         expect(await createFile(file), file);
         await deleteFile(file, options: new DeleteOptions());
-        expect(await file.exists(), isFalse);
+        expect(await file.exists(), isFalse, reason: "file deleted again");
         expect(await createFile(file), file);
         await deleteFile(file, options: new DeleteOptions()..create = true);
-        expect(await file.exists(), isTrue);
+        expect(await file.exists(), isTrue, reason: "file re-created");
       });
 
       test('dir_with_content', () async {
@@ -179,7 +179,7 @@ void defineTests(FileSystemTestContext ctx) {
             options: defaultCopyOptions.clone..delete = true);
       });
 
-      test('file', () async {
+      test('copy_file', () async {
         Directory top = await ctx.prepare();
         File srcFile = fs.newFile(join(top.path, "file"));
         File dstFile = fs.newFile(join(top.path, "file2"));

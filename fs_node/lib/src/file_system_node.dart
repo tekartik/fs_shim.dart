@@ -5,6 +5,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
 import 'package:tekartik_fs_node/src/file_node.dart';
+import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'import_common_node.dart' as io;
 import 'package:tekartik_fs_node/src/fs_node.dart';
 
@@ -56,4 +57,30 @@ class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
 
   @override
   Context get pathContext => context;
+
+  Future deleteAny(String path) async {
+    var type = await this.type(path);
+    if (type == FileSystemEntityType.directory) {
+      List<FileSystemEntityNode> entities =
+          await new DirectoryNode(path).list().toList();
+      for (var entity in entities) {
+        /*
+        if (entity is DirectoryNode) {
+          await deleteAnyentity.delete(recursive: recursive);
+        } else if (entity is FileNode) {
+          await entity.delete();
+        } else {
+          // TODO handle link
+          print("entity unsupported ${entity} ${entity.runtimeType}");
+          // throw new UnsupportedError(
+          //    'entity ${entity} type ${entity.runtimeType} not supported');
+
+        }*/
+        await deleteAny(entity.path);
+      }
+      await new DirectoryNode(path).delete();
+    } else if (type == FileSystemEntityType.file) {
+      await new FileNode(path).delete();
+    }
+  }
 }

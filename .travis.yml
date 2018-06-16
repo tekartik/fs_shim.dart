@@ -4,6 +4,10 @@ sudo: required
 addons:
   chrome: stable
 
+before_install:
+- nvm install node
+- node --version
+
 jobs:
   include:
     - stage: stable

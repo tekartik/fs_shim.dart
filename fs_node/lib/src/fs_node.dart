@@ -135,7 +135,12 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
 
   Future get done => ioWrap(ioSink.done);
 
-  Future addStream(Stream<List<int>> stream) => ioSink.addStream(stream);
+  // not supported for node...
+  Future addStream(Stream<List<int>> stream) async {
+    await stream.listen((List<int> data) {
+      add(data);
+    }).asFuture();
+  }
 }
 
 class ReadFileStreamCtrlNode {

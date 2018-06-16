@@ -28,11 +28,17 @@ void defineTests(FileSystemTestContext ctx) {
   bool _linkSupported = fs.supportsLink;
 
   test('supportsLink', () {
+    // currently only node does not
+    if (isNode(ctx)) {
+      expect(fs.supportsLink, isFalse);
+    } else {
+      expect(fs.supportsLink, isTrue);
+    }
     expect(fs.supportsLink, _linkSupported);
   });
   test('supportsFileLink', () {
-    // currently only windows io does not
-    if (isIoWindows(ctx)) {
+    // currently only windows io and node does not
+    if (isIoWindows(ctx) || isNode(ctx)) {
       expect(fs.supportsFileLink, isFalse);
     } else {
       expect(fs.supportsFileLink, isTrue);

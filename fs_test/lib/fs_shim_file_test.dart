@@ -129,6 +129,28 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
+    test('delete_file_recursive', () async {
+      Directory dir = await ctx.prepare();
+
+      File file = fs.file(join(dir.path, "file"));
+      expect(await (await file.create()).exists(), isTrue);
+      expect(await fs.isFile(file.path), isTrue);
+
+      // delete
+      expect(await (await file.delete(recursive: true)).exists(), isFalse);
+      expect(await fs.isFile(file.path), isFalse);
+
+      try {
+        await file.delete();
+        fail("shoud fail");
+      } on FileSystemException catch (e) {
+        _printErr(e);
+        expect(e.status, FileSystemException.statusNotFound);
+        // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+        // [404] FileSystemException: Deletion failed, path = '/idb_io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
+      }
+    });
+
     test('rename_file', () async {
       Directory _dir = await ctx.prepare();
 
@@ -205,6 +227,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       // copy
       file = await file.copy(join(_dir.path, "file3"));
+      expect(file.path, endsWith("file3"));
       stat = await file.stat();
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);

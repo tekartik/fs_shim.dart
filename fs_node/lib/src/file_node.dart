@@ -36,6 +36,17 @@ class FileNode extends FileSystemEntityNode implements File {
     return this;
   }
 
+  @override
+  Future<FileNode> delete({bool recursive: false}) async {
+    // if recursive is true, delete whetever types it is per definition
+    if (recursive) {
+      await fs.deleteAny(path);
+      return this;
+    }
+    await super.delete();
+    return this;
+  }
+
   // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
@@ -95,4 +106,7 @@ class FileNode extends FileSystemEntityNode implements File {
 
   @override
   File get absolute => new FileNode.io(ioFile.absolute);
+
+  @override
+  String toString() => "File: '$path'";
 }

@@ -36,7 +36,7 @@ void main() {
     });
     test('test_path', () async {
       expect(fileSystemContext.outTopPath,
-          endsWith(join(".dart_tool", "fs_shim", "test_out")));
+          endsWith(join(".dart_tool", "fs_shim_node", "test_out")));
       expect(fileSystemContext.outPath,
           join(fileSystemContext.outTopPath, joinAll(testDescriptions)));
     });

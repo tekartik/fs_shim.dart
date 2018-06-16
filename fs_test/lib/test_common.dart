@@ -8,7 +8,7 @@ import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:path/path.dart';
-import 'package:platform_context/context.dart';
+import 'package:tekartik_platform/context.dart';
 import 'src/import_common.dart';
 
 export 'dart:async';
@@ -70,5 +70,9 @@ bool isIoMac(FileSystemTestContext ctx) {
 }
 
 bool isIo(FileSystemTestContext ctx) {
-  return (ctx.platform != null && ctx.platform.io != null);
+  return ctx?.platform?.io != null;
+}
+
+bool isNode(FileSystemTestContext ctx) {
+  return ctx?.platform?.node != null;
 }

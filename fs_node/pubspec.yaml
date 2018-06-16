@@ -10,7 +10,11 @@ environment:
 dependencies:
   fs_shim: any
   node_interop: ">=1.0.0-dev.7"
-  node_io: '>=1.0.0-dev.5'
+  # node_io: '>=1.0.0-dev.5'
+  node_io:
+    git:
+      url: git://github.com/tekartik/node-interop
+      path: node_io
 
 dev_dependencies:
   test: ">=0.12.37"
@@ -20,9 +24,21 @@ dev_dependencies:
   tekartik_fs_test:
     path: ../fs_test
   build_test: '>=0.10.2'
+  tekartik_platform:
+    git:
+      url: git://github.com/tekartik/platform.dart
+      path: platform
+  tekartik_platform_node:
+    git:
+      url: git://github.com/tekartik/platform.dart
+      path: platform_node
 
 dependency_overrides:
   fs_shim:
     path: ../fs
-  node_io:
-    path: /media/ssd/devx/git/github.com/tekartik/node-interop/node_io
+#  node_io:
+#    path: /media/ssd/devx/git/github.com/tekartik/node-interop/node_io
+#  tekartik_platform:
+#    path: /media/ssd/devx/git/github.com/tekartik/platform.dart/platform
+#  tekartik_platform_node:
+#    path: /media/ssd/devx/git/github.com/tekartik/platform.dart/platform_node
