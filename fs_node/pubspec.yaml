@@ -11,10 +11,7 @@ dependencies:
   fs_shim: any
   node_interop: ">=1.0.0-dev.7"
   # node_io: '>=1.0.0-dev.5'
-  node_io:
-    git:
-      url: git://github.com/tekartik/node-interop
-      path: node_io
+  node_io: any
 
 dev_dependencies:
   test: ">=0.12.37"
@@ -36,6 +33,10 @@ dev_dependencies:
 dependency_overrides:
   fs_shim:
     path: ../fs
+  node_io:
+    git:
+      url: git://github.com/tekartik/node-interop
+      path: node_io
 #  node_io:
 #    path: /media/ssd/devx/git/github.com/tekartik/node-interop/node_io
 #  tekartik_platform:
