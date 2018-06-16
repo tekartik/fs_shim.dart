@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
+import 'package:tekartik_fs_node/src/import_common.dart';
 
 import 'import_common_node.dart' as io;
 import 'dart:io' as vm_io;
-
-Future<File> _wrapFutureFile(Future<File> future) => ioWrap(future);
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
@@ -25,15 +24,26 @@ class FileNode extends FileSystemEntityNode implements File {
   FileNode(String path) : super(new io.File(path));
 
   @override
-  Future<FileNode> create({bool recursive: false}) //
-      =>
-      ioWrap(ioFile.create(recursive: recursive)).then(_me);
+  Future<FileNode> create({bool recursive: false}) async {
+    recursive ??= false;
+    if (await exists()) {
+      await delete();
+    }
+    if (recursive) {
+      await pathRecursiveCreateParent(path);
+    }
+    await ioWrap(ioFile.create(recursive: false));
+    return this;
+  }
 
   // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
       {FileMode mode: FileMode.write, Encoding encoding: utf8}) {
-    IoWriteFileSink sink = new IoWriteFileSink(
+    if (mode == FileMode.read) {
+      throw new ArgumentError.value(mode, "mode cannot be read-only");
+    }
+    WriteFileSinkNode sink = new WriteFileSinkNode(
         ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
     return sink;
   }
@@ -42,20 +52,23 @@ class FileNode extends FileSystemEntityNode implements File {
 
   @override
   Stream<List<int>> openRead([int start, int end]) {
-    return new IoReadFileStreamCtrl(ioFile.openRead(start, end)).stream;
+    // Node is end inclusive!
+    return new ReadFileStreamCtrlNode(
+            ioFile.openRead(start, end != null ? end - 1 : null))
+        .stream;
   }
 
   @override
-  Future<FileNode> rename(String newPath) => _wrapFutureFile(ioFile
-      .rename(newPath)
-      .then((vm_io.FileSystemEntity ioFileSystemEntity) =>
-          new FileNode(ioFileSystemEntity.path))) as Future<FileNode>;
+  Future<FileNode> rename(String newPath) async {
+    await ioWrap(ioFile.rename(newPath));
+    return new FileNode(newPath);
+  }
 
   @override
-  Future<FileNode> copy(String newPath) => _wrapFutureFile(ioFile
-      .copy(newPath)
-      .then((vm_io.FileSystemEntity ioFileSystemEntity) =>
-          new FileNode(ioFileSystemEntity.path))) as Future<FileNode>;
+  Future<FileNode> copy(String newPath) async {
+    await ioWrap(ioFile.copy(newPath));
+    return new FileNode(newPath);
+  }
 
   @override
   Future<FileNode> writeAsBytes(List<int> bytes,

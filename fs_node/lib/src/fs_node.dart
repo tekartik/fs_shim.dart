@@ -63,7 +63,7 @@ ioWrapError(e) {
   if (e is io.FileSystemException) {
     return new FileSystemExceptionNode.io(e);
   } else {
-    print(e.toString());
+    // print(e.toString());
     return new FileSystemExceptionNode.fromString(e.toString());
   }
   // return e;
@@ -113,17 +113,21 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
   }
 }
 
-class IoWriteFileSink implements StreamSink<List<int>> {
+class WriteFileSinkNode implements StreamSink<List<int>> {
   io.IOSink ioSink;
 
-  IoWriteFileSink(this.ioSink);
+  WriteFileSinkNode(this.ioSink);
   @override
   void add(List<int> data) {
     ioSink.add(data);
   }
 
+  // always flush on node
   @override
-  Future close() => ioWrap(ioSink.close());
+  Future close() async {
+    await ioWrap(ioSink.flush());
+    await ioWrap(ioSink.close());
+  }
 
   void addError(errorEvent, [StackTrace stackTrace]) {
     ioSink.addError(errorEvent, stackTrace);
@@ -134,8 +138,8 @@ class IoWriteFileSink implements StreamSink<List<int>> {
   Future addStream(Stream<List<int>> stream) => ioSink.addStream(stream);
 }
 
-class IoReadFileStreamCtrl {
-  IoReadFileStreamCtrl(this.ioStream) {
+class ReadFileStreamCtrlNode {
+  ReadFileStreamCtrlNode(this.ioStream) {
     _ctlr = new StreamController();
     ioStream.listen((List<int> data) {
       _ctlr.add(data);

@@ -11,7 +11,11 @@ import 'dart:io' as io;
 abstract class FileSystemEntityNode implements FileSystemEntity {
   final io.FileSystemEntity nativeInstance;
 
-  FileSystemEntityNode(this.nativeInstance);
+  FileSystemEntityNode(this.nativeInstance) {
+    if (path == null) {
+      throw new ArgumentError.notNull("path");
+    }
+  }
 
   FileSystemEntity _me(_) => this;
 
@@ -48,7 +52,6 @@ Future<bool> pathExists(String path) async {
 }
 
 Future pathRecursiveCreateParent(String path) async {
-  devPrint("#create $path");
   var parent = dirname(path);
   if (parent != path) {
     if (!await pathExists(parent)) {

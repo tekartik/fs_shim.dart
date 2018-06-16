@@ -4,7 +4,6 @@
 
 library fs_shim.fs_io_test;
 
-import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/file_node.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';

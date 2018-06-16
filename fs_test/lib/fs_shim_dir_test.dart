@@ -28,7 +28,7 @@ void defineTests(FileSystemTestContext ctx) {
       dir = fs.newDirectory(r"");
       expect(dir.path, r"");
       try {
-        dir = fs.newDirectory(null);
+        dir = fs.directory(null);
         fail("should fail");
       } on ArgumentError catch (_) {
         // Invalid argument(s): null is not a String
@@ -95,9 +95,8 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('create_recursive', () async {
       Directory dir = await ctx.prepare();
-
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
-      Directory subSubDir = fs.newDirectory(join(subDir.path, "subsub"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
+      Directory subSubDir = fs.directory(join(subDir.path, "subsub"));
 
       try {
         await subSubDir.create();
@@ -227,7 +226,8 @@ void defineTests(FileSystemTestContext ctx) {
           // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
           // [20] FileSystemException: Rename failed, path = '/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)
           // On windows we have 193!
-          expect(e.status, FileSystemException.statusNotADirectory);
+          expect(e.status, FileSystemException.statusNotADirectory,
+              reason: e.toString());
         }
       }
     });

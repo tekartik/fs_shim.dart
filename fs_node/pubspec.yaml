@@ -24,3 +24,5 @@ dev_dependencies:
 dependency_overrides:
   fs_shim:
     path: ../fs
+  node_io:
+    path: /media/ssd/devx/git/github.com/tekartik/node-interop/node_io

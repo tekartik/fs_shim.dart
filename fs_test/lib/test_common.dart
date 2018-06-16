@@ -32,17 +32,15 @@ abstract class FileSystemTestContext {
   String get outPath => joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
-    Directory dir = fs.newDirectory(outPath);
-    print(dir);
+    Directory dir = fs.directory(outPath);
     try {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {
       expect(e.status, FileSystemException.statusNotFound);
     }
-    devPrint("exists ${await dir.exists()}");
     await dir.create(recursive: true);
-    devPrint("exists ${await dir.exists()}");
-    return dir.absolute;
+    var abs = dir.absolute;
+    return abs;
   }
 }
 

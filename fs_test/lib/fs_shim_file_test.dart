@@ -107,10 +107,10 @@ void defineTests(FileSystemTestContext ctx) {
       await file.create();
     });
 
-    test('delete', () async {
+    test('delete_file', () async {
       Directory dir = await ctx.prepare();
 
-      File file = fs.newFile(join(dir.path, "file"));
+      File file = fs.file(join(dir.path, "file"));
       expect(await (await file.create()).exists(), isTrue);
       expect(await fs.isFile(file.path), isTrue);
 
@@ -129,7 +129,7 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
-    test('rename', () async {
+    test('rename_file', () async {
       Directory _dir = await ctx.prepare();
 
       String path = join(_dir.path, "file");
@@ -174,7 +174,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await file2.readAsString(), "test");
     });
 
-    test('stat', () async {
+    test('stat_file', () async {
       Directory _dir = await ctx.prepare();
 
       File file = fs.newFile(join(_dir.path, "file"));
@@ -198,6 +198,7 @@ void defineTests(FileSystemTestContext ctx) {
       // rename
       file = await file.rename(join(_dir.path, "file2")) as File;
       stat = await file.stat();
+
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);
       expect(stat.modified, isNotNull);
@@ -375,12 +376,11 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('simple_write_read', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       await file.create();
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
-
       List<int> content = [];
       await file.openRead().listen((List<int> data) {
         content.addAll(data);
@@ -487,11 +487,12 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('append', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
 
+      expect(await file.readAsBytes(), 'test'.codeUnits, reason: "readAsBytes");
       List<int> content = [];
       await file.openRead().listen((List<int> data) {
         content.addAll(data);
@@ -536,7 +537,7 @@ void defineTests(FileSystemTestContext ctx) {
       List<int> bytes = [0, 1, 2, 3];
       Directory _dir = await ctx.prepare();
       var filePath = join(_dir.path, "file");
-      File file = fs.newFile(filePath);
+      File file = fs.file(filePath);
 
       await file.writeAsBytes(bytes, flush: true);
       expect(await file.readAsBytes(), bytes);
@@ -554,7 +555,7 @@ void defineTests(FileSystemTestContext ctx) {
       String text = "test";
       Directory _dir = await ctx.prepare();
       var filePath = join(_dir.path, "file");
-      File file = fs.newFile(filePath);
+      File file = fs.file(filePath);
 
       await file.writeAsString(text, flush: true);
       expect(await file.readAsString(), text);
