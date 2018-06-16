@@ -17,5 +17,9 @@ int statusFromMessage(String message) {
   else if (message.contains('ENOTDIR:')) {
     return FileSystemException.statusNotADirectory;
   }
+  // Error: EEXIST: file already exists, mkdir '/me
+  else if (message.contains('EEXIST:')) {
+    return FileSystemException.statusAlreadyExists;
+  }
   return null;
 }

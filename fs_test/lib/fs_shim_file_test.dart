@@ -302,8 +302,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir_or_file");
 
-      File file = fs.newFile(path);
-      Directory dir = fs.newDirectory(path);
+      File file = fs.file(path);
+      Directory dir = fs.directory(path);
       expect(await (await file.create()).exists(), isTrue);
       await file.create();
       try {
@@ -315,9 +315,11 @@ void defineTests(FileSystemTestContext ctx) {
         // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         if (isIo(ctx) && !isIoWindows(ctx)) {
           // tested on linux
-          expect(e.status, FileSystemException.statusNotADirectory);
+          expect(e.status, FileSystemException.statusNotADirectory,
+              reason: e.toString());
         } else {
-          expect(e.status, FileSystemException.statusAlreadyExists);
+          expect(e.status, FileSystemException.statusAlreadyExists,
+              reason: e.toString());
         }
       }
 

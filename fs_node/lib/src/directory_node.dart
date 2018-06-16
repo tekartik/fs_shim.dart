@@ -1,12 +1,13 @@
 library fs_shim.src.io.io_directory;
 
+import 'dart:io' as vm_io;
+
 import 'package:tekartik_fs_node/src/file_node.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 
-import 'import_common_node.dart' as node;
-import 'dart:io' as vm_io;
 import 'import_common.dart';
+import 'import_common_node.dart' as node;
 
 DirectoryNode get currentDirectory =>
     new DirectoryNode.io(node.Directory.current);
@@ -64,7 +65,8 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   @override
   Future<DirectoryNode> create({bool recursive: false}) async {
     recursive ??= false;
-    if (await exists()) {
+    var type = await fs.type(path);
+    if (type == FileSystemEntityType.directory) {
       // ok
       return this;
     }
@@ -101,7 +103,9 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
         var subDir = new DirectoryNode.io(data);
         controller.add(subDir);
         if (recursive) {
-          futures.add(subDir.list(recursive: true, followLinks: followLinks).listen((FileSystemEntityNode entity) {
+          futures.add(subDir
+              .list(recursive: true, followLinks: followLinks)
+              .listen((FileSystemEntityNode entity) {
             controller.add(entity);
           }).asFuture());
         }
