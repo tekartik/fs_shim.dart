@@ -8,4 +8,4 @@ set -xe
 dartanalyzer --fatal-warnings .
 
 pub run test -p node
-pub run build_runnder test -- -p node
+pub run build_runner test -- -p node
