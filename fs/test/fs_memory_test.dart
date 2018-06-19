@@ -5,16 +5,14 @@ library tekartik_fs_test.fs_memory_test;
 
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
-import 'package:tekartik_fs_test/fs_current_dir_file_test.dart' as current_dir;
-import 'package:tekartik_fs_test/fs_test.dart';
-import 'package:tekartik_fs_test/test_common.dart';
+
+import 'fs_test.dart';
+import 'test_common.dart';
 
 main() {
   group('memory', () {
-    current_dir.defineTests(newFileSystemMemory());
     defineTests(memoryFileSystemTestContext);
 
-    // Copied from source test
     group('top', () {
       test('writeAsString', () async {
         // direct file write, no preparation

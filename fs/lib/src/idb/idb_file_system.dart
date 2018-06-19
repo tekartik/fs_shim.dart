@@ -255,6 +255,12 @@ class IdbFileSystem extends Object
         throw idbAlreadyExistsException(path, "Creation failed");
       }
 
+      // Are we creating a root?
+      if ((segments.length == 2) &&
+          (recursive != true) &&
+          (segments[0] == pathContext.separator)) {
+        // Always create the root when needed
+      } else
       // not recursive and too deep, cancel
       if ((result.depthDiff > 1) && (recursive != true)) {
         throw idbNotFoundException(path, "Creation failed");
