@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/fs_mixin.dart';
+import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:path/path.dart';
@@ -31,6 +32,7 @@ class IdbReadStreamCtlr {
   int start;
   int end;
   StreamController<List<int>> _ctlr;
+
   IdbReadStreamCtlr(this._fs, this.path, this.start, this.end) {
     _ctlr = new StreamController(sync: true);
 
@@ -77,6 +79,7 @@ class IdbWriteStreamSink extends MemorySink {
   IdbFileSystem _fs;
   String path;
   fs.FileMode mode;
+
   IdbWriteStreamSink(this._fs, this.path, this.mode) : super();
 
   @override
@@ -166,9 +169,12 @@ class IdbFileSystem extends Object
   String get name => 'idb';
 
   final IdbFileSystemStorage _storage;
+
   idb.Database get _db => _storage.db;
+
   idb.Database get db => _db;
   static const dbPath = 'lfs.db';
+
   IdbFileSystem(idb.IdbFactory factory, [String path])
       : _storage =
             new IdbFileSystemStorage(factory, path == null ? dbPath : path) {}
@@ -291,52 +297,57 @@ class IdbFileSystem extends Object
         }
       }
 
+      // Are we creating a root?
+      if ((segments.length == 2) &&
+          (recursive != true) &&
+          (segments[0] == pathContext.separator)) {
+        // Always create the root when needed
+      } else
       // not recursive and too deep, cancel
       if ((result.depthDiff > 1) && (recursive != true)) {
         throw idbNotFoundException(result.path, "Creation failed");
-      } else
+      }
       // regular directory case
-      {
-        Future<Node> _addFileWithSegments(Node parent, List<String> segments) {
-          //TODO check ok to throw exception here
-          if (parent == null) {
-            throw idbNotFoundException(result.path, "Creation failed");
-          } else if (!parent.isDir) {
-            throw idbNotADirectoryException(
-                result.path, "Creation failed - parent not a directory");
-          }
-          // create it!
-          entity = new Node(parent, segments.last, fs.FileSystemEntityType.file,
-              new DateTime.now(), 0);
-          //print('adding ${entity}');
-          return store.add(entity.toMap()).then((dynamic id) {
-            entity.id = id as int;
-            return entity;
-          });
-        }
 
-        Future<Node> _addFile(Node parent) =>
-            _addFileWithSegments(parent, segments);
-
-        // Handle when the last was a dir to it
-        if (result.depthDiff == 1 && result.targetSegments != null) {
-          List<String> fileSegments = result.targetSegments;
-          // find parent dir
-          return _storage
-              .txnGetNode(store, getParentSegments(fileSegments), true)
-              .then((Node _parent) {
-            return _addFileWithSegments(_parent, fileSegments);
-          });
-        } else
-        // check depth
-        if (result.parent.remainingSegments.isNotEmpty) {
-          // Create parent dir
-          return _createDirectory(store, result.parent).then((Node parent) {
-            return _addFile(parent);
-          });
-        } else {
-          return _addFile(result.highest);
+      Future<Node> _addFileWithSegments(Node parent, List<String> segments) {
+        //TODO check ok to throw exception here
+        if (parent == null) {
+          throw idbNotFoundException(result.path, "Creation failed");
+        } else if (!parent.isDir) {
+          throw idbNotADirectoryException(
+              result.path, "Creation failed - parent not a directory");
         }
+        // create it!
+        entity = new Node(parent, segments.last, fs.FileSystemEntityType.file,
+            new DateTime.now(), 0);
+        //print('adding ${entity}');
+        return store.add(entity.toMap()).then((dynamic id) {
+          entity.id = id as int;
+          return entity;
+        });
+      }
+
+      Future<Node> _addFile(Node parent) =>
+          _addFileWithSegments(parent, segments);
+
+      // Handle when the last was a dir to it
+      if (result.depthDiff == 1 && result.targetSegments != null) {
+        List<String> fileSegments = result.targetSegments;
+        // find parent dir
+        return _storage
+            .txnGetNode(store, getParentSegments(fileSegments), true)
+            .then((Node _parent) {
+          return _addFileWithSegments(_parent, fileSegments);
+        });
+      } else
+      // check depth
+      if (result.parent.remainingSegments.isNotEmpty) {
+        // Create parent dir
+        return _createDirectory(store, result.parent).then((Node parent) {
+          return _addFile(parent);
+        });
+      } else {
+        return _addFile(result.highest);
       }
     }
 

@@ -1,6 +1,6 @@
 name: fs_shim
 description: A portable file system implementation working on io, browser and memory (through idb_shim)
-version: 0.7.3
+version: 0.8.1
 author: Tekartik <alex@tekartik.com>
 homepage: https://github.com/tekartik/fs_shim.dart
 
@@ -11,10 +11,6 @@ dependencies:
   idb_shim: '>=1.4.1'
   path: '>=1.3.9'
   dart2_constant: any
-
-test_dependencies:
-  - platform_context
-  - idb_shim
 
 dev_dependencies:
   test: '>=0.12.24+8'

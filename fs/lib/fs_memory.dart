@@ -10,5 +10,8 @@ export 'fs.dart';
 ///
 /// In memory implementation
 ///
-FileSystem newMemoryFileSystem([String name]) =>
+// @Deprecated("Use newFileSystemMemory instead")
+FileSystem newMemoryFileSystem([String name]) => newFileSystemMemory(name);
+
+FileSystem newFileSystemMemory([String name]) =>
     newIdbFileSystem(idbMemoryFactory, name);

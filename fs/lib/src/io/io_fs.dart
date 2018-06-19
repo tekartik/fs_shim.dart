@@ -3,12 +3,13 @@ library fs_shim.src.io.io_fs;
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:dart2_constant/io.dart' as constant;
+
 import '../../fs.dart' as fs;
 import 'io_file_system_exception.dart';
 
 export 'dart:async';
 export 'dart:convert';
-import 'package:dart2_constant/io.dart' as constant;
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
   if (fsFileMode == null) fsFileMode = fs.FileMode.write;
@@ -93,6 +94,7 @@ class IoWriteFileSink implements StreamSink<List<int>> {
   io.IOSink ioSink;
 
   IoWriteFileSink(this.ioSink);
+
   @override
   void add(List<int> data) {
     ioSink.add(data);
@@ -121,7 +123,9 @@ class IoReadFileStreamCtrl {
       _ctlr.close();
     });
   }
+
   Stream<List<int>> ioStream;
   StreamController<List<int>> _ctlr;
+
   Stream<List<int>> get stream => _ctlr.stream;
 }

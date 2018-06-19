@@ -3,6 +3,8 @@ library fs_shim.src.io.io_file_system_entity;
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:fs_shim/src/io/io_file_system.dart';
+
 import '../../fs_io.dart';
 import 'io_directory.dart';
 import 'io_file_stat.dart';
@@ -14,7 +16,7 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   FileSystemEntity _me(_) => this;
 
   @override
-  IoFileSystem get fs => ioFileSystem as IoFileSystem;
+  FileSystemIo get fs => ioFileSystem as FileSystemIo;
 
   @override
   String get path => ioFileSystemEntity.path;

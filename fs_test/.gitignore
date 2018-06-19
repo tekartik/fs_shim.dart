@@ -8,3 +8,6 @@ pubspec.lock
 # Intellij
 .idea/
 *.iml
+
+# test output
+file.tmp

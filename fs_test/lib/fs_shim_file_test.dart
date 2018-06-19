@@ -26,6 +26,13 @@ void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
 
   group('file', () {
+    group('currentDir', () {
+      test('writeAsString', () async {
+        // direct file write, no preparation
+        var fs = ctx.fs;
+        await fs.file("file.tmp").writeAsString("context");
+      }, skip: false);
+    });
     test('new', () {
       File file = fs.newFile("dummy");
       expect(file.path, "dummy");

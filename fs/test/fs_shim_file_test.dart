@@ -89,9 +89,9 @@ void defineTests(FileSystemTestContext ctx) {
     test('create_recursive', () async {
       Directory dir = await ctx.prepare();
 
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
 
-      File file = fs.newFile(join(subDir.path, "file"));
+      File file = fs.file(join(subDir.path, "file"));
 
       try {
         await file.create();

@@ -41,12 +41,11 @@ export 'fs.dart'
         FileMode,
         OSError;
 
-final FileSystem ioFileSystem = new IoFileSystem();
+FileSystem _fileSystemIo;
+FileSystem get fileSystemIo => _fileSystemIo ??= new FileSystemIo();
 
-/// File system
-abstract class IoFileSystem extends FileSystem {
-  factory IoFileSystem() => new IoFileSystemImpl();
-}
+// @Deprecated("Use fileSystemIo instead")
+FileSystem get ioFileSystem => fileSystemIo;
 
 /// File
 abstract class File implements fs.File, FileSystemEntity {

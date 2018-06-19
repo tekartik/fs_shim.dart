@@ -11,4 +11,7 @@ export 'fs.dart';
 /// Idb implementation (base for memory and browser)
 ///
 FileSystem newIdbFileSystem(idb.IdbFactory idbFactory, [String name]) =>
+    newFileSystemIdb(idbFactory, name);
+
+FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String name]) =>
     new IdbFileSystem(idbFactory, name);

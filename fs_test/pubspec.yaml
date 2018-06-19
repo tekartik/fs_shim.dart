@@ -18,6 +18,12 @@ dependencies:
   test: ">=0.12.37"
   dev_test: any
 
+dev_dependencies:
+  tekartik_platform_io:
+      git:
+        url: git://github.com/tekartik/platform.dart
+        path: platform_io
 dependency_overrides:
   fs_shim:
     path: ../fs
+

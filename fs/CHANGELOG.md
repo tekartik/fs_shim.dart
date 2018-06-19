@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.8.0
+
+* add file, directory and link to replace newFile, newDirectory, newLink
+
 ## 0.7.3
 
 * Add support `implicit-cast: false`

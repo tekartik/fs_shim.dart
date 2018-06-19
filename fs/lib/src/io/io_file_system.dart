@@ -11,7 +11,7 @@ import 'package:path/path.dart';
 
 class IoFileSystemImpl extends Object
     with FileSystemMixin
-    implements IoFileSystem {
+    implements FileSystemIo {
   @override
   Future<fs.FileSystemEntityType> type(String path, {bool followLinks: true}) //
       =>
@@ -59,4 +59,9 @@ class IoFileSystemImpl extends Object
 
   @override
   Context get pathContext => context;
+}
+
+/// File system
+abstract class FileSystemIo extends fs.FileSystem {
+  factory FileSystemIo() => new IoFileSystemImpl();
 }
