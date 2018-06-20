@@ -56,7 +56,10 @@ class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
   }
 
   @override
-  Context get pathContext => context;
+  Context get pathContext => path;
+
+  @override
+  Context get path => context;
 
   Future deleteAny(String path) async {
     var type = await this.type(path);

@@ -24,13 +24,13 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('pathContext', () {
       // for now all are the same as current
-      expect(fs.pathContext, context);
+      expect(fs.path, context);
     });
 
     test('prepare', () async {
       Directory top = await ctx.prepare();
 
-      List<String> parts = ctx.fs.pathContext.split(top.path);
+      List<String> parts = ctx.fs.path.split(top.path);
       expect(parts, contains("prepare"));
     });
   });

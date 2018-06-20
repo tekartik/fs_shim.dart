@@ -26,7 +26,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_read_sub', () async {
       Directory top = await ctx.prepare();
-      File file = fs.newFile(fs.pathContext.join(top.path, 'sub', 'file'));
+      File file = fs.newFile(fs.path.join(top.path, 'sub', 'file'));
       await writeString(file, "test");
       expect(await readString(file), "test");
 

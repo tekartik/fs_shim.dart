@@ -476,6 +476,14 @@ abstract class FileSystem {
   String get name; // io or idb
   bool get supportsLink;
   bool get supportsFileLink; // windows does not support file link
+
+  ///
+  /// Get the path context for patch operation
+  ///
+  Context get path;
+
+  /// 2018-06-20 will deprecate
+  @deprecated
   Context get pathContext;
 }
 
