@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.8.0
+## 0.8.2
 
 * add file, directory and link to replace newFile, newDirectory, newLink
 
