@@ -809,29 +809,29 @@ void defineTests(FileSystemTestContext ctx) {
                 await top.list(followLinks: false).toList();
             expect(list.length, 1);
             expect(indexOf(list, link), 0);
-            expect(list[0], new isInstanceOf<Link>());
+            expect(list[0], const TypeMatcher<Link>());
 
             list = await top.list(followLinks: true).toList();
             expect(list.length, 1);
             expect(indexOf(list, link), 0);
-            expect(list[0], new isInstanceOf<Link>());
+            expect(list[0], const TypeMatcher<Link>());
 
             await dir.create();
 
             list = await top.list().toList();
             expect(list.length, 2);
-            expect(getInList(list, link), new isInstanceOf<Directory>());
-            expect(getInList(list, dir), new isInstanceOf<Directory>());
+            expect(getInList(list, link), const TypeMatcher<Directory>());
+            expect(getInList(list, dir), const TypeMatcher<Directory>());
 
             list = await top.list(followLinks: false).toList();
             expect(list.length, 2);
-            expect(getInList(list, link), new isInstanceOf<Link>());
-            expect(getInList(list, dir), new isInstanceOf<Directory>());
+            expect(getInList(list, link), const TypeMatcher<Link>());
+            expect(getInList(list, dir), const TypeMatcher<Directory>());
 
             list = await top.list(followLinks: true).toList();
             expect(list.length, 2);
-            expect(getInList(list, link), new isInstanceOf<Directory>());
-            expect(getInList(list, dir), new isInstanceOf<Directory>());
+            expect(getInList(list, link), const TypeMatcher<Directory>());
+            expect(getInList(list, dir), const TypeMatcher<Directory>());
           }
         });
 
@@ -876,15 +876,16 @@ void defineTests(FileSystemTestContext ctx) {
 
             list = await linkDir.list(followLinks: true).toList();
             expect(list.length, 3);
-            expect(getInList(list, linkSubFile), new isInstanceOf<File>());
-            expect(getInList(list, linkSubDir), new isInstanceOf<Directory>());
-            expect(getInList(list, linkSubLink), new isInstanceOf<Directory>());
+            expect(getInList(list, linkSubFile), const TypeMatcher<File>());
+            expect(getInList(list, linkSubDir), const TypeMatcher<Directory>());
+            expect(
+                getInList(list, linkSubLink), const TypeMatcher<Directory>());
 
             list = await linkDir.list(followLinks: false).toList();
             expect(list.length, 3);
-            expect(getInList(list, linkSubFile), new isInstanceOf<File>());
-            expect(getInList(list, linkSubDir), new isInstanceOf<Directory>());
-            expect(getInList(list, linkSubLink), new isInstanceOf<Link>());
+            expect(getInList(list, linkSubFile), const TypeMatcher<File>());
+            expect(getInList(list, linkSubDir), const TypeMatcher<Directory>());
+            expect(getInList(list, linkSubLink), const TypeMatcher<Link>());
           }
         });
 
@@ -908,21 +909,21 @@ void defineTests(FileSystemTestContext ctx) {
 
             list = await dir.list(followLinks: true, recursive: true).toList();
             expect(list.length, 2);
-            expect(getInList(list, link), new isInstanceOf<Directory>());
-            expect(getInList(list, linkSubFile), new isInstanceOf<File>());
+            expect(getInList(list, link), const TypeMatcher<Directory>());
+            expect(getInList(list, linkSubFile), const TypeMatcher<File>());
 
             list = await dir.list(followLinks: false, recursive: true).toList();
             expect(list.length, 1);
-            expect(getInList(list, link), new isInstanceOf<Link>());
+            expect(getInList(list, link), const TypeMatcher<Link>());
 
             // not recursive
             list = await dir.list(followLinks: true).toList();
             expect(list.length, 1);
-            expect(getInList(list, link), new isInstanceOf<Directory>());
+            expect(getInList(list, link), const TypeMatcher<Directory>());
 
             list = await dir.list(followLinks: false).toList();
             expect(list.length, 1);
-            expect(getInList(list, link), new isInstanceOf<Link>());
+            expect(getInList(list, link), const TypeMatcher<Link>());
           }
         });
       });

@@ -740,7 +740,8 @@ class ChildCopy extends Object
       if (options.checkSizeAndModifiedDate == true) {
         FileStat srcStat = await srcFile.stat();
         FileStat dstStat = await dstFile.stat();
-        if ((srcStat.size == dstStat.size) &&
+        if ((dstStat.type != FileSystemEntityType.notFound) &&
+            (srcStat.size == dstStat.size) &&
             (srcStat.modified.compareTo(dstStat.modified) <= 0)) {
           // should be same...
           return 0;

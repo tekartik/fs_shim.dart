@@ -17,7 +17,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('splitParts', () async {
       Directory top = await ctx.prepare();
 
-      List<String> parts = ctx.fs.pathContext.split(top.path);
+      List<String> parts = ctx.fs.path.split(top.path);
       expect(parts, contains("splitParts"));
 
       // always working
