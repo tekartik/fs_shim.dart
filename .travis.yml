@@ -18,7 +18,7 @@ jobs:
       dart: dev
 
 stages:
-  - stable
+#  - stable
   - dev
 
 # Only building master means that we don't run two builds for each pull request.

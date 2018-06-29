@@ -28,16 +28,16 @@ void main() {
       expect(new io.Directory("test"), isNot(new io.Directory("test")));
     });
     test('type', () async {
-      expect(await ioFileSystemTestContext.fs.type(testScriptPath),
+      expect(
+          await ioFileSystemTestContext.fs
+              .type(join('test', 'fs_io_test.dart')),
           FileSystemEntityType.file);
-      expect(await ioFileSystemTestContext.fs.type(dirname(testScriptPath)),
+      expect(await ioFileSystemTestContext.fs.type('test'),
           FileSystemEntityType.directory);
     });
     test('test_path', () async {
-      expect(
-          ioFileSystemTestContext.outTopPath,
-          join(dirname(dirname(testScriptPath)), ".dart_tool", "fs_shim",
-              "test_out"));
+      expect(ioFileSystemTestContext.outTopPath,
+          join(".dart_tool", "fs_shim", "test"));
       expect(ioFileSystemTestContext.outPath,
           join(ioFileSystemTestContext.outTopPath, joinAll(testDescriptions)));
     });

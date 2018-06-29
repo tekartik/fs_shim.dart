@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0
+
+* dart2 only
+
 ## 0.8.2
 
 * add file, directory and link to replace newFile, newDirectory, newLink

@@ -44,7 +44,7 @@ main() {
 
       await dir.list().listen((FileSystemEntity entity) {
         expect(entity.path, filePath);
-        expect(entity, new isInstanceOf<File>());
+        expect(entity, const TypeMatcher<File>());
       }).asFuture();
 
       File file2 = await file.copy(join(dir.path, "file2"));

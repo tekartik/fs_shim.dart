@@ -85,12 +85,12 @@ class IdbFileSystemStorage {
       Node parent, String name, bool followLastLink) {
     String parentName = getParentName(parent, name);
 
-    _nodeFromKey(dynamic id) {
+    FutureOr<Node> _nodeFromKey(dynamic id) {
       if (id == null) {
         return null;
       }
 
-      _nodeFromMap(dynamic map) {
+      FutureOr<Node> _nodeFromMap(dynamic map) {
         Node entity = new Node.fromMap(parent, map as Map, id as int);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
@@ -101,7 +101,7 @@ class IdbFileSystemStorage {
       return index.get(parentName).then(_nodeFromMap);
     }
 
-    return index.getKey(parentName).then(_nodeFromKey) as Future<Node>;
+    return index.getKey(parentName).then(_nodeFromKey);
   }
 
   Future<Node> getChildNode(Node parent, String name, bool followLink) async {
