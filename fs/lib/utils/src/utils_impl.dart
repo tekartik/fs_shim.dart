@@ -228,8 +228,8 @@ Future<int> copyFileImpl(File src, FileSystemEntity dst,
     }
     return await new TopCopy(new TopEntity(src.fs, src.parent.path),
             new TopEntity(dst.fs, dst.parent.path), options: options)
-        .runChild(null, src.fs.pathContext.basename(src.path),
-            dst.fs.pathContext.basename(dst.path));
+        .runChild(null, src.fs.path.basename(src.path),
+            dst.fs.path.basename(dst.path));
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
     throw new ArgumentError('not a file ($src)');
@@ -461,7 +461,7 @@ abstract class EntityPathMixin implements EntityNode {
   @override
   String get path {
     if (_path == null) {
-      _path = fs.pathContext.join(top, sub);
+      _path = fs.path.join(top, sub);
     }
     return _path;
   }
@@ -506,7 +506,7 @@ class CopyEntity extends Object
     basename = _path.basename(relative);
     _parts = new List.from(parent.parts);
     _parts.addAll(splitParts(relative));
-    _sub = fs.pathContext.join(parent.sub, relative);
+    _sub = fs.path.join(parent.sub, relative);
   }
 
   @override
@@ -679,7 +679,7 @@ class ChildCopy extends Object
         await srcDirectory
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
-          String basename = src.fs.pathContext.basename(srcEntity.path);
+          String basename = src.fs.path.basename(srcEntity.path);
           futures.add(runChild(options, basename).then((int count_) {
             count += count_;
           }));
@@ -740,7 +740,8 @@ class ChildCopy extends Object
       if (options.checkSizeAndModifiedDate == true) {
         FileStat srcStat = await srcFile.stat();
         FileStat dstStat = await dstFile.stat();
-        if ((srcStat.size == dstStat.size) &&
+        if ((dstStat.type != FileSystemEntityType.notFound) &&
+            (srcStat.size == dstStat.size) &&
             (srcStat.modified.compareTo(dstStat.modified) <= 0)) {
           // should be same...
           return 0;
@@ -815,7 +816,7 @@ class ChildSourceNode extends Object
         await srcDirectory
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
-          String basename = src.fs.pathContext.basename(srcEntity.path);
+          String basename = src.fs.path.basename(srcEntity.path);
           futures
               .add(runChild(options, basename).then((List<File> childEntities) {
             entities.addAll(childEntities);

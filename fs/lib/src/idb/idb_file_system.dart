@@ -57,7 +57,8 @@ class IdbReadStreamCtlr {
 
         // get existing content
         store = txn.objectStore(fileStoreName);
-        List<int> content = await store.getObject(entity.id) as List<int>;
+        List<int> content =
+            (await store.getObject(entity.id) as List)?.cast<int>();
         if (content != null) {
           // All at once!
           if (start != null) {
@@ -116,7 +117,7 @@ class IdbWriteStreamSink extends MemorySink {
       if (mode == fs.FileMode.write) {
         content == null;
       } else {
-        content = await fileStore.getObject(entity.id) as List<int>;
+        content = (await fileStore.getObject(entity.id) as List)?.cast<int>();
         if (content != null) {
           // on idb the content is readonly, create a new done
           content = new List.from(content);
@@ -197,7 +198,10 @@ class IdbFileSystem extends Object
   bool get supportsFileLink => true;
 
   @override
-  Context get pathContext => context;
+  Context get pathContext => path;
+
+  @override
+  Context get path => context;
 
   // when storage is ready
   Future get _ready => _storage.ready;
@@ -278,7 +282,7 @@ class IdbFileSystem extends Object
 
   Future<Node> _txnCreateFile(idb.ObjectStore store, List<String> segments,
       {bool recursive: false}) {
-    _nodeFromSearchResult(NodeSearchResult result) {
+    FutureOr<Node> _nodeFromSearchResult(NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.file) {
@@ -358,8 +362,7 @@ class IdbFileSystem extends Object
     }
 
     // Try to find the file if it exists
-    return txnSearch(store, segments, false).then(_nodeFromSearchResult)
-        as Future<Node>;
+    return txnSearch(store, segments, false).then(_nodeFromSearchResult);
   }
 
   Future<Node> _createLink(
@@ -696,7 +699,7 @@ class IdbFileSystem extends Object
       store = txn.objectStore(fileStoreName);
 
       // get original
-      List<int> data = await store.getObject(entity.id) as List<int>;
+      List<int> data = (await store.getObject(entity.id) as List)?.cast<int>();
       if (data != null) {
         await store.put(data, newEntity.id);
 

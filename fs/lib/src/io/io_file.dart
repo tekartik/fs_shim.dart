@@ -11,7 +11,7 @@ import 'io_fs.dart';
 export '../../fs.dart' show FileSystemEntityType;
 import 'package:dart2_constant/convert.dart' as convert;
 
-Future<File> _wrapFutureFile(Future<File> future) => ioWrap(future);
+Future<T> _wrapFutureFile<T>(Future<T> future) => ioWrap(future);
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
@@ -51,13 +51,13 @@ class FileImpl extends FileSystemEntityImpl implements File {
   Future<FileImpl> rename(String newPath) => _wrapFutureFile(ioFile
       .rename(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
+          new FileImpl(ioFileSystemEntity.path)));
 
   @override
   Future<FileImpl> copy(String newPath) => _wrapFutureFile(ioFile
       .copy(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new FileImpl(ioFileSystemEntity.path))) as Future<FileImpl>;
+          new FileImpl(ioFileSystemEntity.path)));
 
   @override
   Future<FileImpl> writeAsBytes(List<int> bytes,

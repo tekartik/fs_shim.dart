@@ -2,6 +2,11 @@
 
 set -xe
 
+pushd fs
+pub get
+tool/travis.sh
+popd
+
 pushd fs_test
 pub get
 tool/travis.sh

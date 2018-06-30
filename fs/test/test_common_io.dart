@@ -1,8 +1,6 @@
 library fs_shim.test.test_common_io;
 
 // basically same as the io runner but with extra output
-import 'dart:mirrors';
-
 import 'package:fs_shim/src/io/io_file_system.dart';
 import 'package:path/path.dart';
 import 'package:platform_context/context.dart';
@@ -27,14 +25,6 @@ class IoFileSystemTestContext extends FileSystemTestContext {
   String get outPath => join(outTopPath, super.outPath);
 }
 
-class _TestUtils {
-  static final String scriptPath =
-      (reflectClass(_TestUtils).owner as LibraryMirror).uri.toFilePath();
-}
-
-String get testScriptPath => _TestUtils.scriptPath;
-
-String get testOutTopPath =>
-    join(dirname(dirname(testScriptPath)), ".dart_tool", "fs_shim", "test_out");
+String get testOutTopPath => join(".dart_tool", "fs_shim", "test");
 
 String get testOutPath => join(testOutTopPath, joinAll(testDescriptions));

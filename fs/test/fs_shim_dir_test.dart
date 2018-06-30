@@ -364,7 +364,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(list.length, 2);
       expect(indexOf(list, dir1), isNot(-1));
       expect(indexOf(list, dir2), isNot(-1));
-      expect(getInList(list, dir2), new isInstanceOf<Directory>());
+      expect(getInList(list, dir2), const TypeMatcher<Directory>());
 
       // recursive
       list = await _dir.list(recursive: true).toList();
@@ -372,7 +372,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(indexOf(list, dir1), isNot(-1));
       expect(indexOf(list, dir1), lessThan(indexOf(list, subDir)));
       expect(indexOf(list, subDir), lessThan(indexOf(list, file)));
-      expect(getInList(list, file), new isInstanceOf<File>());
+      expect(getInList(list, file), const TypeMatcher<File>());
       expect(indexOf(list, dir2), isNot(-1));
     });
 

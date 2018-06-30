@@ -35,12 +35,12 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   }
 }
 
-IdbBrowserFileSystemTestContext idbIoFileSystemContext =
+IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =
     new IdbBrowserFileSystemTestContext();
 
 void main() {
   group('idb_browser', () {
     // All tests
-    defineTests(idbIoFileSystemContext);
+    defineTests(idbBrowserFileSystemContext);
   });
 }

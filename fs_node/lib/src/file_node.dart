@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
@@ -6,6 +7,7 @@ import 'package:tekartik_fs_node/src/import_common.dart';
 
 import 'import_common_node.dart' as io;
 import 'dart:io' as vm_io;
+import 'package:dart2_constant/convert.dart' as convert;
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
@@ -50,7 +52,7 @@ class FileNode extends FileSystemEntityNode implements File {
   // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
-      {FileMode mode: FileMode.write, Encoding encoding: utf8}) {
+      {FileMode mode: FileMode.write, Encoding encoding: convert.utf8}) {
     if (mode == FileMode.read) {
       throw new ArgumentError.value(mode, "mode cannot be read-only");
     }
@@ -101,7 +103,7 @@ class FileNode extends FileSystemEntityNode implements File {
   Future<List<int>> readAsBytes() => ioWrap(ioFile.readAsBytes());
 
   @override
-  Future<String> readAsString({Encoding encoding: utf8}) =>
+  Future<String> readAsString({Encoding encoding: convert.utf8}) =>
       _wrapFutureString(ioFile.readAsString(encoding: encoding));
 
   @override

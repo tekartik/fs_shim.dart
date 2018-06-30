@@ -58,7 +58,10 @@ class IoFileSystemImpl extends Object
   }
 
   @override
-  Context get pathContext => context;
+  Context get pathContext => path;
+
+  @override
+  Context get path => context;
 }
 
 /// File system
