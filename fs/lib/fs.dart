@@ -433,7 +433,7 @@ abstract class FileSystem {
   /// current working directory.
   ///
   File file(String path);
-  // Will be deprecated
+  //@deprecated
   File newFile(String path);
 
   ///

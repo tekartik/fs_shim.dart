@@ -9,7 +9,7 @@ main() async {
   Directory dir = fs.newDirectory('/dir');
 
   // and a file in it
-  File file = fs.newFile(join(dir.path, "file"));
+  File file = fs.file(join(dir.path, "file"));
 
   // create a file
   await file.create(recursive: true);

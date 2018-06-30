@@ -76,7 +76,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('exists', () async {
       Directory dir = await ctx.prepare();
-      File file = fs.newFile(join(dir.path, "file"));
+      File file = fs.file(join(dir.path, "file"));
       expect(await file.exists(), isFalse);
     });
 
