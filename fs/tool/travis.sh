@@ -10,8 +10,10 @@ dartanalyzer --fatal-warnings .
 pub run test -p vm
 # pub run test -p chrome
 pub run build_runner test -- -p vm
+# run everything on chrome
 # pub run build_runner test -- -p chrome
-pub run build_runner test -- -p chrome test/fs_idb_test.dart
+# select test
+pub run build_runner test -- -p chrome test/fs_idb_test.dart test/fs_browser_test.dart
 # pub run test -p content-shell -j 1
 # pub run test -p firefox -j 1 --reporter expanded
 
