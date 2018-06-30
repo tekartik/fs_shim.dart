@@ -26,10 +26,12 @@ dev_dependencies:
     git:
       url: git://github.com/tekartik/platform.dart
       path: platform
+      ref: dart2
   tekartik_platform_node:
     git:
       url: git://github.com/tekartik/platform.dart
       path: platform_node
+      ref: dart2
 
 dependency_overrides:
   fs_shim:

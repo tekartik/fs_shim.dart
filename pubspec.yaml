@@ -14,3 +14,6 @@ dev_dependencies:
   tekartik_build_utils:
     git: git://github.com/tekartik/build_utils.dart
     version: '>=0.3.4'
+  build_runner: '>=0.9.0'
+  build_test: '>=0.10.2'
+  build_web_compilers: '>=0.4.0'
