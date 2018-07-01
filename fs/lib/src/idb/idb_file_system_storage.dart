@@ -91,7 +91,8 @@ class IdbFileSystemStorage {
       }
 
       FutureOr<Node> _nodeFromMap(dynamic map) {
-        Node entity = new Node.fromMap(parent, map as Map, id as int);
+        Node entity = new Node.fromMap(
+            parent, (map as Map)?.cast<String, dynamic>(), id as int);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
         }
@@ -306,7 +307,7 @@ class Node {
     _depth = parent == null ? 1 : parent._depth + 1;
   }
 
-  factory Node.fromMap(Node parent, Map map, int id) {
+  factory Node.fromMap(Node parent, Map<String, dynamic> map, int id) {
     int parentId = map[parentKey] as int;
     if (parentId != null || parent != null) {
       assert(parent.id == parentId);
@@ -321,7 +322,7 @@ class Node {
     fs.FileSystemEntityType type = typeFromString(map[typeKey] as String);
 
     return new Node(parent, name, type, modified, size, id)
-      ..targetSegments = (map[targetKey] as List<String>);
+      ..targetSegments = (map[targetKey] as List)?.cast<String>();
   }
 
   Map toMap() {

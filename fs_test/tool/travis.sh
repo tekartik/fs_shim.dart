@@ -7,4 +7,5 @@ set -xe
 
 dartanalyzer --fatal-warnings .
 
-pub run test -p vm
+pub run test -p vm,chrome
+pub run build_runner test -- -p vm,chrome

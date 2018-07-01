@@ -472,7 +472,9 @@ class IdbFileSystem extends Object
           .openCursor(key: entity.id, autoAdvance: false)
           .listen((idb.CursorWithValue cwv) {
             Node child = new Node.fromMap(
-                entity, cwv.value as Map, cwv.primaryKey as int);
+                entity,
+                (cwv.value as Map)?.cast<String, dynamic>(),
+                cwv.primaryKey as int);
             if (recursive == true) {
               futures.add(_deleteEntity(txn, child, recursive: true));
               cwv.next();
@@ -831,7 +833,9 @@ class IdbFileSystem extends Object
               // We have a node but the parent might not match!
               // So create a fake
               Node childNode = new Node.fromMap(
-                  entity, cwv.value as Map, cwv.primaryKey as int);
+                  entity,
+                  (cwv.value as Map)?.cast<String, dynamic>(),
+                  cwv.primaryKey as int);
               String relativePath = join(path, childNode.name);
               if (childNode.isDir) {
                 IdbDirectory dir = new IdbDirectory(this, relativePath);
