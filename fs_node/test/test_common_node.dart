@@ -13,12 +13,15 @@ final FileSystemTestContextNode fileSystemTestContextNode =
     new FileSystemTestContextNode();
 
 class FileSystemTestContextNode extends FileSystemTestContext {
+  @override
   final PlatformContext platform = platformContextNode;
+  @override
   final FileSystemNode fs = fileSystemNode;
   String outTopPath;
   FileSystemTestContextNode() {
     outTopPath = testOutTopPath;
   }
+  @override
   String get outPath => join(outTopPath, super.outPath);
 }
 

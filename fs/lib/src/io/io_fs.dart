@@ -42,7 +42,7 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
   }
 }
 
-ioWrapError(e) {
+dynamic ioWrapError(e) {
   if (e is io.FileSystemException) {
     return new FileSystemExceptionImpl.io(e);
   }
@@ -103,12 +103,15 @@ class IoWriteFileSink implements StreamSink<List<int>> {
   @override
   Future close() => ioWrap(ioSink.close());
 
+  @override
   void addError(errorEvent, [StackTrace stackTrace]) {
     ioSink.addError(errorEvent, stackTrace);
   }
 
+  @override
   Future get done => ioWrap(ioSink.done);
 
+  @override
   Future addStream(Stream<List<int>> stream) => ioSink.addStream(stream);
 }
 

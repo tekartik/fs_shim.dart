@@ -11,7 +11,7 @@ import 'test_common_io.dart' show ioFileSystemTestContext;
 
 String get outPath => ioFileSystemTestContext.outPath;
 
-main() {
+void main() {
   group('utils_read_write', () {
     test('write_read', () async {
       File file = new File(join(outPath, 'file'));

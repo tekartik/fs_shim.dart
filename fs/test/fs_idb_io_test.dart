@@ -22,7 +22,9 @@ FileSystem newIdbIoFileSystem([String name]) =>
     newIdbFileSystem(getIdbSembastIoFactory(testOutTopPath), name);
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
+  @override
   final PlatformContext platform = null;
+  @override
   IdbFileSystem fs = newIdbIoFileSystem() as IdbFileSystem;
   IdbIoFileSystemTestContext();
 

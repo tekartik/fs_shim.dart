@@ -2,11 +2,19 @@ import '../../fs.dart' as fs;
 
 class IdbFileStat implements fs.FileStat {
   int _size;
+
+  @override
   int get size => _size == null ? -1 : _size;
+
   set size(int size) => _size = size;
+
+  @override
   fs.FileSystemEntityType type;
+
+  @override
   DateTime modified;
 
+  @override
   String toString() {
     Map map = {"type": type};
     if (modified != null) {

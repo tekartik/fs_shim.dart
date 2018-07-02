@@ -14,7 +14,9 @@ final IoFileSystemTestContext ioFileSystemTestContext =
     new IoFileSystemTestContext();
 
 class IoFileSystemTestContext extends FileSystemTestContext {
+  @override
   final PlatformContext platform = ioPlatformContext;
+  @override
   final FileSystemIo fs = new FileSystemIo();
   String outTopPath;
 
@@ -22,6 +24,7 @@ class IoFileSystemTestContext extends FileSystemTestContext {
     outTopPath = testOutTopPath;
   }
 
+  @override
   String get outPath => join(outTopPath, super.outPath);
 }
 

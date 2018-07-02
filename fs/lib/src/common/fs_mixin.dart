@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:dart2_constant/convert.dart' as convert;
 
 abstract class FileSystemMixin implements FileSystem {
+  @override
   Future<FileSystemEntityType> type(String path, {bool followLinks: true});
 
   Future<bool> _isType(String path, FileSystemEntityType type_,

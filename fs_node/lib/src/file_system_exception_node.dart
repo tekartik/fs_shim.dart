@@ -14,7 +14,9 @@ io.OSError unwrapIoOSError(OSError osError) =>
 class OSErrorNode implements fs.OSError {
   io.OSError ioOSError;
   OSErrorNode.io(this.ioOSError);
+  @override
   int get errorCode => ioOSError.errorCode;
+  @override
   String get message => ioOSError.message;
 
   @override

@@ -7,7 +7,7 @@ import 'package:fs_shim/fs.dart';
 import 'test_common.dart';
 import 'package:path/path.dart';
 
-main() {
+void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
@@ -15,7 +15,7 @@ FileSystemTestContext _ctx;
 FileSystem get fs => _ctx.fs;
 
 final bool _doPrintErr = false;
-_printErr(e) {
+void _printErr(e) {
   if (_doPrintErr) {
     print("${e} ${[e.runtimeType]}");
   }

@@ -13,7 +13,7 @@ import 'test_common_io.dart' show ioFileSystemTestContext;
 
 String get outPath => ioFileSystemTestContext.outPath;
 
-main() {
+void main() {
   var ctx = ioFileSystemTestContext;
   group('io_copy', () {
     test('dir', () async {

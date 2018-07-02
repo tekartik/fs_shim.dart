@@ -23,12 +23,15 @@ class MemorySink implements StreamSink<List<int>> {
     return done;
   }
 
+  @override
   void addError(errorEvent, [StackTrace stackTrace]) {
     _completer.completeError(errorEvent, stackTrace);
   }
 
+  @override
   Future get done => _done;
 
+  @override
   Future addStream(Stream<List<int>> stream) {
     return stream.listen((List<int> data) {
       add(data);

@@ -6,7 +6,7 @@ import 'package:fs_shim/fs_memory.dart';
 
 import 'test_common.dart';
 
-main() {
+void main() {
   group('memory', () {
     defineTests(newFileSystemMemory());
   });

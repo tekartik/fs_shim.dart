@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:core' hide print;
 import 'dart:core' as core;
 import 'dart:html' hide FileSystem, File;
@@ -7,14 +8,14 @@ import 'package:path/path.dart';
 
 PreElement outElement;
 
-print(msg) {
+void print(msg) {
   if (outElement == null) {
     outElement = querySelector("#output") as PreElement;
   }
   outElement.text += "${msg}\n";
 }
 
-main() async {
+Future main() async {
   FileSystem fs = newMemoryFileSystem();
   // Create a top level directory
   Directory dir = fs.newDirectory('/dir');
@@ -25,7 +26,7 @@ main() async {
   }
 
   // and a file in it
-  File file = fs.newFile(join(dir.path, "file"));
+  File file = fs.file(join(dir.path, "file"));
 
   // create a file
   await file.create(recursive: true);

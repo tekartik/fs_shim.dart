@@ -9,8 +9,8 @@ library fs_shim;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:path/path.dart';
 import 'package:dart2_constant/convert.dart' as convert;
+import 'package:path/path.dart';
 
 abstract class FileSystemEntity {
   ///
@@ -98,9 +98,12 @@ abstract class FileSystemEntity {
 }
 
 class FileMode {
+  const FileMode._internal(this._mode);
+
   /// The mode for opening a file only for reading.
   static const read = const FileMode._internal(0);
   @deprecated
+  // ignore: constant_identifier_names
   static const READ = read;
 
   /// The mode for opening a file for reading and writing. The file is
@@ -108,18 +111,19 @@ class FileMode {
   /// already exist.
   static const write = const FileMode._internal(1);
   @deprecated
+  // ignore: constant_identifier_names
   static const WRITE = write;
 
   /// The mode for opening a file for reading and writing to the
   /// end of it. The file is created if it does not already exist.
   static const append = const FileMode._internal(2);
   @deprecated
+  // ignore: constant_identifier_names
   static const APPEND = append;
 
   final int _mode;
 
   int get mode => _mode;
-  const FileMode._internal(this._mode);
 }
 
 ///
@@ -387,26 +391,30 @@ abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 /// to indicate the object's type.
 ///
 class FileSystemEntityType {
+  final int _type;
+  const FileSystemEntityType._internal(this._type);
+
   static const file = const FileSystemEntityType._internal(0);
   @deprecated
+  // ignore: constant_identifier_names
   static const FILE = file;
 
   static const directory = const FileSystemEntityType._internal(1);
   @deprecated
+  // ignore: constant_identifier_names
   static const DIRECTORY = directory;
 
   static const link = const FileSystemEntityType._internal(2);
   @deprecated
+  // ignore: constant_identifier_names
   static const LINK = link;
 
   static const notFound = const FileSystemEntityType._internal(3);
   @deprecated
+  // ignore: constant_identifier_names
   static const NOT_FOUND = notFound;
 
-  final int _type;
-
-  const FileSystemEntityType._internal(this._type);
-
+  @override
   String toString() => const ['FILE', 'DIRECTORY', 'LINK', 'NOT_FOUND'][_type];
 }
 
@@ -420,6 +428,7 @@ abstract class FileSystem {
   /// current working directory.
   ///
   Directory directory(String path);
+
   // Will be deprecated
   Directory newDirectory(String path);
 
@@ -433,13 +442,15 @@ abstract class FileSystem {
   /// current working directory.
   ///
   File file(String path);
-  // Will be deprecated
+
+  //@deprecated
   File newFile(String path);
 
   ///
   // Creates a [Link] object.
   ///
   Link link(String path);
+
   // Will be deprecated
   Link newLink(String path);
 
@@ -475,6 +486,7 @@ abstract class FileSystem {
   // fs_shim specific
   String get name; // io or idb
   bool get supportsLink;
+
   bool get supportsFileLink; // windows does not support file link
 
   ///
@@ -502,6 +514,7 @@ abstract class OSError {
 
 abstract class FileSystemException {
   FileSystemException._();
+
   static const int statusNotFound = 2;
   static const int statusAlreadyExists =
       17; // when creating a dir when it exists with another type (file)

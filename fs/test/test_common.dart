@@ -44,6 +44,7 @@ abstract class FileSystemTestContext {
 }
 
 abstract class IdbFileSystemTestContext extends FileSystemTestContext {
+  @override
   IdbFileSystem get fs;
 }
 
@@ -51,12 +52,14 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
     new MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  @override
   final PlatformContext platform = null;
+  @override
   final IdbFileSystem fs = newMemoryFileSystem() as IdbFileSystem;
   MemoryFileSystemTestContext();
 }
 
-devPrintJson(Map json) {
+void devPrintJson(Map json) {
   print(const JsonEncoder.withIndent("  ").convert(json));
 }
 

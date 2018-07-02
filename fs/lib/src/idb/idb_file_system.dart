@@ -167,6 +167,7 @@ class IdbFileSystem extends Object
     with FileSystemMixin
     implements fs.FileSystem {
   // file system name
+  @override
   String get name => 'idb';
 
   final IdbFileSystemStorage _storage;
@@ -178,7 +179,7 @@ class IdbFileSystem extends Object
 
   IdbFileSystem(idb.IdbFactory factory, [String path])
       : _storage =
-            new IdbFileSystemStorage(factory, path == null ? dbPath : path) {}
+            new IdbFileSystemStorage(factory, path == null ? dbPath : path);
 
   @override
   bool operator ==(o) {
@@ -369,7 +370,7 @@ class IdbFileSystem extends Object
       idb.ObjectStore store, List<String> segments, String target,
       {bool recursive: false}) {
     // Try to find the file if it exists
-    _nodeFromSearchResult(NodeSearchResult result) {
+    Future<Node> _nodeFromSearchResult(NodeSearchResult result) {
       Node entity = result.match;
       if (entity != null) {
         throw idbAlreadyExistsException(result.path, "Already exists");
@@ -452,7 +453,7 @@ class IdbFileSystem extends Object
 
     idb.ObjectStore store = txn.objectStore(treeStoreName);
 
-    _delete() {
+    Future _delete() {
       return store.delete(entity.id).then((_) {
         // For file delete content as well
         if (entity.type == fs.FileSystemEntityType.file) {
@@ -732,7 +733,7 @@ class IdbFileSystem extends Object
 
     List<String> remainings = new List.from(result.remainingSegments);
     int i = 0;
-    _next() {
+    Future _next() {
       String segment = remainings[i];
       Node parent = entity;
       // create it!

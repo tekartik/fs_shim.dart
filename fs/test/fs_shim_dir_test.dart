@@ -8,7 +8,7 @@ import 'package:path/path.dart';
 
 import 'test_common.dart';
 
-main() {
+void main() {
   defineTests(memoryFileSystemTestContext);
 }
 

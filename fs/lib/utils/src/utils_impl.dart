@@ -429,16 +429,25 @@ abstract class EntityNode {
   Future<bool> isLink();
   Future<FileSystemEntityType> type({bool followLinks: true});
 
+  @override
   String toString() => '$sub';
 }
 
 abstract class EntityNodeFsMixin implements EntityNode {
+  @override
   Directory asDirectory() => fs.newDirectory(path);
+  @override
   File asFile() => fs.newFile(path);
+  @override
   Link asLink() => fs.newLink(path);
+
+  @override
   Future<bool> isDirectory() => fs.isDirectory(path);
+  @override
   Future<bool> isFile() => fs.isFile(path);
+  @override
   Future<bool> isLink() => fs.isLink(path);
+  @override
   Future<FileSystemEntityType> type({bool followLinks: true}) =>
       fs.type(path, followLinks: followLinks);
 }
@@ -470,16 +479,23 @@ abstract class EntityPathMixin implements EntityNode {
 class TopEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {
+  @override
   EntityNode get parent => null;
+  @override
   final FileSystem fs;
+  @override
   final String top;
+  @override
   String get sub => '';
+  @override
   String get basename => '';
+  @override
   List<String> get parts => [];
 
   //TopEntity.parts(this.fs, List<String> parts);
   TopEntity(this.fs, this.top);
 
+  @override
   String toString() => top;
 }
 
@@ -490,13 +506,19 @@ TopEntity fsTopEntity(FileSystemEntity entity) =>
 class CopyEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {
+  @override
   EntityNode parent; // cannot be null
+  @override
   FileSystem get fs => parent.fs;
+  @override
   String get top => parent.top;
+  @override
   String basename;
   String _sub;
+  @override
   String get sub => _sub;
   List<String> _parts;
+  @override
   Iterable<String> get parts => _parts;
 
   // Main one not used
@@ -562,8 +584,11 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
   }
 
   int count = 0;
+  @override
   CopyOptions get options => _options;
+  @override
   final TopEntity src;
+  @override
   final TopEntity dst;
   @override
   String toString() => '[$id] $src => $dst';
@@ -588,7 +613,9 @@ class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
 
   int count = 0;
 
+  @override
   CopyOptions get options => _options;
+  @override
   final TopEntity src;
 
   @override
@@ -607,13 +634,18 @@ class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
 class ChildCopy extends Object
     with CopyNodeMixin, NodeExcludeMixin, NodeIncludeMixin
     implements CopyNode {
+  @override
   CopyEntity src;
+  @override
   CopyEntity dst;
   final CopyNode parent;
+  @override
   CopyOptions options;
 
+  @override
   OptionsExcludeMixin get excludeOptions => options;
 
+  @override
   OptionsIncludeMixin get includeOptions => options;
 
   @override
@@ -758,12 +790,16 @@ class ChildCopy extends Object
 class ChildSourceNode extends Object
     with SourceNodeMixin, NodeExcludeMixin, NodeIncludeMixin
     implements SourceNode {
+  @override
   CopyEntity src;
   final SourceNode parent;
+  @override
   CopyOptions options;
 
+  @override
   OptionsExcludeMixin get excludeOptions => options;
 
+  @override
   OptionsIncludeMixin get includeOptions => options;
 
   @override

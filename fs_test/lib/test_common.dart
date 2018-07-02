@@ -9,6 +9,7 @@ import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_platform/context.dart';
+
 import 'src/import_common.dart';
 
 export 'dart:async';
@@ -21,13 +22,16 @@ export 'package:fs_shim/utils/glob.dart';
 export 'package:fs_shim/utils/part.dart';
 export 'package:fs_shim/utils/path.dart';
 export 'package:fs_shim/utils/read_write.dart';
+
 export 'src/import_common.dart';
 
 // FileSystem context
 abstract class FileSystemTestContext {
   PlatformContext get platform;
+
   // The file system used
   FileSystem get fs;
+
   // The path to use for testing
   String get outPath => joinAll(testDescriptions);
 
@@ -45,6 +49,7 @@ abstract class FileSystemTestContext {
 }
 
 abstract class IdbFileSystemTestContext extends FileSystemTestContext {
+  @override
   IdbFileSystem get fs;
 }
 
@@ -52,12 +57,15 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
     new MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  @override
   final PlatformContext platform = null;
+  @override
   final IdbFileSystem fs = newMemoryFileSystem() as IdbFileSystem;
+
   MemoryFileSystemTestContext();
 }
 
-devPrintJson(Map json) {
+void devPrintJson(Map json) {
   print(const JsonEncoder.withIndent("  ").convert(json));
 }
 

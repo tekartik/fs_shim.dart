@@ -19,11 +19,11 @@ vm_io.File unwrapIoFile(File file) =>
     file != null ? (file as FileNode).ioFile : null;
 
 class FileNode extends FileSystemEntityNode implements File {
-  vm_io.File get ioFile => nativeInstance as io.File;
-
   FileNode.io(vm_io.File file) : super(file);
 
   FileNode(String path) : super(new io.File(path));
+
+  vm_io.File get ioFile => nativeInstance as io.File;
 
   @override
   Future<FileNode> create({bool recursive: false}) async {

@@ -11,7 +11,7 @@ import 'package:tekartik_fs_test/test_common.dart';
 import 'package:tekartik_fs_test/fs_current_dir_file_test.dart' as current_dir;
 import 'test_common_io.dart';
 
-main() {
+void main() {
   group('io', () {
     current_dir.defineTests(fileSystemIo);
     defineTests(fileSystemTestContextIo);

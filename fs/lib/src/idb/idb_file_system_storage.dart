@@ -176,7 +176,7 @@ class IdbFileSystemStorage {
       return (i == segments.length - 1);
     }
 
-    _next() {
+    Future _next() {
       String segment = segments[i];
 
       // try to lookup without following links for last segment
@@ -399,6 +399,7 @@ class NodeSearchResult {
       ..highest = highest;
   }
 
+  @override
   String toString() => '$depthDiff $highest';
 }
 

@@ -10,7 +10,7 @@ import 'test_common_io.dart' show ioFileSystemTestContext;
 
 String get outPath => ioFileSystemTestContext.outPath;
 
-main() {
+void main() {
   group('entity', () {
     test('as', () async {
       Link fileSystemEntity = new Link(join(outPath, 'fse'));

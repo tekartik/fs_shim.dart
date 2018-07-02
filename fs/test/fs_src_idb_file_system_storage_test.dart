@@ -10,7 +10,7 @@ import 'test_common.dart';
 import 'dart:async';
 import 'package:path/path.dart';
 
-main() {
+void main() {
   Future<IdbFileSystemStorage> newStorage() async {
     IdbFileSystemStorage storage =
         new IdbFileSystemStorage(idbMemoryFactory, null);

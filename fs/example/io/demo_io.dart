@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
-main() async {
+Future main() async {
   FileSystem fs = ioFileSystem;
   // safe place when running from package root
   String dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');

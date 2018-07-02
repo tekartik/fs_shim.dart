@@ -8,6 +8,7 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
 
   IdbFileSystem get _fs => super.fs;
 
+  @override
   fs.FileSystemEntityType get type => fs.FileSystemEntityType.link;
 
   /*
@@ -53,6 +54,7 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
         .then((_) => new IdbLink(_fs, newPath));
   }
 
+  @override
   Future<IdbLink> create(String target, {bool recursive: false}) {
     return _fs.createLink(path, target, recursive: recursive).then(_me);
   }

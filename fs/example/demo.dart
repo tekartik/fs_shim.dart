@@ -1,15 +1,17 @@
+import 'dart:async';
+
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:path/path.dart';
 
-main() async {
+Future main() async {
   FileSystem fs = newMemoryFileSystem();
 
   // Create a top level directory
   Directory dir = fs.newDirectory('/dir');
 
   // and a file in it
-  File file = fs.newFile(join(dir.path, "file"));
+  File file = fs.file(join(dir.path, "file"));
 
   // create a file
   await file.create(recursive: true);

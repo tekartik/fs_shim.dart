@@ -15,7 +15,7 @@ import 'utils_test.dart' as utils_test;
 
 import 'fs_shim_sanity_test.dart' as fs_shim_sanity_test;
 
-main() {
+void main() {
   group('default', () {
     defineTests(memoryFileSystemTestContext);
   });
