@@ -20,11 +20,11 @@ vm_io.Directory unwrapIoDirectory(Directory dir) =>
     dir != null ? (dir as DirectoryNode).ioDir : null;
 
 class DirectoryNode extends FileSystemEntityNode implements Directory {
-  vm_io.Directory get ioDir => nativeInstance as vm_io.Directory;
-
   DirectoryNode.io(vm_io.Directory dir) : super(dir);
 
   DirectoryNode(String path) : super(new node.Directory(path));
+
+  vm_io.Directory get ioDir => nativeInstance as vm_io.Directory;
 
   /*
   //DirectoryImpl _me(_) => this;

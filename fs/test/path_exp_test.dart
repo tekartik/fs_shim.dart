@@ -7,7 +7,7 @@ import 'test_common.dart';
 import 'package:path/path.dart';
 import 'package:fs_shim/utils/path.dart' as fs;
 
-main() {
+void main() {
   group('path_exp', () {
     test('windows', () {
       expect(windows.basename('a/b'), 'b');

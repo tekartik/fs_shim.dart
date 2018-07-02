@@ -61,6 +61,7 @@ io.File unwrapIoFile(fs.File file) => (file as FileImpl).ioFile;
 abstract class Directory implements fs.Directory, FileSystemEntity {
   factory Directory(String path) => new DirectoryImpl(path);
 
+  @override
   Stream<FileSystemEntity> list(
       {bool recursive: false, bool followLinks: true});
 

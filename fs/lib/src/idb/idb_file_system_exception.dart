@@ -8,7 +8,9 @@ IdbError get _isADirectoryError => new IdbError(21, "Is a directory");
 
 class IdbError implements fs.OSError {
   IdbError(this.errorCode, this.message);
+  @override
   final int errorCode;
+  @override
   final String message;
 
   @override
@@ -17,20 +19,23 @@ class IdbError implements fs.OSError {
   }
 }
 
-idbNotADirectoryException(String path, String msg) =>
+IdbFileSystemException idbNotADirectoryException(String path, String msg) =>
     new IdbFileSystemException(fs.FileSystemException.statusNotADirectory, path,
         msg, _notADirectoryError);
 
-idbIsADirectoryException(String path, String msg) => new IdbFileSystemException(
-    fs.FileSystemException.statusIsADirectory, path, msg, _isADirectoryError);
+IdbFileSystemException idbIsADirectoryException(String path, String msg) =>
+    new IdbFileSystemException(fs.FileSystemException.statusIsADirectory, path,
+        msg, _isADirectoryError);
 
-idbNotEmptyException(String path, String msg) => new IdbFileSystemException(
-    fs.FileSystemException.statusNotEmpty, path, msg, _notEmptyError);
+IdbFileSystemException idbNotEmptyException(String path, String msg) =>
+    new IdbFileSystemException(
+        fs.FileSystemException.statusNotEmpty, path, msg, _notEmptyError);
 
-idbNotFoundException(String path, String msg) => new IdbFileSystemException(
-    fs.FileSystemException.statusNotFound, path, msg, _noSuchPathError);
+IdbFileSystemException idbNotFoundException(String path, String msg) =>
+    new IdbFileSystemException(
+        fs.FileSystemException.statusNotFound, path, msg, _noSuchPathError);
 
-idbAlreadyExistsException(String path, String msg) =>
+IdbFileSystemException idbAlreadyExistsException(String path, String msg) =>
     new IdbFileSystemException(fs.FileSystemException.statusAlreadyExists, path,
         msg, _alreadyExistsError);
 

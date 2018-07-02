@@ -11,7 +11,7 @@ import 'test_common.dart';
 import 'package:path/path.dart';
 import 'dart:async';
 
-main() {
+void main() {
   defineTests(memoryFileSystemTestContext);
 }
 

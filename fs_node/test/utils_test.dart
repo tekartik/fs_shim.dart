@@ -2,7 +2,7 @@ import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/utils.dart';
 import 'package:test/test.dart';
 
-main() {
+void main() {
   group('file_system_exception_node', () {
     test('fromString', () {
       var message =

@@ -7,7 +7,7 @@ import 'package:path/path.dart';
 import 'package:test/test.dart';
 import 'package:node_io/node_io.dart';
 
-main() {
+void main() {
   group('raw_node_io', () {
     test('api', () async {
       var path = join(".dart_tool", "tekartik_fs_node", "raw_node_io_api");

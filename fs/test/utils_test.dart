@@ -11,7 +11,7 @@ import 'utils_part_test.dart' as utils_part_test;
 import 'utils_path_test.dart' as utils_path_test;
 import 'utils_read_write_test.dart' as utils_read_write_test;
 
-main() {
+void main() {
   group('manual', () {
     defineTests(memoryFileSystemTestContext);
   });

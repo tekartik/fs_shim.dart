@@ -13,7 +13,7 @@ abstract class MyFileSystemEntity extends Object with FileSystemEntityNone {}
 
 class MyDirectory extends MyFileSystemEntity with DirectoryNone {}
 
-main() {
+void main() {
   group('none', () {
     test('entities', () {
       new MyFileSystem();

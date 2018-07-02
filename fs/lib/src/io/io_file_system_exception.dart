@@ -7,7 +7,9 @@ import 'dart:io' as io;
 class OSErrorImpl implements fs.OSError {
   io.OSError ioOSError;
   OSErrorImpl.io(this.ioOSError);
+  @override
   int get errorCode => ioOSError.errorCode;
+  @override
   String get message => ioOSError.message;
 
   @override

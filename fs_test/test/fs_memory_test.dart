@@ -9,7 +9,7 @@ import 'package:tekartik_fs_test/fs_current_dir_file_test.dart' as current_dir;
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 
-main() {
+void main() {
   group('memory', () {
     current_dir.defineTests(newFileSystemMemory());
     defineTests(memoryFileSystemTestContext);

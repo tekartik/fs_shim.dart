@@ -7,7 +7,7 @@ import 'test_common_io.dart';
 
 const String groupName = "io_example_fs_shim";
 
-main() {
+void main() {
   group(groupName, () {
     //testOutTopPath
     test('sample1', () async {

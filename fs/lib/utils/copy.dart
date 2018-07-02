@@ -131,6 +131,7 @@ Future<File> createFile(File file, {CreateOptions options}) =>
 
 class DeleteOptions extends Object
     with OptionsRecursiveMixin, OptionsCreateMixin, OptionsFollowLinksMixin {
+  @override
   String toString() {
     Map map = {};
     if (recursive) {

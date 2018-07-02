@@ -4,15 +4,15 @@ import 'package:fs_shim/utils/glob.dart';
 
 import 'test_common.dart';
 
-main() {
+void main() {
   group('glob', () {
-    checkMatch(String expression, String name, Matcher matcher) {
+    void checkMatch(String expression, String name, Matcher matcher) {
       Glob glob = new Glob(expression);
       expect(glob.matches(contextPath(name)), matcher,
           reason: "'$glob' '$name'");
     }
 
-    checkPart(String expression, String name, Matcher matcher) {
+    void checkPart(String expression, String name, Matcher matcher) {
       expect(Glob.matchPart(expression, name), matcher,
           reason: "'$expression' '$name'");
     }

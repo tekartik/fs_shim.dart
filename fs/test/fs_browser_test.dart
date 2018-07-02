@@ -22,7 +22,9 @@ FileSystem newIdbBrowserFileSystem([String name]) =>
     newIdbFileSystem(idbBrowserFactory, name);
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
+  @override
   final PlatformContext platform = browserPlatformContext;
+  @override
   IdbFileSystem fs = newIdbBrowserFileSystem()
       as IdbFileSystem; // Needed for initialization (supportsLink)
   IdbBrowserFileSystemTestContext();

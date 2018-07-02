@@ -10,7 +10,7 @@ import 'package:dart2_constant/io.dart' as constant;
 
 const String groupName = "io_example";
 
-main() {
+void main() {
   group(groupName, () {
     //testOutTopPath
     test('sample1', () async {

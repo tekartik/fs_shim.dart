@@ -1,8 +1,10 @@
+import 'dart:async';
+
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:path/path.dart';
 
-main() async {
+Future main() async {
   FileSystem fs = newMemoryFileSystem();
 
   // Create a top level directory

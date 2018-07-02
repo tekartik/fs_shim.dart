@@ -9,10 +9,12 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
 
   IdbFileSystem get _fs => super.fs;
 
+  @override
   Future<IdbFile> create({bool recursive: false}) {
     return _fs.createFile(path, recursive: recursive).then((_) => this);
   }
 
+  @override
   fs.FileSystemEntityType get type => fs.FileSystemEntityType.file;
 
   // don't care about encoding - assume UTF8

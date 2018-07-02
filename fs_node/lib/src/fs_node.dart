@@ -59,7 +59,7 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
   }
 }
 
-ioWrapError(e) {
+FileSystemExceptionNode ioWrapError(e) {
   if (e is io.FileSystemException) {
     return new FileSystemExceptionNode.io(e);
   } else {
@@ -129,12 +129,15 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
     await ioWrap(ioSink.close());
   }
 
+  @override
   void addError(errorEvent, [StackTrace stackTrace]) {
     ioSink.addError(errorEvent, stackTrace);
   }
 
+  @override
   Future get done => ioWrap(ioSink.done);
 
+  @override
   // not supported for node...
   Future addStream(Stream<List<int>> stream) async {
     await stream.listen((List<int> data) {
