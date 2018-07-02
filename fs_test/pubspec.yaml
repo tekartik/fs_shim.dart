@@ -35,5 +35,5 @@ dev_dependencies:
 dependency_overrides:
   fs_shim:
     path: ../fs
-  idb_shim:
-    path: ../../idb_shim.dart
+#  idb_shim:
+#    path: ../../idb_shim.dart
