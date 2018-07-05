@@ -8,7 +8,8 @@ set -e
 dartanalyzer --fatal-warnings .
 
 pub run test -p vm
-# pub run test -p chrome
+pub run test -p chrome test/fs_memory_test.dart
+
 pub run build_runner test -- -p vm
 # run everything on chrome
 pub run build_runner test -- -p chrome
