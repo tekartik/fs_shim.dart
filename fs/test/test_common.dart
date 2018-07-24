@@ -9,7 +9,7 @@ import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:path/path.dart';
-import 'package:platform_context/context.dart';
+import 'package:tekartik_platform/context.dart';
 
 export 'dart:async';
 export 'dart:convert';
