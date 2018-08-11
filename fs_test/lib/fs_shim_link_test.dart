@@ -152,7 +152,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         String target = join(dir.path, "target");
         /*File file = */
-        File file = fs.newFile(target);
+        File file = fs.file(target);
         await file.create();
         Link link = fs.newLink(join(dir.path, "link"));
         expect(await link.exists(), isFalse);
@@ -184,7 +184,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_link_file', () async {
         Directory dir = await ctx.prepare();
 
-        File file = fs.newFile(join(dir.path, "file"));
+        File file = fs.file(join(dir.path, "file"));
         Link link = fs.newLink(join(dir.path, "link"));
 
         if (isIoWindows(ctx)) {
@@ -195,7 +195,7 @@ void defineTests(FileSystemTestContext ctx) {
           }
         } else {
           await link.create(file.path);
-          File linkFile = fs.newFile(link.path);
+          File linkFile = fs.file(link.path);
 
           await linkFile.create();
 
@@ -210,7 +210,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         String target = join(top.path, "target");
         /*File file = */
-        Directory dir = fs.newDirectory(target);
+        Directory dir = fs.directory(target);
         await dir.create();
         Link link = fs.newLink(join(top.path, "link"));
         expect(await link.exists(), isFalse);
@@ -242,10 +242,10 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_link_dir', () async {
         Directory top = await ctx.prepare();
 
-        Directory dir = fs.newDirectory(join(top.path, "dir"));
+        Directory dir = fs.directory(join(top.path, "dir"));
         Link link = fs.newLink(join(top.path, "link"));
         await link.create(dir.path);
-        Directory linkDir = fs.newDirectory(link.path);
+        Directory linkDir = fs.directory(link.path);
 
         // This fails on linux!
         try {
@@ -270,7 +270,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_recursive', () async {
         Directory dir = await ctx.prepare();
 
-        Directory subDir = fs.newDirectory(join(dir.path, "sub"));
+        Directory subDir = fs.directory(join(dir.path, "sub"));
 
         Link link = fs.newLink(join(subDir.path, "file"));
 
@@ -362,7 +362,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('file_follow_links', () async {
         if (fs.supportsFileLink) {
           Directory _dir = await ctx.prepare();
-          File file = fs.newFile(join(_dir.path, 'file'));
+          File file = fs.file(join(_dir.path, 'file'));
           Link link =
               await fs.newLink(join(_dir.path, "link")).create(file.path);
 
@@ -382,7 +382,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('dir_follow_links', () async {
         Directory top = await ctx.prepare();
-        Directory dir = fs.newDirectory(join(top.path, 'dir'));
+        Directory dir = fs.directory(join(top.path, 'dir'));
         Link link = await fs.newLink(join(top.path, "link")).create(dir.path);
 
         expect(await fs.type(link.path, followLinks: false),
@@ -409,7 +409,7 @@ void defineTests(FileSystemTestContext ctx) {
           String text = "test";
           Directory _dir = await ctx.prepare();
           var filePath = join(_dir.path, "file");
-          File file = fs.newFile(filePath);
+          File file = fs.file(filePath);
           await file.writeAsString(text, flush: true);
           // check content
           expect(await file.readAsString(), text);
@@ -423,7 +423,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await file.readAsString(), text);
 
           // and a file object on the link
-          file = fs.newFile(link.path);
+          file = fs.file(link.path);
           expect(await file.readAsString(), text);
         }
       });
@@ -433,7 +433,7 @@ void defineTests(FileSystemTestContext ctx) {
           String text = "test";
           Directory _dir = await ctx.prepare();
           var filePath = join(_dir.path, "file");
-          File file = fs.newFile(filePath);
+          File file = fs.file(filePath);
           ;
 
           // create a link to the file
@@ -443,7 +443,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await fs.isLink(link.path), isTrue);
 
           // and a file object on the link
-          File linkFile = fs.newFile(link.path);
+          File linkFile = fs.file(link.path);
           await linkFile.writeAsString(text, flush: true);
           expect(await linkFile.readAsString(), text);
           expect(await file.readAsString(), text);
@@ -462,8 +462,8 @@ void defineTests(FileSystemTestContext ctx) {
           String text = "test";
           Directory top = await ctx.prepare();
 
-          Directory dir = fs.newDirectory(join(top.path, 'dir'));
-          File file = fs.newFile(join(dir.path, 'file'));
+          Directory dir = fs.directory(join(top.path, 'dir'));
+          File file = fs.file(join(dir.path, 'file'));
 
           Link link = fs.newLink(join(top.path, "link"));
           await link.create('dir/file');
@@ -473,7 +473,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await fs.isFile(link.path), isTrue);
           expect(await fs.isLink(link.path), isTrue);
 
-          File linkFile = fs.newFile(link.path);
+          File linkFile = fs.file(link.path);
           await linkFile.writeAsString(text, flush: true);
           expect(await linkFile.readAsString(), text);
           expect(await file.readAsString(), text);
@@ -483,8 +483,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('link_to_subdir', () async {
         Directory top = await ctx.prepare();
 
-        Directory dir = fs.newDirectory(join(top.path, 'dir'));
-        Directory sub = fs.newDirectory(join(dir.path, 'sub'));
+        Directory dir = fs.directory(join(top.path, 'dir'));
+        Directory sub = fs.directory(join(dir.path, 'sub'));
 
         Link link = fs.newLink(join(top.path, "link"));
         await link.create('dir/sub');
@@ -506,15 +506,15 @@ void defineTests(FileSystemTestContext ctx) {
           String text = "test";
           Directory top = await ctx.prepare();
 
-          Directory dir = fs.newDirectory(join(top.path, 'dir'));
+          Directory dir = fs.directory(join(top.path, 'dir'));
           await dir.create();
-          File file = fs.newFile(join(dir.path, 'file'));
+          File file = fs.file(join(dir.path, 'file'));
 
           Link link = fs.newLink(join(top.path, "link"));
           await link.create('dir/file');
           expect(await link.target(), join('dir', 'file'));
 
-          File linkFile = fs.newFile(link.path);
+          File linkFile = fs.file(link.path);
           await linkFile.writeAsString(text, flush: true);
           expect(await linkFile.readAsString(), text);
           expect(await file.readAsString(), text);
@@ -525,8 +525,8 @@ void defineTests(FileSystemTestContext ctx) {
         String text = "test";
         Directory top = await ctx.prepare();
 
-        Directory dir = fs.newDirectory(join(top.path, 'dir'));
-        File file = fs.newFile(join(dir.path, 'file'));
+        Directory dir = fs.directory(join(top.path, 'dir'));
+        File file = fs.file(join(dir.path, 'file'));
 
         Link link = fs.newLink(join(top.path, "link"));
         await link.create('dir');
@@ -539,7 +539,7 @@ void defineTests(FileSystemTestContext ctx) {
         }
 
         await file.create(recursive: true);
-        File linkFile = fs.newFile(join(link.path, 'file'));
+        File linkFile = fs.file(join(link.path, 'file'));
         expect(await fs.isFile(linkFile.path), isTrue);
         expect(await fs.isLink(linkFile.path), isFalse);
 
@@ -555,7 +555,7 @@ void defineTests(FileSystemTestContext ctx) {
           String text = "test";
           Directory _dir = await ctx.prepare();
           var filePath = join(_dir.path, "file");
-          File file = fs.newFile(filePath);
+          File file = fs.file(filePath);
 
           // create a link to the file
           Link link =
@@ -566,7 +566,7 @@ void defineTests(FileSystemTestContext ctx) {
           await file.writeAsString("te", flush: true);
 
           // and a file object on the link
-          File linkFile = fs.newFile(link.path);
+          File linkFile = fs.file(link.path);
           // Append data
           var sink = linkFile.openWrite(mode: FileMode.append);
           sink.add("st".codeUnits);
@@ -599,7 +599,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(stat.size, -1);
           expect(stat.modified, isNull);
 
-          File file = fs.newFile(join(_dir.path, 'file'));
+          File file = fs.file(join(_dir.path, 'file'));
 
           await file.writeAsString("test", flush: true);
           stat = await link.stat();
@@ -640,7 +640,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(stat.modified, isNull);
         }
 
-        Directory dir = fs.newDirectory(join(top.path, 'dir'));
+        Directory dir = fs.directory(join(top.path, 'dir'));
         await dir.create();
         stat = await link.stat();
 
@@ -660,7 +660,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         String path = join(_dir.path, "dir");
         String path2 = join(_dir.path, "link");
-        Directory dir = fs.newDirectory(path);
+        Directory dir = fs.directory(path);
         Link link = fs.newLink(path2);
         await dir.create();
         await link.create("target");
@@ -683,8 +683,8 @@ void defineTests(FileSystemTestContext ctx) {
 
         String path = join(top.path, "dir_or_file");
 
-        File file = fs.newFile(path);
-        Directory dir = fs.newDirectory(path);
+        File file = fs.file(path);
+        Directory dir = fs.directory(path);
         Link link = fs.newLink(path);
         await dir.create();
         try {

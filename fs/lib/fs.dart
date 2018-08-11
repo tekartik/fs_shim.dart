@@ -429,7 +429,8 @@ abstract class FileSystem {
   ///
   Directory directory(String path);
 
-  // Will be deprecated
+  // Use [directory] instead
+  @deprecated
   Directory newDirectory(String path);
 
   ///
@@ -443,7 +444,8 @@ abstract class FileSystem {
   ///
   File file(String path);
 
-  //@deprecated
+  // Use [file] instead
+  @deprecated
   File newFile(String path);
 
   ///
@@ -451,7 +453,7 @@ abstract class FileSystem {
   ///
   Link link(String path);
 
-  // Will be deprecated
+  // Use [link] instead
   Link newLink(String path);
 
   ///
@@ -494,7 +496,7 @@ abstract class FileSystem {
   ///
   Context get path;
 
-  /// 2018-06-20 will deprecate
+  // User [path] instead
   @deprecated
   Context get pathContext;
 }

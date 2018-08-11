@@ -27,17 +27,17 @@ void defineTests(FileSystemTestContext ctx) {
 
   group('file', () {
     test('new', () {
-      File file = fs.newFile("dummy");
+      File file = fs.file("dummy");
       expect(file.path, "dummy");
       expect(file.fs, fs);
-      file = fs.newFile(r"\root/dummy");
+      file = fs.file(r"\root/dummy");
       expect(file.path, r"\root/dummy");
-      file = fs.newFile(r"\");
+      file = fs.file(r"\");
       expect(file.path, r"\");
-      file = fs.newFile(r"");
+      file = fs.file(r"");
       expect(file.path, r"");
       try {
-        file = fs.newFile(null);
+        file = fs.file(null);
         fail("should fail");
       } on ArgumentError catch (_) {
         // Invalid argument(s): null is not a String
@@ -45,12 +45,12 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('toString', () {
-      File file = fs.newFile("file");
+      File file = fs.file("file");
       expect(file.toString(), "File: '${file.path}'");
     });
 
     test('absolute', () {
-      File file = fs.newFile("dummy");
+      File file = fs.file("dummy");
       expect(file.isAbsolute, isFalse);
 
       file = file.absolute;
@@ -59,24 +59,24 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('parent', () {
-      File file = fs.newFile(join(separator, "dummy"));
+      File file = fs.file(join(separator, "dummy"));
       if (!contextIsWindows) {
         // somehow absolute means more on windows
         expect(file.isAbsolute, isTrue);
-        expect(file.parent.path, fs.newDirectory('/').path);
+        expect(file.parent.path, fs.directory('/').path);
       }
     });
 
     test('exists', () async {
       Directory dir = await ctx.prepare();
-      File file = fs.newFile(join(dir.path, "file"));
+      File file = fs.file(join(dir.path, "file"));
       expect(await file.exists(), isFalse);
     });
 
     test('create', () async {
       Directory dir = await ctx.prepare();
 
-      File file = fs.newFile(join(dir.path, "file"));
+      File file = fs.file(join(dir.path, "file"));
       expect(await file.exists(), isFalse);
       expect(await fs.isFile(file.path), isFalse);
       expect(await (await file.create()).exists(), isTrue);
@@ -110,7 +110,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('delete', () async {
       Directory dir = await ctx.prepare();
 
-      File file = fs.newFile(join(dir.path, "file"));
+      File file = fs.file(join(dir.path, "file"));
       expect(await (await file.create()).exists(), isTrue);
       expect(await fs.isFile(file.path), isTrue);
 
@@ -134,7 +134,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
+      File file = fs.file(path);
       await file.create();
       File file2 = await file.rename(path2) as File;
       expect(file2.path, path2);
@@ -148,7 +148,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
+      File file = fs.file(path);
       try {
         await file.rename(path2);
         fail("shoud fail");
@@ -164,7 +164,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
+      File file = fs.file(path);
       await file.writeAsString("test", flush: true);
       File file2 = await file.rename(path2) as File;
       expect(file2.path, path2);
@@ -177,7 +177,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('stat', () async {
       Directory _dir = await ctx.prepare();
 
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       FileStat stat = await file.stat();
       expect(stat.type, FileSystemEntityType.notFound);
       expect(stat.size, -1);
@@ -215,8 +215,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "file");
-      Directory dir = fs.newDirectory(path);
-      File file2 = fs.newFile(path2);
+      Directory dir = fs.directory(path);
+      File file2 = fs.file(path2);
       await dir.create();
       await file2.create();
 
@@ -238,8 +238,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
-      File file2 = fs.newFile(path2);
+      File file = fs.file(path);
+      File file2 = fs.file(path2);
       await file.writeAsString("test", flush: true);
       await file2.writeAsString("test2", flush: true);
       file2 = await file.rename(path2) as File;
@@ -255,7 +255,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
+      File file = fs.file(path);
       await file.create();
       File file2 = await file.copy(path2);
       expect(file2.path, path2);
@@ -269,7 +269,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
+      File file = fs.file(path);
       await file.writeAsString("test", flush: true);
       File file2 = await file.copy(path2);
       expect(file2.path, path2);
@@ -284,8 +284,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "file");
       String path2 = join(_dir.path, "file2");
-      File file = fs.newFile(path);
-      File file2 = fs.newFile(path2);
+      File file = fs.file(path);
+      File file2 = fs.file(path2);
       await file.writeAsString("test", flush: true);
       await file2.writeAsString("test2", flush: true);
       file2 = await file.copy(path2);
@@ -301,8 +301,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir_or_file");
 
-      File file = fs.newFile(path);
-      Directory dir = fs.newDirectory(path);
+      File file = fs.file(path);
+      Directory dir = fs.directory(path);
       expect(await (await file.create()).exists(), isTrue);
       await file.create();
       try {
@@ -375,7 +375,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('simple_write_read', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       await file.create();
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
@@ -402,7 +402,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('read_not_found', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       try {
         await file.openRead().listen((List<int> data) {
           //content.addAll(data);
@@ -417,7 +417,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_bad_mode', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       try {
         var sink = file.openWrite(mode: FileMode.read);
         sink.add('test'.codeUnits);
@@ -429,7 +429,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('append_not_found', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       var sink = file.openWrite(mode: FileMode.append);
       sink.add('test'.codeUnits);
       await sink.close();
@@ -443,7 +443,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_not_found', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       try {
         var sink = file.openWrite(mode: FileMode.append);
         sink.add('test'.codeUnits);
@@ -463,7 +463,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('overwrite', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
@@ -487,7 +487,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('append', () async {
       Directory _dir = await ctx.prepare();
-      File file = fs.newFile(join(_dir.path, "file"));
+      File file = fs.file(join(_dir.path, "file"));
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
@@ -512,8 +512,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('write_on_dir', () async {
       Directory _dir = await ctx.prepare();
       var filePath = join(_dir.path, "file");
-      Directory dir = fs.newDirectory(filePath);
-      File file = fs.newFile(filePath);
+      Directory dir = fs.directory(filePath);
+      File file = fs.file(filePath);
 
       await dir.create();
 
@@ -536,7 +536,7 @@ void defineTests(FileSystemTestContext ctx) {
       List<int> bytes = [0, 1, 2, 3];
       Directory _dir = await ctx.prepare();
       var filePath = join(_dir.path, "file");
-      File file = fs.newFile(filePath);
+      File file = fs.file(filePath);
 
       await file.writeAsBytes(bytes, flush: true);
       expect(await file.readAsBytes(), bytes);
@@ -554,7 +554,7 @@ void defineTests(FileSystemTestContext ctx) {
       String text = "test";
       Directory _dir = await ctx.prepare();
       var filePath = join(_dir.path, "file");
-      File file = fs.newFile(filePath);
+      File file = fs.file(filePath);
 
       await file.writeAsString(text, flush: true);
       expect(await file.readAsString(), text);

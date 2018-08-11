@@ -46,7 +46,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
       int treeStoreSize = await getTreeStoreSize(db);
       int fileStoreSize = await getFileStoreSize(db);
 
-      File file = ctx.fs.newFile(join(dir.path, "file"));
+      File file = ctx.fs.file(join(dir.path, "file"));
       await file.create();
 
       expect(await getTreeStoreSize(db), treeStoreSize + 1);
@@ -66,7 +66,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
       int treeStoreSize = await getTreeStoreSize(db);
       int fileStoreSize = await getFileStoreSize(db);
 
-      File file = ctx.fs.newFile(join(dir.path, "file"));
+      File file = ctx.fs.file(join(dir.path, "file"));
       await file.create();
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);

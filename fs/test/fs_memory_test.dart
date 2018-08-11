@@ -29,7 +29,7 @@ void main() {
       test('createDirectoryRecursive', () async {
         // direct file write, no preparation
         var fs = newFileSystemMemory();
-        var path = fs.pathContext;
+        var path = fs.path;
         await fs.directory(path.join("dir.tmp", "sub")).create(recursive: true);
       }, skip: false);
     });

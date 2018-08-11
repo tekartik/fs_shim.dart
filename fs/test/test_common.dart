@@ -31,7 +31,7 @@ abstract class FileSystemTestContext {
   String get outPath => joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
-    Directory dir = fs.newDirectory(outPath);
+    Directory dir = fs.directory(outPath);
     try {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {

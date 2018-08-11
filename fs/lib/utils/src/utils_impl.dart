@@ -309,7 +309,7 @@ Future<int> copyFileSystemEntityImpl(FileSystem srcFileSystem, String srcPath,
   }
 
   if (await srcFileSystem.isDirectory(srcPath)) {
-    Directory dstDirectory = dstFileSystem.newDirectory(dstPath);
+    Directory dstDirectory = dstFileSystem.directory(dstPath);
     if (!await dstDirectory.exists()) {
       await dstDirectory.create(recursive: true);
       count++;
@@ -317,7 +317,7 @@ Future<int> copyFileSystemEntityImpl(FileSystem srcFileSystem, String srcPath,
 
     // recursive
     if (options.recursive) {
-      Directory srcDirectory = srcFileSystem.newDirectory(srcPath);
+      Directory srcDirectory = srcFileSystem.directory(srcPath);
 
       List<Future> futures = [];
       await srcDirectory
@@ -333,8 +333,8 @@ Future<int> copyFileSystemEntityImpl(FileSystem srcFileSystem, String srcPath,
       await Future.wait(futures);
     }
   } else if (await srcFileSystem.isFile(srcPath)) {
-    File srcFile = srcFileSystem.newFile(srcPath);
-    File dstFile = dstFileSystem.newFile(dstPath);
+    File srcFile = srcFileSystem.file(srcPath);
+    File dstFile = dstFileSystem.file(dstPath);
 
     // Try to link first
     // allow link if asked and on the same file system
@@ -435,9 +435,9 @@ abstract class EntityNode {
 
 abstract class EntityNodeFsMixin implements EntityNode {
   @override
-  Directory asDirectory() => fs.newDirectory(path);
+  Directory asDirectory() => fs.directory(path);
   @override
-  File asFile() => fs.newFile(path);
+  File asFile() => fs.file(path);
   @override
   Link asLink() => fs.newLink(path);
 

@@ -210,7 +210,8 @@ class IdbFileSystemStorage {
             parent = entity;
             return _next();
           }
-        } else {}
+        }
+        return null;
       });
     }
 

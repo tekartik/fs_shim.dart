@@ -18,7 +18,7 @@ void print(msg) {
 Future main() async {
   FileSystem fs = newMemoryFileSystem();
   // Create a top level directory
-  Directory dir = fs.newDirectory('/dir');
+  Directory dir = fs.directory('/dir');
 
   // delete its content
   if (await dir.exists()) {
@@ -42,7 +42,7 @@ Future main() async {
     await link.create(file.path);
 
     print('link: ${link} target ${await link.target()}');
-    print('content: ${await fs.newFile(link.path).readAsString()}');
+    print('content: ${await fs.file(link.path).readAsString()}');
   }
 
   // list dir content

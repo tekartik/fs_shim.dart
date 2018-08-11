@@ -8,7 +8,7 @@ Future main() async {
   FileSystem fs = newMemoryFileSystem();
 
   // Create a top level directory
-  Directory dir = fs.newDirectory('/dir');
+  Directory dir = fs.directory('/dir');
 
   // and a file in it
   File file = fs.file(join(dir.path, "file"));
@@ -25,7 +25,7 @@ Future main() async {
     Link link = fs.newLink(join(dir.path, "link"));
     await link.create(file.path);
 
-    print('link: ${await fs.newFile(link.path).readAsString()}');
+    print('link: ${await fs.file(link.path).readAsString()}');
   }
 
   // list dir content

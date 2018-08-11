@@ -29,8 +29,8 @@ void defineTests(FileSystemTestContext ctx) {
       Directory dir = await ctx.prepare();
 
       // create a file too deep
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
-      File file = fs.newFile(join(subDir.path, "file"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
+      File file = fs.file(join(subDir.path, "file"));
 
       try {
         await file.create();

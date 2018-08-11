@@ -16,7 +16,7 @@ void defineTests(FileSystemTestContext ctx) {
   group('utils_read_write', () {
     test('write_read', () async {
       Directory top = await ctx.prepare();
-      File file = fs.newFile(join(top.path, 'file'));
+      File file = fs.file(join(top.path, 'file'));
       await writeString(file, "test");
       expect(await readString(file), "test");
 
@@ -26,7 +26,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_read_sub', () async {
       Directory top = await ctx.prepare();
-      File file = fs.newFile(fs.path.join(top.path, 'sub', 'file'));
+      File file = fs.file(fs.path.join(top.path, 'sub', 'file'));
       await writeString(file, "test");
       expect(await readString(file), "test");
 

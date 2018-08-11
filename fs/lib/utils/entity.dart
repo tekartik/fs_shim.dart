@@ -13,13 +13,13 @@ Directory asDirectory(FileSystemEntity dir) {
   if (dir is Directory) {
     return dir;
   } else {
-    return dir.fs.newDirectory(dir.path);
+    return dir.fs.directory(dir.path);
   }
 }
 
 /// get a child as a directory
 Directory childDirectory(Directory dir, String sub) {
-  return dir.fs.newDirectory(join(dir.path, sub));
+  return dir.fs.directory(join(dir.path, sub));
 }
 
 ///
@@ -29,13 +29,13 @@ File asFile(FileSystemEntity file) {
   if (file is File) {
     return file;
   } else {
-    return file.fs.newFile(file.path);
+    return file.fs.file(file.path);
   }
 }
 
 /// get a child as a file
 File childFile(Directory dir, String sub) {
-  return dir.fs.newFile(join(dir.path, sub));
+  return dir.fs.file(join(dir.path, sub));
 }
 
 ///

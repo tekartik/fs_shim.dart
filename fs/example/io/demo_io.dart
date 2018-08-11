@@ -9,7 +9,7 @@ Future main() async {
   String dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
-  // fs.newDirectory('/dir');
+  // fs.directory('/dir');
   Directory dir = new Directory(dirPath);
   print('dir: $dir');
   // delete its content
@@ -18,7 +18,7 @@ Future main() async {
   }
 
   // and a file in it
-  // fs.newFile(join(dir.path, "file"));
+  // fs.file(join(dir.path, "file"));
   File file = new File(join(dir.path, "file"));
 
   // create a file

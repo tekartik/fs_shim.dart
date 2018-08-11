@@ -19,13 +19,13 @@ void defineTests(FileSystemTestContext ctx) {
 
   group('dir', () {
     test('new', () {
-      Directory dir = fs.newDirectory("dummy");
+      Directory dir = fs.directory("dummy");
       expect(dir.path, "dummy");
-      dir = fs.newDirectory(r"\root/dummy");
+      dir = fs.directory(r"\root/dummy");
       expect(dir.path, r"\root/dummy");
-      dir = fs.newDirectory(r"\");
+      dir = fs.directory(r"\");
       expect(dir.path, r"\");
-      dir = fs.newDirectory(r"");
+      dir = fs.directory(r"");
       expect(dir.path, r"");
       try {
         dir = fs.directory(null);
@@ -36,12 +36,12 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('toString', () {
-      Directory dir = fs.newDirectory("dir");
+      Directory dir = fs.directory("dir");
       expect(dir.toString(), "Directory: '${dir.path}'");
     });
 
     test('absolute', () {
-      Directory dir = fs.newDirectory("dummy");
+      Directory dir = fs.directory("dummy");
       expect(dir.isAbsolute, isFalse);
 
       dir = dir.absolute;
@@ -57,14 +57,14 @@ void defineTests(FileSystemTestContext ctx) {
     test('exists', () async {
       Directory dir = await ctx.prepare();
       expect(await dir.exists(), isTrue);
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
       expect(await subDir.exists(), isFalse);
     });
 
     test('create_directory', () async {
       Directory dir = await ctx.prepare();
 
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
       expect(await subDir.exists(), isFalse);
       expect(await fs.isDirectory(subDir.path), isFalse);
       expect(await (await subDir.create()).exists(), isTrue);
@@ -77,7 +77,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('stat', () async {
       Directory _dir = await ctx.prepare();
 
-      Directory dir = fs.newDirectory(join(_dir.path, "dir"));
+      Directory dir = fs.directory(join(_dir.path, "dir"));
       FileStat stat = await dir.stat();
       //print(stat);
       expect(stat.type, FileSystemEntityType.notFound);
@@ -114,7 +114,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('delete', () async {
       Directory dir = await ctx.prepare();
 
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
       expect(await (await subDir.create()).exists(), isTrue);
       expect(await fs.isDirectory(subDir.path), isTrue);
 
@@ -137,7 +137,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.newDirectory(path);
+      Directory dir = fs.directory(path);
       await dir.create();
       Directory dir2 = await dir.rename(path2) as Directory;
       expect(dir2.path, path2);
@@ -151,7 +151,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.newDirectory(path);
+      Directory dir = fs.directory(path);
       try {
         await dir.rename(path2);
         fail("shoud fail");
@@ -167,8 +167,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.newDirectory(path);
-      Directory dir2 = fs.newDirectory(path2);
+      Directory dir = fs.directory(path);
+      Directory dir2 = fs.directory(path2);
       await dir.create();
       await dir2.create();
 
@@ -183,8 +183,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.newDirectory(path);
-      Directory subDir = fs.newDirectory(join(path2, "sub"));
+      Directory dir = fs.directory(path);
+      Directory subDir = fs.directory(join(path2, "sub"));
       await dir.create();
       await subDir.create(recursive: true);
 
@@ -211,8 +211,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "file");
-      Directory dir = fs.newDirectory(path);
-      File file2 = fs.newFile(path2);
+      Directory dir = fs.directory(path);
+      File file2 = fs.file(path2);
       await dir.create();
       await file2.create();
 
@@ -237,10 +237,10 @@ void defineTests(FileSystemTestContext ctx) {
 
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
-      File file = fs.newFile(join(path, "file"));
-      File file2 = fs.newFile(join(path2, "file"));
+      File file = fs.file(join(path, "file"));
+      File file2 = fs.file(join(path2, "file"));
       await file.create(recursive: true);
-      Directory dir = fs.newDirectory(path);
+      Directory dir = fs.directory(path);
       Directory dir2 = await dir.rename(path2) as Directory;
       expect(dir2.path, path2);
       expect(await dir.exists(), isFalse);
@@ -258,7 +258,7 @@ void defineTests(FileSystemTestContext ctx) {
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
       String path3 = join(path2, "sub");
-      Directory dir = fs.newDirectory(path);
+      Directory dir = fs.directory(path);
       await dir.create();
 
       try {
@@ -275,9 +275,9 @@ void defineTests(FileSystemTestContext ctx) {
       String path = join(_dir.path, "dir");
       String path2 = join(_dir.path, "dir2");
       String path3 = join(path2, "sub");
-      Directory dir = fs.newDirectory(path);
-      Directory dir2 = fs.newDirectory(path2);
-      Directory dir3 = fs.newDirectory(path3);
+      Directory dir = fs.directory(path);
+      Directory dir2 = fs.directory(path2);
+      Directory dir3 = fs.directory(path3);
       await dir.create();
       await dir2.create();
 
@@ -289,10 +289,9 @@ void defineTests(FileSystemTestContext ctx) {
     test('delete_recursive', () async {
       Directory dir = await ctx.prepare();
 
-      Directory subDir = fs.newDirectory(join(dir.path, "sub"));
-      Directory subSubDir = fs.newDirectory(join(subDir.path, "subsub"));
-      Directory subSubSubDir =
-          fs.newDirectory(join(subSubDir.path, "subsubsub"));
+      Directory subDir = fs.directory(join(dir.path, "sub"));
+      Directory subSubDir = fs.directory(join(subDir.path, "subsub"));
+      Directory subSubSubDir = fs.directory(join(subSubDir.path, "subsubsub"));
 
       expect(
           await (await subSubSubDir.create(recursive: true)).exists(), isTrue);
@@ -349,12 +348,12 @@ void defineTests(FileSystemTestContext ctx) {
       expect(list, isEmpty);
 
       // Create one two dirs
-      Directory dir1 = fs.newDirectory(join(_dir.path, "dir1"));
-      Directory dir2 = fs.newDirectory(join(_dir.path, "dir2"));
+      Directory dir1 = fs.directory(join(_dir.path, "dir1"));
+      Directory dir2 = fs.directory(join(_dir.path, "dir2"));
       // And one sub dir in dir1
-      Directory subDir = fs.newDirectory(join(dir1.path, "sub"));
+      Directory subDir = fs.directory(join(dir1.path, "sub"));
       // And one file
-      File file = fs.newFile(join(subDir.path, "file"));
+      File file = fs.file(join(subDir.path, "file"));
 
       await file.create(recursive: true);
       await dir2.create();

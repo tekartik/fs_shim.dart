@@ -21,7 +21,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('stat', () async {
       Directory top = await ctx.prepare();
 
-      File file = fs.newFile(join(top.path, "file"));
+      File file = fs.file(join(top.path, "file"));
 
       await file.writeAsString("test", flush: true);
       FileStat stat = await file.stat();

@@ -26,7 +26,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('child', () async {
-      Directory top = fs.newDirectory('top');
+      Directory top = fs.directory('top');
       Link link = childLink(top, "child");
       File file = childFile(top, "child");
       Directory directory = childDirectory(top, "child");

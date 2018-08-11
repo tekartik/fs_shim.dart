@@ -20,7 +20,7 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   FileSystemEntityType get type;
 
   @override
-  IdbDirectory get parent => fs.newDirectory(path_pkg.dirname(path));
+  IdbDirectory get parent => fs.directory(path_pkg.dirname(path));
 
   IdbFileSystemEntity(this._fs, this._path) {
     if (path == null) {

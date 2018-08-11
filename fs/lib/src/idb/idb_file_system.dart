@@ -460,6 +460,7 @@ class IdbFileSystem extends Object
           store = txn.objectStore(fileStoreName);
           return store.delete(entity.id);
         }
+        return null;
       });
     }
 
@@ -650,6 +651,7 @@ class IdbFileSystem extends Object
       if (result.matches) {
         return joinAll(result.match.targetSegments);
       }
+      return null;
     }).whenComplete(() {
       return txn.completed;
     });
@@ -745,6 +747,7 @@ class IdbFileSystem extends Object
         if (i++ < remainings.length - 1) {
           return _next();
         }
+        return null;
       });
     }
 
@@ -881,6 +884,7 @@ class IdbFileSystem extends Object
 
           return _list(path, entity);
         }
+        return null;
       }).whenComplete(() async {
         await txn.completed;
 
