@@ -22,7 +22,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
       await ctx.prepare();
       idb.Database db = ctx.fs.db;
       //TODOexpect(db.version, 2);
-      expect(new List.from(db.objectStoreNames)..sort(), ["file", "tree"]);
+      expect(List.from(db.objectStoreNames)..sort(), ["file", "tree"]);
     });
 
     Future<int> getStoreSize(idb.Database db, String storeName) async {

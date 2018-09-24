@@ -13,7 +13,7 @@ String get outPath => ioFileSystemTestContext.outPath;
 void main() {
   group('entity', () {
     test('as', () async {
-      Link fileSystemEntity = new Link(join(outPath, 'fse'));
+      Link fileSystemEntity = Link(join(outPath, 'fse'));
       Link link = asLink(fileSystemEntity);
       File file = asFile(fileSystemEntity);
       Directory directory = asDirectory(fileSystemEntity);
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('child', () async {
-      Directory top = new Directory(join(outPath, 'top'));
+      Directory top = Directory(join(outPath, 'top'));
       Link link = childLink(top, "child");
       File file = childFile(top, "child");
       Directory directory = childDirectory(top, "child");

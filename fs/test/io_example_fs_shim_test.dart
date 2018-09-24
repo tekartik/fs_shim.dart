@@ -11,7 +11,7 @@ void main() {
   group(groupName, () {
     //testOutTopPath
     test('sample1', () async {
-      Directory dir = new Directory(testOutPath);
+      Directory dir = Directory(testOutPath);
       try {
         await dir.delete(recursive: true);
       } on FileSystemException catch (_) {}
@@ -22,7 +22,7 @@ void main() {
       expect(dir.absolute.isAbsolute, isTrue);
 
       String filePath = join(dir.path, "file");
-      File file = new File(filePath);
+      File file = File(filePath);
       expect(await FileSystemEntity.isFile(file.path), isFalse);
       expect(file.absolute.isAbsolute, isTrue);
 
@@ -53,7 +53,7 @@ void main() {
 
       // error
       try {
-        await new File(join(dir.path, 't', 'o', 'o', 'deep'))
+        await File(join(dir.path, 't', 'o', 'o', 'deep'))
             .create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {

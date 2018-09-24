@@ -14,13 +14,13 @@ Directory asDirectory(FileSystemEntity dir) {
   if (dir is Directory) {
     return dir;
   } else {
-    return new Directory(dir.path);
+    return Directory(dir.path);
   }
 }
 
 /// get a child as a directory
 Directory childDirectory(Directory dir, String sub) {
-  return new Directory(join(dir.path, sub));
+  return Directory(join(dir.path, sub));
 }
 
 ///
@@ -30,13 +30,13 @@ File asFile(FileSystemEntity file) {
   if (file is File) {
     return file;
   } else {
-    return new File(file.path);
+    return File(file.path);
   }
 }
 
 /// get a child as a file
 File childFile(Directory dir, String sub) {
-  return new File(join(dir.path, sub));
+  return File(join(dir.path, sub));
 }
 
 ///
@@ -46,13 +46,13 @@ Link asLink(FileSystemEntity link) {
   if (link is Link) {
     return link;
   } else {
-    return new Link(link.path);
+    return Link(link.path);
   }
 }
 
 /// get a child as a link
 Link childLink(Directory dir, String sub) {
-  return new Link(join(dir.path, sub));
+  return Link(join(dir.path, sub));
 }
 
 Future<bool> entityExists(FileSystemEntity entity) async {

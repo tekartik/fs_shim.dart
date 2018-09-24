@@ -64,7 +64,7 @@ List<Glob> globList(List<String> expressions) {
   List<Glob> globs = [];
   if (expressions != null) {
     for (String expression in expressions) {
-      globs.add(new Glob(expression));
+      globs.add(Glob(expression));
     }
   }
   return globs;
@@ -203,12 +203,12 @@ Future<int> copyDirectoryImpl(Directory src, Directory dst,
     if (options.delete) {
       await deleteDirectory(dst);
     }
-    return await new TopCopy(
-            new TopEntity(src.fs, src.path), new TopEntity(dst.fs, dst.path),
+    return await TopCopy(
+            TopEntity(src.fs, src.path), TopEntity(dst.fs, dst.path),
             options: options)
         .run();
   } else {
-    throw new ArgumentError('not a directory ($src)');
+    throw ArgumentError('not a directory ($src)');
   }
 }
 
@@ -226,13 +226,13 @@ Future<int> copyFileImpl(File src, FileSystemEntity dst,
     if (options.delete) {
       await dst.delete(recursive: true);
     }
-    return await new TopCopy(new TopEntity(src.fs, src.parent.path),
-            new TopEntity(dst.fs, dst.parent.path), options: options)
+    return await TopCopy(TopEntity(src.fs, src.parent.path),
+            TopEntity(dst.fs, dst.parent.path), options: options)
         .runChild(null, src.fs.path.basename(src.path),
             dst.fs.path.basename(dst.path));
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
-    throw new ArgumentError('not a file ($src)');
+    throw ArgumentError('not a file ($src)');
   }
 }
 
@@ -240,11 +240,10 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
     {CopyOptions options}) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
-    return await new TopSourceNode(new TopEntity(src.fs, src.path),
-            options: options)
+    return await TopSourceNode(TopEntity(src.fs, src.path), options: options)
         .run();
   } else {
-    throw new ArgumentError('not a directory ($src)');
+    throw ArgumentError('not a directory ($src)');
   }
 }
 
@@ -427,7 +426,7 @@ abstract class EntityNode {
   Future<bool> isDirectory();
   Future<bool> isFile();
   Future<bool> isLink();
-  Future<FileSystemEntityType> type({bool followLinks: true});
+  Future<FileSystemEntityType> type({bool followLinks = true});
 
   @override
   String toString() => '$sub';
@@ -448,13 +447,13 @@ abstract class EntityNodeFsMixin implements EntityNode {
   @override
   Future<bool> isLink() => fs.isLink(path);
   @override
-  Future<FileSystemEntityType> type({bool followLinks: true}) =>
+  Future<FileSystemEntityType> type({bool followLinks = true}) =>
       fs.type(path, followLinks: followLinks);
 }
 
 abstract class EntityChildMixin implements EntityNode {
   @override
-  CopyEntity child(String basename) => new CopyEntity(this, basename);
+  CopyEntity child(String basename) => CopyEntity(this, basename);
 }
 
 /*
@@ -499,9 +498,9 @@ class TopEntity extends Object
   String toString() => top;
 }
 
-TopEntity topEntityPath(FileSystem fs, String top) => new TopEntity(fs, top);
+TopEntity topEntityPath(FileSystem fs, String top) => TopEntity(fs, top);
 TopEntity fsTopEntity(FileSystemEntity entity) =>
-    new TopEntity(entity.fs, entity.path);
+    TopEntity(entity.fs, entity.path);
 
 class CopyEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
@@ -526,7 +525,7 @@ class CopyEntity extends Object
   CopyEntity(this.parent, String relative) {
     //relative = _path.relative(relative, from: parent.path);
     basename = _path.basename(relative);
-    _parts = new List.from(parent.parts);
+    _parts = List.from(parent.parts);
     _parts.addAll(splitParts(relative));
     _sub = fs.path.join(parent.sub, relative);
   }
@@ -555,8 +554,7 @@ abstract class SourceNodeMixin implements SourceNode {
 
   Future<List<File>> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
-    ChildSourceNode sourceNode =
-        new ChildSourceNode(this, options, srcRelative);
+    ChildSourceNode sourceNode = ChildSourceNode(this, options, srcRelative);
 
     // exclude?
     return sourceNode.run();
@@ -569,7 +567,7 @@ abstract class CopyNodeMixin implements CopyNode {
 
   Future<int> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
-    ChildCopy copy = new ChildCopy(this, options, srcRelative, dstRelative);
+    ChildCopy copy = ChildCopy(this, options, srcRelative, dstRelative);
 
     // exclude?
     return copy.run();
@@ -598,7 +596,7 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildCopy copy = new ChildCopy(this, null, '');
+    ChildCopy copy = ChildCopy(this, null, '');
     return await copy.run();
   }
 }
@@ -626,7 +624,7 @@ class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildSourceNode sourceNode = new ChildSourceNode(this, null, '');
+    ChildSourceNode sourceNode = ChildSourceNode(this, null, '');
     return await sourceNode.run();
   }
 }

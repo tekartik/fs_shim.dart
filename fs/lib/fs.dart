@@ -51,7 +51,7 @@ abstract class FileSystemEntity {
   /// [FileSystemEntity] when the deletion is done. If the [FileSystemEntity]
   /// cannot be deleted, the future completes with an exception.
   ///
-  Future<FileSystemEntity> delete({bool recursive: false});
+  Future<FileSystemEntity> delete({bool recursive = false});
 
   ///
   /// Renames this file system entity. Returns a `Future<FileSystemEntity>`
@@ -101,7 +101,7 @@ class FileMode {
   const FileMode._internal(this._mode);
 
   /// The mode for opening a file only for reading.
-  static const read = const FileMode._internal(0);
+  static const read = FileMode._internal(0);
   @deprecated
   // ignore: constant_identifier_names
   static const READ = read;
@@ -109,14 +109,14 @@ class FileMode {
   /// The mode for opening a file for reading and writing. The file is
   /// overwritten if it already exists. The file is created if it does not
   /// already exist.
-  static const write = const FileMode._internal(1);
+  static const write = FileMode._internal(1);
   @deprecated
   // ignore: constant_identifier_names
   static const WRITE = write;
 
   /// The mode for opening a file for reading and writing to the
   /// end of it. The file is created if it does not already exist.
-  static const append = const FileMode._internal(2);
+  static const append = FileMode._internal(2);
   @deprecated
   // ignore: constant_identifier_names
   static const APPEND = append;
@@ -170,7 +170,7 @@ abstract class File extends FileSystemEntity {
   ///
   ///  Completes the future with a [FileSystemException] if the operation fails.
   ///
-  Future<File> create({bool recursive: false});
+  Future<File> create({bool recursive = false});
 
   ///
   /// Creates a new independent [IOSink] for the file. The
@@ -188,7 +188,7 @@ abstract class File extends FileSystemEntity {
   /// [IOSink] has been created.
   ///
   StreamSink<List<int>> openWrite(
-      {FileMode mode: FileMode.write, Encoding encoding: convert.utf8});
+      {FileMode mode = FileMode.write, Encoding encoding = convert.utf8});
 
   ///
   /// Create a new independent [Stream] for the contents of this file.
@@ -220,7 +220,7 @@ abstract class File extends FileSystemEntity {
   /// flushed to the file system before the returned future completes.
   ///
   Future<File> writeAsBytes(List<int> bytes,
-      {FileMode mode: FileMode.write, bool flush: false});
+      {FileMode mode = FileMode.write, bool flush = false});
 
   ///
   /// Write a string to a file.
@@ -237,9 +237,9 @@ abstract class File extends FileSystemEntity {
   /// flushed to the file system before the returned future completes.
   ///
   Future<File> writeAsString(String contents,
-      {FileMode mode: FileMode.write,
-      Encoding encoding: convert.utf8,
-      bool flush: false});
+      {FileMode mode = FileMode.write,
+      Encoding encoding = convert.utf8,
+      bool flush = false});
 
   ///
   /// Read the entire file contents as a list of bytes. Returns a
@@ -255,7 +255,7 @@ abstract class File extends FileSystemEntity {
   /// Returns a [:Future<String>:] that completes with the string once
   /// the file contents has been read.
   ///
-  Future<String> readAsString({Encoding encoding: convert.utf8});
+  Future<String> readAsString({Encoding encoding = convert.utf8});
 
   ///
   /// Copy this file. Returns a `Future<File>` that completes
@@ -292,7 +292,7 @@ abstract class Directory extends FileSystemEntity {
   /// directory once it has been created. If the directory cannot be
   /// created the future completes with an exception.
   ///
-  Future<Directory> create({bool recursive: false});
+  Future<Directory> create({bool recursive = false});
 
   ///
   /// Returns a [Directory] instance whose path is the absolute path to [this].
@@ -324,7 +324,7 @@ abstract class Directory extends FileSystemEntity {
   /// for the directories, files, and links.
   ///
   Stream<FileSystemEntity> list(
-      {bool recursive: false, bool followLinks: true});
+      {bool recursive = false, bool followLinks = true});
 }
 
 ///
@@ -355,7 +355,7 @@ abstract class Link extends FileSystemEntity {
   /// link containing the string [target].  If [target] is a relative path,
   /// it will be interpreted relative to the directory containing the link.
   ///
-  Future<Link> create(String target, {bool recursive: false});
+  Future<Link> create(String target, {bool recursive = false});
 
   ///
   /// Returns a [Link] instance whose path is the absolute path to [this].
@@ -394,22 +394,22 @@ class FileSystemEntityType {
   final int _type;
   const FileSystemEntityType._internal(this._type);
 
-  static const file = const FileSystemEntityType._internal(0);
+  static const file = FileSystemEntityType._internal(0);
   @deprecated
   // ignore: constant_identifier_names
   static const FILE = file;
 
-  static const directory = const FileSystemEntityType._internal(1);
+  static const directory = FileSystemEntityType._internal(1);
   @deprecated
   // ignore: constant_identifier_names
   static const DIRECTORY = directory;
 
-  static const link = const FileSystemEntityType._internal(2);
+  static const link = FileSystemEntityType._internal(2);
   @deprecated
   // ignore: constant_identifier_names
   static const LINK = link;
 
-  static const notFound = const FileSystemEntityType._internal(3);
+  static const notFound = FileSystemEntityType._internal(3);
   @deprecated
   // ignore: constant_identifier_names
   static const NOT_FOUND = notFound;
@@ -468,7 +468,7 @@ abstract class FileSystem {
   /// error or exception that may be put on the returned future is ArgumentError,
   /// caused by passing the wrong type of arguments to the function.
   ///
-  Future<FileSystemEntityType> type(String path, {bool followLinks: true});
+  Future<FileSystemEntityType> type(String path, {bool followLinks = true});
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.FILE.

@@ -11,7 +11,7 @@ void main() {
   group('raw_io', () {
     test('api', () async {
       var path = join(".dart_tool", "tekartik_fs_node", "raw_io_api");
-      var directory = new Directory(path);
+      var directory = Directory(path);
       directory = await directory.create(recursive: true);
       FileSystemEntity entity = await directory.delete();
       expect(entity, const TypeMatcher<Directory>());

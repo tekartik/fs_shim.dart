@@ -12,13 +12,13 @@ import 'test_common.dart';
 export 'package:dev_test/test.dart';
 
 final IoFileSystemTestContext ioFileSystemTestContext =
-    new IoFileSystemTestContext();
+    IoFileSystemTestContext();
 
 class IoFileSystemTestContext extends FileSystemTestContext {
   @override
   final PlatformContext platform = platformContextIo;
   @override
-  final FileSystemIo fs = new FileSystemIo();
+  final FileSystemIo fs = FileSystemIo();
   String outTopPath;
 
   IoFileSystemTestContext() {

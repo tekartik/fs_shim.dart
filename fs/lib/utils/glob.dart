@@ -171,7 +171,7 @@ class Glob {
     if (part == null) {
       return globPart == null;
     }
-    _PartMatchRunner runner = new _PartMatchRunner()
+    _PartMatchRunner runner = _PartMatchRunner()
       ..glob = globPart
       ..part = part;
     return runner.matches();
@@ -193,12 +193,12 @@ class Glob {
 
   /// true if the name matches the pattern
   bool matches(String name) {
-    _GlobMatchRunner runner = new _GlobMatchRunner(this, splitParts(name));
+    _GlobMatchRunner runner = _GlobMatchRunner(this, splitParts(name));
     return runner.matches();
   }
 
   bool matchesParts(List<String> parts) {
-    _GlobMatchRunner runner = new _GlobMatchRunner(this, parts);
+    _GlobMatchRunner runner = _GlobMatchRunner(this, parts);
     return runner.matches();
   }
 

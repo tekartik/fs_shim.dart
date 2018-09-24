@@ -18,21 +18,21 @@ class LinkImpl extends FileSystemEntityImpl implements Link, FileSystemEntity {
     ioFileSystemEntity = dir;
   }
   LinkImpl(String path) {
-    ioFileSystemEntity = new io.Link(path);
+    ioFileSystemEntity = io.Link(path);
   }
 
   @override
-  Future<LinkImpl> create(String target, {bool recursive: false}) =>
+  Future<LinkImpl> create(String target, {bool recursive = false}) =>
       ioWrap(ioLink.create(target, recursive: recursive)).then(_me);
 
   @override
   Future<LinkImpl> rename(String newPath) => ioWrap(ioLink.rename(newPath))
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new LinkImpl(ioFileSystemEntity.path));
+          LinkImpl(ioFileSystemEntity.path));
 
   @override
   Future<String> target() => ioWrap(ioLink.target());
 
   @override
-  LinkImpl get absolute => new LinkImpl.io(ioLink.absolute);
+  LinkImpl get absolute => LinkImpl.io(ioLink.absolute);
 }

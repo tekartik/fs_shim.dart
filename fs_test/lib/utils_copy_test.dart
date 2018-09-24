@@ -25,10 +25,10 @@ void defineTests(FileSystemTestContext ctx) {
         expect(options.exclude, isNull);
         options.include = ['test'];
         expect(options.include, ['test']);
-        expect(options.includeGlobs, [new Glob('test')]);
+        expect(options.includeGlobs, [Glob('test')]);
         options.exclude = ['test'];
         expect(options.exclude, ['test']);
-        expect(options.excludeGlobs, [new Glob('test')]);
+        expect(options.excludeGlobs, [Glob('test')]);
 
         options = recursiveLinkOrCopyNewerOptions;
         expect(options.include, isNull);
@@ -60,7 +60,7 @@ void defineTests(FileSystemTestContext ctx) {
         try {
           expect(
               await createDirectory(sub,
-                  options: new CreateOptions()..recursive = false),
+                  options: CreateOptions()..recursive = false),
               sub);
           fail('should fail');
         } on FileSystemException catch (e) {
@@ -68,13 +68,11 @@ void defineTests(FileSystemTestContext ctx) {
         }
         expect(await sub.exists(), isFalse);
 
-        await createDirectory(sub,
-            options: new CreateOptions()..recursive = true);
+        await createDirectory(sub, options: CreateOptions()..recursive = true);
         expect(await sub.exists(), isTrue);
 
         // not recursive - not throwing exception
-        await deleteDirectory(dir,
-            options: new DeleteOptions()..recursive = false);
+        await deleteDirectory(dir, options: DeleteOptions()..recursive = false);
         expect(await sub.exists(), isTrue);
       });
 
@@ -108,10 +106,10 @@ void defineTests(FileSystemTestContext ctx) {
         await deleteFile(file);
         expect(await file.exists(), isFalse, reason: "file deleted");
         expect(await createFile(file), file);
-        await deleteFile(file, options: new DeleteOptions());
+        await deleteFile(file, options: DeleteOptions());
         expect(await file.exists(), isFalse, reason: "file deleted again");
         expect(await createFile(file), file);
-        await deleteFile(file, options: new DeleteOptions()..create = true);
+        await deleteFile(file, options: DeleteOptions()..create = true);
         expect(await file.exists(), isTrue, reason: "file re-created");
       });
 
@@ -121,8 +119,7 @@ void defineTests(FileSystemTestContext ctx) {
         Directory src = childDirectory(top, "src");
         File file1 = await writeString(childFile(src, "file1"), "test");
         File file2 = await writeString(childFile(src, "file2"), "test");
-        await deleteDirectory(src,
-            options: new DeleteOptions()..recursive = true);
+        await deleteDirectory(src, options: DeleteOptions()..recursive = true);
         expect(await entityExists(file1), isFalse);
         expect(await entityExists(file2), isFalse);
       });
@@ -202,7 +199,7 @@ void defineTests(FileSystemTestContext ctx) {
         // again with option
         expect(
             await copyFile(srcFile, dstFile,
-                options: new CopyOptions(checkSizeAndModifiedDate: true)),
+                options: CopyOptions(checkSizeAndModifiedDate: true)),
             dstFile);
 
         // delete
@@ -211,7 +208,7 @@ void defineTests(FileSystemTestContext ctx) {
         // again with option
         expect(
             await copyFile(srcFile, dstFile,
-                options: new CopyOptions(checkSizeAndModifiedDate: true)),
+                options: CopyOptions(checkSizeAndModifiedDate: true)),
             dstFile);
       });
 
@@ -264,7 +261,7 @@ void defineTests(FileSystemTestContext ctx) {
           await writeString(childFile(src, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
           CopyOptions options =
-              new CopyOptions(recursive: true, exclude: ["file1"]);
+              CopyOptions(recursive: true, exclude: ["file1"]);
           await copyDirectory(src, dst, options: options);
           expect(await entityExists(childFile(dst, "file1")), isFalse);
           expect(await readString(childFile(dst, "file2")), "test");
@@ -280,7 +277,7 @@ void defineTests(FileSystemTestContext ctx) {
           await writeString(childFile(src, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
           await copyDirectory(src, dst,
-              options: new CopyOptions(recursive: true, exclude: ["file1/"]));
+              options: CopyOptions(recursive: true, exclude: ["file1/"]));
           expect(await entityExists(childFile(dst, "file1")), isTrue);
           expect(await readString(childFile(dst, "file2")), "test");
         });
@@ -301,7 +298,7 @@ void defineTests(FileSystemTestContext ctx) {
           await _prepare();
           await writeString(childFile(src, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
-          var options = new CopyOptions(recursive: true, include: ["file1"]);
+          var options = CopyOptions(recursive: true, include: ["file1"]);
           await copyDirectory(src, dst, options: options);
           expect(await readString(childFile(dst, "file1")), "test");
           expect(await entityExists(childFile(dst, "file2")), isFalse);
@@ -318,7 +315,7 @@ void defineTests(FileSystemTestContext ctx) {
           await writeString(childFile(dir1, "file1"), "test");
           await writeString(childFile(src, "file2"), "test");
           await copyDirectory(src, dst,
-              options: new CopyOptions(recursive: true, include: ["dir1"]));
+              options: CopyOptions(recursive: true, include: ["dir1"]));
           expect(
               await readString(childFile(childDirectory(dst, "dir1"), "file1")),
               "test");
@@ -343,7 +340,7 @@ void defineTests(FileSystemTestContext ctx) {
         // fsCopyDebug = true;
         Directory top = await ctx.prepare();
         TopEntity topEntity = topEntityPath(fs, top.path);
-        CopyEntity entity = new CopyEntity(topEntity, "entity");
+        CopyEntity entity = CopyEntity(topEntity, "entity");
         expect(entity.parent, topEntity);
         expect(entity.basename, "entity");
         expect(entity.parts, ["entity"]);
@@ -356,7 +353,7 @@ void defineTests(FileSystemTestContext ctx) {
         // fsCopyDebug = true;
         Directory top = await ctx.prepare();
         TopEntity topEntity = topEntityPath(fs, top.path);
-        CopyEntity entity = new CopyEntity(topEntity, join("entity", "sub"));
+        CopyEntity entity = CopyEntity(topEntity, join("entity", "sub"));
         expect(entity.parent, topEntity);
         expect(entity.basename, "sub");
         expect(entity.parts, ["entity", "sub"]);
@@ -369,8 +366,8 @@ void defineTests(FileSystemTestContext ctx) {
         // fsCopyDebug = true;
         Directory top = await ctx.prepare();
         TopEntity topEntity = fsTopEntity(top);
-        CopyEntity entity = new CopyEntity(topEntity, "entity");
-        CopyEntity subEntity = new CopyEntity(entity, "sub");
+        CopyEntity entity = CopyEntity(topEntity, "entity");
+        CopyEntity subEntity = CopyEntity(entity, "sub");
         expect(subEntity.parent, entity);
         expect(subEntity.basename, "sub");
         expect(subEntity.parts, ["entity", "sub"]);
@@ -386,7 +383,7 @@ void defineTests(FileSystemTestContext ctx) {
         Directory dst = childDirectory(top, "dst");
         await writeString(childFile(src, "file"), "test");
 
-        TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
+        TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
         expect(copy.src.path, src.path);
         expect(copy.dst.path, dst.path);
         expect(copy.options, isNotNull);
@@ -402,8 +399,8 @@ void defineTests(FileSystemTestContext ctx) {
 
         await writeString(childFile(src, "file"), "test");
 
-        TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
-        ChildCopy childCopy = new ChildCopy(copy, null, "file");
+        TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
+        ChildCopy childCopy = ChildCopy(copy, null, "file");
         await childCopy.run();
         //expect(await readString(childFile(dst, "file")), "test");
       });
@@ -415,7 +412,7 @@ void defineTests(FileSystemTestContext ctx) {
         Directory dst = childDirectory(top, "dst");
 
         await writeString(childFile(src, "file"), "test");
-        TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
+        TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
 
         await copy.runChild(null, "file");
         expect(await readString(childFile(dst, "file")), "test");
@@ -428,7 +425,7 @@ void defineTests(FileSystemTestContext ctx) {
         Directory dst = childDirectory(top, "dst");
 
         await writeString(childFile(src, "file"), "test");
-        TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst));
+        TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
 
         await copy.run();
         expect(await readString(childFile(dst, "file")), "test");
@@ -449,8 +446,8 @@ void defineTests(FileSystemTestContext ctx) {
         await _prepare();
         await writeString(childFile(src, "file1"), "test");
         await writeString(childFile(src, "file2"), "test");
-        TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst),
-            options: new CopyOptions(recursive: true, exclude: ["file1"]));
+        TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst),
+            options: CopyOptions(recursive: true, exclude: ["file1"]));
         await copy.run();
         expect(await entityExists(childFile(dst, "file1")), isFalse);
         expect(await readString(childFile(dst, "file2")), "test");
@@ -499,7 +496,7 @@ void defineTests(FileSystemTestContext ctx) {
         // again with option
         expect(
             await copyFileSystemEntityImpl(srcFile, dstFile,
-                options: new CopyOptions(checkSizeAndModifiedDate: true)),
+                options: CopyOptions(checkSizeAndModifiedDate: true)),
             0);
 
         // delete
@@ -508,11 +505,11 @@ void defineTests(FileSystemTestContext ctx) {
         // again with option
         expect(
             await copyFileSystemEntityImpl(srcFile, dstFile,
-                options: new CopyOptions(checkSizeAndModifiedDate: true)),
+                options: CopyOptions(checkSizeAndModifiedDate: true)),
             1);
         expect(
             await copyFileSystemEntityImpl(srcFile, dstFile,
-                options: new CopyOptions(checkSizeAndModifiedDate: true)),
+                options: CopyOptions(checkSizeAndModifiedDate: true)),
             0);
       });
 
@@ -574,7 +571,7 @@ void defineTests(FileSystemTestContext ctx) {
         await srcFile2.writeAsString("test2", flush: true);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
-                options: new CopyOptions(recursive: true, exclude: ['file1'])),
+                options: CopyOptions(recursive: true, exclude: ['file1'])),
             2);
 
         expect(await dstDir.exists(), isTrue);
@@ -584,7 +581,7 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.file(join(dstDir.path, "file1")).exists(), isFalse);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
-                options: new CopyOptions(recursive: false)),
+                options: CopyOptions(recursive: false)),
             0);
         expect(await copyFileSystemEntityImpl(srcDir, dstDir), 2);
       });
@@ -603,7 +600,7 @@ void defineTests(FileSystemTestContext ctx) {
         await srcFile2.writeAsString("test2", flush: true);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
-                options: new CopyOptions(recursive: true, exclude: ['test'])),
+                options: CopyOptions(recursive: true, exclude: ['test'])),
             2);
 
         expect(await dstDir.exists(), isTrue);
@@ -613,7 +610,7 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.file(join(dstDir.path, "test")).exists(), isFalse);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
-                options: new CopyOptions(recursive: false)),
+                options: CopyOptions(recursive: false)),
             0);
         expect(await copyFileSystemEntityImpl(srcDir, dstDir), 2);
       });
@@ -631,8 +628,7 @@ void defineTests(FileSystemTestContext ctx) {
         await srcFile2.writeAsString("test2", flush: true);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
-                options:
-                    new CopyOptions(recursive: true, exclude: ['sub/file1'])),
+                options: CopyOptions(recursive: true, exclude: ['sub/file1'])),
             3);
 
         expect(await dstDir.exists(), isTrue);
@@ -643,7 +639,7 @@ void defineTests(FileSystemTestContext ctx) {
             await fs.file(join(dstDir.path, "sub", "file1")).exists(), isFalse);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
-                options: new CopyOptions(recursive: false)),
+                options: CopyOptions(recursive: false)),
             0);
         expect(await copyFileSystemEntityImpl(srcDir, dstDir), 2);
       });
@@ -654,7 +650,7 @@ void defineTests(FileSystemTestContext ctx) {
           File srcFile = fs.file(join(top.path, "file"));
           File dstFile = fs.file(join(top.path, "file2"));
 
-          CopyOptions options = new CopyOptions(tryToLinkFile: true);
+          CopyOptions options = CopyOptions(tryToLinkFile: true);
 
           expect(
               await copyFileSystemEntityImpl(srcFile, dstFile,
@@ -689,7 +685,7 @@ void defineTests(FileSystemTestContext ctx) {
         Directory srcDir = fs.directory(join(top.path, "dir"));
         Directory dstDir = fs.directory(join(top.path, "dir2"));
 
-        CopyOptions options = new CopyOptions(recursive: true);
+        CopyOptions options = CopyOptions(recursive: true);
 
         File srcFile = fs.file(join(srcDir.path, "file"));
 

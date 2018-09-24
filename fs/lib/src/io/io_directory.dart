@@ -11,8 +11,7 @@ import 'io_link.dart';
 
 export '../../fs.dart' show FileSystemEntityType;
 
-DirectoryImpl get currentDirectory =>
-    new DirectoryImpl.io(io.Directory.current);
+DirectoryImpl get currentDirectory => DirectoryImpl.io(io.Directory.current);
 
 class DirectoryImpl extends FileSystemEntityImpl implements Directory {
   io.Directory get ioDir => ioFileSystemEntity as io.Directory;
@@ -21,7 +20,7 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
     ioFileSystemEntity = dir;
   }
   DirectoryImpl(String path) {
-    ioFileSystemEntity = new io.Directory(path);
+    ioFileSystemEntity = io.Directory(path);
   }
 
   //DirectoryImpl _me(_) => this;
@@ -32,40 +31,40 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
     if (resultIoDir.path == ioDir.path) {
       return this;
     }
-    return new DirectoryImpl.io(resultIoDir);
+    return DirectoryImpl.io(resultIoDir);
   }
 
   @override
-  Future<DirectoryImpl> create({bool recursive: false}) //
+  Future<DirectoryImpl> create({bool recursive = false}) //
       =>
       ioWrap(ioDir.create(recursive: recursive)).then(_ioThen);
 
   @override
   Future<DirectoryImpl> rename(String newPath) => ioWrap(ioDir.rename(newPath))
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new DirectoryImpl(ioFileSystemEntity.path));
+          DirectoryImpl(ioFileSystemEntity.path));
 
   @override
   Stream<FileSystemEntity> list(
-      {bool recursive: false, bool followLinks: true}) {
+      {bool recursive = false, bool followLinks = true}) {
     var ioStream = ioDir.list(recursive: recursive, followLinks: followLinks);
 
     StreamSubscription<FileSystemEntity> _transformer(
         Stream<io.FileSystemEntity> input, bool cancelOnError) {
       StreamController<FileSystemEntity> controller;
       //StreamSubscription<io.FileSystemEntity> subscription;
-      controller = new StreamController<FileSystemEntity>(
+      controller = StreamController<FileSystemEntity>(
           onListen: () {
             input.listen((io.FileSystemEntity data) {
               // Duplicate the data.
               if (data is io.File) {
-                controller.add(new FileImpl.io(data));
+                controller.add(FileImpl.io(data));
               } else if (data is io.Directory) {
-                controller.add(new DirectoryImpl.io(data));
+                controller.add(DirectoryImpl.io(data));
               } else if (data is io.Link) {
-                controller.add(new LinkImpl.io(data));
+                controller.add(LinkImpl.io(data));
               } else {
-                controller.addError(new UnsupportedError(
+                controller.addError(UnsupportedError(
                     'type ${data} ${data.runtimeType} not supported'));
               }
             }, onError: (e) {
@@ -79,10 +78,9 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
 
     // as Stream<io.FileSystemEntity, FileSystemEntity>;
     return ioStream.transform(
-        new StreamTransformer<io.FileSystemEntity, FileSystemEntity>(
-            _transformer));
+        StreamTransformer<io.FileSystemEntity, FileSystemEntity>(_transformer));
   }
 
   @override
-  DirectoryImpl get absolute => new DirectoryImpl.io(ioDir.absolute);
+  DirectoryImpl get absolute => DirectoryImpl.io(ioDir.absolute);
 }

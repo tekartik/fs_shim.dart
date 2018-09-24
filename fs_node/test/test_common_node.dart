@@ -10,7 +10,7 @@ import 'package:tekartik_platform/context.dart';
 import 'package:tekartik_platform_node/context_node.dart';
 
 final FileSystemTestContextNode fileSystemTestContextNode =
-    new FileSystemTestContextNode();
+    FileSystemTestContextNode();
 
 class FileSystemTestContextNode extends FileSystemTestContext {
   @override

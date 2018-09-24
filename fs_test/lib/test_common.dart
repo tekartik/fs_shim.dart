@@ -54,7 +54,7 @@ abstract class IdbFileSystemTestContext extends FileSystemTestContext {
 }
 
 final MemoryFileSystemTestContext memoryFileSystemTestContext =
-    new MemoryFileSystemTestContext();
+    MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   @override

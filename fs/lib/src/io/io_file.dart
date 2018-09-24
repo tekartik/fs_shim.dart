@@ -23,19 +23,20 @@ class FileImpl extends FileSystemEntityImpl implements File {
   }
 
   FileImpl(String path) {
-    ioFileSystemEntity = new io.File(path);
+    ioFileSystemEntity = io.File(path);
   }
 
   @override
-  Future<FileImpl> create({bool recursive: false}) //
+  Future<FileImpl> create({bool recursive = false}) //
       =>
       ioWrap(ioFile.create(recursive: recursive)).then(_me);
 
   // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
-      {fs.FileMode mode: fs.FileMode.write, Encoding encoding: convert.utf8}) {
-    IoWriteFileSink sink = new IoWriteFileSink(
+      {fs.FileMode mode = fs.FileMode.write,
+      Encoding encoding = convert.utf8}) {
+    IoWriteFileSink sink = IoWriteFileSink(
         ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
     return sink;
   }
@@ -44,33 +45,33 @@ class FileImpl extends FileSystemEntityImpl implements File {
 
   @override
   Stream<List<int>> openRead([int start, int end]) {
-    return new IoReadFileStreamCtrl(ioFile.openRead(start, end)).stream;
+    return IoReadFileStreamCtrl(ioFile.openRead(start, end)).stream;
   }
 
   @override
   Future<FileImpl> rename(String newPath) => _wrapFutureFile(ioFile
       .rename(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new FileImpl(ioFileSystemEntity.path)));
+          FileImpl(ioFileSystemEntity.path)));
 
   @override
   Future<FileImpl> copy(String newPath) => _wrapFutureFile(ioFile
       .copy(newPath)
       .then((io.FileSystemEntity ioFileSystemEntity) =>
-          new FileImpl(ioFileSystemEntity.path)));
+          FileImpl(ioFileSystemEntity.path)));
 
   @override
   Future<FileImpl> writeAsBytes(List<int> bytes,
-          {fs.FileMode mode: fs.FileMode.write, bool flush: false}) =>
+          {fs.FileMode mode = fs.FileMode.write, bool flush = false}) =>
       ioWrap(ioFile.writeAsBytes(bytes,
               mode: fileWriteMode(mode), flush: flush))
           .then(_me);
 
   @override
   Future<FileImpl> writeAsString(String contents,
-          {fs.FileMode mode: fs.FileMode.write,
-          Encoding encoding: convert.utf8,
-          bool flush: false}) =>
+          {fs.FileMode mode = fs.FileMode.write,
+          Encoding encoding = convert.utf8,
+          bool flush = false}) =>
       ioWrap(ioFile.writeAsString(contents,
               mode: fileWriteMode(mode), encoding: encoding, flush: flush))
           .then(_me);
@@ -79,9 +80,9 @@ class FileImpl extends FileSystemEntityImpl implements File {
   Future<List<int>> readAsBytes() => ioWrap(ioFile.readAsBytes());
 
   @override
-  Future<String> readAsString({Encoding encoding: convert.utf8}) =>
+  Future<String> readAsString({Encoding encoding = convert.utf8}) =>
       _wrapFutureString(ioFile.readAsString(encoding: encoding));
 
   @override
-  File get absolute => new FileImpl.io(ioFile.absolute);
+  File get absolute => FileImpl.io(ioFile.absolute);
 }

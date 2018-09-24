@@ -12,7 +12,7 @@ import 'package:tekartik_fs_node/src/fs_node.dart';
 class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
   @override
   Future<FileSystemEntityType> type(String path,
-      {bool followLinks: true}) async {
+      {bool followLinks = true}) async {
     var fileStat = await io.FileStat.stat(path);
     return wrapIoFileSystemEntityTypeImpl(fileStat.type);
   }
@@ -27,10 +27,10 @@ class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
   Link newLink(String path) => link(path);
 
   @override
-  File file(String path) => new FileNode(path);
+  File file(String path) => FileNode(path);
 
   @override
-  Directory directory(String path) => new DirectoryNode(path);
+  Directory directory(String path) => DirectoryNode(path);
 
   @override
   Link link(String path) => throw 'link not implemented';
@@ -65,7 +65,7 @@ class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
     var type = await this.type(path);
     if (type == FileSystemEntityType.directory) {
       List<FileSystemEntityNode> entities =
-          await new DirectoryNode(path).list().toList();
+          await DirectoryNode(path).list().toList();
       for (var entity in entities) {
         /*
         if (entity is DirectoryNode) {
@@ -81,9 +81,9 @@ class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
         }*/
         await deleteAny(entity.path);
       }
-      await new DirectoryNode(path).delete();
+      await DirectoryNode(path).delete();
     } else if (type == FileSystemEntityType.file) {
-      await new FileNode(path).delete();
+      await FileNode(path).delete();
     }
   }
 }

@@ -13,7 +13,7 @@ abstract class FileSystemEntityNode implements FileSystemEntity {
 
   FileSystemEntityNode(this.nativeInstance) {
     if (path == null) {
-      throw new ArgumentError.notNull("path");
+      throw ArgumentError.notNull("path");
     }
   }
 
@@ -29,13 +29,13 @@ abstract class FileSystemEntityNode implements FileSystemEntity {
   String toString() => nativeInstance.toString();
 
   @override
-  DirectoryNode get parent => new DirectoryNode(nativeInstance.parent.path);
+  DirectoryNode get parent => DirectoryNode(nativeInstance.parent.path);
 
   @override
   Future<bool> exists() async => pathExists(path);
 
   @override
-  Future<FileSystemEntity> delete({bool recursive: false}) //
+  Future<FileSystemEntity> delete({bool recursive = false}) //
       =>
       ioWrap(nativeInstance.delete(recursive: recursive)).then(_me);
 
@@ -56,7 +56,7 @@ Future pathRecursiveCreateParent(String path) async {
   if (parent != path) {
     if (!await pathExists(parent)) {
       await pathRecursiveCreateParent(parent);
-      await new DirectoryNode(parent).create();
+      await DirectoryNode(parent).create();
     }
   }
 }

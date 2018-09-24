@@ -38,7 +38,7 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
 }
 
 IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =
-    new IdbBrowserFileSystemTestContext();
+    IdbBrowserFileSystemTestContext();
 
 void main() {
   group('idb_browser', () {

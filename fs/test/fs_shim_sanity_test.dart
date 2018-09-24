@@ -43,8 +43,8 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.isLink(link.path), isTrue);
       }
 
-      TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst),
-          options: new CopyOptions(recursive: true));
+      TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst),
+          options: CopyOptions(recursive: true));
       await copy.run();
 
       File dstFile = childFile(dst, "file");

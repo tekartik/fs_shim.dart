@@ -27,8 +27,8 @@ void main() {
     });
     test('equals', () {
       // Files cannot be compared!
-      expect(new io.File("test"), isNot(new io.File("test")));
-      expect(new io.Directory("test"), isNot(new io.Directory("test")));
+      expect(io.File("test"), isNot(io.File("test")));
+      expect(io.Directory("test"), isNot(io.Directory("test")));
     });
     test('type', () async {
       expect(await fs.type(join("pubspec.yaml")), FileSystemEntityType.file);
@@ -43,12 +43,12 @@ void main() {
 
     group('conversion', () {
       test('file', () {
-        io.File ioFile = new io.File('file');
+        io.File ioFile = io.File('file');
         File file = wrapIoFile(ioFile);
         expect(unwrapIoFile(file), ioFile);
       });
       test('dir', () {
-        io.Directory ioDirectory = new io.Directory('dir');
+        io.Directory ioDirectory = io.Directory('dir');
         Directory dir = wrapIoDirectory(ioDirectory);
         expect(unwrapIoDirectory(dir), ioDirectory);
       });
@@ -69,17 +69,17 @@ void main() {
         expect(ioFse.path, fse.path);
         */
 
-        ioFse = new io.Directory('dir');
+        ioFse = io.Directory('dir');
         fse = wrapIoDirectory(ioFse as io.Directory);
         expect(fse.nativeInstance, ioFse);
 
-        ioFse = new io.File('file');
+        ioFse = io.File('file');
         fse = wrapIoFile(ioFse as io.File);
         expect(fse.nativeInstance, ioFse);
       });
 
       test('oserror', () {
-        io.OSError ioOSError = new io.OSError();
+        io.OSError ioOSError = io.OSError();
         OSError osError = wrapIoOSError(ioOSError);
         expect(unwrapIoOSError(osError), ioOSError);
       });
@@ -91,8 +91,7 @@ void main() {
       });
 
       test('filesystemexception', () {
-        io.FileSystemException ioFileSystemException =
-            new io.FileSystemException();
+        io.FileSystemException ioFileSystemException = io.FileSystemException();
         FileSystemException fileSystemException =
             wrapIoFileSystemException(ioFileSystemException);
         expect(unwrapIoFileSystemException(fileSystemException),

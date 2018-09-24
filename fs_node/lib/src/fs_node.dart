@@ -12,7 +12,7 @@ export 'dart:async';
 export 'dart:convert';
 
 FileSystemNode _fileSystemNode;
-FileSystemNode get fileSystemNode => _fileSystemNode ??= new FileSystemNode();
+FileSystemNode get fileSystemNode => _fileSystemNode ??= FileSystemNode();
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
   if (fsFileMode == null) fsFileMode = fs.FileMode.write;
@@ -61,10 +61,10 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
 
 FileSystemExceptionNode ioWrapError(e) {
   if (e is io.FileSystemException) {
-    return new FileSystemExceptionNode.io(e);
+    return FileSystemExceptionNode.io(e);
   } else {
     // print(e.toString());
-    return new FileSystemExceptionNode.fromString(e.toString());
+    return FileSystemExceptionNode.fromString(e.toString());
   }
   // return e;
 }
@@ -148,7 +148,7 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
 
 class ReadFileStreamCtrlNode {
   ReadFileStreamCtrlNode(this.ioStream) {
-    _ctlr = new StreamController();
+    _ctlr = StreamController();
     ioStream.listen((List<int> data) {
       _ctlr.add(data);
     }, onError: (error, StackTrace stackTrace) {

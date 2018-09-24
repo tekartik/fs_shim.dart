@@ -51,7 +51,7 @@ void main() {
 
     test('top_source_node', () {
       // just check the export
-      TopSourceNode topSourceNode = new TopSourceNode(null);
+      TopSourceNode topSourceNode = TopSourceNode(null);
       expect(topSourceNode, isNotNull);
     });
 

@@ -13,7 +13,7 @@ Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
 // Wrap/unwrap
 FileNode wrapIoFile(vm_io.File ioFile) =>
-    ioFile != null ? new FileNode.io(ioFile) : null;
+    ioFile != null ? FileNode.io(ioFile) : null;
 
 vm_io.File unwrapIoFile(File file) =>
     file != null ? (file as FileNode).ioFile : null;
@@ -21,12 +21,12 @@ vm_io.File unwrapIoFile(File file) =>
 class FileNode extends FileSystemEntityNode implements File {
   FileNode.io(vm_io.File file) : super(file);
 
-  FileNode(String path) : super(new io.File(path));
+  FileNode(String path) : super(io.File(path));
 
   vm_io.File get ioFile => nativeInstance as io.File;
 
   @override
-  Future<FileNode> create({bool recursive: false}) async {
+  Future<FileNode> create({bool recursive = false}) async {
     recursive ??= false;
     if (await exists()) {
       await delete();
@@ -39,7 +39,7 @@ class FileNode extends FileSystemEntityNode implements File {
   }
 
   @override
-  Future<FileNode> delete({bool recursive: false}) async {
+  Future<FileNode> delete({bool recursive = false}) async {
     // if recursive is true, delete whetever types it is per definition
     if (recursive) {
       await fs.deleteAny(path);
@@ -52,11 +52,11 @@ class FileNode extends FileSystemEntityNode implements File {
   // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
   StreamSink<List<int>> openWrite(
-      {FileMode mode: FileMode.write, Encoding encoding: convert.utf8}) {
+      {FileMode mode = FileMode.write, Encoding encoding = convert.utf8}) {
     if (mode == FileMode.read) {
-      throw new ArgumentError.value(mode, "mode cannot be read-only");
+      throw ArgumentError.value(mode, "mode cannot be read-only");
     }
-    WriteFileSinkNode sink = new WriteFileSinkNode(
+    WriteFileSinkNode sink = WriteFileSinkNode(
         ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
     return sink;
   }
@@ -66,7 +66,7 @@ class FileNode extends FileSystemEntityNode implements File {
   @override
   Stream<List<int>> openRead([int start, int end]) {
     // Node is end inclusive!
-    return new ReadFileStreamCtrlNode(
+    return ReadFileStreamCtrlNode(
             ioFile.openRead(start, end != null ? end - 1 : null))
         .stream;
   }
@@ -74,27 +74,27 @@ class FileNode extends FileSystemEntityNode implements File {
   @override
   Future<FileNode> rename(String newPath) async {
     await ioWrap(ioFile.rename(newPath));
-    return new FileNode(newPath);
+    return FileNode(newPath);
   }
 
   @override
   Future<FileNode> copy(String newPath) async {
     await ioWrap(ioFile.copy(newPath));
-    return new FileNode(newPath);
+    return FileNode(newPath);
   }
 
   @override
   Future<FileNode> writeAsBytes(List<int> bytes,
-          {FileMode mode: FileMode.write, bool flush: false}) =>
+          {FileMode mode = FileMode.write, bool flush = false}) =>
       ioWrap(ioFile.writeAsBytes(bytes,
               mode: fileWriteMode(mode), flush: flush))
           .then(_me);
 
   @override
   Future<FileNode> writeAsString(String contents,
-          {FileMode mode: FileMode.write,
-          Encoding encoding: utf8,
-          bool flush: false}) =>
+          {FileMode mode = FileMode.write,
+          Encoding encoding = utf8,
+          bool flush = false}) =>
       ioWrap(ioFile.writeAsString(contents,
               mode: fileWriteMode(mode), encoding: encoding, flush: flush))
           .then(_me);
@@ -103,11 +103,11 @@ class FileNode extends FileSystemEntityNode implements File {
   Future<List<int>> readAsBytes() => ioWrap(ioFile.readAsBytes());
 
   @override
-  Future<String> readAsString({Encoding encoding: convert.utf8}) =>
+  Future<String> readAsString({Encoding encoding = convert.utf8}) =>
       _wrapFutureString(ioFile.readAsString(encoding: encoding));
 
   @override
-  File get absolute => new FileNode.io(ioFile.absolute);
+  File get absolute => FileNode.io(ioFile.absolute);
 
   @override
   String toString() => "File: '$path'";

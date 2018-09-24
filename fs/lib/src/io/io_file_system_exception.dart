@@ -101,7 +101,7 @@ class FileSystemExceptionImpl implements fs.FileSystemException {
 
   FileSystemExceptionImpl.io(io.FileSystemException ioFse)
       : ioFileSystemException = ioFse,
-        osError = new OSErrorImpl.io(ioFse.osError),
+        osError = OSErrorImpl.io(ioFse.osError),
         status = _statusFromException(ioFse);
 
   @override

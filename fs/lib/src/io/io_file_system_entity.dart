@@ -25,13 +25,13 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   String toString() => ioFileSystemEntity.toString();
 
   @override
-  DirectoryImpl get parent => new DirectoryImpl.io(ioFileSystemEntity.parent);
+  DirectoryImpl get parent => DirectoryImpl.io(ioFileSystemEntity.parent);
 
   @override
   Future<bool> exists() => ioWrap(ioFileSystemEntity.exists());
 
   @override
-  Future<FileSystemEntity> delete({bool recursive: false}) //
+  Future<FileSystemEntity> delete({bool recursive = false}) //
       =>
       ioWrap(ioFileSystemEntity.delete(recursive: recursive)).then(_me);
 
@@ -40,5 +40,5 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
 
   @override
   Future<FileStat> stat() => ioWrap(ioFileSystemEntity.stat())
-      .then((io.FileStat stat) => new FileStatImpl.io(stat));
+      .then((io.FileStat stat) => FileStatImpl.io(stat));
 }

@@ -7,7 +7,7 @@ import 'test_common.dart';
 void main() {
   group('glob', () {
     void checkMatch(String expression, String name, Matcher matcher) {
-      Glob glob = new Glob(expression);
+      Glob glob = Glob(expression);
       expect(glob.matches(contextPath(name)), matcher,
           reason: "'$glob' '$name'");
     }
@@ -18,9 +18,9 @@ void main() {
     }
 
     test('equals', () {
-      Glob glob1 = new Glob('test');
-      Glob glob2 = new Glob('other');
-      Glob glob3 = new Glob('test');
+      Glob glob1 = Glob('test');
+      Glob glob2 = Glob('other');
+      Glob glob3 = Glob('test');
       expect(glob1, glob3);
       expect(glob1, isNot(glob2));
       expect(glob1.hashCode, glob3.hashCode);
@@ -98,12 +98,12 @@ void main() {
     });
 
     test('isDir', () {
-      expect(new Glob('/').isDir, isTrue);
-      expect(new Glob('a/').isDir, isTrue);
-      expect(new Glob('a/b/').isDir, isTrue);
-      expect(new Glob('a').isDir, isFalse);
-      expect(new Glob('a/b').isDir, isFalse);
-      expect(new Glob('a/b\\').isDir, isFalse);
+      expect(Glob('/').isDir, isTrue);
+      expect(Glob('a/').isDir, isTrue);
+      expect(Glob('a/b/').isDir, isTrue);
+      expect(Glob('a').isDir, isFalse);
+      expect(Glob('a/b').isDir, isFalse);
+      expect(Glob('a/b\\').isDir, isFalse);
     });
   });
 }

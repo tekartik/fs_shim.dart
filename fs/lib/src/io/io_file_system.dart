@@ -13,7 +13,8 @@ class IoFileSystemImpl extends Object
     with FileSystemMixin
     implements FileSystemIo {
   @override
-  Future<fs.FileSystemEntityType> type(String path, {bool followLinks: true}) //
+  Future<fs.FileSystemEntityType> type(String path,
+          {bool followLinks = true}) //
       =>
       ioWrap(io.FileSystemEntity.type(path, followLinks: followLinks)).then(
           (io.FileSystemEntityType ioType) =>
@@ -29,13 +30,13 @@ class IoFileSystemImpl extends Object
   Link newLink(String path) => link(path);
 
   @override
-  File file(String path) => new File(path);
+  File file(String path) => File(path);
 
   @override
-  Directory directory(String path) => new Directory(path);
+  Directory directory(String path) => Directory(path);
 
   @override
-  Link link(String path) => new Link(path);
+  Link link(String path) => Link(path);
 
   @override
   String get name => 'io';
@@ -66,5 +67,5 @@ class IoFileSystemImpl extends Object
 
 /// File system
 abstract class FileSystemIo extends fs.FileSystem {
-  factory FileSystemIo() => new IoFileSystemImpl();
+  factory FileSystemIo() => IoFileSystemImpl();
 }

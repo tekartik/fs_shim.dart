@@ -9,12 +9,11 @@ import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'import_common.dart';
 import 'import_common_node.dart' as node;
 
-DirectoryNode get currentDirectory =>
-    new DirectoryNode.io(node.Directory.current);
+DirectoryNode get currentDirectory => DirectoryNode.io(node.Directory.current);
 
 // Wrap/unwrap
 DirectoryNode wrapIoDirectory(vm_io.Directory ioDirectory) =>
-    ioDirectory != null ? new DirectoryNode.io(ioDirectory) : null;
+    ioDirectory != null ? DirectoryNode.io(ioDirectory) : null;
 
 vm_io.Directory unwrapIoDirectory(Directory dir) =>
     dir != null ? (dir as DirectoryNode).ioDir : null;
@@ -22,7 +21,7 @@ vm_io.Directory unwrapIoDirectory(Directory dir) =>
 class DirectoryNode extends FileSystemEntityNode implements Directory {
   DirectoryNode.io(vm_io.Directory dir) : super(dir);
 
-  DirectoryNode(String path) : super(new node.Directory(path));
+  DirectoryNode(String path) : super(node.Directory(path));
 
   vm_io.Directory get ioDir => nativeInstance as vm_io.Directory;
 
@@ -40,7 +39,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   */
 
   @override
-  Future<DirectoryNode> delete({bool recursive: false}) async {
+  Future<DirectoryNode> delete({bool recursive = false}) async {
     recursive ??= false;
     if (recursive) {
       await fs.deleteAny(path);
@@ -51,7 +50,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   }
 
   @override
-  Future<DirectoryNode> create({bool recursive: false}) async {
+  Future<DirectoryNode> create({bool recursive = false}) async {
     recursive ??= false;
     var type = await fs.type(path);
     if (type == FileSystemEntityType.directory) {
@@ -70,25 +69,25 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
     // if existing is an empty directory remove it
     if (await fs.type(newPath) == FileSystemEntityType.directory) {
       // try to delete
-      await new DirectoryNode(newPath).delete();
+      await DirectoryNode(newPath).delete();
     }
     var dir = await ioWrap(ioDir.rename(newPath));
-    return new DirectoryNode.io(dir);
+    return DirectoryNode.io(dir);
   }
 
   @override
   Stream<FileSystemEntityNode> list(
-      {bool recursive: false, bool followLinks: true}) {
-    var controller = new StreamController<FileSystemEntityNode>();
+      {bool recursive = false, bool followLinks = true}) {
+    var controller = StreamController<FileSystemEntityNode>();
 
     var ioStream = ioDir.list(recursive: false, followLinks: followLinks);
     var futures = <Future>[];
     ioStream.listen((vm_io.FileSystemEntity data) {
       // Duplicate the data.
       if (data is vm_io.File) {
-        controller.add(new FileNode.io(data));
+        controller.add(FileNode.io(data));
       } else if (data is vm_io.Directory) {
-        var subDir = new DirectoryNode.io(data);
+        var subDir = DirectoryNode.io(data);
         controller.add(subDir);
         if (recursive) {
           futures.add(subDir
@@ -100,8 +99,8 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
         //} else if (data is io.Link) {
         //  controller.add(new LinkImpl.io(data));
       } else {
-        controller.addError(new UnsupportedError(
-            'type ${data} ${data.runtimeType} not supported'));
+        controller.addError(
+            UnsupportedError('type ${data} ${data.runtimeType} not supported'));
       }
     }, onError: (e) {
       // Important here to wrap the error
@@ -150,7 +149,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   }
 
   @override
-  DirectoryNode get absolute => new DirectoryNode.io(ioDir.absolute);
+  DirectoryNode get absolute => DirectoryNode.io(ioDir.absolute);
 
   @override
   String toString() => "Directory: '$path'";

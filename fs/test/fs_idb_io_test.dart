@@ -36,7 +36,7 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
 }
 
 IdbIoFileSystemTestContext idbIoFileSystemContext =
-    new IdbIoFileSystemTestContext();
+    IdbIoFileSystemTestContext();
 
 void main() {
   group('idb_io', () {
