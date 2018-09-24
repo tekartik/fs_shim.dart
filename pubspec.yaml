@@ -12,7 +12,9 @@ dev_dependencies:
   dev_test: any
   grinder: any
   tekartik_build_utils:
-    git: git://github.com/tekartik/build_utils.dart
+    git:
+      url: git://github.com/tekartik/build_utils.dart
+      ref: dart2
     version: '>=0.3.4'
   build_runner: '>=0.9.0'
   build_test: '>=0.10.2'
