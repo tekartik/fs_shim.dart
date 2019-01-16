@@ -1,4 +1,4 @@
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
 
 class IdbFileStat implements fs.FileStat {
   int _size;

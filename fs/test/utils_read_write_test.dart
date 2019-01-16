@@ -1,7 +1,8 @@
 library fs_shim.test.utils_read_write_test;
 
-import 'package:path/path.dart';
 import 'package:fs_shim/fs.dart';
+import 'package:path/path.dart';
+
 import 'test_common.dart';
 
 void main() {
@@ -9,6 +10,7 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 void defineTests(FileSystemTestContext ctx) {

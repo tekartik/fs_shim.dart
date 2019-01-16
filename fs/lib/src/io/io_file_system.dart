@@ -1,24 +1,25 @@
 library fs_shim.src.io.io_file_system;
 
-import '../../fs.dart' as fs;
-export '../../fs.dart' show FileSystemEntityType;
-import 'dart:io' as io;
 import 'dart:async';
-import 'io_fs.dart';
-import '../../src/common/fs_mixin.dart';
-import '../../fs_io.dart';
+import 'dart:io' as io;
+
+import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:path/path.dart';
+
+import 'io_fs.dart';
+
+export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
 class IoFileSystemImpl extends Object
     with FileSystemMixin
     implements FileSystemIo {
   @override
   Future<fs.FileSystemEntityType> type(String path,
-          {bool followLinks = true}) //
-      =>
-      ioWrap(io.FileSystemEntity.type(path, followLinks: followLinks)).then(
-          (io.FileSystemEntityType ioType) =>
-              wrapIoFileSystemEntityTypeImpl(ioType));
+          {bool followLinks = true}) async =>
+      wrapIoFileSystemEntityTypeImpl(
+          io.FileSystemEntity.typeSync(path, followLinks: followLinks));
 
   @override
   File newFile(String path) => file(path);

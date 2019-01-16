@@ -1,5 +1,4 @@
 @TestOn("vm")
-
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
@@ -17,20 +16,32 @@ void main() {
       } on FileSystemException catch (_) {}
       await dir.create(recursive: true);
       expect(await dir.exists(), isTrue);
-      expect(await FileSystemEntity.isDirectory(dir.path), isTrue);
+      expect(
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.isDirectory(dir.path),
+          isTrue);
 
       expect(dir.absolute.isAbsolute, isTrue);
 
       String filePath = join(dir.path, "file");
       File file = File(filePath);
-      expect(await FileSystemEntity.isFile(file.path), isFalse);
+      expect(
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.isFile(file.path),
+          isFalse);
       expect(file.absolute.isAbsolute, isTrue);
 
       // file mode
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
-      expect(await FileSystemEntity.isFile(file.path), isTrue);
+      expect(
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.isFile(file.path),
+          isTrue);
 
       var stream = file.openRead();
       List<int> content = [];
@@ -63,7 +74,10 @@ void main() {
 
       // file entity type
       expect(
-          await FileSystemEntity.type(file2.path), FileSystemEntityType.file);
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.type(file2.path),
+          FileSystemEntityType.file);
     });
   });
 }

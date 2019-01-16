@@ -3,9 +3,9 @@ library fs_shim.src.io.io_file_system_entity;
 import 'dart:async';
 import 'dart:io' as io;
 
+import 'package:fs_shim/fs_io.dart';
 import 'package:fs_shim/src/io/io_file_system.dart';
 
-import '../../fs_io.dart';
 import 'io_directory.dart';
 import 'io_file_stat.dart';
 import 'io_fs.dart';

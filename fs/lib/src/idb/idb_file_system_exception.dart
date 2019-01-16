@@ -1,13 +1,18 @@
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
 
 IdbError get _noSuchPathError => IdbError(2, "No such file or directory");
+
 IdbError get _notEmptyError => IdbError(39, "Directory not empty");
+
 IdbError get _alreadyExistsError => IdbError(17, "File exists");
+
 IdbError get _notADirectoryError => IdbError(20, "Not a directory");
+
 IdbError get _isADirectoryError => IdbError(21, "Is a directory");
 
 class IdbError implements fs.OSError {
   IdbError(this.errorCode, this.message);
+
   @override
   final int errorCode;
   @override

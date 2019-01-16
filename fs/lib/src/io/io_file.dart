@@ -3,13 +3,14 @@ library fs_shim.src.io.io_file;
 import 'dart:async';
 import 'dart:io' as io;
 
-import '../../fs.dart' as fs;
-import '../../fs_io.dart';
+import 'package:dart2_constant/convert.dart' as convert;
+import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_io.dart';
+
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 
-export '../../fs.dart' show FileSystemEntityType;
-import 'package:dart2_constant/convert.dart' as convert;
+export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
 Future<T> _wrapFutureFile<T>(Future<T> future) => ioWrap(future);
 

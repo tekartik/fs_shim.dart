@@ -2,8 +2,9 @@ library fs_shim.utils.copy;
 
 import 'dart:async';
 
-import '../fs.dart';
-import '../src/common/import.dart';
+import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/common/import.dart';
+
 import 'src/utils_impl.dart';
 import 'src/utils_impl.dart' as _impl;
 

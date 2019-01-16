@@ -3,9 +3,10 @@
 // is governed by a BSD-style license that can be found in the LICENSE file.
 library fs_shim.raw_io_test;
 
+import 'dart:io';
+
 import 'package:path/path.dart';
 import 'package:test/test.dart';
-import 'dart:io';
 
 void main() {
   group('raw_io', () {

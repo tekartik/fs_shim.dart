@@ -1,13 +1,15 @@
 import 'dart:async';
 
 import 'package:fs_shim/fs.dart';
+// ignore: implementation_imports
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
 import 'package:tekartik_fs_node/src/file_node.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
-import 'import_common_node.dart' as io;
 import 'package:tekartik_fs_node/src/fs_node.dart';
+
+import 'import_common_node.dart' as io;
 
 class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
   @override

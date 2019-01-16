@@ -42,6 +42,7 @@ export 'fs.dart'
         OSError;
 
 FileSystem _fileSystemIo;
+
 FileSystem get fileSystemIo => _fileSystemIo ??= FileSystemIo();
 
 // @Deprecated("Use fileSystemIo instead")
@@ -86,6 +87,7 @@ abstract class Link extends fs.Link implements FileSystemEntity {
 
 // Wrap/unwrap
 Link wrapIoLink(io.Link ioLink) => LinkImpl.io(ioLink);
+
 io.Link unwrapIoLink(Link dir) => (dir as LinkImpl).ioLink;
 
 /// File System Entity
@@ -132,23 +134,27 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
 FileSystemException wrapIoFileSystemException(
         io.FileSystemException ioFileSystemException) =>
     FileSystemExceptionImpl.io(ioFileSystemException);
+
 io.FileSystemException unwrapIoFileSystemException(
         FileSystemException fileSystemException) =>
     (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
 
 // OSError Wrap/unwrap
 OSError wrapIoOSError(io.OSError ioOSError) => OSErrorImpl.io(ioOSError);
+
 io.OSError unwrapIoOSError(OSError osError) =>
     (osError as OSErrorImpl).ioOSError;
 
 // FileStat Wrap/unwrap
 FileStat wrapIoFileStat(io.FileStat ioFileStat) => FileStatImpl.io(ioFileStat);
+
 io.FileStat unwrapIoFileStat(FileStat fileStat) =>
     (fileStat as FileStatImpl).ioFileStat;
 
 // FileMode Wrap/unwrap
 FileMode wrapIoFileMode(io.FileMode ioFileMode) =>
     wrapIofileModeImpl(ioFileMode);
+
 io.FileMode unwrapIoFileMode(FileMode fileMode) =>
     unwrapIofileModeImpl(fileMode);
 
@@ -156,6 +162,7 @@ io.FileMode unwrapIoFileMode(FileMode fileMode) =>
 FileSystemEntityType wrapIoFileSystemEntityType(
         io.FileSystemEntityType ioFileSystemEntityType) =>
     wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
+
 io.FileSystemEntityType unwrapIoFileSystemEntityType(
         FileSystemEntityType fileSystemEntityType) =>
     unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);

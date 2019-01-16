@@ -1,6 +1,6 @@
+import 'package:dart2_constant/convert.dart' as convert;
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
-import 'package:dart2_constant/convert.dart' as convert;
 
 class FileSystemNone implements FileSystem {
   @override

@@ -3,13 +3,15 @@
 
 library fs_shim.fs_src_idb_test;
 
-import 'package:fs_shim/fs.dart';
+import 'dart:async';
+
 import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
+import 'package:path/path.dart';
+
 import 'fs_test.dart' as _test;
 import 'test_common.dart';
-import 'package:path/path.dart';
-import 'dart:async';
 
 void main() {
   defineTests(memoryFileSystemTestContext);

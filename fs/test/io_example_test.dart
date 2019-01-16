@@ -1,12 +1,23 @@
 @TestOn("vm")
-import 'test_common_io.dart';
-import 'package:path/path.dart';
+library tekartik_fs.test.fs_io_test;
 
 /// io_example_test.dart
 /// io_example_fs_shim_test.dart
 /// This file must be the same besides the import above
 import 'dart:io';
+
 import 'package:dart2_constant/io.dart' as constant;
+import 'package:path/path.dart';
+
+import 'test_common_io.dart';
+
+/// io_example_fs_shim_test.dart
+/// This file must be the same besides the import above
+
+/// io_example_test.dart
+/// io_example_fs_shim_test.dart
+/// This file must be the same besides the import above
+// ignore_for_file: avoid_slow_async_io
 
 const String groupName = "io_example";
 

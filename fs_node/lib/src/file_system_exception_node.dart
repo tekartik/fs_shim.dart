@@ -125,11 +125,10 @@ class FileSystemExceptionNode implements fs.FileSystemException {
         ioFileSystemException = null,
         osError = osErrorFromMessage(e);
 
-  FileSystemExceptionNode.io(io.FileSystemException ioFse)
-      : ioFileSystemException = ioFse,
-        osError = OSErrorNode.io(ioFse.osError),
-        status = _statusFromException(ioFse),
-        _message = ioFse.message;
+  FileSystemExceptionNode.io(this.ioFileSystemException)
+      : osError = OSErrorNode.io(ioFileSystemException.osError),
+        status = _statusFromException(ioFileSystemException),
+        _message = ioFileSystemException.message;
 
   @override
   final int status;

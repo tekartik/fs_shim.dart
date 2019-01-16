@@ -3,12 +3,14 @@
 
 library fs_shim.fs_src_idb_test;
 
-import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
-import 'package:dev_test/test.dart';
-import 'package:idb_shim/idb_client_memory.dart';
-import 'test_common.dart';
 import 'dart:async';
+
+import 'package:dev_test/test.dart';
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:idb_shim/idb_client_memory.dart';
 import 'package:path/path.dart';
+
+import 'test_common.dart';
 
 void main() {
   Future<IdbFileSystemStorage> newStorage() async {

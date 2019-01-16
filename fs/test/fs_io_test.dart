@@ -4,14 +4,16 @@
 
 library fs_shim.fs_io_test;
 
-import 'package:dev_test/test.dart';
-import 'fs_test.dart';
 import 'dart:io' as io;
-import 'package:fs_shim/fs_io.dart';
-import 'test_common_io.dart';
-import 'test_common.dart';
-import 'package:path/path.dart';
+
 import 'package:dart2_constant/io.dart' as constant;
+import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs_io.dart';
+import 'package:path/path.dart';
+
+import 'fs_test.dart';
+import 'test_common.dart';
+import 'test_common_io.dart';
 
 void main() {
   FileSystem fs = ioFileSystemTestContext.fs;
@@ -72,7 +74,7 @@ void main() {
       });
 
       test('oserror', () {
-        io.OSError ioOSError = io.OSError();
+        const ioOSError = io.OSError();
         OSError osError = wrapIoOSError(ioOSError);
         expect(unwrapIoOSError(osError), ioOSError);
       });
@@ -84,7 +86,7 @@ void main() {
       });
 
       test('filesystemexception', () {
-        io.FileSystemException ioFileSystemException = io.FileSystemException();
+        const ioFileSystemException = io.FileSystemException();
         FileSystemException fileSystemException =
             wrapIoFileSystemException(ioFileSystemException);
         expect(unwrapIoFileSystemException(fileSystemException),
@@ -149,17 +151,30 @@ void main() {
       });
 
       test('FileSystemEntity', () async {
-        expect(await FileSystemEntity.isLink(Directory.current.path), isFalse);
         expect(
-            await FileSystemEntity.isDirectory(Directory.current.path), isTrue);
-        expect(await FileSystemEntity.isFile(Directory.current.path), isFalse);
+            await
+            // ignore: avoid_slow_async_io
+            FileSystemEntity.isLink(Directory.current.path),
+            isFalse);
         expect(
-            await FileSystemEntity.type(Directory.current.path,
-                followLinks: true),
+            await
+            // ignore: avoid_slow_async_io
+            FileSystemEntity.isDirectory(Directory.current.path),
+            isTrue);
+        expect(
+            await
+            // ignore: avoid_slow_async_io
+            FileSystemEntity.isFile(Directory.current.path),
+            isFalse);
+        expect(
+            await
+            // ignore: avoid_slow_async_io
+            FileSystemEntity.type(Directory.current.path, followLinks: true),
             FileSystemEntityType.directory);
         expect(
-            await FileSystemEntity.type(Directory.current.path,
-                followLinks: false),
+            await
+            // ignore: avoid_slow_async_io
+            FileSystemEntity.type(Directory.current.path, followLinks: false),
             FileSystemEntityType.directory);
       });
     });

@@ -13,7 +13,9 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
+
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
 

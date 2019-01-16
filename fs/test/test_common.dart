@@ -25,8 +25,10 @@ export 'package:fs_shim/utils/read_write.dart';
 // FileSystem context
 abstract class FileSystemTestContext {
   PlatformContext get platform;
+
   // The file system used
   FileSystem get fs;
+
   // The path to use for testing
   String get outPath => joinAll(testDescriptions);
 
@@ -56,6 +58,7 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = null;
   @override
   final IdbFileSystem fs = newMemoryFileSystem() as IdbFileSystem;
+
   MemoryFileSystemTestContext();
 }
 

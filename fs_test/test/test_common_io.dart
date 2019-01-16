@@ -11,15 +11,15 @@ final FileSystemTestContextIo fileSystemTestContextIo =
     FileSystemTestContextIo();
 
 class FileSystemTestContextIo extends FileSystemTestContext {
+  FileSystemTestContextIo() {
+    outTopPath = testOutTopPath;
+  }
+
   @override
   final PlatformContext platform = platformContextIo;
   @override
   final FileSystemIo fs = FileSystemIo();
   String outTopPath;
-
-  FileSystemTestContextIo() {
-    outTopPath = testOutTopPath;
-  }
 
   @override
   String get outPath => join(outTopPath, super.outPath);

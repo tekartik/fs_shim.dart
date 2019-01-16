@@ -11,6 +11,7 @@ import 'package:path/path.dart';
 
 import 'test_common_io.dart' show ioFileSystemTestContext;
 
+// ignore_for_file: avoid_slow_async_io
 String get outPath => ioFileSystemTestContext.outPath;
 
 void main() {

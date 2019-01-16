@@ -1,9 +1,11 @@
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
+
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
 class IdbLink extends IdbFileSystemEntity implements fs.Link {
   IdbLink _me(_) => this;
+
   IdbLink(IdbFileSystem fs, String path) : super(fs, path);
 
   IdbFileSystem get _fs => super.fs;

@@ -1,17 +1,18 @@
 library fs_shim.src.lfs_mixin;
 
-import '../../fs.dart';
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:dart2_constant/convert.dart' as convert;
+import 'package:fs_shim/fs.dart';
 
 abstract class FileSystemMixin implements FileSystem {
   @override
   Future<FileSystemEntityType> type(String path, {bool followLinks = true});
 
-  Future<bool> _isType(String path, FileSystemEntityType type_,
+  Future<bool> _isType(String path, FileSystemEntityType fseType,
       {bool followLinks = true}) async {
-    return (await type(path, followLinks: followLinks)) == type_;
+    return (await type(path, followLinks: followLinks)) == fseType;
   }
 
   // helper
@@ -34,8 +35,10 @@ abstract class FileMixin {
   // implemented by IdbFile
   StreamSink<List<int>> openWrite(
       {FileMode mode = FileMode.write, Encoding encoding = convert.utf8});
+
   // implemented by IdbFile
   Stream<List<int>> openRead([int start, int end]);
+
   // implemented by IdbFileSystemEntity
   String get path;
 

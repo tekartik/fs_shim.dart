@@ -115,7 +115,7 @@ class IdbWriteStreamSink extends MemorySink {
       List<int> content;
       bool exists = false;
       if (mode == fs.FileMode.write) {
-        content == null;
+        // was created or existing
       } else {
         content = (await fileStore.getObject(entity.id) as List)?.cast<int>();
         if (content != null) {

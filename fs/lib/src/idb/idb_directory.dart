@@ -1,4 +1,5 @@
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
+
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 

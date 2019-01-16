@@ -3,13 +3,14 @@ library fs_shim.src.io.io_directory;
 import 'dart:async';
 import 'dart:io' as io;
 
-import '../../fs_io.dart';
+import 'package:fs_shim/fs_io.dart';
+
 import 'io_file.dart';
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 import 'io_link.dart';
 
-export '../../fs.dart' show FileSystemEntityType;
+export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
 DirectoryImpl get currentDirectory => DirectoryImpl.io(io.Directory.current);
 
@@ -19,6 +20,7 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
   DirectoryImpl.io(io.Directory dir) {
     ioFileSystemEntity = dir;
   }
+
   DirectoryImpl(String path) {
     ioFileSystemEntity = io.Directory(path);
   }

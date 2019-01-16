@@ -4,8 +4,8 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:dart2_constant/io.dart' as constant;
+import 'package:fs_shim/fs.dart' as fs;
 
-import '../../fs.dart' as fs;
 import 'io_file_system_exception.dart';
 
 export 'dart:async';

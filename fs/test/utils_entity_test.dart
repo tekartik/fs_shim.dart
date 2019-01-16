@@ -1,8 +1,9 @@
 library fs_shim.test.utils_entity_tests;
 
+import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/entity.dart';
 import 'package:path/path.dart';
-import 'package:fs_shim/fs.dart';
+
 import 'test_common.dart';
 
 void main() {
@@ -10,6 +11,7 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 void defineTests(FileSystemTestContext ctx) {

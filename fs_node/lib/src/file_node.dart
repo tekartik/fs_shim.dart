@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io' as vm_io;
+
+import 'package:dart2_constant/convert.dart' as convert;
 import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
 
 import 'import_common_node.dart' as io;
-import 'dart:io' as vm_io;
-import 'package:dart2_constant/convert.dart' as convert;
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 

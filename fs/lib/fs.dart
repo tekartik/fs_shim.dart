@@ -392,6 +392,7 @@ abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 ///
 class FileSystemEntityType {
   final int _type;
+
   const FileSystemEntityType._internal(this._type);
 
   static const file = FileSystemEntityType._internal(0);

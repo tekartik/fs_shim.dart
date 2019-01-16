@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'dart:io' as io;
+
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_fs_node/src/file_stat_node.dart';
-import 'package:tekartik_fs_node/src/import_common.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
+import 'package:tekartik_fs_node/src/file_stat_node.dart';
 import 'package:tekartik_fs_node/src/file_system_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
-import 'dart:io' as io;
+import 'package:tekartik_fs_node/src/import_common.dart';
 
 abstract class FileSystemEntityNode implements FileSystemEntity {
   final io.FileSystemEntity nativeInstance;

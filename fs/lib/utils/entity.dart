@@ -1,10 +1,11 @@
 library fs_shim.utils.entity;
 
 import 'dart:async';
-//import 'package:logging/logging.dart' as log;
+
+import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/common/import.dart';
 import 'package:path/path.dart';
-import '../fs.dart';
-import '../src/common/import.dart';
+//import 'package:logging/logging.dart' as log;
 
 ///
 /// convert to a directory object if necessary

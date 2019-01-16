@@ -26,6 +26,7 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = null;
   @override
   IdbFileSystem fs = newIdbIoFileSystem() as IdbFileSystem;
+
   IdbIoFileSystemTestContext();
 
   @override

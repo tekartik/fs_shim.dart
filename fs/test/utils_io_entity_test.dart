@@ -1,10 +1,11 @@
 @TestOn("vm")
 library fs_shim.test.utils_entity_tests;
 
-import 'package:fs_shim/utils/io/entity.dart';
 import 'dart:io';
-import 'package:path/path.dart';
+
 import 'package:dev_test/test.dart';
+import 'package:fs_shim/utils/io/entity.dart';
+import 'package:path/path.dart';
 
 import 'test_common_io.dart' show ioFileSystemTestContext;
 
