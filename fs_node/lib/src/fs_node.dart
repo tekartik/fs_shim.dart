@@ -1,10 +1,10 @@
-import 'package:tekartik_fs_node/src/file_system_node.dart';
-
 import 'dart:async';
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs.dart';
+import 'package:tekartik_fs_node/src/file_system_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
+
 import 'file_system_exception_node.dart';
 import 'import_common_node.dart' as io;
 
@@ -12,7 +12,8 @@ export 'dart:async';
 export 'dart:convert';
 
 FileSystemNode _fileSystemNode;
-FileSystemNode get fileSystemNode => _fileSystemNode ??= new FileSystemNode();
+
+FileSystemNode get fileSystemNode => _fileSystemNode ??= FileSystemNode();
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
   if (fsFileMode == null) fsFileMode = fs.FileMode.write;
@@ -22,6 +23,7 @@ io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
 // FileMode Wrap/unwrap
 FileMode wrapIoFileMode(io.FileMode ioFileMode) =>
     wrapIofileModeImpl(ioFileMode);
+
 io.FileMode unwrapIoFileMode(FileMode fileMode) =>
     unwrapIoFileModeImpl(fileMode);
 
@@ -29,6 +31,7 @@ io.FileMode unwrapIoFileMode(FileMode fileMode) =>
 FileSystemEntityType wrapIoFileSystemEntityType(
         io.FileSystemEntityType ioFileSystemEntityType) =>
     wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
+
 io.FileSystemEntityType unwrapIoFileSystemEntityType(
         FileSystemEntityType fileSystemEntityType) =>
     unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);
@@ -61,10 +64,10 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
 
 FileSystemExceptionNode ioWrapError(e) {
   if (e is io.FileSystemException) {
-    return new FileSystemExceptionNode.io(e);
+    return FileSystemExceptionNode.io(e);
   } else {
     // print(e.toString());
-    return new FileSystemExceptionNode.fromString(e.toString());
+    return FileSystemExceptionNode.fromString(e.toString());
   }
   // return e;
 }
@@ -117,6 +120,7 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
   io.IOSink ioSink;
 
   WriteFileSinkNode(this.ioSink);
+
   @override
   void add(List<int> data) {
     ioSink.add(data);
@@ -148,7 +152,7 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
 
 class ReadFileStreamCtrlNode {
   ReadFileStreamCtrlNode(this.ioStream) {
-    _ctlr = new StreamController();
+    _ctlr = StreamController();
     ioStream.listen((List<int> data) {
       _ctlr.add(data);
     }, onError: (error, StackTrace stackTrace) {
@@ -157,7 +161,9 @@ class ReadFileStreamCtrlNode {
       _ctlr.close();
     });
   }
+
   Stream<List<int>> ioStream;
   StreamController<List<int>> _ctlr;
+
   Stream<List<int>> get stream => _ctlr.stream;
 }

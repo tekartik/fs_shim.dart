@@ -42,28 +42,29 @@ export 'fs.dart'
         OSError;
 
 FileSystem _fileSystemIo;
-FileSystem get fileSystemIo => _fileSystemIo ??= new FileSystemIo();
+
+FileSystem get fileSystemIo => _fileSystemIo ??= FileSystemIo();
 
 // @Deprecated("Use fileSystemIo instead")
 FileSystem get ioFileSystem => fileSystemIo;
 
 /// File
 abstract class File implements fs.File, FileSystemEntity {
-  factory File(String path) => new FileImpl(path);
+  factory File(String path) => FileImpl(path);
 }
 
 // Wrap/unwrap
-File wrapIoFile(io.File ioFile) => new FileImpl.io(ioFile);
+File wrapIoFile(io.File ioFile) => FileImpl.io(ioFile);
 
 io.File unwrapIoFile(fs.File file) => (file as FileImpl).ioFile;
 
 /// Directory
 abstract class Directory implements fs.Directory, FileSystemEntity {
-  factory Directory(String path) => new DirectoryImpl(path);
+  factory Directory(String path) => DirectoryImpl(path);
 
   @override
   Stream<FileSystemEntity> list(
-      {bool recursive: false, bool followLinks: true});
+      {bool recursive = false, bool followLinks = true});
 
   ///
   /// Creates a directory object pointing to the current working
@@ -74,18 +75,19 @@ abstract class Directory implements fs.Directory, FileSystemEntity {
 
 // Wrap/unwrap
 Directory wrapIoDirectory(io.Directory ioDirectory) =>
-    new DirectoryImpl.io(ioDirectory);
+    DirectoryImpl.io(ioDirectory);
 
 io.Directory unwrapIoDirectory(fs.Directory dir) =>
     (dir as DirectoryImpl).ioDir;
 
 /// Link
 abstract class Link extends fs.Link implements FileSystemEntity {
-  factory Link(String path) => new LinkImpl(path);
+  factory Link(String path) => LinkImpl(path);
 }
 
 // Wrap/unwrap
-Link wrapIoLink(io.Link ioLink) => new LinkImpl.io(ioLink);
+Link wrapIoLink(io.Link ioLink) => LinkImpl.io(ioLink);
+
 io.Link unwrapIoLink(Link dir) => (dir as LinkImpl).ioLink;
 
 /// File System Entity
@@ -124,32 +126,35 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
   /// caused by passing the wrong type of arguments to the function.
   ///
   static Future<FileSystemEntityType> type(String path,
-          {bool followLinks: true}) =>
+          {bool followLinks = true}) =>
       ioFileSystem.type(path, followLinks: followLinks);
 }
 
 // FileSystemException Wrap/unwrap
 FileSystemException wrapIoFileSystemException(
         io.FileSystemException ioFileSystemException) =>
-    new FileSystemExceptionImpl.io(ioFileSystemException);
+    FileSystemExceptionImpl.io(ioFileSystemException);
+
 io.FileSystemException unwrapIoFileSystemException(
         FileSystemException fileSystemException) =>
     (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
 
 // OSError Wrap/unwrap
-OSError wrapIoOSError(io.OSError ioOSError) => new OSErrorImpl.io(ioOSError);
+OSError wrapIoOSError(io.OSError ioOSError) => OSErrorImpl.io(ioOSError);
+
 io.OSError unwrapIoOSError(OSError osError) =>
     (osError as OSErrorImpl).ioOSError;
 
 // FileStat Wrap/unwrap
-FileStat wrapIoFileStat(io.FileStat ioFileStat) =>
-    new FileStatImpl.io(ioFileStat);
+FileStat wrapIoFileStat(io.FileStat ioFileStat) => FileStatImpl.io(ioFileStat);
+
 io.FileStat unwrapIoFileStat(FileStat fileStat) =>
     (fileStat as FileStatImpl).ioFileStat;
 
 // FileMode Wrap/unwrap
 FileMode wrapIoFileMode(io.FileMode ioFileMode) =>
     wrapIofileModeImpl(ioFileMode);
+
 io.FileMode unwrapIoFileMode(FileMode fileMode) =>
     unwrapIofileModeImpl(fileMode);
 
@@ -157,6 +162,7 @@ io.FileMode unwrapIoFileMode(FileMode fileMode) =>
 FileSystemEntityType wrapIoFileSystemEntityType(
         io.FileSystemEntityType ioFileSystemEntityType) =>
     wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
+
 io.FileSystemEntityType unwrapIoFileSystemEntityType(
         FileSystemEntityType fileSystemEntityType) =>
     unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);

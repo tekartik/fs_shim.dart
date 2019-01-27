@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.10.0
+
+* deprecate ewFile, newDirectory, newLink, pathContext
+
 ## 0.9.0
 
 * dart2 only

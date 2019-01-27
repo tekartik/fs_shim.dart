@@ -1,4 +1,3 @@
-export 'package:node_io/node_io.dart';
 export 'dart:io'
     show
         FileMode,
@@ -7,3 +6,5 @@ export 'dart:io'
         OSError,
         Link,
         FileSystemEntityType;
+
+export 'package:node_io/node_io.dart';

@@ -1,8 +1,7 @@
 library fs_shim.utils.glob;
 
+import 'package:fs_shim/src/common/import.dart';
 import 'package:path/path.dart';
-
-import '../src/common/import.dart';
 
 //
 // Matcher for a single path portion
@@ -15,6 +14,7 @@ class _PartMatchRunner {
   int partIndex = 0;
 
   bool inStar = false;
+
   bool matches() {
     // at the end?
     String partChr = partIndex == part.length ? null : part[partIndex];
@@ -91,7 +91,9 @@ class _PartMatchRunner {
 class _GlobMatchRunner {
   Glob glob;
   List<String> parts;
+
   List<String> get globParts => glob._expressionParts;
+
   _GlobMatchRunner(this.glob, this.parts);
 
   int globIndex = 0;
@@ -171,7 +173,7 @@ class Glob {
     if (part == null) {
       return globPart == null;
     }
-    _PartMatchRunner runner = new _PartMatchRunner()
+    _PartMatchRunner runner = _PartMatchRunner()
       ..glob = globPart
       ..part = part;
     return runner.matches();
@@ -193,12 +195,12 @@ class Glob {
 
   /// true if the name matches the pattern
   bool matches(String name) {
-    _GlobMatchRunner runner = new _GlobMatchRunner(this, splitParts(name));
+    _GlobMatchRunner runner = _GlobMatchRunner(this, splitParts(name));
     return runner.matches();
   }
 
   bool matchesParts(List<String> parts) {
-    _GlobMatchRunner runner = new _GlobMatchRunner(this, parts);
+    _GlobMatchRunner runner = _GlobMatchRunner(this, parts);
     return runner.matches();
   }
 

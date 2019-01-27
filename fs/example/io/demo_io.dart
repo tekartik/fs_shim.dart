@@ -10,7 +10,7 @@ Future main() async {
 
   // Create a top level directory
   // fs.directory('/dir');
-  Directory dir = new Directory(dirPath);
+  Directory dir = Directory(dirPath);
   print('dir: $dir');
   // delete its content
   if (await dir.exists()) {
@@ -19,7 +19,7 @@ Future main() async {
 
   // and a file in it
   // fs.file(join(dir.path, "file"));
-  File file = new File(join(dir.path, "file"));
+  File file = File(join(dir.path, "file"));
 
   // create a file
   await file.create(recursive: true);
@@ -31,10 +31,10 @@ Future main() async {
   // use a file link if supported
   if (fs.supportsFileLink) {
     // fs.newLink(join(dir.path, "link"));
-    Link link = new Link(join(dir.path, "link"));
+    Link link = Link(join(dir.path, "link"));
     await link.create(file.path);
 
-    print('link: ${await new File(link.path).readAsString()}');
+    print('link: ${await File(link.path).readAsString()}');
   }
 
   // list dir content

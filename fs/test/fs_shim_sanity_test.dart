@@ -4,6 +4,7 @@
 library fs_shim.test.fs_shim_sanity_test;
 
 import 'package:fs_shim/fs.dart';
+
 import 'test_common.dart';
 //import 'package:path/path.dart';
 
@@ -12,6 +13,7 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 void defineTests(FileSystemTestContext ctx) {
@@ -43,8 +45,8 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.isLink(link.path), isTrue);
       }
 
-      TopCopy copy = new TopCopy(fsTopEntity(src), fsTopEntity(dst),
-          options: new CopyOptions(recursive: true));
+      TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst),
+          options: CopyOptions(recursive: true));
       await copy.run();
 
       File dstFile = childFile(dst, "file");

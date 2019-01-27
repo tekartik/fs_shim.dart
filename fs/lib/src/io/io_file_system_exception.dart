@@ -1,14 +1,19 @@
 library fs_shim.src.io.io_file_system_exception;
 
-import '../../fs.dart' as fs;
-export '../../fs.dart' show FileSystemEntityType;
 import 'dart:io' as io;
+
+import 'package:fs_shim/fs.dart' as fs;
+
+export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
 class OSErrorImpl implements fs.OSError {
   io.OSError ioOSError;
+
   OSErrorImpl.io(this.ioOSError);
+
   @override
   int get errorCode => ioOSError.errorCode;
+
   @override
   String get message => ioOSError.message;
 
@@ -99,10 +104,9 @@ int _statusFromException(io.FileSystemException ioFse) {
 class FileSystemExceptionImpl implements fs.FileSystemException {
   io.FileSystemException ioFileSystemException;
 
-  FileSystemExceptionImpl.io(io.FileSystemException ioFse)
-      : ioFileSystemException = ioFse,
-        osError = new OSErrorImpl.io(ioFse.osError),
-        status = _statusFromException(ioFse);
+  FileSystemExceptionImpl.io(this.ioFileSystemException)
+      : osError = OSErrorImpl.io(ioFileSystemException.osError),
+        status = _statusFromException(ioFileSystemException);
 
   @override
   final int status;

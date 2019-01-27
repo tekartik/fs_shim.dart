@@ -1,6 +1,6 @@
 library fs_shim.utils.path;
 
-import '../src/common/import.dart';
+import 'package:fs_shim/src/common/import.dart';
 
 String posixPath(String anyPath) {
   List<String> parts = splitParts(anyPath);

@@ -14,4 +14,4 @@ FileSystem newIdbFileSystem(idb.IdbFactory idbFactory, [String name]) =>
     newFileSystemIdb(idbFactory, name);
 
 FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String name]) =>
-    new IdbFileSystem(idbFactory, name);
+    IdbFileSystem(idbFactory, name);

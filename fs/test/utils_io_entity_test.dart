@@ -1,10 +1,11 @@
 @TestOn("vm")
 library fs_shim.test.utils_entity_tests;
 
-import 'package:fs_shim/utils/io/entity.dart';
 import 'dart:io';
-import 'package:path/path.dart';
+
 import 'package:dev_test/test.dart';
+import 'package:fs_shim/utils/io/entity.dart';
+import 'package:path/path.dart';
 
 import 'test_common_io.dart' show ioFileSystemTestContext;
 
@@ -13,7 +14,7 @@ String get outPath => ioFileSystemTestContext.outPath;
 void main() {
   group('entity', () {
     test('as', () async {
-      Link fileSystemEntity = new Link(join(outPath, 'fse'));
+      Link fileSystemEntity = Link(join(outPath, 'fse'));
       Link link = asLink(fileSystemEntity);
       File file = asFile(fileSystemEntity);
       Directory directory = asDirectory(fileSystemEntity);
@@ -23,7 +24,7 @@ void main() {
     });
 
     test('child', () async {
-      Directory top = new Directory(join(outPath, 'top'));
+      Directory top = Directory(join(outPath, 'top'));
       Link link = childLink(top, "child");
       File file = childFile(top, "child");
       Directory directory = childDirectory(top, "child");

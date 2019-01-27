@@ -1,9 +1,11 @@
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
+
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
 class IdbLink extends IdbFileSystemEntity implements fs.Link {
   IdbLink _me(_) => this;
+
   IdbLink(IdbFileSystem fs, String path) : super(fs, path);
 
   IdbFileSystem get _fs => super.fs;
@@ -45,17 +47,15 @@ class IdbLink extends IdbFileSystemEntity implements fs.Link {
   Future<String> target() => _fs.linkTarget(path);
 
   @override
-  IdbLink get absolute => new IdbLink(super.fs, idbMakePathAbsolute(path));
+  IdbLink get absolute => IdbLink(super.fs, idbMakePathAbsolute(path));
 
   @override
   Future<IdbLink> rename(String newPath) {
-    return _fs
-        .rename(type, path, newPath)
-        .then((_) => new IdbLink(_fs, newPath));
+    return _fs.rename(type, path, newPath).then((_) => IdbLink(_fs, newPath));
   }
 
   @override
-  Future<IdbLink> create(String target, {bool recursive: false}) {
+  Future<IdbLink> create(String target, {bool recursive = false}) {
     return _fs.createLink(path, target, recursive: recursive).then(_me);
   }
 

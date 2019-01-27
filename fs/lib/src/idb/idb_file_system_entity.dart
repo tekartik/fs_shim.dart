@@ -24,12 +24,12 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
 
   IdbFileSystemEntity(this._fs, this._path) {
     if (path == null) {
-      throw new ArgumentError.notNull("path");
+      throw ArgumentError.notNull("path");
     }
   }
 
   @override
-  Future<IdbFileSystemEntity> delete({bool recursive: false}) {
+  Future<IdbFileSystemEntity> delete({bool recursive = false}) {
     return _fs.delete(type, path, recursive: recursive).then((_) => this);
   }
 

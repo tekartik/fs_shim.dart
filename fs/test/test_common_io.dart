@@ -4,7 +4,6 @@ library fs_shim.test.test_common_io;
 import 'package:fs_shim/src/io/io_file_system.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_platform/context.dart';
-
 import 'package:tekartik_platform_io/context_io.dart';
 
 import 'test_common.dart';
@@ -12,13 +11,13 @@ import 'test_common.dart';
 export 'package:dev_test/test.dart';
 
 final IoFileSystemTestContext ioFileSystemTestContext =
-    new IoFileSystemTestContext();
+    IoFileSystemTestContext();
 
 class IoFileSystemTestContext extends FileSystemTestContext {
   @override
   final PlatformContext platform = platformContextIo;
   @override
-  final FileSystemIo fs = new FileSystemIo();
+  final FileSystemIo fs = FileSystemIo();
   String outTopPath;
 
   IoFileSystemTestContext() {

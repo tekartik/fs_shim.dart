@@ -2,12 +2,11 @@ library fs_shim.utils.src.utils_impl;
 
 import 'dart:async';
 
+import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/common/import.dart';
+import 'package:fs_shim/utils/copy.dart';
+import 'package:fs_shim/utils/glob.dart';
 import 'package:path/path.dart' as _path;
-
-import '../../fs.dart';
-import '../../src/common/import.dart';
-import '../copy.dart';
-import '../glob.dart';
 //import 'package:logging/logging.dart' as log;
 
 /*
@@ -30,6 +29,7 @@ set fsUtilsDebug(bool debug) => fsShimUtilsDebug = debug;
 set fsShimUtilsDebug(bool debug) => _fsUtilsDebug = debug;
 */
 bool _fsCopyDebug = false;
+
 bool get fsCopyDebug => _fsCopyDebug;
 
 ///
@@ -45,6 +45,7 @@ bool get fsCopyDebug => _fsCopyDebug;
 set fsCopyDebug(bool debug) => _fsCopyDebug = debug;
 
 bool _fsDeleteDebug = false;
+
 bool get fsDeleteDebug => _fsDeleteDebug;
 
 ///
@@ -64,7 +65,7 @@ List<Glob> globList(List<String> expressions) {
   List<Glob> globs = [];
   if (expressions != null) {
     for (String expression in expressions) {
-      globs.add(new Glob(expression));
+      globs.add(Glob(expression));
     }
   }
   return globs;
@@ -203,12 +204,12 @@ Future<int> copyDirectoryImpl(Directory src, Directory dst,
     if (options.delete) {
       await deleteDirectory(dst);
     }
-    return await new TopCopy(
-            new TopEntity(src.fs, src.path), new TopEntity(dst.fs, dst.path),
+    return await TopCopy(
+            TopEntity(src.fs, src.path), TopEntity(dst.fs, dst.path),
             options: options)
         .run();
   } else {
-    throw new ArgumentError('not a directory ($src)');
+    throw ArgumentError('not a directory ($src)');
   }
 }
 
@@ -226,13 +227,13 @@ Future<int> copyFileImpl(File src, FileSystemEntity dst,
     if (options.delete) {
       await dst.delete(recursive: true);
     }
-    return await new TopCopy(new TopEntity(src.fs, src.parent.path),
-            new TopEntity(dst.fs, dst.parent.path), options: options)
+    return await TopCopy(TopEntity(src.fs, src.parent.path),
+            TopEntity(dst.fs, dst.parent.path), options: options)
         .runChild(null, src.fs.path.basename(src.path),
             dst.fs.path.basename(dst.path));
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
-    throw new ArgumentError('not a file ($src)');
+    throw ArgumentError('not a file ($src)');
   }
 }
 
@@ -240,11 +241,10 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
     {CopyOptions options}) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
-    return await new TopSourceNode(new TopEntity(src.fs, src.path),
-            options: options)
+    return await TopSourceNode(TopEntity(src.fs, src.path), options: options)
         .run();
   } else {
-    throw new ArgumentError('not a directory ($src)');
+    throw ArgumentError('not a directory ($src)');
   }
 }
 
@@ -415,19 +415,30 @@ abstract class EntityNode {
   EntityNode get parent; // can be null
   FileSystem get fs; // cannot be null
   String get top;
+
   String get sub;
+
   String get basename;
+
   Iterable<String> get parts;
+
   String get path; // full path
   /// create a child
   CopyEntity child(String basename);
+
   Directory asDirectory();
+
   File asFile();
+
   Link asLink();
+
   Future<bool> isDirectory();
+
   Future<bool> isFile();
+
   Future<bool> isLink();
-  Future<FileSystemEntityType> type({bool followLinks: true});
+
+  Future<FileSystemEntityType> type({bool followLinks = true});
 
   @override
   String toString() => '$sub';
@@ -436,25 +447,30 @@ abstract class EntityNode {
 abstract class EntityNodeFsMixin implements EntityNode {
   @override
   Directory asDirectory() => fs.directory(path);
+
   @override
   File asFile() => fs.file(path);
+
   @override
   Link asLink() => fs.newLink(path);
 
   @override
   Future<bool> isDirectory() => fs.isDirectory(path);
+
   @override
   Future<bool> isFile() => fs.isFile(path);
+
   @override
   Future<bool> isLink() => fs.isLink(path);
+
   @override
-  Future<FileSystemEntityType> type({bool followLinks: true}) =>
+  Future<FileSystemEntityType> type({bool followLinks = true}) =>
       fs.type(path, followLinks: followLinks);
 }
 
 abstract class EntityChildMixin implements EntityNode {
   @override
-  CopyEntity child(String basename) => new CopyEntity(this, basename);
+  CopyEntity child(String basename) => CopyEntity(this, basename);
 }
 
 /*
@@ -467,6 +483,7 @@ abstract class EntityPartsMixin implements EntityNode {
 
 abstract class EntityPathMixin implements EntityNode {
   String _path;
+
   @override
   String get path {
     if (_path == null) {
@@ -485,10 +502,13 @@ class TopEntity extends Object
   final FileSystem fs;
   @override
   final String top;
+
   @override
   String get sub => '';
+
   @override
   String get basename => '';
+
   @override
   List<String> get parts => [];
 
@@ -499,9 +519,10 @@ class TopEntity extends Object
   String toString() => top;
 }
 
-TopEntity topEntityPath(FileSystem fs, String top) => new TopEntity(fs, top);
+TopEntity topEntityPath(FileSystem fs, String top) => TopEntity(fs, top);
+
 TopEntity fsTopEntity(FileSystemEntity entity) =>
-    new TopEntity(entity.fs, entity.path);
+    TopEntity(entity.fs, entity.path);
 
 class CopyEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
@@ -510,14 +531,17 @@ class CopyEntity extends Object
   EntityNode parent; // cannot be null
   @override
   FileSystem get fs => parent.fs;
+
   @override
   String get top => parent.top;
   @override
   String basename;
   String _sub;
+
   @override
   String get sub => _sub;
   List<String> _parts;
+
   @override
   Iterable<String> get parts => _parts;
 
@@ -526,7 +550,7 @@ class CopyEntity extends Object
   CopyEntity(this.parent, String relative) {
     //relative = _path.relative(relative, from: parent.path);
     basename = _path.basename(relative);
-    _parts = new List.from(parent.parts);
+    _parts = List.from(parent.parts);
     _parts.addAll(splitParts(relative));
     _sub = fs.path.join(parent.sub, relative);
   }
@@ -541,11 +565,12 @@ abstract class CopyNode extends SourceNode {
 
 abstract class SourceNode {
   EntityNode get src;
+
   CopyOptions get options;
 }
 
 abstract class ActionNodeMixin {
-  static int _static_id = 0;
+  static int _staticId = 0;
 }
 
 abstract class SourceNodeMixin implements SourceNode {
@@ -555,8 +580,7 @@ abstract class SourceNodeMixin implements SourceNode {
 
   Future<List<File>> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
-    ChildSourceNode sourceNode =
-        new ChildSourceNode(this, options, srcRelative);
+    ChildSourceNode sourceNode = ChildSourceNode(this, options, srcRelative);
 
     // exclude?
     return sourceNode.run();
@@ -565,11 +589,12 @@ abstract class SourceNodeMixin implements SourceNode {
 
 abstract class CopyNodeMixin implements CopyNode {
   int _id;
+
   int get id => _id;
 
   Future<int> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
-    ChildCopy copy = new ChildCopy(this, options, srcRelative, dstRelative);
+    ChildCopy copy = ChildCopy(this, options, srcRelative, dstRelative);
 
     // exclude?
     return copy.run();
@@ -578,18 +603,21 @@ abstract class CopyNodeMixin implements CopyNode {
 
 class TopCopy extends Object with CopyNodeMixin implements CopyNode {
   CopyOptions _options;
+
   TopCopy(this.src, this.dst, {CopyOptions options}) {
-    _id = ++ActionNodeMixin._static_id;
+    _id = ++ActionNodeMixin._staticId;
     _options = options ?? recursiveLinkOrCopyNewerOptions;
   }
 
   int count = 0;
+
   @override
   CopyOptions get options => _options;
   @override
   final TopEntity src;
   @override
   final TopEntity dst;
+
   @override
   String toString() => '[$id] $src => $dst';
 
@@ -598,7 +626,7 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildCopy copy = new ChildCopy(this, null, '');
+    ChildCopy copy = ChildCopy(this, null, '');
     return await copy.run();
   }
 }
@@ -607,7 +635,7 @@ class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
   CopyOptions _options;
 
   TopSourceNode(this.src, {CopyOptions options}) {
-    _id = ++ActionNodeMixin._static_id;
+    _id = ++ActionNodeMixin._staticId;
     _options = options ?? recursiveLinkOrCopyNewerOptions;
   }
 
@@ -626,7 +654,7 @@ class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildSourceNode sourceNode = new ChildSourceNode(this, null, '');
+    ChildSourceNode sourceNode = ChildSourceNode(this, null, '');
     return await sourceNode.run();
   }
 }
@@ -657,7 +685,7 @@ class ChildCopy extends Object
     if (options == null) {
       options = parent.options;
     }
-    _id = ++ActionNodeMixin._static_id;
+    _id = ++ActionNodeMixin._staticId;
 
     dstRelative = dstRelative ?? srcRelative;
     //CopyEntity srcParent = parent.srcEntity;
@@ -667,6 +695,7 @@ class ChildCopy extends Object
 
     //srcEntity = new CopyEntity()
   }
+
   //List<String> _
 
   @override
@@ -712,8 +741,8 @@ class ChildCopy extends Object
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
           String basename = src.fs.path.basename(srcEntity.path);
-          futures.add(runChild(options, basename).then((int count_) {
-            count += count_;
+          futures.add(runChild(options, basename).then((int stepCount) {
+            count += stepCount;
           }));
         }).asFuture();
         await Future.wait(futures);
@@ -810,7 +839,7 @@ class ChildSourceNode extends Object
     if (options == null) {
       options = parent.options;
     }
-    _id = ++ActionNodeMixin._static_id;
+    _id = ++ActionNodeMixin._staticId;
 
     src = parent.src.child(srcRelative);
   }
@@ -883,6 +912,7 @@ class ChildSourceNode extends Object
 
 abstract class NodeExcludeMixin {
   OptionsExcludeMixin get excludeOptions;
+
   String get srcSub;
 
   bool get shouldExclude {

@@ -1,19 +1,20 @@
 import 'dart:async';
+import 'dart:io' as io;
+
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_fs_node/src/file_stat_node.dart';
-import 'package:tekartik_fs_node/src/import_common.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
+import 'package:tekartik_fs_node/src/file_stat_node.dart';
 import 'package:tekartik_fs_node/src/file_system_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
-import 'dart:io' as io;
+import 'package:tekartik_fs_node/src/import_common.dart';
 
 abstract class FileSystemEntityNode implements FileSystemEntity {
   final io.FileSystemEntity nativeInstance;
 
   FileSystemEntityNode(this.nativeInstance) {
     if (path == null) {
-      throw new ArgumentError.notNull("path");
+      throw ArgumentError.notNull("path");
     }
   }
 
@@ -29,13 +30,13 @@ abstract class FileSystemEntityNode implements FileSystemEntity {
   String toString() => nativeInstance.toString();
 
   @override
-  DirectoryNode get parent => new DirectoryNode(nativeInstance.parent.path);
+  DirectoryNode get parent => DirectoryNode(nativeInstance.parent.path);
 
   @override
   Future<bool> exists() async => pathExists(path);
 
   @override
-  Future<FileSystemEntity> delete({bool recursive: false}) //
+  Future<FileSystemEntity> delete({bool recursive = false}) //
       =>
       ioWrap(nativeInstance.delete(recursive: recursive)).then(_me);
 
@@ -56,7 +57,7 @@ Future pathRecursiveCreateParent(String path) async {
   if (parent != path) {
     if (!await pathExists(parent)) {
       await pathRecursiveCreateParent(parent);
-      await new DirectoryNode(parent).create();
+      await DirectoryNode(parent).create();
     }
   }
 }

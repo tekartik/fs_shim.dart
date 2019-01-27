@@ -1,4 +1,5 @@
-import '../../fs.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
+
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
@@ -8,7 +9,7 @@ class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
   IdbDirectory _me(_) => this;
 
   @override
-  Future<IdbDirectory> create({bool recursive: false}) =>
+  Future<IdbDirectory> create({bool recursive = false}) =>
       super.fs.createDirectory(path, recursive: recursive).then(_me);
 
   @override
@@ -19,17 +20,17 @@ class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
     return super
         .fs
         .rename(type, path, newPath)
-        .then((_) => new IdbDirectory(super.fs, newPath));
+        .then((_) => IdbDirectory(super.fs, newPath));
   }
 
   @override
   Stream<IdbFileSystemEntity> list(
-          {bool recursive: false, bool followLinks: true}) =>
+          {bool recursive = false, bool followLinks = true}) =>
       super.fs.list(path, recursive: recursive, followLinks: followLinks);
 
   @override
   IdbDirectory get absolute =>
-      new IdbDirectory(super.fs, idbMakePathAbsolute(path));
+      IdbDirectory(super.fs, idbMakePathAbsolute(path));
 
   @override
   String toString() => "Directory: '$path'";

@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:fs_shim/fs.dart' as fs;
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:path/path.dart';
 
-import '../../fs.dart' as fs;
 import 'idb_fs.dart';
 
 const String treeStoreName = "tree";
@@ -30,8 +30,7 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
   if (segmentsAreAbsolute(target)) {
     return target;
   }
-  List<String> targetSegments =
-      new List.from(getParentSegments(origin.segments));
+  List<String> targetSegments = List.from(getParentSegments(origin.segments));
   targetSegments.addAll(target);
   return targetSegments;
 }
@@ -40,6 +39,7 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
 class IdbFileSystemStorage {
   idb.IdbFactory idbFactory;
   String dbPath;
+
   IdbFileSystemStorage(this.idbFactory, this.dbPath);
 
   idb.Database db;
@@ -47,7 +47,7 @@ class IdbFileSystemStorage {
 
   Future get ready async {
     if (_readyCompleter == null) {
-      _readyCompleter = new Completer();
+      _readyCompleter = Completer();
 
       // version 4: add file store
       db = await idbFactory.open(dbPath, version: 6,
@@ -91,7 +91,7 @@ class IdbFileSystemStorage {
       }
 
       FutureOr<Node> _nodeFromMap(dynamic map) {
-        Node entity = new Node.fromMap(
+        Node entity = Node.fromMap(
             parent, (map as Map)?.cast<String, dynamic>(), id as int);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
@@ -165,7 +165,7 @@ class IdbFileSystemStorage {
   // follow link only for last one
   Future<NodeSearchResult> txnSearch(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
-    NodeSearchResult result = new NodeSearchResult()..segments = segments;
+    NodeSearchResult result = NodeSearchResult()..segments = segments;
     idb.Index index = store.index(parentNameIndexName);
     Node parent;
     Node entity;
@@ -182,8 +182,8 @@ class IdbFileSystemStorage {
       // try to lookup without following links for last segment
       if (isLastSegment()) {
         return txnGetChildNode(store, index, parent, segment, followLastLink)
-            .then((Node entity_) {
-          entity = entity_;
+            .then((Node nodeEntity) {
+          entity = nodeEntity;
           if (entity != null) {
             result.segments = entity.segments;
             if (entity.isLink) {
@@ -196,8 +196,8 @@ class IdbFileSystemStorage {
         });
       }
       return txnGetChildNode(store, index, parent, segment, true)
-          .then((Node entity_) {
-        entity = entity_;
+          .then((Node nodeEntity) {
+        entity = nodeEntity;
         if (entity != null) {
           // Change segments if changing parent
           if (entity.parent != parent) {
@@ -268,6 +268,7 @@ List<fs.FileSystemEntityType> _allTypes = [
   fs.FileSystemEntityType.directory,
   fs.FileSystemEntityType.link
 ];
+
 fs.FileSystemEntityType typeFromString(String typeString) {
   for (fs.FileSystemEntityType type in _allTypes) {
     if (type.toString() == typeString) {
@@ -283,8 +284,11 @@ class Node {
   int _depth;
   String name;
   fs.FileSystemEntityType type;
+
   bool get isLink => type == fs.FileSystemEntityType.link;
+
   bool get isDir => type == fs.FileSystemEntityType.directory;
+
   bool get isFile => type == fs.FileSystemEntityType.file;
   int size;
   DateTime modified;
@@ -304,6 +308,7 @@ class Node {
 
   Node.node(this.type, this.parent, this.name,
       {this.targetSegments, this.id, this.modified, this.size});
+
   Node(this.parent, this.name, this.type, this.modified, this.size, [this.id]) {
     _depth = parent == null ? 1 : parent._depth + 1;
   }
@@ -322,7 +327,7 @@ class Node {
     int size = map[sizeKey] as int;
     fs.FileSystemEntityType type = typeFromString(map[typeKey] as String);
 
-    return new Node(parent, name, type, modified, size, id)
+    return Node(parent, name, type, modified, size, id)
       ..targetSegments = (map[targetKey] as List)?.cast<String>();
   }
 
@@ -376,9 +381,12 @@ class NodeSearchResult {
   Node highest;
   List<String> targetSegments; // if the result is a link
   int get depth => highest != null ? highest._depth : 0;
+
   int get depthDiff => segments.length - depth;
+
   // To force match
   bool _matches;
+
   bool get matches {
     if (_matches != null) {
       return _matches;
@@ -395,7 +403,7 @@ class NodeSearchResult {
 
   NodeSearchResult get parent {
     assert(!matches);
-    return new NodeSearchResult()
+    return NodeSearchResult()
       ..segments = getParentSegments(segments)
       ..highest = highest;
   }

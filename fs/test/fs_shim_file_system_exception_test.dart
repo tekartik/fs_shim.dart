@@ -4,17 +4,20 @@
 library fs_shim.test.fs_shim_file_system_exception_test;
 
 import 'package:fs_shim/fs.dart';
-import 'test_common.dart';
 import 'package:path/path.dart';
+
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 final bool _doPrintErr = false;
+
 void _printErr(e) {
   if (_doPrintErr) {
     print("${e} ${[e.runtimeType]}");

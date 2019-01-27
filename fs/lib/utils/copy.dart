@@ -2,8 +2,9 @@ library fs_shim.utils.copy;
 
 import 'dart:async';
 
-import '../fs.dart';
-import '../src/common/import.dart';
+import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/common/import.dart';
+
 import 'src/utils_impl.dart';
 import 'src/utils_impl.dart' as _impl;
 
@@ -45,7 +46,7 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
 Future<FileSystemEntity> copyFileSystemEntity(
     FileSystemEntity src, FileSystemEntity dst,
     {CopyOptions options}) {
-  options ??= new CopyOptions(); // old behavior will change!
+  options ??= CopyOptions(); // old behavior will change!
   return _impl.copyFileSystemEntity(src, dst, options: options);
 }
 
@@ -64,12 +65,12 @@ class CopyOptions extends Object
   bool tryToLinkDir; // not supported yet
 
   CopyOptions(
-      {bool recursive: false,
-      this.checkSizeAndModifiedDate: false,
-      this.tryToLinkFile: false,
-      this.tryToLinkDir: false,
-      bool followLinks: true,
-      bool delete: false,
+      {bool recursive = false,
+      this.checkSizeAndModifiedDate = false,
+      this.tryToLinkFile = false,
+      this.tryToLinkDir = false,
+      bool followLinks = true,
+      bool delete = false,
       List<String> include,
       List<String> exclude}) {
     this.recursive = recursive;
@@ -79,7 +80,7 @@ class CopyOptions extends Object
     this.followLinks = followLinks;
   }
 
-  CopyOptions get clone => new CopyOptions()
+  CopyOptions get clone => CopyOptions()
     ..recursive = recursive
     ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
     ..tryToLinkFile = tryToLinkFile
@@ -90,15 +91,14 @@ class CopyOptions extends Object
     ..include = include;
 }
 
-CopyOptions get copyNewerOptions =>
-    new CopyOptions(checkSizeAndModifiedDate: true);
+CopyOptions get copyNewerOptions => CopyOptions(checkSizeAndModifiedDate: true);
 
-CopyOptions get recursiveLinkOrCopyNewerOptions => new CopyOptions(
+CopyOptions get recursiveLinkOrCopyNewerOptions => CopyOptions(
     recursive: true, checkSizeAndModifiedDate: true, tryToLinkFile: true);
 
-CopyOptions get defaultCloneOptions => new CopyOptions(tryToLinkFile: true);
+CopyOptions get defaultCloneOptions => CopyOptions(tryToLinkFile: true);
 
-CopyOptions get defaultCopyOptions => new CopyOptions()..recursive = true;
+CopyOptions get defaultCopyOptions => CopyOptions()..recursive = true;
 
 /// Delete a directory recursively
 Future deleteDirectory(Directory dir, {DeleteOptions options}) =>
@@ -110,12 +110,12 @@ Future deleteFile(File file, {DeleteOptions options}) =>
 
 class CreateOptions extends Object
     with OptionsDeleteMixin, OptionsRecursiveMixin {
-  CreateOptions get clone => new CreateOptions()
+  CreateOptions get clone => CreateOptions()
     ..delete = delete
     ..recursive = recursive;
 }
 
-final CreateOptions defaultRecursiveCreateOptions = new CreateOptions()
+final CreateOptions defaultRecursiveCreateOptions = CreateOptions()
   ..recursive = true;
 
 /// recursive by default
@@ -140,12 +140,12 @@ class DeleteOptions extends Object
     return map.toString();
   }
 
-  DeleteOptions get clone => new DeleteOptions()
+  DeleteOptions get clone => DeleteOptions()
     ..recursive = recursive
     ..followLinks = followLinks
     ..create = create;
 }
 
-final DeleteOptions defaultRecursiveDeleteOptions = new DeleteOptions()
+final DeleteOptions defaultRecursiveDeleteOptions = DeleteOptions()
   ..recursive = true;
 final DeleteOptions defaultDeleteOptions = defaultRecursiveDeleteOptions;

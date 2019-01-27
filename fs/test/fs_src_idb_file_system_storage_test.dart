@@ -3,17 +3,18 @@
 
 library fs_shim.fs_src_idb_test;
 
-import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
-import 'package:dev_test/test.dart';
-import 'package:idb_shim/idb_client_memory.dart';
-import 'test_common.dart';
 import 'dart:async';
+
+import 'package:dev_test/test.dart';
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:idb_shim/idb_client_memory.dart';
 import 'package:path/path.dart';
+
+import 'test_common.dart';
 
 void main() {
   Future<IdbFileSystemStorage> newStorage() async {
-    IdbFileSystemStorage storage =
-        new IdbFileSystemStorage(idbMemoryFactory, null);
+    IdbFileSystemStorage storage = IdbFileSystemStorage(idbMemoryFactory, null);
     await storage.ready;
     return storage;
   }
@@ -26,7 +27,7 @@ void main() {
 
     test('add_get_with_parent', () async {
       var storage = await newStorage();
-      Node entity = new Node.directory(null, "dir");
+      Node entity = Node.directory(null, "dir");
       await storage.addNode(entity);
       expect(entity.id, 1);
 
@@ -36,7 +37,7 @@ void main() {
 
     test('add_get_entity', () async {
       var storage = await newStorage();
-      Node node = new Node.directory(null, "dir");
+      Node node = Node.directory(null, "dir");
       await storage.addNode(node);
       expect(node.id, 1);
 
@@ -46,7 +47,7 @@ void main() {
 
     test('add_search', () async {
       var storage = await newStorage();
-      Node node = new Node.directory(null, "dir");
+      Node node = Node.directory(null, "dir");
       await storage.addNode(node);
       expect(node.id, 1);
 
@@ -65,9 +66,9 @@ void main() {
 
     test('link', () async {
       var storage = await newStorage();
-      Node dir = new Node.directory(null, "dir");
+      Node dir = Node.directory(null, "dir");
       await storage.addNode(dir);
-      Node link = new Node.link(null, "link", targetSegments: ["dir"]);
+      Node link = Node.link(null, "link", targetSegments: ["dir"]);
       await storage.addNode(link);
 
       expect(await storage.getNode(["link"], false), link);
@@ -78,11 +79,11 @@ void main() {
 
     test('link_link', () async {
       var storage = await newStorage();
-      Node dir = new Node.directory(null, "dir");
+      Node dir = Node.directory(null, "dir");
       await storage.addNode(dir);
-      Node link = new Node.link(null, "link", targetSegments: ["dir"]);
+      Node link = Node.link(null, "link", targetSegments: ["dir"]);
       await storage.addNode(link);
-      Node link2 = new Node.link(null, "link2", targetSegments: ["link"]);
+      Node link2 = Node.link(null, "link2", targetSegments: ["link"]);
       await storage.addNode(link2);
 
       expect(await storage.getNode(["link2"], false), link2);
@@ -93,9 +94,9 @@ void main() {
 
     test('child_node', () async {
       var storage = await newStorage();
-      Node dir = new Node.directory(null, separator);
+      Node dir = Node.directory(null, separator);
       await storage.addNode(dir);
-      Node file = new Node.file(dir, "file");
+      Node file = Node.file(dir, "file");
       await storage.addNode(file);
 
       expect(await storage.getNode([separator, "file"], false), file);
@@ -103,8 +104,7 @@ void main() {
       expect(await storage.getChildNode(dir, "file", true), file);
       expect(await storage.getChildNode(dir, "file", false), file);
 
-      Node link =
-          new Node.link(dir, "link", targetSegments: [separator, "file"]);
+      Node link = Node.link(dir, "link", targetSegments: [separator, "file"]);
       await storage.addNode(link);
 
       expect(await storage.getNode([separator, "link"], false), link);
@@ -113,14 +113,14 @@ void main() {
 
     test('file_in_dir', () async {
       var storage = await newStorage();
-      Node top = new Node.directory(null, separator);
+      Node top = Node.directory(null, separator);
       await storage.addNode(top);
-      Node dir = new Node.directory(top, "dir");
+      Node dir = Node.directory(top, "dir");
       await storage.addNode(dir);
-      Node file = new Node.file(dir, "file");
+      Node file = Node.file(dir, "file");
       await storage.addNode(file);
-      Node link = new Node.link(top, "link",
-          targetSegments: [separator, "dir", "file"]);
+      Node link =
+          Node.link(top, "link", targetSegments: [separator, "dir", "file"]);
       await storage.addNode(link);
 
       expect(await storage.getNode([separator, "link"], true), file);

@@ -3,9 +3,9 @@ library fs_shim.utils.read_write;
 import 'dart:async';
 import 'dart:io';
 
-import '../../fs_io.dart' as fs;
-import '../read_write.dart' as fs;
-import '../src/utils_impl.dart' as fs;
+import 'package:fs_shim/fs_io.dart' as fs;
+import 'package:fs_shim/utils/read_write.dart' as fs;
+import 'package:fs_shim/utils/src/utils_impl.dart' as fs;
 
 // Does not fail
 Future<File> writeString(File file, String content) async {

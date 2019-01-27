@@ -1,17 +1,18 @@
 library fs_shim.src.lfs_mixin;
 
-import '../../fs.dart';
 import 'dart:async';
 import 'dart:convert';
+
 import 'package:dart2_constant/convert.dart' as convert;
+import 'package:fs_shim/fs.dart';
 
 abstract class FileSystemMixin implements FileSystem {
   @override
-  Future<FileSystemEntityType> type(String path, {bool followLinks: true});
+  Future<FileSystemEntityType> type(String path, {bool followLinks = true});
 
-  Future<bool> _isType(String path, FileSystemEntityType type_,
-      {bool followLinks: true}) async {
-    return (await type(path, followLinks: followLinks)) == type_;
+  Future<bool> _isType(String path, FileSystemEntityType fseType,
+      {bool followLinks = true}) async {
+    return (await type(path, followLinks: followLinks)) == fseType;
   }
 
   // helper
@@ -33,14 +34,16 @@ abstract class FileSystemMixin implements FileSystem {
 abstract class FileMixin {
   // implemented by IdbFile
   StreamSink<List<int>> openWrite(
-      {FileMode mode: FileMode.write, Encoding encoding: convert.utf8});
+      {FileMode mode = FileMode.write, Encoding encoding = convert.utf8});
+
   // implemented by IdbFile
   Stream<List<int>> openRead([int start, int end]);
+
   // implemented by IdbFileSystemEntity
   String get path;
 
   Future<FileMixin> doWriteAsBytes(List<int> bytes,
-      {FileMode mode: FileMode.write, bool flush: false}) async {
+      {FileMode mode = FileMode.write, bool flush = false}) async {
     var sink = openWrite(mode: mode);
     sink.add(bytes);
     await sink.close();
@@ -48,9 +51,9 @@ abstract class FileMixin {
   }
 
   Future<FileMixin> doWriteAsString(String contents,
-          {FileMode mode: FileMode.write,
-          Encoding encoding: convert.utf8,
-          bool flush: false}) =>
+          {FileMode mode = FileMode.write,
+          Encoding encoding = convert.utf8,
+          bool flush = false}) =>
       doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
 
   //@override
@@ -67,13 +70,13 @@ abstract class FileMixin {
     try {
       return encoding.decode(bytes);
     } catch (_) {
-      throw new FormatException(
+      throw FormatException(
           "Failed to decode data using encoding '${encoding.name}'", path);
     }
   }
 
   //@override
-  Future<String> readAsString({Encoding encoding: convert.utf8}) async {
+  Future<String> readAsString({Encoding encoding = convert.utf8}) async {
     List<int> content = await readAsBytes();
     if (content != null) {
       return _tryDecode(content, encoding);

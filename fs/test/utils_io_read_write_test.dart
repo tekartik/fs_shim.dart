@@ -14,7 +14,7 @@ String get outPath => ioFileSystemTestContext.outPath;
 void main() {
   group('utils_read_write', () {
     test('write_read', () async {
-      File file = new File(join(outPath, 'file'));
+      File file = File(join(outPath, 'file'));
       await writeString(file, "test");
       expect(await readString(file), "test");
 
@@ -23,7 +23,7 @@ void main() {
     });
 
     test('write_read_sub', () async {
-      File file = new File(join(outPath, 'sub', 'file'));
+      File file = File(join(outPath, 'sub', 'file'));
       await writeString(file, "test");
       expect(await readString(file), "test");
 

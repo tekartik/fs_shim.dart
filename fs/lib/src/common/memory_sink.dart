@@ -8,8 +8,10 @@ class MemorySink implements StreamSink<List<int>> {
 
   MemorySink();
 
-  Completer _completer = new Completer.sync();
+  Completer _completer = Completer.sync();
+
   Future get _done => _completer.future;
+
   @override
   void add(List<int> data) {
     content.addAll(data);

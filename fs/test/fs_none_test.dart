@@ -16,9 +16,9 @@ class MyDirectory extends MyFileSystemEntity with DirectoryNone {}
 void main() {
   group('none', () {
     test('entities', () {
-      new MyFileSystem();
-      new MyFile();
-      new MyDirectory();
+      MyFileSystem();
+      MyFile();
+      MyDirectory();
     });
   });
 }

@@ -1,30 +1,29 @@
+import 'package:dart2_constant/convert.dart' as convert;
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
-import 'package:dart2_constant/convert.dart' as convert;
 
 class FileSystemNone implements FileSystem {
   @override
-  Directory directory(String path) =>
-      throw new UnsupportedError("fs.directory");
+  Directory directory(String path) => throw UnsupportedError("fs.directory");
 
   @override
-  File file(String path) => throw new UnsupportedError("fs.file");
+  File file(String path) => throw UnsupportedError("fs.file");
 
   @override
   Future<bool> isDirectory(String path) =>
-      throw new UnsupportedError("fs.isDirectory");
+      throw UnsupportedError("fs.isDirectory");
 
   @override
-  Future<bool> isFile(String path) => throw new UnsupportedError("fs.isFile");
+  Future<bool> isFile(String path) => throw UnsupportedError("fs.isFile");
 
   @override
-  Future<bool> isLink(String path) => throw new UnsupportedError("fs.isLink");
+  Future<bool> isLink(String path) => throw UnsupportedError("fs.isLink");
 
   @override
-  Link link(String path) => throw new UnsupportedError("fs.link");
+  Link link(String path) => throw UnsupportedError("fs.link");
 
   @override
-  String get name => throw new UnsupportedError("fs.name");
+  String get name => throw UnsupportedError("fs.name");
 
   @override
   Directory newDirectory(String path) => directory(path);
@@ -39,60 +38,58 @@ class FileSystemNone implements FileSystem {
   Context get pathContext => path;
 
   @override
-  Context get path => throw new UnsupportedError("fs.path");
+  Context get path => throw UnsupportedError("fs.path");
 
   @override
-  bool get supportsFileLink =>
-      throw new UnsupportedError("fs.supportsFileLink");
+  bool get supportsFileLink => throw UnsupportedError("fs.supportsFileLink");
 
   @override
-  bool get supportsLink => throw new UnsupportedError("fs.supportsLink");
+  bool get supportsLink => throw UnsupportedError("fs.supportsLink");
 
   @override
-  Future<FileSystemEntityType> type(String path, {bool followLinks: true}) =>
-      throw new UnsupportedError("fs.type");
+  Future<FileSystemEntityType> type(String path, {bool followLinks = true}) =>
+      throw UnsupportedError("fs.type");
 }
 
 abstract class FileNone implements File {
   @override
-  File get absolute => throw new UnsupportedError("file.absolute");
+  File get absolute => throw UnsupportedError("file.absolute");
 
   @override
-  Future<File> copy(String newPath) => throw new UnsupportedError("file.copy");
+  Future<File> copy(String newPath) => throw UnsupportedError("file.copy");
 
   @override
-  Future<File> create({bool recursive: false}) =>
-      throw new UnsupportedError("file.create");
+  Future<File> create({bool recursive = false}) =>
+      throw UnsupportedError("file.create");
 
   @override
   Stream<List<int>> openRead([int start, int end]) =>
-      throw new UnsupportedError("file.openRead");
+      throw UnsupportedError("file.openRead");
 
   @override
   StreamSink<List<int>> openWrite(
-          {FileMode mode: FileMode.write, Encoding encoding: convert.utf8}) =>
-      throw new UnsupportedError("file.openWrite");
+          {FileMode mode = FileMode.write, Encoding encoding = convert.utf8}) =>
+      throw UnsupportedError("file.openWrite");
 
   @override
-  Future<List<int>> readAsBytes() =>
-      throw new UnsupportedError("file.readAsBytes");
+  Future<List<int>> readAsBytes() => throw UnsupportedError("file.readAsBytes");
 
   @override
-  Future<String> readAsString({Encoding encoding: convert.utf8}) async {
+  Future<String> readAsString({Encoding encoding = convert.utf8}) async {
     var bytes = await readAsBytes();
     return encoding.decode(bytes);
   }
 
   @override
   Future<File> writeAsBytes(List<int> bytes,
-          {FileMode mode: FileMode.write, bool flush: false}) =>
-      throw new UnsupportedError("file.writeAsBytes");
+          {FileMode mode = FileMode.write, bool flush = false}) =>
+      throw UnsupportedError("file.writeAsBytes");
 
   @override
   Future<File> writeAsString(String contents,
-      {FileMode mode: FileMode.write,
-      Encoding encoding: convert.utf8,
-      bool flush: false}) async {
+      {FileMode mode = FileMode.write,
+      Encoding encoding = convert.utf8,
+      bool flush = false}) async {
     return await writeAsBytes(encoding.encode(contents),
         mode: mode, flush: flush);
   }
@@ -100,42 +97,42 @@ abstract class FileNone implements File {
 
 abstract class FileSystemEntityNone implements FileSystemEntity {
   @override
-  Future<FileSystemEntity> delete({bool recursive: false}) =>
-      throw new UnsupportedError("fse.delete");
+  Future<FileSystemEntity> delete({bool recursive = false}) =>
+      throw UnsupportedError("fse.delete");
 
   @override
-  Future<bool> exists() => throw new UnsupportedError("fse.exists");
+  Future<bool> exists() => throw UnsupportedError("fse.exists");
 
   @override
-  bool get isAbsolute => throw new UnsupportedError("fse.isAbsolute");
+  bool get isAbsolute => throw UnsupportedError("fse.isAbsolute");
 
   @override
-  Directory get parent => throw new UnsupportedError("fse.parent");
+  Directory get parent => throw UnsupportedError("fse.parent");
 
   @override
-  String get path => throw new UnsupportedError("fse.path");
+  String get path => throw UnsupportedError("fse.path");
 
   @override
   Future<FileSystemEntity> rename(String newPath) =>
-      throw new UnsupportedError("fse.rename");
+      throw UnsupportedError("fse.rename");
 
   @override
-  Future<FileStat> stat() => throw new UnsupportedError("fse.stat");
+  Future<FileStat> stat() => throw UnsupportedError("fse.stat");
 
   @override
-  FileSystem get fs => throw new UnsupportedError("fse.fs");
+  FileSystem get fs => throw UnsupportedError("fse.fs");
 }
 
 abstract class DirectoryNone implements Directory {
   @override
-  Directory get absolute => throw new UnsupportedError("directory.absolute");
+  Directory get absolute => throw UnsupportedError("directory.absolute");
 
   @override
-  Future<Directory> create({bool recursive: false}) =>
-      throw new UnsupportedError("directory.create");
+  Future<Directory> create({bool recursive = false}) =>
+      throw UnsupportedError("directory.create");
 
   @override
   Stream<FileSystemEntity> list(
-          {bool recursive: false, bool followLinks: true}) =>
-      throw new UnsupportedError("directory.list");
+          {bool recursive = false, bool followLinks = true}) =>
+      throw UnsupportedError("directory.list");
 }

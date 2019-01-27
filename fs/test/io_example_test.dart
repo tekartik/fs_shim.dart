@@ -1,12 +1,23 @@
 @TestOn("vm")
-import 'test_common_io.dart';
-import 'package:path/path.dart';
+library tekartik_fs.test.fs_io_test;
 
 /// io_example_test.dart
 /// io_example_fs_shim_test.dart
 /// This file must be the same besides the import above
 import 'dart:io';
+
 import 'package:dart2_constant/io.dart' as constant;
+import 'package:path/path.dart';
+
+import 'test_common_io.dart';
+
+/// io_example_fs_shim_test.dart
+/// This file must be the same besides the import above
+
+/// io_example_test.dart
+/// io_example_fs_shim_test.dart
+/// This file must be the same besides the import above
+// ignore_for_file: avoid_slow_async_io
 
 const String groupName = "io_example";
 
@@ -14,7 +25,7 @@ void main() {
   group(groupName, () {
     //testOutTopPath
     test('sample1', () async {
-      Directory dir = new Directory(testOutPath);
+      Directory dir = Directory(testOutPath);
       try {
         await dir.delete(recursive: true);
       } on FileSystemException catch (_) {}
@@ -25,7 +36,7 @@ void main() {
       expect(dir.absolute.isAbsolute, isTrue);
 
       String filePath = join(dir.path, "file");
-      File file = new File(filePath);
+      File file = File(filePath);
       expect(await FileSystemEntity.isFile(file.path), isFalse);
       expect(file.absolute.isAbsolute, isTrue);
 
@@ -56,7 +67,7 @@ void main() {
 
       // error
       try {
-        await new File(join(dir.path, 't', 'o', 'o', 'deep'))
+        await File(join(dir.path, 't', 'o', 'o', 'deep'))
             .create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {

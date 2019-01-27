@@ -434,7 +434,6 @@ void defineTests(FileSystemTestContext ctx) {
           Directory _dir = await ctx.prepare();
           var filePath = join(_dir.path, "file");
           File file = fs.file(filePath);
-          ;
 
           // create a link to the file
           Link link =

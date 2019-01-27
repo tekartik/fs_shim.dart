@@ -26,6 +26,7 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext platform = null;
   @override
   IdbFileSystem fs = newIdbIoFileSystem() as IdbFileSystem;
+
   IdbIoFileSystemTestContext();
 
   @override
@@ -36,7 +37,7 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
 }
 
 IdbIoFileSystemTestContext idbIoFileSystemContext =
-    new IdbIoFileSystemTestContext();
+    IdbIoFileSystemTestContext();
 
 void main() {
   group('idb_io', () {

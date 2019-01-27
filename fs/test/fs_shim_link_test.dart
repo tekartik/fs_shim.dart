@@ -13,9 +13,11 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 final bool _doPrintErr = false;
+
 void _printErr(e) {
   if (_doPrintErr) {
     print("${e} ${[e.runtimeType]}");
@@ -428,7 +430,6 @@ void defineTests(FileSystemTestContext ctx) {
           Directory _dir = await ctx.prepare();
           var filePath = join(_dir.path, "file");
           File file = fs.file(filePath);
-          ;
 
           // create a link to the file
           Link link =

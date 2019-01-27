@@ -4,8 +4,8 @@ import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:dart2_constant/io.dart' as constant;
+import 'package:fs_shim/fs.dart' as fs;
 
-import '../../fs.dart' as fs;
 import 'io_file_system_exception.dart';
 
 export 'dart:async';
@@ -44,7 +44,7 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
 
 dynamic ioWrapError(e) {
   if (e is io.FileSystemException) {
-    return new FileSystemExceptionImpl.io(e);
+    return FileSystemExceptionImpl.io(e);
   }
   return e;
 }
@@ -117,7 +117,7 @@ class IoWriteFileSink implements StreamSink<List<int>> {
 
 class IoReadFileStreamCtrl {
   IoReadFileStreamCtrl(this.ioStream) {
-    _ctlr = new StreamController();
+    _ctlr = StreamController();
     ioStream.listen((List<int> data) {
       _ctlr.add(data);
     }, onError: (error, StackTrace stackTrace) {

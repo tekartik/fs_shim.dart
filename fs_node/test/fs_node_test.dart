@@ -4,18 +4,21 @@
 
 library fs_shim.fs_io_test;
 
+import 'dart:io' as vm_io;
+
+import 'package:dart2_constant/io.dart' as constant;
 import 'package:fs_shim/fs.dart';
-import 'package:tekartik_fs_node/src/file_node.dart';
+import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
+import 'package:tekartik_fs_node/src/file_node.dart';
+import 'package:tekartik_fs_node/src/file_stat_node.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/file_system_exception_node.dart';
-import 'package:tekartik_fs_node/src/file_stat_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
-import 'package:tekartik_fs_test/fs_test.dart';
-import 'test_common_node.dart';
-import 'package:path/path.dart';
-import 'package:dart2_constant/io.dart' as constant;
 import 'package:tekartik_fs_node/src/import_common_node.dart' as io;
+import 'package:tekartik_fs_test/fs_test.dart';
+
+import 'test_common_node.dart';
 
 void main() {
   var fileSystemContext = fileSystemTestContextNode;
@@ -27,8 +30,8 @@ void main() {
     });
     test('equals', () {
       // Files cannot be compared!
-      expect(new io.File("test"), isNot(new io.File("test")));
-      expect(new io.Directory("test"), isNot(new io.Directory("test")));
+      expect(io.File("test"), isNot(io.File("test")));
+      expect(io.Directory("test"), isNot(io.Directory("test")));
     });
     test('type', () async {
       expect(await fs.type(join("pubspec.yaml")), FileSystemEntityType.file);
@@ -43,12 +46,12 @@ void main() {
 
     group('conversion', () {
       test('file', () {
-        io.File ioFile = new io.File('file');
+        io.File ioFile = io.File('file');
         File file = wrapIoFile(ioFile);
         expect(unwrapIoFile(file), ioFile);
       });
       test('dir', () {
-        io.Directory ioDirectory = new io.Directory('dir');
+        io.Directory ioDirectory = io.Directory('dir');
         Directory dir = wrapIoDirectory(ioDirectory);
         expect(unwrapIoDirectory(dir), ioDirectory);
       });
@@ -69,30 +72,29 @@ void main() {
         expect(ioFse.path, fse.path);
         */
 
-        ioFse = new io.Directory('dir');
+        ioFse = io.Directory('dir');
         fse = wrapIoDirectory(ioFse as io.Directory);
         expect(fse.nativeInstance, ioFse);
 
-        ioFse = new io.File('file');
+        ioFse = io.File('file');
         fse = wrapIoFile(ioFse as io.File);
         expect(fse.nativeInstance, ioFse);
       });
 
       test('oserror', () {
-        io.OSError ioOSError = new io.OSError();
+        const ioOSError = io.OSError();
         OSError osError = wrapIoOSError(ioOSError);
         expect(unwrapIoOSError(osError), ioOSError);
       });
 
       test('filestat', () async {
-        io.FileStat ioFileStat = await io.Directory.current.stat();
+        vm_io.FileStat ioFileStat = await io.Directory.current.stat();
         FileStat fileStat = wrapIoFileStat(ioFileStat);
         expect(unwrapIoFileStat(fileStat), ioFileStat);
       });
 
       test('filesystemexception', () {
-        io.FileSystemException ioFileSystemException =
-            new io.FileSystemException();
+        const ioFileSystemException = io.FileSystemException();
         FileSystemException fileSystemException =
             wrapIoFileSystemException(ioFileSystemException);
         expect(unwrapIoFileSystemException(fileSystemException),

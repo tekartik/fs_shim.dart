@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
+// ignore: implementation_imports
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_platform/context.dart';
@@ -54,15 +55,15 @@ abstract class IdbFileSystemTestContext extends FileSystemTestContext {
 }
 
 final MemoryFileSystemTestContext memoryFileSystemTestContext =
-    new MemoryFileSystemTestContext();
+    MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  MemoryFileSystemTestContext();
+
   @override
   final PlatformContext platform = null;
   @override
   final IdbFileSystem fs = newMemoryFileSystem() as IdbFileSystem;
-
-  MemoryFileSystemTestContext();
 }
 
 void devPrintJson(Map json) {
