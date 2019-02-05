@@ -137,14 +137,14 @@ class IdbWriteStreamSink extends MemorySink {
           await fileStore.delete(entity.id);
         }
       } else {
-        fileStore.put(content, entity.id);
+        await fileStore.put(content, entity.id);
       }
 
       // update size and modified date
       entity.size = content.length;
       entity.modified = DateTime.now();
 
-      treeStore.put(entity.toMap(), entity.id);
+      await treeStore.put(entity.toMap(), entity.id);
     } finally {
       await txn.completed;
     }
@@ -890,7 +890,7 @@ class IdbFileSystem extends Object
         // wait after completed to avoid deadlock
         await Future.wait(recursives);
 
-        ctlr.close();
+        await ctlr.close();
       });
     });
     return ctlr.stream;
