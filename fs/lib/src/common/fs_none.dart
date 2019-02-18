@@ -1,4 +1,3 @@
-import 'package:dart2_constant/convert.dart' as convert;
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
 
@@ -68,14 +67,14 @@ abstract class FileNone implements File {
 
   @override
   StreamSink<List<int>> openWrite(
-          {FileMode mode = FileMode.write, Encoding encoding = convert.utf8}) =>
+          {FileMode mode = FileMode.write, Encoding encoding = utf8}) =>
       throw UnsupportedError("file.openWrite");
 
   @override
   Future<List<int>> readAsBytes() => throw UnsupportedError("file.readAsBytes");
 
   @override
-  Future<String> readAsString({Encoding encoding = convert.utf8}) async {
+  Future<String> readAsString({Encoding encoding = utf8}) async {
     var bytes = await readAsBytes();
     return encoding.decode(bytes);
   }
@@ -88,7 +87,7 @@ abstract class FileNone implements File {
   @override
   Future<File> writeAsString(String contents,
       {FileMode mode = FileMode.write,
-      Encoding encoding = convert.utf8,
+      Encoding encoding = utf8,
       bool flush = false}) async {
     return await writeAsBytes(encoding.encode(contents),
         mode: mode, flush: flush);

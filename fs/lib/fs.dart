@@ -9,7 +9,6 @@ library fs_shim;
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dart2_constant/convert.dart' as convert;
 import 'package:path/path.dart';
 
 abstract class FileSystemEntity {
@@ -188,7 +187,7 @@ abstract class File extends FileSystemEntity {
   /// [IOSink] has been created.
   ///
   StreamSink<List<int>> openWrite(
-      {FileMode mode = FileMode.write, Encoding encoding = convert.utf8});
+      {FileMode mode = FileMode.write, Encoding encoding = utf8});
 
   ///
   /// Create a new independent [Stream] for the contents of this file.
@@ -238,7 +237,7 @@ abstract class File extends FileSystemEntity {
   ///
   Future<File> writeAsString(String contents,
       {FileMode mode = FileMode.write,
-      Encoding encoding = convert.utf8,
+      Encoding encoding = utf8,
       bool flush = false});
 
   ///
@@ -255,7 +254,7 @@ abstract class File extends FileSystemEntity {
   /// Returns a [:Future<String>:] that completes with the string once
   /// the file contents has been read.
   ///
-  Future<String> readAsString({Encoding encoding = convert.utf8});
+  Future<String> readAsString({Encoding encoding = utf8});
 
   ///
   /// Copy this file. Returns a `Future<File>` that completes
