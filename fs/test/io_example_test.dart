@@ -6,7 +6,6 @@ library tekartik_fs.test.fs_io_test;
 /// This file must be the same besides the import above
 import 'dart:io';
 
-import 'package:dart2_constant/io.dart' as constant;
 import 'package:path/path.dart';
 
 import 'test_common_io.dart';
@@ -41,7 +40,7 @@ void main() {
       expect(file.absolute.isAbsolute, isTrue);
 
       // file mode
-      var sink = file.openWrite(mode: constant.FileMode.write);
+      var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
       expect(await FileSystemEntity.isFile(file.path), isTrue);
@@ -76,8 +75,8 @@ void main() {
       }
 
       // file entity type
-      expect(await FileSystemEntity.type(file2.path),
-          constant.FileSystemEntityType.file);
+      expect(
+          await FileSystemEntity.type(file2.path), FileSystemEntityType.file);
     });
   });
 }

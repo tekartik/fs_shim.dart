@@ -1,4 +1,3 @@
-import 'package:dart2_constant/convert.dart' as convert;
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/fs_mixin.dart';
 
@@ -21,8 +20,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
   // don't care about encoding - assume UTF8
   @override
   StreamSink<List<int>> openWrite(
-          {fs.FileMode mode = fs.FileMode.write,
-          Encoding encoding = convert.utf8}) //
+          {fs.FileMode mode = fs.FileMode.write, Encoding encoding = utf8}) //
       =>
       _fs.openWrite(path, mode: mode);
 
@@ -48,7 +46,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
   @override
   Future<IdbFile> writeAsString(String contents,
           {fs.FileMode mode = fs.FileMode.write,
-          Encoding encoding = convert.utf8,
+          Encoding encoding = utf8,
           bool flush = false}) async =>
       await doWriteAsString(contents,
           mode: mode, encoding: encoding, flush: flush) as IdbFile;

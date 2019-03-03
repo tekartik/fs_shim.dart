@@ -108,7 +108,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
     }, onDone: () async {
       // wait for sub dirs if any
       await Future.wait(futures);
-      controller.close();
+      await controller.close();
     }); //cancelOnError: cancelOnError);
 
     /*

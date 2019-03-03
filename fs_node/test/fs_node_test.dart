@@ -6,7 +6,6 @@ library fs_shim.fs_io_test;
 
 import 'dart:io' as vm_io;
 
-import 'package:dart2_constant/io.dart' as constant;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
@@ -102,33 +101,33 @@ void main() {
       });
 
       test('filemode', () async {
-        io.FileMode ioFileMode = constant.FileMode.read;
+        io.FileMode ioFileMode = vm_io.FileMode.read;
         FileMode fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
 
-        ioFileMode = constant.FileMode.write;
+        ioFileMode = vm_io.FileMode.write;
         fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
 
-        ioFileMode = constant.FileMode.append;
+        ioFileMode = vm_io.FileMode.append;
         fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
       });
 
       test('fileentitytype', () async {
-        io.FileSystemEntityType ioFset = constant.FileSystemEntityType.notFound;
+        io.FileSystemEntityType ioFset = vm_io.FileSystemEntityType.notFound;
         FileSystemEntityType fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
-        ioFset = constant.FileSystemEntityType.file;
+        ioFset = vm_io.FileSystemEntityType.file;
         fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
-        ioFset = constant.FileSystemEntityType.directory;
+        ioFset = vm_io.FileSystemEntityType.directory;
         fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
-        ioFset = constant.FileSystemEntityType.link;
+        ioFset = vm_io.FileSystemEntityType.link;
         fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
       });

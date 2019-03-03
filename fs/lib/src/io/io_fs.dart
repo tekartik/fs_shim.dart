@@ -3,7 +3,6 @@ library fs_shim.src.io.io_fs;
 import 'dart:async';
 import 'dart:io' as io;
 
-import 'package:dart2_constant/io.dart' as constant;
 import 'package:fs_shim/fs.dart' as fs;
 
 import 'io_file_system_exception.dart';
@@ -19,11 +18,11 @@ io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
 io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
   switch (fsFileMode) {
     case fs.FileMode.write:
-      return constant.FileMode.write;
+      return io.FileMode.write;
     case fs.FileMode.read:
-      return constant.FileMode.read;
+      return io.FileMode.read;
     case fs.FileMode.append:
-      return constant.FileMode.append;
+      return io.FileMode.append;
     default:
       throw null;
   }
@@ -31,11 +30,11 @@ io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
 
 fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
   switch (ioFileMode) {
-    case constant.FileMode.write:
+    case io.FileMode.write:
       return fs.FileMode.write;
-    case constant.FileMode.read:
+    case io.FileMode.read:
       return fs.FileMode.read;
-    case constant.FileMode.append:
+    case io.FileMode.append:
       return fs.FileMode.append;
     default:
       throw null;
@@ -61,13 +60,13 @@ Future<T> ioWrap<T>(Future<T> future) async {
 fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
     io.FileSystemEntityType type) {
   switch (type) {
-    case constant.FileSystemEntityType.file:
+    case io.FileSystemEntityType.file:
       return fs.FileSystemEntityType.file;
-    case constant.FileSystemEntityType.directory:
+    case io.FileSystemEntityType.directory:
       return fs.FileSystemEntityType.directory;
-    case constant.FileSystemEntityType.link:
+    case io.FileSystemEntityType.link:
       return fs.FileSystemEntityType.link;
-    case constant.FileSystemEntityType.notFound:
+    case io.FileSystemEntityType.notFound:
       return fs.FileSystemEntityType.notFound;
     default:
       throw type;
@@ -78,13 +77,13 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
     fs.FileSystemEntityType type) {
   switch (type) {
     case fs.FileSystemEntityType.file:
-      return constant.FileSystemEntityType.file;
+      return io.FileSystemEntityType.file;
     case fs.FileSystemEntityType.directory:
-      return constant.FileSystemEntityType.directory;
+      return io.FileSystemEntityType.directory;
     case fs.FileSystemEntityType.link:
-      return constant.FileSystemEntityType.link;
+      return io.FileSystemEntityType.link;
     case fs.FileSystemEntityType.notFound:
-      return constant.FileSystemEntityType.notFound;
+      return io.FileSystemEntityType.notFound;
     default:
       throw type;
   }

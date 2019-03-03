@@ -25,6 +25,7 @@ dependencies:
   build_test: '>=0.10.2'
 
 dev_dependencies:
+  pedantic: '>=1.4.0'
   tekartik_platform_io:
     git:
       url: git://github.com/tekartik/platform.dart
