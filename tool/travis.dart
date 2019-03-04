@@ -9,7 +9,12 @@ Future main() async {
     'fs_test',
   ]) {
     shell = shell.pushd(dir);
-    await shell.run('dart tool/travis.dart');
+    await shell.run('''
+    
+    pub get
+    dart tool/travis.dart
+    
+    ''');
     shell = shell.popd();
   }
 }

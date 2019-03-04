@@ -4,8 +4,6 @@ Future main() async {
   var shell = Shell();
 
   await shell.run('''
-pub get
-
 # Analyze code
 dartanalyzer --fatal-warnings --fatal-infos .
 
