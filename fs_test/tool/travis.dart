@@ -4,6 +4,7 @@ Future<void> main() async {
   final Shell shell = Shell();
 
   await shell.run('''
+pub get
 
 dartanalyzer --fatal-warnings --fatal-infos .
 
