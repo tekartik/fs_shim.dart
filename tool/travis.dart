@@ -5,7 +5,11 @@ Future main() async {
 
   await shell.run('flutter doctor');
 
-  for (var dir in ['fs', 'fs_node', 'fs_test', ]) {
+  for (var dir in [
+    'fs',
+    'fs_node',
+    'fs_test',
+  ]) {
     shell = shell.pushd(dir);
     await shell.run('dart tool/travis.dart');
     shell = shell.popd();
