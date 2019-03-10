@@ -11,10 +11,10 @@ before_install:
 jobs:
   include:
     - stage: stable
-      script: ./tool/travis.sh
+      script: dart ./tool/travis.dart
       dart: stable
     - stage: dev
-      script: ./tool/travis_dev.sh
+      script: dart ./tool/travis.dart
       dart: dev
 
 stages:
