@@ -17,7 +17,7 @@ pub run test -p chrome -j 1
 # quick test pub run build_runner test -- -p vm -j 1 test/fs_idb_io_ test.dart
 # run everything on chrome
 
-pub run build_runner test -- -p vm -j 1
+# pub run build_runner test -- -p vm -j 1
 pub run build_runner test -- -p chrome -j 1
 ''');
 }
