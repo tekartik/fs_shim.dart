@@ -69,10 +69,9 @@ void defineTests(IdbFileSystemTestContext ctx) {
       int fileStoreSize = await getFileStoreSize(db);
 
       File file = ctx.fs.file(join(dir.path, "file"));
-      await file.create();
-      var sink = file.openWrite(mode: FileMode.write);
-      sink.add('test'.codeUnits);
-      await sink.close();
+
+      // Write dummy file
+      await file.writeAsString('test', flush: true);
 
       await file.create();
 
