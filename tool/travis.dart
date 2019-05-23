@@ -5,6 +5,7 @@ Future main() async {
 
   for (var dir in [
     'fs',
+    'fs_browser',
     'fs_node',
     'fs_test',
   ]) {

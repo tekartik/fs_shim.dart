@@ -7,8 +7,9 @@ Future<void> main() async {
 
 dartanalyzer --fatal-warnings --fatal-infos .
 
-pub run test -p node
-pub run build_runner test -- -p node
+pub run test -p node test/node test/multiplatform
+
+# pub run build_runner test -- -p node
 
 ''');
 }

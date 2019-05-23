@@ -1,0 +1,47 @@
+name: tekartik_fs_browser
+description: Fs node
+version: 0.1.0
+publish_to: none
+#homepage: https://www.example.com
+#author: alex <email@example.com>
+
+environment:
+  sdk: '>=2.1.0-dev <3.0.0'
+
+dependencies:
+  path: '>=1.6.1'
+  fs_shim: '>=0.9.0-dev.1'
+
+dev_dependencies:
+  pedantic: '>=1.4.0'
+  test: ">=1.0.0"
+  dev_test: any
+  build_runner: ">=0.8.8"
+  build_web_compilers: ">=0.1.3"
+  tekartik_fs_test:
+    path: ../fs_test
+  build_test: '>=0.10.2'
+  process_run: '>=0.10.0+1'
+  tekartik_platform_browser:
+    git:
+      url: git://github.com/tekartik/platform.dart
+      path: platform_browser
+      ref: dart2
+    version: '>=0.2.0'
+
+dependency_overrides:
+  fs_shim:
+    path: ../fs
+  tekartik_fs_test:
+    path: ../fs_test
+
+# node_io:
+#   git:
+#      url: git://github.com/tekartik/node-interop
+#      path: node_io
+#  node_io:
+#    path: /media/ssd/devx/git/github.com/tekartik/node-interop/node_io
+#  tekartik_platform:
+#    path: /media/ssd/devx/git/github.com/tekartik/platform.dart/platform
+#  tekartik_platform_node:
+#    path: /media/ssd/devx/git/github.com/tekartik/platform.dart/platform_node
