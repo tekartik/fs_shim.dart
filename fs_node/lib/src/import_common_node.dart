@@ -4,7 +4,7 @@ export 'dart:io'
         FileSystemException,
         IOSink,
         OSError,
-        Link,
+        // Link,
         FileSystemEntityType;
 
 export 'package:node_io/node_io.dart';

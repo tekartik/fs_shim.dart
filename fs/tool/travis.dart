@@ -8,8 +8,8 @@ Future main() async {
 dartanalyzer --fatal-warnings --fatal-infos .
 
 # Run tests
-pub run test -p vm -j 1
-pub run test -p chrome -j 1
+pub run test -p vm -j 1 test/io test/multiplatform
+pub run test -p chrome -j 1 test/web test/multiplatform
 # skip: pub run test -p chrome test/fs_memory_test.dart
 
 # Run tests using build_runner
@@ -17,7 +17,9 @@ pub run test -p chrome -j 1
 # quick test pub run build_runner test -- -p vm -j 1 test/fs_idb_io_ test.dart
 # run everything on chrome
 
-# pub run build_runner test -- -p vm -j 1
-pub run build_runner test -- -p chrome -j 1
+# Work again on 2019-05-14 but not tested anymore and tested
+# in fs_browser
+# pub run build_runner test -- -p vm -j 1 test/io test/multiplatform
+# pub run build_runner test -- -p chrome -j 1 test/web test/multiplatform
 ''');
 }
