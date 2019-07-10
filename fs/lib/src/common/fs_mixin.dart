@@ -2,8 +2,10 @@ library fs_shim.src.lfs_mixin;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/common/compat.dart';
 
 abstract class FileSystemMixin implements FileSystem {
   @override
@@ -36,7 +38,7 @@ abstract class FileMixin {
       {FileMode mode = FileMode.write, Encoding encoding = utf8});
 
   // implemented by IdbFile
-  Stream<List<int>> openRead([int start, int end]);
+  Stream<Uint8List> openRead([int start, int end]);
 
   // implemented by IdbFileSystemEntity
   String get path;
@@ -56,13 +58,13 @@ abstract class FileMixin {
       doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
 
   //@override
-  Future<List<int>> readAsBytes() async {
-    List<int> content = [];
+  Future<Uint8List> readAsBytes() async {
+    var content = <int>[];
     var stream = openRead();
-    await stream.listen((List<int> data) {
+    await stream.listen((Uint8List data) {
       content.addAll(data);
     }).asFuture();
-    return content;
+    return asUint8List(content);
   }
 
   String _tryDecode(List<int> bytes, Encoding encoding) {
@@ -76,7 +78,7 @@ abstract class FileMixin {
 
   //@override
   Future<String> readAsString({Encoding encoding = utf8}) async {
-    List<int> content = await readAsBytes();
+    var content = await readAsBytes();
     if (content != null) {
       return _tryDecode(content, encoding);
     }

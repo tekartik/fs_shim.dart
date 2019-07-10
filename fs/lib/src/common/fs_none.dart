@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
 
@@ -62,7 +64,7 @@ abstract class FileNone implements File {
       throw UnsupportedError("file.create");
 
   @override
-  Stream<List<int>> openRead([int start, int end]) =>
+  Stream<Uint8List> openRead([int start, int end]) =>
       throw UnsupportedError("file.openRead");
 
   @override
@@ -71,7 +73,7 @@ abstract class FileNone implements File {
       throw UnsupportedError("file.openWrite");
 
   @override
-  Future<List<int>> readAsBytes() => throw UnsupportedError("file.readAsBytes");
+  Future<Uint8List> readAsBytes() => throw UnsupportedError("file.readAsBytes");
 
   @override
   Future<String> readAsString({Encoding encoding = utf8}) async {

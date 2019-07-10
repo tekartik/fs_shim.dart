@@ -8,6 +8,7 @@ library fs_shim;
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:path/path.dart';
 
@@ -202,7 +203,7 @@ abstract class File extends FileSystemEntity {
   /// must be read to completion or the subscription on the stream must
   /// be cancelled.
   ///
-  Stream<List<int>> openRead([int start, int end]);
+  Stream<Uint8List> openRead([int start, int end]);
 
   ///
   /// Write a list of bytes to a file.
@@ -245,7 +246,7 @@ abstract class File extends FileSystemEntity {
   /// [:Future<List<int>>:] that completes with the list of bytes that
   /// is the contents of the file.
   ///
-  Future<List<int>> readAsBytes();
+  Future<Uint8List> readAsBytes();
 
   ///
   /// Read the entire file contents as a string using the given

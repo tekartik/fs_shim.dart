@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/src/common/compat.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
@@ -31,7 +33,7 @@ class IdbReadStreamCtlr {
   String path;
   int start;
   int end;
-  StreamController<List<int>> _ctlr;
+  StreamController<Uint8List> _ctlr;
 
   IdbReadStreamCtlr(this._fs, this.path, this.start, this.end) {
     _ctlr = StreamController(sync: true);
@@ -64,7 +66,7 @@ class IdbReadStreamCtlr {
           if (start != null) {
             content = content.sublist(start, end);
           }
-          _ctlr.add(content);
+          _ctlr.add(asUint8List(content));
         }
         await _ctlr.close();
       } finally {
@@ -73,7 +75,7 @@ class IdbReadStreamCtlr {
     });
   }
 
-  Stream<List<int>> get stream => _ctlr.stream;
+  Stream<Uint8List> get stream => _ctlr.stream;
 }
 
 class IdbWriteStreamSink extends MemorySink {
@@ -771,7 +773,7 @@ class IdbFileSystem extends Object
     return sink;
   }
 
-  Stream<List<int>> openRead(String path, int start, int end) {
+  Stream<Uint8List> openRead(String path, int start, int end) {
     path = idbMakePathAbsolute(path);
     IdbReadStreamCtlr ctlr = IdbReadStreamCtlr(this, path, start, end);
     /*

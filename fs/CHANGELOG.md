@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.0-dev.1
+
+* Sdk 2.5 support
+
 ## 0.10.0
 
 * deprecate ewFile, newDirectory, newLink, pathContext
