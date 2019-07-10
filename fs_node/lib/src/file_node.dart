@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io' as vm_io;
+import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
@@ -64,7 +65,7 @@ class FileNode extends FileSystemEntityNode implements File {
   FileNode _me(_) => this;
 
   @override
-  Stream<List<int>> openRead([int start, int end]) {
+  Stream<Uint8List> openRead([int start, int end]) {
     // Node is end inclusive!
     return ReadFileStreamCtrlNode(
             ioFile.openRead(start, end != null ? end - 1 : null))
@@ -100,7 +101,7 @@ class FileNode extends FileSystemEntityNode implements File {
           .then(_me);
 
   @override
-  Future<List<int>> readAsBytes() => ioWrap(ioFile.readAsBytes());
+  Future<Uint8List> readAsBytes() => ioWrap(ioFile.readAsBytes());
 
   @override
   Future<String> readAsString({Encoding encoding = utf8}) =>

@@ -3,6 +3,8 @@
 
 library fs_shim.test.fs_shim_file_test;
 
+import 'dart:typed_data';
+
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
@@ -414,19 +416,19 @@ void defineTests(FileSystemTestContext ctx) {
       sink.add('test'.codeUnits);
       await sink.close();
       List<int> content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'test'.codeUnits);
 
       content = [];
-      await file.openRead(1).listen((List<int> data) {
+      await file.openRead(1).listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'est'.codeUnits);
 
       content = [];
-      await file.openRead(1, 3).listen((List<int> data) {
+      await file.openRead(1, 3).listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'es'.codeUnits);
@@ -436,7 +438,7 @@ void defineTests(FileSystemTestContext ctx) {
       Directory _dir = await ctx.prepare();
       File file = fs.file(join(_dir.path, "file"));
       try {
-        await file.openRead().listen((List<int> data) {
+        await file.openRead().listen((Uint8List data) {
           //content.addAll(data);
         }).asFuture();
       } on FileSystemException catch (e) {
@@ -467,7 +469,7 @@ void defineTests(FileSystemTestContext ctx) {
       await sink.close();
 
       List<int> content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'test'.codeUnits);
@@ -487,7 +489,7 @@ void defineTests(FileSystemTestContext ctx) {
       }
 
       List<int> content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'test'.codeUnits);
@@ -501,7 +503,7 @@ void defineTests(FileSystemTestContext ctx) {
       await sink.close();
 
       List<int> content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'test'.codeUnits);
@@ -511,7 +513,7 @@ void defineTests(FileSystemTestContext ctx) {
       await sink.close();
 
       content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'overwritten'.codeUnits);
@@ -526,7 +528,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       expect(await file.readAsBytes(), 'test'.codeUnits, reason: "readAsBytes");
       List<int> content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'test'.codeUnits);
@@ -536,11 +538,11 @@ void defineTests(FileSystemTestContext ctx) {
       await sink.close();
 
       content = [];
-      await file.openRead().listen((List<int> data) {
+      await file.openRead().listen((Uint8List data) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'testappend'.codeUnits);
-    });
+    }, solo: true);
 
     test('write_on_dir', () async {
       Directory _dir = await ctx.prepare();

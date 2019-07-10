@@ -2,6 +2,7 @@ library fs_shim.src.io.io_fs;
 
 import 'dart:async';
 import 'dart:io' as io;
+import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
 
@@ -117,7 +118,7 @@ class IoWriteFileSink implements StreamSink<List<int>> {
 class IoReadFileStreamCtrl {
   IoReadFileStreamCtrl(this.ioStream) {
     _ctlr = StreamController();
-    ioStream.listen((List<int> data) {
+    ioStream.listen((Uint8List data) {
       _ctlr.add(data);
     }, onError: (error, StackTrace stackTrace) {
       _ctlr.addError(ioWrapError(error));
@@ -126,8 +127,8 @@ class IoReadFileStreamCtrl {
     });
   }
 
-  Stream<List<int>> ioStream;
-  StreamController<List<int>> _ctlr;
+  Stream<Uint8List> ioStream;
+  StreamController<Uint8List> _ctlr;
 
-  Stream<List<int>> get stream => _ctlr.stream;
+  Stream<Uint8List> get stream => _ctlr.stream;
 }

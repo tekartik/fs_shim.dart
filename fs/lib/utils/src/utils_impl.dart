@@ -393,7 +393,7 @@ Future<int> copyFileContent(File src, File dst) async {
   var inStream = src.openRead();
   StreamSink<List<int>> outSink = dst.openWrite();
   try {
-    await inStream.pipe(outSink);
+    await inStream.cast<List<int>>().pipe(outSink);
   } catch (_) {
     Directory parent = dst.parent;
     if (!await parent.exists()) {
@@ -401,7 +401,7 @@ Future<int> copyFileContent(File src, File dst) async {
     }
     outSink = dst.openWrite();
     inStream = src.openRead();
-    await inStream.pipe(outSink);
+    await inStream.cast<List<int>>().pipe(outSink);
   }
   return 1;
 }
