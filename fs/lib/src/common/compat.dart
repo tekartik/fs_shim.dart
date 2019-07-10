@@ -21,8 +21,8 @@ Stream<Uint8List> intListStreamToUint8ListStream(Stream stream) {
     return stream.transform(
         StreamTransformer<List<int>, Uint8List>.fromHandlers(
             handleData: (list, sink) {
-              sink.add(Uint8List.fromList(list));
-            }));
+      sink.add(Uint8List.fromList(list));
+    }));
   } else {
     throw ArgumentError('Invalid stream type: ${stream.runtimeType}');
   }

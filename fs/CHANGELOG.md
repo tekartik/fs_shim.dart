@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.11.0-dev.1
+## 0.11.0
 
 * Sdk 2.5 support
 
