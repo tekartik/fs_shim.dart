@@ -8,6 +8,8 @@ import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
 
+import 'package:fs_shim/src/common/compat.dart'; // ignore: implementation_imports
+
 import 'import_common_node.dart' as io;
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
@@ -67,8 +69,8 @@ class FileNode extends FileSystemEntityNode implements File {
   @override
   Stream<Uint8List> openRead([int start, int end]) {
     // Node is end inclusive!
-    return ReadFileStreamCtrlNode(
-            ioFile.openRead(start, end != null ? end - 1 : null))
+    return ReadFileStreamCtrlNode(intListStreamToUint8ListStream(
+            ioFile.openRead(start, end != null ? end - 1 : null)))
         .stream;
   }
 
@@ -101,7 +103,8 @@ class FileNode extends FileSystemEntityNode implements File {
           .then(_me);
 
   @override
-  Future<Uint8List> readAsBytes() => ioWrap(ioFile.readAsBytes());
+  Future<Uint8List> readAsBytes() async =>
+      asUint8List(await ioWrap(ioFile.readAsBytes()));
 
   @override
   Future<String> readAsString({Encoding encoding = utf8}) =>
