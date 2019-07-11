@@ -11,12 +11,15 @@ Future main() async {
   var dartVersion = parsePlatformVersion(Platform.version);
   bool oldListInt = dartVersion <= Version(2, 5, 0, pre: 'dev');
 
-  for (var dir in [
+  var packages = [
     'fs',
     'fs_browser',
     if (oldListInt) 'fs_node',
     'fs_test',
-  ]) {
+  ];
+  print('dartVersion: $dartVersion, oldListInt:${oldListInt}');
+  print('packages: $packages');
+  for (var dir in packages) {
     shell = shell.pushd(dir);
     await shell.run('''
     

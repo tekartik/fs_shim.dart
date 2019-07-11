@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/src/common/compat.dart';
 
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
@@ -45,7 +46,9 @@ class FileImpl extends FileSystemEntityImpl implements File {
 
   @override
   Stream<Uint8List> openRead([int start, int end]) {
-    return IoReadFileStreamCtrl(ioFile.openRead(start, end)).stream;
+    return IoReadFileStreamCtrl(
+            intListStreamToUint8ListStream(ioFile.openRead(start, end)))
+        .stream;
   }
 
   @override
@@ -77,7 +80,8 @@ class FileImpl extends FileSystemEntityImpl implements File {
           .then(_me);
 
   @override
-  Future<Uint8List> readAsBytes() => ioWrap(ioFile.readAsBytes());
+  Future<Uint8List> readAsBytes() async =>
+      asUint8List(await ioWrap(ioFile.readAsBytes()));
 
   @override
   Future<String> readAsString({Encoding encoding = utf8}) =>
