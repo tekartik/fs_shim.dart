@@ -14,9 +14,7 @@ void main() {
 
     var newVersion = parsePlatformVersion(
         '2.5.0-dev.1.0 (Tue Jul 9 15:27:01 2019 +0200) on "linux_x64"');
-    expect(
-        newVersion,
-        Version(2, 5, 0, pre:'dev.1.0'));
+    expect(newVersion, Version(2, 5, 0, pre: 'dev.1.0'));
     expect(newVersion, greaterThan(Version(2, 5, 0, pre: 'dev')));
   });
 }

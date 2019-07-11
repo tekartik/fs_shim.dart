@@ -542,7 +542,7 @@ void defineTests(FileSystemTestContext ctx) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'testappend'.codeUnits);
-    }, solo: true);
+    });
 
     test('write_on_dir', () async {
       Directory _dir = await ctx.prepare();
