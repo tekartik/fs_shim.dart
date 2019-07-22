@@ -1,6 +1,6 @@
 name: tekartik_fs_node
 description: Fs node
-version: 0.1.0
+version: 0.2.0
 publish_to: none
 #homepage: https://www.example.com
 #author: alex <email@example.com>
@@ -12,7 +12,7 @@ dependencies:
   path: '>=1.6.1'
   fs_shim: '>=0.9.0-dev.1'
   node_interop: ">=1.0.3"
-  node_io: '>=1.0.1'
+  node_io: '>=1.0.1+2'
   # node_io: any
 
 dev_dependencies:
