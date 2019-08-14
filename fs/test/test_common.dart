@@ -9,7 +9,8 @@ import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_platform/context.dart';
+
+import 'multiplatform/platform.dart';
 
 export 'dart:async';
 export 'dart:convert';
@@ -67,13 +68,13 @@ void devPrintJson(Map json) {
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform.io.isWindows);
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoWindows == true;
 }
 
 bool isIoMac(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform.io.isMac);
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoMacOS == true;
 }
 
 bool isIo(FileSystemTestContext ctx) {
-  return (ctx.platform != null && ctx.platform.io != null);
+  return ctx.platform?.isIo == true;
 }

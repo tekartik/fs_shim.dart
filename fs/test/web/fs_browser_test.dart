@@ -12,10 +12,9 @@ import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_browser.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_platform/context.dart';
-import 'package:tekartik_platform_browser/context_browser.dart';
 
 import '../multiplatform/fs_idb_test.dart';
+import '../multiplatform/platform.dart';
 import '../test_common.dart';
 
 FileSystem newIdbBrowserFileSystem([String name]) =>
@@ -23,7 +22,7 @@ FileSystem newIdbBrowserFileSystem([String name]) =>
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
-  final PlatformContext platform = platformContextBrowser;
+  final PlatformContext platform = PlatformContextBrowser();
   @override
   IdbFileSystem fs = newIdbBrowserFileSystem()
       as IdbFileSystem; // Needed for initialization (supportsLink)

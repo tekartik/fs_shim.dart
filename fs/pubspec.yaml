@@ -16,29 +16,6 @@ dev_dependencies:
   process_run: '>=0.10.0+1'
   test: '>=1.2.0'
   dev_test: '>=0.13.1'
-  chrome_travis:
-    git:
-      url: git://github.com/tekartik/chrome_travis.dart
-      ref: dart2
-    version: '>=0.1.4'
-  tekartik_platform:
-    git:
-      url: git://github.com/tekartik/platform.dart
-      path: platform
-      ref: dart2
-    version: '>=0.1.0'
-  tekartik_platform_browser:
-    git:
-      url: git://github.com/tekartik/platform.dart
-      path: platform_browser
-      ref: dart2
-    version: '>=0.1.0'
-  tekartik_platform_io:
-    git:
-      url: git://github.com/tekartik/platform.dart
-      path: platform_io
-      ref: dart2
-    version: '>=0.1.0'
   build_runner: '>=0.9.0'
   build_test: '>=0.10.2'
   build_web_compilers: '>=0.4.0'

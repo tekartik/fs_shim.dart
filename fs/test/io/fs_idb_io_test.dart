@@ -12,9 +12,9 @@ import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_io.dart';
 import 'package:path/path.dart';
-import 'package:tekartik_platform/context.dart';
 
 import '../multiplatform/fs_idb_test.dart';
+import '../multiplatform/platform.dart';
 import '../test_common.dart';
 import '../test_common_io.dart';
 
