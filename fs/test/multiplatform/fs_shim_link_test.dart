@@ -123,11 +123,15 @@ void defineTests(FileSystemTestContext ctx) {
 
         await link.create(target);
 
-        if (isIoWindows(ctx)) {
-          // on io windows link are absolute
-          expect(await link.target(), join(dir.path, target));
-        } else {
+        try {
           expect(await link.target(), target);
+        } catch (e) {
+          if (isIoWindows(ctx)) {
+            // on io windows link were absolute
+            // This did no happen when tested on 2019-09-05
+            expect(await link.target(), join(dir.path, target));
+            rethrow;
+          }
         }
       });
 
