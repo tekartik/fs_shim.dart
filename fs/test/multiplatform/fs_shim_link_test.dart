@@ -4,10 +4,9 @@
 library fs_shim.test.fs_shim_link_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/src/common/import.dart';
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
@@ -17,7 +16,7 @@ FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
-final bool _doPrintErr = devWarning(true); // false;
+final bool _doPrintErr = false;
 
 void _printErr(e) {
   if (_doPrintErr) {
@@ -380,8 +379,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (fs.supportsFileLink) {
           Directory _dir = await ctx.prepare();
           File file = fs.file(join(_dir.path, 'file'));
-          Link link =
-              await fs.link(join(_dir.path, "link")).create(file.path);
+          Link link = await fs.link(join(_dir.path, "link")).create(file.path);
 
           expect(await fs.type(link.path, followLinks: false),
               FileSystemEntityType.link);
@@ -432,8 +430,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await file.readAsString(), text);
 
           // create a link to the file
-          Link link =
-              await fs.link(join(_dir.path, "link")).create(filePath);
+          Link link = await fs.link(join(_dir.path, "link")).create(filePath);
           expect(await fs.isLink(link.path), isTrue);
 
           // check again content
@@ -453,8 +450,7 @@ void defineTests(FileSystemTestContext ctx) {
           File file = fs.file(filePath);
 
           // create a link to the file
-          Link link =
-              await fs.link(join(_dir.path, "link")).create(filePath);
+          Link link = await fs.link(join(_dir.path, "link")).create(filePath);
 
           expect(await fs.isLink(link.path), isTrue);
 
@@ -503,14 +499,10 @@ void defineTests(FileSystemTestContext ctx) {
         Directory sub = fs.directory(join(dir.path, 'sub'));
 
         Link link = fs.link(join(top.path, "link"));
-        await link.create('dir/sub');
+        await link.create(join('dir', 'sub'));
 
-        if (isIoWindows(ctx)) {
-          // absolute on windows
-          expect(await link.target(), join(dir.path, 'sub'));
-        } else {
-          expect(await link.target(), join('dir', 'sub'));
-        }
+        // 2019-09-06 fixed
+        expect(await link.target(), join('dir', 'sub'));
 
         await sub.create(recursive: true);
         expect(await fs.isDirectory(link.path), isTrue);
@@ -547,12 +539,7 @@ void defineTests(FileSystemTestContext ctx) {
         Link link = fs.link(join(top.path, "link"));
         await link.create('dir');
 
-        if (isIoWindows(ctx)) {
-          // absollute on windows
-          expect(await link.target(), dir.path);
-        } else {
-          expect(await link.target(), 'dir');
-        }
+        expect(await link.target(), 'dir');
 
         await file.create(recursive: true);
         File linkFile = fs.file(join(link.path, 'file'));
@@ -574,8 +561,7 @@ void defineTests(FileSystemTestContext ctx) {
           File file = fs.file(filePath);
 
           // create a link to the file
-          Link link =
-              await fs.link(join(_dir.path, "link")).create(filePath);
+          Link link = await fs.link(join(_dir.path, "link")).create(filePath);
 
           expect(await fs.isLink(link.path), isTrue);
 
@@ -708,12 +694,22 @@ void defineTests(FileSystemTestContext ctx) {
           fail("should fail");
         } on FileSystemException catch (e) {
           _printErr(e);
-          if (isIoWindows(ctx)) {
-            // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant.      , errno = 183)
-            expect(e.status, FileSystemException.statusAlreadyExists);
-          } else {
-            // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
-            expect(e.status, FileSystemException.statusAlreadyExists);
+          try {
+            if (isIoWindows(ctx)) {
+              // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant.      , errno = 183)
+              expect(e.status, FileSystemException.statusAlreadyExists);
+            } else {
+              // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
+              expect(e.status, FileSystemException.statusAlreadyExists);
+            }
+          } catch (te) {
+            if (isIoWindows(ctx)) {
+              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir_or_file\dir_or_file' (OS Error: Access is denied.
+              //, errno = 5) [FileSystemExceptionImpl]
+              expect(e.status, FileSystemException.statusAccessError);
+            } else {
+              rethrow;
+            }
           }
         }
 
@@ -731,7 +727,13 @@ void defineTests(FileSystemTestContext ctx) {
 
           if (isIoWindows(ctx)) {
             // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
-            expect(e.status, FileSystemException.statusInvalidArgument);
+            try {
+              expect(e.status, FileSystemException.statusInvalidArgument);
+            } catch (te) {
+              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir_or_file\dir_or_file' (OS Error: Access is denied.
+              //, errno = 5) [FileSystemExceptionImpl]
+              expect(e.status, FileSystemException.statusAccessError);
+            }
           } else {
             // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
             // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
@@ -757,8 +759,14 @@ void defineTests(FileSystemTestContext ctx) {
         } on FileSystemException catch (e) {
           _printErr(e);
           if (isIoWindows(ctx)) {
-            // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant., errno = 183)
-            expect(e.status, FileSystemException.statusAlreadyExists);
+            try {
+              // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant., errno = 183)
+              expect(e.status, FileSystemException.statusAlreadyExists);
+            } catch (te) {
+              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir_or_file\dir_or_file' (OS Error: Access is denied.
+              //, errno = 5) [FileSystemExceptionImpl]
+              expect(e.status, FileSystemException.statusAccessError);
+            }
           } else {
             // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
             // [21] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
@@ -943,6 +951,6 @@ void defineTests(FileSystemTestContext ctx) {
           }
         });
       });
-    }, solo: true);
+    });
   }
 }

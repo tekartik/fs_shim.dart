@@ -16,7 +16,7 @@ void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('entity', () {
     test('as', () async {
-      Link fileSystemEntity = fs.newLink('fse');
+      Link fileSystemEntity = fs.link('fse');
       Link link = asLink(fileSystemEntity);
       File file = asFile(fileSystemEntity);
       Directory directory = asDirectory(fileSystemEntity);

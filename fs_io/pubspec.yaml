@@ -1,12 +1,12 @@
-name: tekartik_fs_browser
-description: Fs browser
+name: tekartik_fs_io
+description: Fs io
 version: 0.1.0
 publish_to: none
 #homepage: https://www.example.com
 #author: alex <email@example.com>
 
 environment:
-  sdk: '>=2.1.0-dev <3.0.0'
+  sdk: '>=2.4.0-dev <3.0.0'
 
 dependencies:
   path: '>=1.6.1'
@@ -22,10 +22,10 @@ dev_dependencies:
     path: ../fs_test
   build_test: '>=0.10.2'
   process_run: '>=0.10.0+1'
-  tekartik_platform_browser:
+  tekartik_platform_io:
     git:
       url: git://github.com/tekartik/platform.dart
-      path: platform_browser
+      path: platform_io
       ref: dart2
     version: '>=0.2.0'
 
