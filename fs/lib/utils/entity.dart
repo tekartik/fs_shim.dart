@@ -46,13 +46,13 @@ Link asLink(FileSystemEntity link) {
   if (link is Link) {
     return link;
   } else {
-    return link.fs.newLink(link.path);
+    return link.fs.link(link.path);
   }
 }
 
 /// get a child as a link
 Link childLink(Directory dir, String sub) {
-  return dir.fs.newLink(join(dir.path, sub));
+  return dir.fs.link(join(dir.path, sub));
 }
 
 Future<bool> entityExists(FileSystemEntity entity) async {

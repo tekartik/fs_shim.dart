@@ -452,7 +452,7 @@ abstract class EntityNodeFsMixin implements EntityNode {
   File asFile() => fs.file(path);
 
   @override
-  Link asLink() => fs.newLink(path);
+  Link asLink() => fs.link(path);
 
   @override
   Future<bool> isDirectory() => fs.isDirectory(path);

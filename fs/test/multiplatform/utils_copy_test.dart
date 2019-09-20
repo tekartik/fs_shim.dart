@@ -516,7 +516,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('copy_link_dir', () async {
         Directory top = await ctx.prepare();
         Directory srcDir = fs.directory(join(top.path, "dir"));
-        Link srcLink = fs.newLink(join(top.path, 'link'));
+        Link srcLink = fs.link(join(top.path, 'link'));
         Directory dstDir = fs.directory(join(top.path, "dir2"));
 
         expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
@@ -538,7 +538,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (fs.supportsFileLink) {
           Directory top = await ctx.prepare();
           File srcFile = fs.file(join(top.path, "file"));
-          Link srcLink = fs.newLink(join(top.path, 'link'));
+          Link srcLink = fs.link(join(top.path, 'link'));
           File dstFile = fs.file(join(top.path, "file2"));
 
           expect(await copyFileSystemEntityImpl(srcLink, dstFile), 0);

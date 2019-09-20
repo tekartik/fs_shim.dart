@@ -38,7 +38,7 @@ Future main() async {
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    Link link = fs.newLink(join(dir.path, "link"));
+    Link link = fs.link(join(dir.path, "link"));
     await link.create(file.path);
 
     print('link: ${link} target ${await link.target()}');

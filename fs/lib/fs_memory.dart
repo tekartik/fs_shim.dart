@@ -14,4 +14,4 @@ export 'fs.dart';
 FileSystem newMemoryFileSystem([String name]) => newFileSystemMemory(name);
 
 FileSystem newFileSystemMemory([String name]) =>
-    newIdbFileSystem(idbMemoryFactory, name);
+    newIdbFileSystem(idbFactoryMemory, name);

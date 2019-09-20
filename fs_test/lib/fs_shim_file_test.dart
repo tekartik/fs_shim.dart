@@ -32,7 +32,10 @@ void defineTests(FileSystemTestContext ctx) {
       test('writeAsString', () async {
         // direct file write, no preparation
         var fs = ctx.fs;
-        await fs.file("file.tmp").writeAsString("context");
+        var file = fs.file("file.tmp");
+        await file.writeAsString("content");
+        expect(await file.readAsString(), 'content');
+        await file.delete();
       }, skip: false);
     });
     test('new', () {
