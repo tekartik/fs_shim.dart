@@ -59,8 +59,18 @@ class FileNode extends FileSystemEntityNode implements File {
     if (mode == FileMode.read) {
       throw ArgumentError.value(mode, "mode cannot be read-only");
     }
-    WriteFileSinkNode sink = WriteFileSinkNode(
-        ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
+    // Test that parent dir exists as we don't get any error...
+    /*
+    var dir = vm_io.Directory(dirname(path));
+    if (!dir.existsSync()) {
+      throw 'Parent directory does not exists';
+    }
+
+     */
+    var ioMode = fileWriteMode(mode);
+    var ioSink = ioFile.openWrite(mode: ioMode, encoding: encoding);
+    WriteFileSinkNode sink = WriteFileSinkNode(ioSink);
+
     return sink;
   }
 

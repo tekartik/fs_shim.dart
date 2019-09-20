@@ -152,9 +152,9 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
 }
 
 class ReadFileStreamCtrlNode {
-  ReadFileStreamCtrlNode(this.ioStream) {
+  ReadFileStreamCtrlNode(this._nodeStream) {
     _ctlr = StreamController();
-    ioStream.listen((Uint8List data) {
+    _nodeStream.listen((data) {
       _ctlr.add(data);
     }, onError: (error, StackTrace stackTrace) {
       _ctlr.addError(ioWrapError(error));
@@ -163,7 +163,7 @@ class ReadFileStreamCtrlNode {
     });
   }
 
-  Stream<Uint8List> ioStream;
+  Stream<Uint8List> _nodeStream;
   StreamController<Uint8List> _ctlr;
 
   Stream<Uint8List> get stream => _ctlr.stream;

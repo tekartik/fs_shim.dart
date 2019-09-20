@@ -21,3 +21,25 @@ dev_dependencies:
   build_test: '>=0.10.2'
   build_web_compilers: '>=0.4.0'
   process_run: '>=0.10.0'
+
+  # test dependencies without version
+  tekartik_fs_io:
+    git:
+      url: git://github.com/tekartik/fs_shim.dart
+      ref: dart2
+      path: fs_io
+  tekartik_fs_browser:
+    git:
+      url: git://github.com/tekartik/fs_shim.dart
+      ref: dart2
+      path: fs_browser
+  tekartik_fs_node:
+    git:
+      url: git://github.com/tekartik/fs_shim.dart
+      ref: dart2
+      path: fs_node
+  tekartik_fs_test:
+    git:
+      url: git://github.com/tekartik/fs_shim.dart
+      ref: dart2
+      path: fs_test

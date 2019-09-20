@@ -34,7 +34,7 @@ void defineTests(FileSystemTestContext ctx) {
   });
   test('supportsFileLink', () {
     // currently only windows io does not
-    if (isIoWindows(ctx)) {
+    if (isIoWindows(ctx) || isNode(ctx)) {
       expect(fs.supportsFileLink, isFalse);
     } else {
       expect(fs.supportsFileLink, isTrue);
