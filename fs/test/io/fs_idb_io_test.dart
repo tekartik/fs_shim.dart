@@ -19,7 +19,7 @@ import '../test_common.dart';
 import '../test_common_io.dart';
 
 FileSystem newIdbIoFileSystem([String name]) =>
-    newIdbFileSystem(getIdbSembastIoFactory(testOutTopPath), name);
+    newIdbFileSystem(getIdbFactorySembastIo(testOutTopPath), name);
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   @override

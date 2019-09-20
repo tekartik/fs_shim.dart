@@ -79,7 +79,7 @@ void main() {
       });
 
       test('filestat', () async {
-        io.FileStat ioFileStat = await io.Directory.current.stat();
+        io.FileStat ioFileStat = io.Directory.current.statSync();
         FileStat fileStat = wrapIoFileStat(ioFileStat);
         expect(unwrapIoFileStat(fileStat), ioFileStat);
       });
@@ -140,7 +140,7 @@ void main() {
       });
 
       test('filestat', () async {
-        io.FileStat ioFileStat = await io.Directory.current.stat();
+        io.FileStat ioFileStat = io.Directory.current.statSync();
         FileStat fileStat = await Directory.current.stat();
         expect(fileStat.size, ioFileStat.size);
       });

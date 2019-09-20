@@ -87,7 +87,7 @@ void main() {
       });
 
       test('filestat', () async {
-        vm_io.FileStat ioFileStat = await io.Directory.current.stat();
+        vm_io.FileStat ioFileStat = io.Directory.current.statSync();
         FileStat fileStat = wrapIoFileStat(ioFileStat);
         expect(unwrapIoFileStat(fileStat), ioFileStat);
       });

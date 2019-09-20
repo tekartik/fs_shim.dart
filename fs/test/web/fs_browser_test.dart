@@ -18,7 +18,7 @@ import '../multiplatform/platform.dart';
 import '../test_common.dart';
 
 FileSystem newIdbBrowserFileSystem([String name]) =>
-    newIdbFileSystem(idbBrowserFactory, name);
+    newIdbFileSystem(idbFactoryBrowser, name);
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
