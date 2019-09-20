@@ -118,49 +118,33 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
 }
 
 class WriteFileSinkNode implements StreamSink<List<int>> {
-  io.IOSink _ioSink;
+  io.IOSink ioSink;
 
-  final _readyCompleter = Completer<bool>.sync();
-  set ioSink(io.IOSink ioSink) {
-    if (ioSink != null) {
-      _ioSink = ioSink;
-    } else {
-      _readyCompleter.completeError('open for write failed');
-    }
-  }
-
-  Future<bool> get ready => _readyCompleter.future;
-  WriteFileSinkNode();
+  WriteFileSinkNode(this.ioSink);
 
   @override
   void add(List<int> data) {
-    ready.then((_) {
-      _ioSink.add(data);
-    });
+    ioSink.add(data);
   }
 
   // always flush on node
   @override
   Future close() async {
-    await ready;
-    await ioWrap(_ioSink.flush());
-    await ioWrap(_ioSink.close());
+    await ioWrap(ioSink.flush());
+    await ioWrap(ioSink.close());
   }
 
   @override
   void addError(errorEvent, [StackTrace stackTrace]) {
-    ready.then((_) {
-      _ioSink.addError(errorEvent, stackTrace);
-    });
+    ioSink.addError(errorEvent, stackTrace);
   }
 
   @override
-  Future get done => ready.then((_) => ioWrap(_ioSink.done));
+  Future get done => ioWrap(ioSink.done);
 
   @override
   // not supported for node...
   Future addStream(Stream<List<int>> stream) async {
-    await ready;
     await stream.listen((List<int> data) {
       add(data);
     }).asFuture();

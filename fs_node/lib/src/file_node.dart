@@ -4,7 +4,6 @@ import 'dart:io' as vm_io;
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
@@ -69,19 +68,8 @@ class FileNode extends FileSystemEntityNode implements File {
 
      */
     var ioMode = fileWriteMode(mode);
-    WriteFileSinkNode sink = WriteFileSinkNode();
-    () async {
-      var dir = vm_io.Directory(dirname(path));
-      bool parentExists = false;
-      try {
-        parentExists = await dir.exists();
-      } catch (_) {}
-      if (parentExists) {
-        sink.ioSink = null;
-      } else {
-        sink.ioSink = ioFile.openWrite(mode: ioMode, encoding: encoding);
-      }
-    }();
+    var ioSink = ioFile.openWrite(mode: ioMode, encoding: encoding);
+    WriteFileSinkNode sink = WriteFileSinkNode(ioSink);
 
     return sink;
   }

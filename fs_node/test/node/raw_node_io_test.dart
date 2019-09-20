@@ -48,17 +48,22 @@ void main() {
       var path = join(".dart_tool", "tekartik_fs_node", "write");
       await createDir(path);
       var file = File(join(path, 'test_out.txt'));
-      await file.delete();
+      if (await file.exists()) {
+        await file.delete();
+      }
       var sink = file.openWrite();
       sink.add(utf8.encode('content'));
       await sink.close();
       expect('content', await file.readAsString());
     });
+
     test('write_2', () async {
       var path = join(".dart_tool", "tekartik_fs_node", "write");
       await createDir(path);
       var file = File(join(path, 'test_out.txt'));
-      await file.delete();
+      if (await file.exists()) {
+        await file.delete();
+      }
       var sink = file.openWrite(mode: FileMode.write, encoding: utf8);
       sink.add(utf8.encode('content'));
       await sink.close();
