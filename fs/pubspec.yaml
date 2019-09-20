@@ -5,7 +5,7 @@ author: Tekartik <alex@tekartik.com>
 homepage: https://github.com/tekartik/fs_shim.dart
 
 environment:
-  sdk: '>=2.1.0-dev <3.0.0'
+  sdk: '>=2.4.0-dev <3.0.0'
 
 dependencies:
   idb_shim: '>=1.10.0-dev <3.0.0'
@@ -20,8 +20,3 @@ dev_dependencies:
   build_test: '>=0.10.2'
   build_web_compilers: '>=0.4.0'
 
-# dependency_overrides:
-#  sembast:
-#    path: ../../sembast.dart/sembast
-#  idb_shim:
-#    path: ../../idb_shim.dart
