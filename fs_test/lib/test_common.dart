@@ -1,12 +1,12 @@
 library fs_shim.test.test_common;
 
+// ignore_for_file: implementation_imports
 // basically same as the io runner but with extra output
 import 'dart:convert';
 
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
-// ignore: implementation_imports
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_platform/context.dart';

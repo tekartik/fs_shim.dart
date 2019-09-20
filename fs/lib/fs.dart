@@ -455,6 +455,7 @@ abstract class FileSystem {
   Link link(String path);
 
   // Use [link] instead
+  @deprecated
   Link newLink(String path);
 
   ///

@@ -1,5 +1,6 @@
 library fs_shim.test.test_common;
 
+// ignore_for_file: deprecated_member_use
 // basically same as the io runner but with extra output
 import 'dart:async';
 import 'dart:convert';
@@ -16,6 +17,7 @@ export 'dart:async';
 export 'dart:convert';
 
 export 'package:dev_test/test.dart';
+export 'package:fs_shim/src/common/import.dart' show devPrint, devWarning;
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -39,7 +41,12 @@ abstract class FileSystemTestContext {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {
       //print(e);
-      expect(e.status, FileSystemException.statusNotFound);
+      try {
+        expect(e.status, FileSystemException.statusNotFound);
+      } catch (te) {
+        // devPrint('delete exception $e');
+        expect(e.status, FileSystemException.statusAccessError);
+      }
     }
     await dir.create(recursive: true);
     return dir.absolute;
