@@ -405,7 +405,7 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await readString(childFile(dst, "file")), "test");
       });
 
-      test('CopyNode_runChilde', () async {
+      test('CopyNode_runChild', () async {
         // fsCopyDebug = true;
         Directory top = await ctx.prepare();
         Directory src = childDirectory(top, "src");

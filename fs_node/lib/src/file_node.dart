@@ -4,6 +4,7 @@ import 'dart:io' as vm_io;
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
+import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
@@ -59,8 +60,29 @@ class FileNode extends FileSystemEntityNode implements File {
     if (mode == FileMode.read) {
       throw ArgumentError.value(mode, "mode cannot be read-only");
     }
-    WriteFileSinkNode sink = WriteFileSinkNode(
-        ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
+    // Test that parent dir exists as we don't get any error...
+    /*
+    var dir = vm_io.Directory(dirname(path));
+    if (!dir.existsSync()) {
+      throw 'Parent directory does not exists';
+    }
+
+     */
+    var ioMode = fileWriteMode(mode);
+    WriteFileSinkNode sink = WriteFileSinkNode();
+    () async {
+      var dir = vm_io.Directory(dirname(path));
+      bool parentExists = false;
+      try {
+        parentExists = await dir.exists();
+      } catch (_) {}
+      if (parentExists) {
+        sink.ioSink = null;
+      } else {
+        sink.ioSink = ioFile.openWrite(mode: ioMode, encoding: encoding);
+      }
+    }();
+
     return sink;
   }
 

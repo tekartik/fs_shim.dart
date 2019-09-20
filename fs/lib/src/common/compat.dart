@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:fs_shim/src/common/import.dart';
+
 // 2.5 compatibility change
 //
 // TODO 2019/07/08 This could be removed once the stable API returns Uint8List everywhere

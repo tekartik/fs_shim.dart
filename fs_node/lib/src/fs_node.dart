@@ -118,33 +118,49 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
 }
 
 class WriteFileSinkNode implements StreamSink<List<int>> {
-  io.IOSink ioSink;
+  io.IOSink _ioSink;
 
-  WriteFileSinkNode(this.ioSink);
+  final _readyCompleter = Completer<bool>.sync();
+  set ioSink(io.IOSink ioSink) {
+    if (ioSink != null) {
+      _ioSink = ioSink;
+    } else {
+      _readyCompleter.completeError('open for write failed');
+    }
+  }
+
+  Future<bool> get ready => _readyCompleter.future;
+  WriteFileSinkNode();
 
   @override
   void add(List<int> data) {
-    ioSink.add(data);
+    ready.then((_) {
+      _ioSink.add(data);
+    });
   }
 
   // always flush on node
   @override
   Future close() async {
-    await ioWrap(ioSink.flush());
-    await ioWrap(ioSink.close());
+    await ready;
+    await ioWrap(_ioSink.flush());
+    await ioWrap(_ioSink.close());
   }
 
   @override
   void addError(errorEvent, [StackTrace stackTrace]) {
-    ioSink.addError(errorEvent, stackTrace);
+    ready.then((_) {
+      _ioSink.addError(errorEvent, stackTrace);
+    });
   }
 
   @override
-  Future get done => ioWrap(ioSink.done);
+  Future get done => ready.then((_) => ioWrap(_ioSink.done));
 
   @override
   // not supported for node...
   Future addStream(Stream<List<int>> stream) async {
+    await ready;
     await stream.listen((List<int> data) {
       add(data);
     }).asFuture();
@@ -152,9 +168,9 @@ class WriteFileSinkNode implements StreamSink<List<int>> {
 }
 
 class ReadFileStreamCtrlNode {
-  ReadFileStreamCtrlNode(this.ioStream) {
+  ReadFileStreamCtrlNode(this._nodeStream) {
     _ctlr = StreamController();
-    ioStream.listen((Uint8List data) {
+    _nodeStream.listen((data) {
       _ctlr.add(data);
     }, onError: (error, StackTrace stackTrace) {
       _ctlr.addError(ioWrapError(error));
@@ -163,7 +179,7 @@ class ReadFileStreamCtrlNode {
     });
   }
 
-  Stream<Uint8List> ioStream;
+  Stream<Uint8List> _nodeStream;
   StreamController<Uint8List> _ctlr;
 
   Stream<Uint8List> get stream => _ctlr.stream;
