@@ -12,6 +12,7 @@ import 'dart:typed_data';
 
 import 'package:path/path.dart';
 
+/// FileSystem eneity.
 abstract class FileSystemEntity {
   ///
   /// Get the path of the file.
@@ -97,13 +98,14 @@ abstract class FileSystemEntity {
   FileSystem get fs;
 }
 
+/// File open mode.
 class FileMode {
   const FileMode._internal(this._mode);
 
   /// The mode for opening a file only for reading.
   static const read = FileMode._internal(0);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const READ = read;
 
   /// The mode for opening a file for reading and writing. The file is
@@ -111,18 +113,19 @@ class FileMode {
   /// already exist.
   static const write = FileMode._internal(1);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const WRITE = write;
 
   /// The mode for opening a file for reading and writing to the
   /// end of it. The file is created if it does not already exist.
   static const append = FileMode._internal(2);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const APPEND = append;
 
   final int _mode;
 
+  /// Mode
   int get mode => _mode;
 }
 
@@ -150,16 +153,13 @@ abstract class FileStat {
   int get size;
 }
 
+/// Abstract File entity.
 abstract class File extends FileSystemEntity {
   File._();
 
-  ///
-  ///
-  ///
   /// Create the file. Returns a [:Future<File>:] that completes with
-  ///
-  ///
   /// the file when it has been created.
+  ///
   /// If [recursive] is false, the default, the file is created only if
   ///  all directories in the path exist. If [recursive] is true, all
   ///  non-existing path components are created.
@@ -277,6 +277,7 @@ abstract class File extends FileSystemEntity {
   File get absolute;
 }
 
+/// Abstract directory.
 abstract class Directory extends FileSystemEntity {
   /// prevent extends
   Directory._();
@@ -382,6 +383,7 @@ abstract class Link extends FileSystemEntity {
   Future<Link> rename(String newPath);
 }
 
+/// File sink.
 abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 
 ///
@@ -395,30 +397,35 @@ class FileSystemEntityType {
 
   const FileSystemEntityType._internal(this._type);
 
+  /// File type.
   static const file = FileSystemEntityType._internal(0);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const FILE = file;
 
+  /// Directory type.
   static const directory = FileSystemEntityType._internal(1);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const DIRECTORY = directory;
 
+  /// Link type.
   static const link = FileSystemEntityType._internal(2);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const LINK = link;
 
+  /// Not found.
   static const notFound = FileSystemEntityType._internal(3);
   @deprecated
-  // ignore: constant_identifier_names
+  // ignore: constant_identifier_names, public_member_api_docs
   static const NOT_FOUND = notFound;
 
   @override
   String toString() => const ['FILE', 'DIRECTORY', 'LINK', 'NOT_FOUND'][_type];
 }
 
+/// Abstract File system.
 abstract class FileSystem {
   ///
   /// Creates a [Directory] object.
@@ -432,6 +439,7 @@ abstract class FileSystem {
 
   // Use [directory] instead
   @deprecated
+  // ignore: public_member_api_docs
   Directory newDirectory(String path);
 
   ///
@@ -447,6 +455,7 @@ abstract class FileSystem {
 
   // Use [file] instead
   @deprecated
+  // ignore: public_member_api_docs
   File newFile(String path);
 
   ///
@@ -456,6 +465,7 @@ abstract class FileSystem {
 
   // Use [link] instead
   @deprecated
+  // ignore: public_member_api_docs
   Link newLink(String path);
 
   ///
@@ -487,10 +497,13 @@ abstract class FileSystem {
   ///
   Future<bool> isLink(String path);
 
-  // fs_shim specific
+  /// fs_shim specific. Name of the file system.
   String get name; // io or idb
+
+  /// Returns true if links are supported.
   bool get supportsLink;
 
+  /// Returns true if file links are supported.
   bool get supportsFileLink; // windows does not support file link
 
   ///
@@ -500,9 +513,11 @@ abstract class FileSystem {
 
   // User [path] instead
   @deprecated
+  // ignore: public_member_api_docs
   Context get pathContext;
 }
 
+/// Generic OS error.
 abstract class OSError {
   /// Constant used to indicate that no OS error code is available.
   static const int noErrorCode = -1;
@@ -516,20 +531,28 @@ abstract class OSError {
   String get message;
 }
 
+/// Common file system exception.
 abstract class FileSystemException {
   FileSystemException._();
 
+  /// File not found.
   static const int statusNotFound = 2;
+
+  /// File already exists.
   static const int statusAlreadyExists =
       17; // when creating a dir when it exists with another type (file)
+  /// Not a directory.
   static const int statusNotADirectory =
       20; // when deleting a dir when it is a file
+  /// Is a directory.
   static const int statusIsADirectory =
       21; // when creating a file and it is a dir
+  /// Invalid argument.
   static const int statusInvalidArgument =
       22; // when acting on a link where the argument is not a link
+  /// Directory not empty.
   static const int statusNotEmpty = 39; // when deleting a non empty directory
-
+  /// Generic access error.
   static const int statusAccessError = 5; // for windows
 
   /// Message describing the error. This does not include any detailed

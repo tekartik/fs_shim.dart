@@ -45,8 +45,7 @@ abstract class FileMixin {
 
   Future<FileMixin> doWriteAsBytes(List<int> bytes,
       {FileMode mode = FileMode.write, bool flush = false}) async {
-    var sink = openWrite(mode: mode);
-    sink.add(bytes);
+    var sink = openWrite(mode: mode)..add(bytes);
     await sink.close();
     return this;
   }

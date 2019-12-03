@@ -1,6 +1,6 @@
 name: tekartik_fs_node
 description: Fs node
-version: 0.2.0
+version: 0.3.0
 publish_to: none
 #homepage: https://www.example.com
 #author: alex <email@example.com>
@@ -10,8 +10,8 @@ environment:
 
 dependencies:
   path: '>=1.6.1'
-  fs_shim: '>=0.11.0+2'
-  node_interop: ">=1.0.3"
+  fs_shim: '>=0.11.0+3'
+  node_interop: '>=1.0.3'
   node_io: '>=1.0.1+2'
   # node_io: any
 
@@ -38,6 +38,7 @@ dev_dependencies:
       url: git://github.com/tekartik/platform.dart
       path: platform_node
       ref: dart2
+    version: '>=0.2.0'
   process_run: '>=0.10.0+1'
 
 dependency_overrides:

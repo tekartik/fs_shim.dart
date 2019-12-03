@@ -43,23 +43,28 @@ export 'fs.dart'
 
 FileSystem _fileSystemIo;
 
+/// IO file system.
 FileSystem get fileSystemIo => _fileSystemIo ??= FileSystemIo();
 
 // @Deprecated("Use fileSystemIo instead")
+// ignore: public_member_api_docs
 FileSystem get ioFileSystem => fileSystemIo;
 
-/// File
+/// File.
 abstract class File implements fs.File, FileSystemEntity {
+  /// Creates a file entity.
   factory File(String path) => FileImpl(path);
 }
 
-// Wrap/unwrap
+/// Wrap IO file.
 File wrapIoFile(io.File ioFile) => FileImpl.io(ioFile);
 
+/// Unwrap IO file.
 io.File unwrapIoFile(fs.File file) => (file as FileImpl).ioFile;
 
-/// Directory
+/// Directory.
 abstract class Directory implements fs.Directory, FileSystemEntity {
+  /// Creates a directory entity.
   factory Directory(String path) => DirectoryImpl(path);
 
   @override
@@ -73,21 +78,24 @@ abstract class Directory implements fs.Directory, FileSystemEntity {
   static Directory get current => currentDirectory;
 }
 
-// Wrap/unwrap
+/// Wrap IO directory.
 Directory wrapIoDirectory(io.Directory ioDirectory) =>
     DirectoryImpl.io(ioDirectory);
 
+/// Unwrap IO directory.
 io.Directory unwrapIoDirectory(fs.Directory dir) =>
     (dir as DirectoryImpl).ioDir;
 
 /// Link
 abstract class Link extends fs.Link implements FileSystemEntity {
+  /// Creates a link entity.
   factory Link(String path) => LinkImpl(path);
 }
 
-// Wrap/unwrap
+/// Wraps IO link.
 Link wrapIoLink(io.Link ioLink) => LinkImpl.io(ioLink);
 
+/// Unwraps IO link.
 io.Link unwrapIoLink(Link dir) => (dir as LinkImpl).ioLink;
 
 /// File System Entity
@@ -130,39 +138,44 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
       ioFileSystem.type(path, followLinks: followLinks);
 }
 
-// FileSystemException Wrap/unwrap
+/// Wraps IO FileSystemException.
 FileSystemException wrapIoFileSystemException(
         io.FileSystemException ioFileSystemException) =>
     FileSystemExceptionImpl.io(ioFileSystemException);
 
+/// Unwraps IO FileSystemException.
 io.FileSystemException unwrapIoFileSystemException(
         FileSystemException fileSystemException) =>
     (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
 
-// OSError Wrap/unwrap
+/// Wraps IO OS Error.
 OSError wrapIoOSError(io.OSError ioOSError) => OSErrorImpl.io(ioOSError);
 
+/// Unwraps IO OS Error.
 io.OSError unwrapIoOSError(OSError osError) =>
     (osError as OSErrorImpl).ioOSError;
 
-// FileStat Wrap/unwrap
+/// Wraps IO FileStat.
 FileStat wrapIoFileStat(io.FileStat ioFileStat) => FileStatImpl.io(ioFileStat);
 
+/// Unwraps IO FileStat.
 io.FileStat unwrapIoFileStat(FileStat fileStat) =>
     (fileStat as FileStatImpl).ioFileStat;
 
-// FileMode Wrap/unwrap
+/// Wraps IO FileMode.
 FileMode wrapIoFileMode(io.FileMode ioFileMode) =>
     wrapIofileModeImpl(ioFileMode);
 
+/// Unwraps IO FileMode.
 io.FileMode unwrapIoFileMode(FileMode fileMode) =>
     unwrapIofileModeImpl(fileMode);
 
-// FileSystemEntityType Wrap/unwrap
+/// Wraps IO FileSystemEntityType.
 FileSystemEntityType wrapIoFileSystemEntityType(
         io.FileSystemEntityType ioFileSystemEntityType) =>
     wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
 
+/// Unwraps IO FileSystemEntityType.
 io.FileSystemEntityType unwrapIoFileSystemEntityType(
         FileSystemEntityType fileSystemEntityType) =>
     unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);
