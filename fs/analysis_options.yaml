@@ -140,3 +140,39 @@ linter:
 
     # === pub rules ===
     - package_names
+
+    - avoid_bool_literals_in_conditional_expressions
+    # - avoid_classes_with_only_static_members
+    - avoid_function_literals_in_foreach_calls
+    # - avoid_renaming_method_parameters
+    - avoid_returning_null_for_void
+    # - avoid_returning_this
+    - avoid_shadowing_type_parameters
+    - avoid_single_cascade_in_expression_statements
+    - avoid_types_as_parameter_names
+    - avoid_unused_constructor_parameters
+    # - cascade_invocations
+    # comment_references
+    - curly_braces_in_flow_control_structures
+    - file_names
+    - invariant_booleans
+    - null_closures
+    # - omit_local_variable_types
+    # - only_throw_errors
+    # - prefer_conditional_assignment
+    # - prefer_final_fields
+    - prefer_generic_function_type_aliases
+    # - prefer_null_aware_operators
+    # - prefer_single_quotes
+    # - prefer_typing_uninitialized_variables
+    - recursive_getters
+    - type_init_formals
+    # - unnecessary_brace_in_string_interps
+    - unnecessary_getters_setters
+    # - unnecessary_lambdas
+    - unnecessary_overrides
+    # - unnecessary_parenthesis
+    # - unnecessary_this
+    - void_checks
+    # === doc rules ===
+    # - public_member_api_docs

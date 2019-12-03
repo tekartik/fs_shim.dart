@@ -16,12 +16,12 @@ class IdbFileStat implements fs.FileStat {
 
   @override
   String toString() {
-    Map map = {"type": type};
+    final map = <String, dynamic>{'type': type};
     if (modified != null) {
-      map["modified"] = modified;
+      map['modified'] = modified;
     }
     if (_size != null) {
-      map["size"] = size;
+      map['size'] = size;
     }
     return map.toString();
   }

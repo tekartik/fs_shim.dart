@@ -3,22 +3,22 @@ import 'dart:core' hide print;
 import 'dart:core' as core;
 import 'dart:html' hide FileSystem, File;
 
-import 'package:fs_shim/fs_memory.dart';
+import 'package:fs_shim/fs_idb.dart';
+import 'package:idb_shim/idb_client_native.dart';
 import 'package:path/path.dart';
+
+FileSystem fs = newFileSystemIdb(idbFactoryNative);
 
 PreElement outElement;
 
 void print(msg) {
-  if (outElement == null) {
-    outElement = querySelector("#output") as PreElement;
-  }
-  outElement.text += "${msg}\n";
+  outElement ??= querySelector('#output') as PreElement;
+  outElement.text += '$msg\n';
 }
 
 Future main() async {
-  FileSystem fs = newMemoryFileSystem();
   // Create a top level directory
-  Directory dir = fs.directory('/dir');
+  final dir = fs.directory('/dir');
 
   // delete its content
   if (await dir.exists()) {
@@ -26,29 +26,28 @@ Future main() async {
   }
 
   // and a file in it
-  File file = fs.file(join(dir.path, "file"));
+  final file = fs.file(join(dir.path, 'file'));
 
   // create a file
   await file.create(recursive: true);
-  await file.writeAsString("Hello world!");
+  await file.writeAsString('Hello world!');
 
   // read a file
-  print('file: ${file}');
+  print('file: $file');
   print('content: ${await file.readAsString()}');
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    Link link = fs.link(join(dir.path, "link"));
+    final link = fs.link(join(dir.path, 'link'));
     await link.create(file.path);
 
-    print('link: ${link} target ${await link.target()}');
+    print('link: $link target ${await link.target()}');
     print('content: ${await fs.file(link.path).readAsString()}');
   }
 
   // list dir content
   print('Listing dir: $dir');
-  (await dir.list(recursive: true, followLinks: true).toList())
-      .forEach((FileSystemEntity fse) {
+  for (var fse in await dir.list(recursive: true, followLinks: true).toList()) {
     print('  found: $fse');
-  });
+  }
 }

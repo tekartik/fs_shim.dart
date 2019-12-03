@@ -45,8 +45,7 @@ abstract class FileMixin {
 
   Future<FileMixin> doWriteAsBytes(List<int> bytes,
       {FileMode mode = FileMode.write, bool flush = false}) async {
-    var sink = openWrite(mode: mode);
-    sink.add(bytes);
+    var sink = openWrite(mode: mode)..add(bytes);
     await sink.close();
     return this;
   }
@@ -70,9 +69,9 @@ abstract class FileMixin {
   String _tryDecode(List<int> bytes, Encoding encoding) {
     try {
       return encoding.decode(bytes);
-    } catch (_) {
+    } catch (e) {
       throw FormatException(
-          "Failed to decode data using encoding '${encoding.name}'", path);
+          "Failed to decode data using encoding '${encoding.name}' $e", path);
     }
   }
 

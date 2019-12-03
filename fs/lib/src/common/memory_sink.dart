@@ -8,7 +8,7 @@ class MemorySink implements StreamSink<List<int>> {
 
   MemorySink();
 
-  Completer _completer = Completer.sync();
+  final _completer = Completer.sync();
 
   Future get _done => _completer.future;
 

@@ -4,13 +4,13 @@ import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
 Future main() async {
-  FileSystem fs = ioFileSystem;
+  final fs = ioFileSystem;
   // safe place when running from package root
-  String dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
+  final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
   // fs.directory('/dir');
-  Directory dir = Directory(dirPath);
+  final dir = Directory(dirPath);
   print('dir: $dir');
   // delete its content
   if (await dir.exists()) {
@@ -19,11 +19,11 @@ Future main() async {
 
   // and a file in it
   // fs.file(join(dir.path, "file"));
-  File file = File(join(dir.path, "file"));
+  final file = File(join(dir.path, 'file'));
 
   // create a file
   await file.create(recursive: true);
-  await file.writeAsString("Hello world!");
+  await file.writeAsString('Hello world!');
 
   // read a file
   print('file: ${await file.readAsString()}');
@@ -31,7 +31,7 @@ Future main() async {
   // use a file link if supported
   if (fs.supportsFileLink) {
     // fs.newLink(join(dir.path, "link"));
-    Link link = Link(join(dir.path, "link"));
+    final link = Link(join(dir.path, 'link'));
     await link.create(file.path);
 
     print('link: ${await File(link.path).readAsString()}');

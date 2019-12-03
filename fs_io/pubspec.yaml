@@ -1,6 +1,6 @@
 name: tekartik_fs_io
 description: Fs for dart io
-version: 0.2.0
+version: 0.3.0
 publish_to: none
 #homepage: https://www.example.com
 #author: alex <email@example.com>
@@ -10,7 +10,7 @@ environment:
 
 dependencies:
   path: '>=1.6.1'
-  fs_shim: '>=0.11.0+2'
+  fs_shim: '>=0.11.0+3'
 
 dev_dependencies:
   pedantic: '>=1.4.0'

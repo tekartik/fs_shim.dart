@@ -6,6 +6,7 @@ import 'package:fs_shim/src/common/import.dart';
 // 2.5 compatibility change
 //
 // TODO 2019/07/08 This could be removed once the stable API returns Uint8List everywhere
+// ignore: public_member_api_docs
 Uint8List asUint8List(List<int> bytes) {
   if (bytes is Uint8List) {
     return bytes;
@@ -16,6 +17,7 @@ Uint8List asUint8List(List<int> bytes) {
 // 2.5 compatibility change
 //
 // TODO 2019/07/08 This could be removed once the stable API returns Uint8List everywhere
+// ignore: public_member_api_docs
 Stream<Uint8List> intListStreamToUint8ListStream(Stream stream) {
   if (stream is Stream<Uint8List>) {
     return stream;
