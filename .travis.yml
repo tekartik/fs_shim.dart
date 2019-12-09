@@ -13,12 +13,16 @@ jobs:
     - stage: stable
       script: dart ./tool/travis.dart
       dart: stable
+    - stage: min
+      script: dart ./tool/travis.dart
+      dart: 2.5.0
     - stage: dev
       script: dart ./tool/travis.dart
       dart: dev
 
 stages:
   - stable
+  - min
   - dev
 
 # Only building master means that we don't run two builds for each pull request.
