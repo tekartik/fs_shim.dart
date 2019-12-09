@@ -4,7 +4,7 @@ import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/entity.dart';
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);

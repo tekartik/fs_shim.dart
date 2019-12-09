@@ -3,7 +3,6 @@
 
 library fs_shim.fs_test;
 
-import '../test_common.dart';
 import 'fs_shim_dir_test.dart' as dir_test;
 import 'fs_shim_file_stat_test.dart' as file_stat_test;
 import 'fs_shim_file_system_exception_test.dart' as file_system_exception_test;
@@ -11,6 +10,7 @@ import 'fs_shim_file_system_test.dart' as file_system_test;
 import 'fs_shim_file_test.dart' as file_test;
 import 'fs_shim_link_test.dart' as link_test;
 import 'fs_shim_sanity_test.dart' as fs_shim_sanity_test;
+import 'test_common.dart';
 import 'utils_test.dart' as utils_test;
 
 void main() {

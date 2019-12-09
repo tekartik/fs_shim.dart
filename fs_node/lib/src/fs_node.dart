@@ -65,6 +65,7 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
 }
 
 FileSystemExceptionNode ioWrapError(e) {
+  // devPrint('error $e ${e.runtimeType}');
   if (e is io.FileSystemException) {
     return FileSystemExceptionNode.io(e);
   } else {

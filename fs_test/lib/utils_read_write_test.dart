@@ -1,7 +1,8 @@
 library fs_shim.test.utils_read_write_test;
 
-import 'package:path/path.dart';
 import 'package:fs_shim/fs.dart';
+import 'package:path/path.dart';
+
 import 'test_common.dart';
 
 void main() {
@@ -9,29 +10,30 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('utils_read_write', () {
     test('write_read', () async {
-      Directory top = await ctx.prepare();
-      File file = fs.file(join(top.path, 'file'));
-      await writeString(file, "test");
-      expect(await readString(file), "test");
+      final top = await ctx.prepare();
+      final file = fs.file(join(top.path, 'file'));
+      await writeString(file, 'test');
+      expect(await readString(file), 'test');
 
-      await writeString(file, "test2");
-      expect(await readString(file), "test2");
+      await writeString(file, 'test2');
+      expect(await readString(file), 'test2');
     });
 
     test('write_read_sub', () async {
-      Directory top = await ctx.prepare();
-      File file = fs.file(fs.path.join(top.path, 'sub', 'file'));
-      await writeString(file, "test");
-      expect(await readString(file), "test");
+      final top = await ctx.prepare();
+      final file = fs.file(fs.path.join(top.path, 'sub', 'file'));
+      await writeString(file, 'test');
+      expect(await readString(file), 'test');
 
-      await writeString(file, "test2");
-      expect(await readString(file), "test2");
+      await writeString(file, 'test2');
+      expect(await readString(file), 'test2');
     });
   });
 }

@@ -3,7 +3,7 @@ library fs_shim.test.utils_read_write_test;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);

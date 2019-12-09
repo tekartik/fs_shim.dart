@@ -6,7 +6,7 @@ library fs_shim.test.path_exp_test;
 import 'package:fs_shim/utils/path.dart' as fs;
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   group('path_exp', () {

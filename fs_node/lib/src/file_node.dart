@@ -38,6 +38,7 @@ class FileNode extends FileSystemEntityNode implements File {
       await pathRecursiveCreateParent(path);
     }
     await ioWrap(ioFile.create(recursive: false));
+
     return this;
   }
 

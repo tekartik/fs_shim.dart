@@ -16,7 +16,7 @@ void defineTests(FileSystem fs) {
   group('currentDir', () {
     test('writeAsString', () async {
       // direct file write, no preparation
-      await fs.file("file.tmp").writeAsString("context");
+      await fs.file('file.tmp').writeAsString('context');
     }, skip: false);
   });
 }
