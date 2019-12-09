@@ -30,10 +30,10 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('prepare', () async {
-      Directory top = await ctx.prepare();
+      final top = await ctx.prepare();
 
-      List<String> parts = ctx.fs.path.split(top.path);
-      expect(parts, contains("prepare"));
+      final parts = ctx.fs.path.split(top.path);
+      expect(parts, contains('prepare'));
     });
   });
 }

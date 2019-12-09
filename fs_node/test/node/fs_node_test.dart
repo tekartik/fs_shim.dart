@@ -1,4 +1,4 @@
-@TestOn("node")
+@TestOn('node')
 // Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
@@ -29,28 +29,28 @@ void main() {
     });
     test('equals', () {
       // Files cannot be compared!
-      expect(io.File("test"), isNot(io.File("test")));
-      expect(io.Directory("test"), isNot(io.Directory("test")));
+      expect(io.File('test'), isNot(io.File('test')));
+      expect(io.Directory('test'), isNot(io.Directory('test')));
     });
     test('type', () async {
-      expect(await fs.type(join("pubspec.yaml")), FileSystemEntityType.file);
-      expect(await fs.type("."), FileSystemEntityType.directory);
+      expect(await fs.type(join('pubspec.yaml')), FileSystemEntityType.file);
+      expect(await fs.type('.'), FileSystemEntityType.directory);
     });
     test('test_path', () async {
       expect(fileSystemContext.outTopPath,
-          endsWith(join(".dart_tool", "fs_shim_node", "test_out")));
+          endsWith(join('.dart_tool', 'fs_shim_node', 'test_out')));
       expect(fileSystemContext.outPath,
           join(fileSystemContext.outTopPath, joinAll(testDescriptions)));
     });
 
     group('conversion', () {
       test('file', () {
-        io.File ioFile = io.File('file');
+        final ioFile = io.File('file');
         File file = wrapIoFile(ioFile);
         expect(unwrapIoFile(file), ioFile);
       });
       test('dir', () {
-        io.Directory ioDirectory = io.Directory('dir');
+        final ioDirectory = io.Directory('dir');
         Directory dir = wrapIoDirectory(ioDirectory);
         expect(unwrapIoDirectory(dir), ioDirectory);
       });
@@ -87,22 +87,22 @@ void main() {
       });
 
       test('filestat', () async {
-        vm_io.FileStat ioFileStat = io.Directory.current.statSync();
+        final ioFileStat = io.Directory.current.statSync();
         FileStat fileStat = wrapIoFileStat(ioFileStat);
         expect(unwrapIoFileStat(fileStat), ioFileStat);
       });
 
       test('filesystemexception', () {
         const ioFileSystemException = io.FileSystemException();
-        FileSystemException fileSystemException =
+        final fileSystemException =
             wrapIoFileSystemException(ioFileSystemException);
         expect(unwrapIoFileSystemException(fileSystemException),
             ioFileSystemException);
       });
 
       test('filemode', () async {
-        io.FileMode ioFileMode = vm_io.FileMode.read;
-        FileMode fileMode = wrapIoFileMode(ioFileMode);
+        var ioFileMode = vm_io.FileMode.read;
+        var fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
 
         ioFileMode = vm_io.FileMode.write;
@@ -115,8 +115,8 @@ void main() {
       });
 
       test('fileentitytype', () async {
-        io.FileSystemEntityType ioFset = vm_io.FileSystemEntityType.notFound;
-        FileSystemEntityType fset = wrapIoFileSystemEntityType(ioFset);
+        var ioFset = vm_io.FileSystemEntityType.notFound;
+        var fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
         ioFset = vm_io.FileSystemEntityType.file;
@@ -136,14 +136,14 @@ void main() {
     /*
     group('raw', () {
       test('dir', () async {
-        Directory dir = new Directory("dir");
-        File file = new File("file");
+        Directory dir = new Directory('dir');
+        File file = new File('file');
         expect(file.fs, fs);
         expect(dir.fs, fs);
 
         try {
           dir = new Directory(join(Directory.current.path,
-              "never_exist_such_a_dummy_dir_for_fs_shim_testing"));
+              'never_exist_such_a_dummy_dir_for_fs_shim_testing'));
           await dir.list().toList();
         } catch (_) {}
       });

@@ -24,9 +24,9 @@ void main() {
     });
 
     test('convert', () {
-      String path = 'c:\\windows\\system';
+      final path = 'c:\\windows\\system';
       expect(windows.joinAll(windows.split(path)), path);
-      String posixPath = posix.joinAll(windows.split(path));
+      final posixPath = posix.joinAll(windows.split(path));
       expect(fs.posixPath(path), posixPath);
       expect(windows.joinAll(posix.split(posixPath)), path);
       expect(

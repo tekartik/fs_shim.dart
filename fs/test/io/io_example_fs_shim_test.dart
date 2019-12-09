@@ -1,17 +1,17 @@
-@TestOn("vm")
+@TestOn('vm')
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
 import '../fs_test_common.dart';
 import '../test_common_io.dart';
 
-const String groupName = "io_example_fs_shim";
+const String groupName = 'io_example_fs_shim';
 
 void main() {
   group(groupName, () {
     //testOutTopPath
     test('sample1', () async {
-      Directory dir = Directory(testOutPath);
+      final dir = Directory(testOutPath);
       try {
         await dir.delete(recursive: true);
       } on FileSystemException catch (_) {}
@@ -25,8 +25,8 @@ void main() {
 
       expect(dir.absolute.isAbsolute, isTrue);
 
-      String filePath = join(dir.path, "file");
-      File file = File(filePath);
+      final filePath = join(dir.path, 'file');
+      final file = File(filePath);
       expect(
           await
           // ignore: avoid_slow_async_io
@@ -45,7 +45,7 @@ void main() {
           isTrue);
 
       var stream = file.openRead();
-      List<int> content = [];
+      final content = <int>[];
       await stream.listen((List<int> data) {
         content.addAll(data);
       }).asFuture();
@@ -56,11 +56,11 @@ void main() {
         expect(entity, const TypeMatcher<File>());
       }).asFuture();
 
-      File file2 = await file.copy(join(dir.path, "file2")) as File;
-      expect(await file2.readAsString(), "test");
+      final file2 = await file.copy(join(dir.path, 'file2')) as File;
+      expect(await file2.readAsString(), 'test');
 
       // stat
-      FileStat stat = await file.stat();
+      final stat = await file.stat();
       expect(stat.size, greaterThan(3));
 
       // error
@@ -69,7 +69,7 @@ void main() {
             .create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {
-        OSError osError = e.osError;
+        final osError = e.osError;
         expect(osError.errorCode, isNotNull);
       }
 

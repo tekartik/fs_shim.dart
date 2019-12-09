@@ -21,29 +21,29 @@ void defineTests(FileSystemTestContext ctx) {
 
   group('dir', () {
     test('new', () {
-      Directory dir = fs.directory("dummy");
-      expect(dir.path, "dummy");
-      dir = fs.directory(r"\root/dummy");
-      expect(dir.path, r"\root/dummy");
-      dir = fs.directory(r"\");
-      expect(dir.path, r"\");
-      dir = fs.directory(r"");
-      expect(dir.path, r"");
+      var dir = fs.directory('dummy');
+      expect(dir.path, 'dummy');
+      dir = fs.directory(r'\root/dummy');
+      expect(dir.path, r'\root/dummy');
+      dir = fs.directory(r'\');
+      expect(dir.path, r'\');
+      dir = fs.directory(r'');
+      expect(dir.path, r'');
       try {
         dir = fs.directory(null);
-        fail("should fail");
+        fail('should fail');
       } on ArgumentError catch (_) {
         // Invalid argument(s): null is not a String
       }
     });
 
     test('toString', () {
-      Directory dir = fs.directory("dir");
+      final dir = fs.directory('dir');
       expect(dir.toString(), "Directory: '${dir.path}'");
     });
 
     test('absolute', () {
-      Directory dir = fs.directory("dummy");
+      var dir = fs.directory('dummy');
       expect(dir.isAbsolute, isFalse);
 
       dir = dir.absolute;
@@ -57,16 +57,16 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('exists', () async {
-      Directory dir = await ctx.prepare();
+      final dir = await ctx.prepare();
       expect(await dir.exists(), isTrue);
-      Directory subDir = fs.directory(join(dir.path, "sub"));
+      final subDir = fs.directory(join(dir.path, 'sub'));
       expect(await subDir.exists(), isFalse);
     });
 
     test('create', () async {
-      Directory dir = await ctx.prepare();
+      final dir = await ctx.prepare();
 
-      Directory subDir = fs.directory(join(dir.path, "sub"));
+      final subDir = fs.directory(join(dir.path, 'sub'));
       expect(await subDir.exists(), isFalse);
       expect(await fs.isDirectory(subDir.path), isFalse);
       expect(await (await subDir.create()).exists(), isTrue);
@@ -77,10 +77,10 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('stat', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      Directory dir = fs.directory(join(_dir.path, "dir"));
-      FileStat stat = await dir.stat();
+      final dir = fs.directory(join(_dir.path, 'dir'));
+      var stat = await dir.stat();
       //print(stat);
       expect(stat.type, FileSystemEntityType.notFound);
       expect(stat.size, -1);
@@ -96,14 +96,14 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('create_recursive', () async {
-      Directory dir = await ctx.prepare();
+      final dir = await ctx.prepare();
 
-      Directory subDir = fs.directory(join(dir.path, "sub"));
-      Directory subSubDir = fs.directory(join(subDir.path, "subsub"));
+      final subDir = fs.directory(join(dir.path, 'sub'));
+      final subSubDir = fs.directory(join(subDir.path, 'subsub'));
 
       try {
         await subSubDir.create();
-        fail("shoud fail");
+        fail('shoud fail');
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
         // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
@@ -115,9 +115,9 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('delete', () async {
-      Directory dir = await ctx.prepare();
+      final dir = await ctx.prepare();
 
-      Directory subDir = fs.directory(join(dir.path, "sub"));
+      final subDir = fs.directory(join(dir.path, 'sub'));
       expect(await (await subDir.create()).exists(), isTrue);
       expect(await fs.isDirectory(subDir.path), isTrue);
 
@@ -127,7 +127,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       try {
         await subDir.delete();
-        fail("shoud fail");
+        fail('shoud fail');
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
         // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
@@ -136,13 +136,13 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.directory(path);
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final dir = fs.directory(path);
       await dir.create();
-      Directory dir2 = await dir.rename(path2) as Directory;
+      final dir2 = await dir.rename(path2) as Directory;
       expect(dir2.path, path2);
       expect(await dir.exists(), isFalse);
       expect(await dir2.exists(), isTrue);
@@ -150,14 +150,14 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename_not_found', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.directory(path);
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final dir = fs.directory(path);
       try {
         await dir.rename(path2);
-        fail("shoud fail");
+        fail('shoud fail');
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
         // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
@@ -166,12 +166,12 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename_over_existing', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.directory(path);
-      Directory dir2 = fs.directory(path2);
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final dir = fs.directory(path);
+      final dir2 = fs.directory(path2);
       await dir.create();
       await dir2.create();
 
@@ -182,12 +182,12 @@ void defineTests(FileSystemTestContext ctx) {
 
     // This fails on windows
     test('rename_over_existing_not_empty', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      Directory dir = fs.directory(path);
-      Directory subDir = fs.directory(join(path2, "sub"));
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final dir = fs.directory(path);
+      final subDir = fs.directory(join(path2, 'sub'));
       await dir.create();
       await subDir.create(recursive: true);
 
@@ -210,12 +210,12 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename_over_existing_different_type', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "file");
-      Directory dir = fs.directory(path);
-      File file2 = fs.file(path2);
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'file');
+      final dir = fs.directory(path);
+      final file2 = fs.file(path2);
       await dir.create();
       await file2.create();
 
@@ -235,15 +235,15 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename_has_content', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      File file = fs.file(join(path, "file"));
-      File file2 = fs.file(join(path2, "file"));
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final file = fs.file(join(path, 'file'));
+      final file2 = fs.file(join(path2, 'file'));
       await file.create(recursive: true);
-      Directory dir = fs.directory(path);
-      Directory dir2 = await dir.rename(path2) as Directory;
+      final dir = fs.directory(path);
+      final dir2 = await dir.rename(path2) as Directory;
       expect(dir2.path, path2);
       expect(await dir.exists(), isFalse);
       expect(await dir2.exists(), isTrue);
@@ -255,12 +255,12 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename_different_folder_parent_not_created', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      String path3 = join(path2, "sub");
-      Directory dir = fs.directory(path);
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final path3 = join(path2, 'sub');
+      final dir = fs.directory(path);
       await dir.create();
 
       try {
@@ -272,14 +272,14 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('rename_different_folder', () async {
-      Directory _dir = await ctx.prepare();
+      final _dir = await ctx.prepare();
 
-      String path = join(_dir.path, "dir");
-      String path2 = join(_dir.path, "dir2");
-      String path3 = join(path2, "sub");
-      Directory dir = fs.directory(path);
-      Directory dir2 = fs.directory(path2);
-      Directory dir3 = fs.directory(path3);
+      final path = join(_dir.path, 'dir');
+      final path2 = join(_dir.path, 'dir2');
+      final path3 = join(path2, 'sub');
+      final dir = fs.directory(path);
+      final dir2 = fs.directory(path2);
+      final dir3 = fs.directory(path3);
       await dir.create();
       await dir2.create();
 
@@ -289,11 +289,11 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('delete_recursive', () async {
-      Directory dir = await ctx.prepare();
+      final dir = await ctx.prepare();
 
-      Directory subDir = fs.directory(join(dir.path, "sub"));
-      Directory subSubDir = fs.directory(join(subDir.path, "subsub"));
-      Directory subSubSubDir = fs.directory(join(subSubDir.path, "subsubsub"));
+      final subDir = fs.directory(join(dir.path, 'sub'));
+      final subSubDir = fs.directory(join(subDir.path, 'subsub'));
+      final subSubSubDir = fs.directory(join(subSubDir.path, 'subsubsub'));
 
       expect(
           await (await subSubSubDir.create(recursive: true)).exists(), isTrue);
@@ -302,7 +302,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       try {
         await subDir.delete();
-        fail("shoud fail");
+        fail('shoud fail');
       } on FileSystemException catch (e) {
         // Mac: errno 66 - not empty
         // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
@@ -317,7 +317,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       try {
         await subDir.delete();
-        fail("shoud fail");
+        fail('shoud fail');
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
         // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete/sub' (OS Error: No such file or directory, errno = 2)
@@ -326,7 +326,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     int indexOf(List<FileSystemEntity> list, FileSystemEntity entity) {
-      for (int i = 0; i < list.length; i++) {
+      for (var i = 0; i < list.length; i++) {
         if (list[i].path == entity.path) {
           return i;
         }
@@ -336,7 +336,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     FileSystemEntity getInList(
         List<FileSystemEntity> list, FileSystemEntity entity) {
-      for (int i = 0; i < list.length; i++) {
+      for (var i = 0; i < list.length; i++) {
         if (list[i].path == entity.path) {
           return list[i];
         }
@@ -345,17 +345,17 @@ void defineTests(FileSystemTestContext ctx) {
     }
 
     test('list', () async {
-      Directory _dir = await ctx.prepare();
-      List<FileSystemEntity> list = await _dir.list().toList();
+      final _dir = await ctx.prepare();
+      var list = await _dir.list().toList();
       expect(list, isEmpty);
 
       // Create one two dirs
-      Directory dir1 = fs.directory(join(_dir.path, "dir1"));
-      Directory dir2 = fs.directory(join(_dir.path, "dir2"));
+      final dir1 = fs.directory(join(_dir.path, 'dir1'));
+      final dir2 = fs.directory(join(_dir.path, 'dir2'));
       // And one sub dir in dir1
-      Directory subDir = fs.directory(join(dir1.path, "sub"));
+      final subDir = fs.directory(join(dir1.path, 'sub'));
       // And one file
-      File file = fs.file(join(subDir.path, "file"));
+      final file = fs.file(join(subDir.path, 'file'));
 
       await file.create(recursive: true);
       await dir2.create();
@@ -378,8 +378,8 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('list_no_dir', () async {
-      Directory top = await ctx.prepare();
-      Directory dir = childDirectory(top, "dir");
+      final top = await ctx.prepare();
+      final dir = childDirectory(top, 'dir');
       try {
         await dir.list().toList();
       } on FileSystemException catch (e) {

@@ -1,4 +1,4 @@
-@TestOn("vm")
+@TestOn('vm')
 library fs_shim.test.utils_entity_tests;
 
 import 'dart:io';
@@ -14,23 +14,23 @@ String get outPath => ioFileSystemTestContext.outPath;
 void main() {
   group('entity', () {
     test('as', () async {
-      Link fileSystemEntity = Link(join(outPath, 'fse'));
-      Link link = asLink(fileSystemEntity);
-      File file = asFile(fileSystemEntity);
-      Directory directory = asDirectory(fileSystemEntity);
+      final fileSystemEntity = Link(join(outPath, 'fse'));
+      final link = asLink(fileSystemEntity);
+      final file = asFile(fileSystemEntity);
+      final directory = asDirectory(fileSystemEntity);
       expect(link.path, fileSystemEntity.path);
       expect(file.path, fileSystemEntity.path);
       expect(directory.path, fileSystemEntity.path);
     });
 
     test('child', () async {
-      Directory top = Directory(join(outPath, 'top'));
-      Link link = childLink(top, "child");
-      File file = childFile(top, "child");
-      Directory directory = childDirectory(top, "child");
-      expect(basename(link.path), "child");
-      expect(basename(file.path), "child");
-      expect(basename(directory.path), "child");
+      final top = Directory(join(outPath, 'top'));
+      final link = childLink(top, 'child');
+      final file = childFile(top, 'child');
+      final directory = childDirectory(top, 'child');
+      expect(basename(link.path), 'child');
+      expect(basename(file.path), 'child');
+      expect(basename(directory.path), 'child');
       expect(link.parent.path, top.path);
       expect(file.parent.path, top.path);
       expect(directory.parent.path, top.path);

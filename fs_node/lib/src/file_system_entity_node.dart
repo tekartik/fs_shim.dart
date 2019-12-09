@@ -6,22 +6,26 @@ import 'package:path/path.dart';
 import 'package:tekartik_fs_node/src/directory_node.dart';
 import 'package:tekartik_fs_node/src/file_stat_node.dart';
 import 'package:tekartik_fs_node/src/file_system_node.dart';
-import 'package:tekartik_fs_node/src/fs_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
+
+import 'file_system_node.dart';
+import 'fs_node.dart';
 
 abstract class FileSystemEntityNode implements FileSystemEntity {
   final io.FileSystemEntity nativeInstance;
 
   FileSystemEntityNode(this.nativeInstance) {
     if (path == null) {
-      throw ArgumentError.notNull("path");
+      throw ArgumentError.notNull('path');
     }
   }
 
   FileSystemEntity _me(_) => this;
 
+  FileSystemNode get fsNode => fileSystemNode;
+
   @override
-  FileSystemNode get fs => fileSystemNode;
+  FileSystem get fs => fsNode;
 
   @override
   String get path => nativeInstance.path;
@@ -30,7 +34,7 @@ abstract class FileSystemEntityNode implements FileSystemEntity {
   String toString() => nativeInstance.toString();
 
   @override
-  DirectoryNode get parent => DirectoryNode(nativeInstance.parent.path);
+  Directory get parent => DirectoryNode(nativeInstance.parent.path);
 
   @override
   Future<bool> exists() async => pathExists(path);

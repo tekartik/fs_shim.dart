@@ -35,7 +35,7 @@ int _statusFromException(io.FileSystemException ioFse) {
   // linux error code is 2
   int status;
   if (ioFse != null && ioFse.osError != null) {
-    int errorCode = ioFse.osError.errorCode;
+    final errorCode = ioFse.osError.errorCode;
 
     if (io.Platform.isWindows) {
       // https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx

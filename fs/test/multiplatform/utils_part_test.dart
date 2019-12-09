@@ -17,25 +17,25 @@ void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('part', () {
     test('splitParts', () async {
-      Directory top = await ctx.prepare();
+      final top = await ctx.prepare();
 
-      List<String> parts = ctx.fs.path.split(top.path);
-      expect(parts, contains("splitParts"));
+      var parts = ctx.fs.path.split(top.path);
+      expect(parts, contains('splitParts'));
 
       // always working
       parts = splitParts(top.path);
-      expect(parts, contains("splitParts"));
+      expect(parts, contains('splitParts'));
 
       // also always working (the implementation)
       parts = windows.split(top.path);
-      expect(parts, contains("splitParts"));
+      expect(parts, contains('splitParts'));
 
       if (!contextIsWindows) {
         parts = url.split(top.path);
-        expect(parts, contains("splitParts"));
+        expect(parts, contains('splitParts'));
 
         parts = posix.split(top.path);
-        expect(parts, contains("splitParts"));
+        expect(parts, contains('splitParts'));
       }
     });
   });

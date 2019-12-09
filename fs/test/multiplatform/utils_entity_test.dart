@@ -18,23 +18,23 @@ void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('entity', () {
     test('as', () async {
-      Link fileSystemEntity = fs.link('fse');
-      Link link = asLink(fileSystemEntity);
-      File file = asFile(fileSystemEntity);
-      Directory directory = asDirectory(fileSystemEntity);
+      final fileSystemEntity = fs.link('fse');
+      final link = asLink(fileSystemEntity);
+      final file = asFile(fileSystemEntity);
+      final directory = asDirectory(fileSystemEntity);
       expect(link.path, fileSystemEntity.path);
       expect(file.path, fileSystemEntity.path);
       expect(directory.path, fileSystemEntity.path);
     });
 
     test('child', () async {
-      Directory top = fs.directory('top');
-      Link link = childLink(top, "child");
-      File file = childFile(top, "child");
-      Directory directory = childDirectory(top, "child");
-      expect(basename(link.path), "child");
-      expect(basename(file.path), "child");
-      expect(basename(directory.path), "child");
+      final top = fs.directory('top');
+      final link = childLink(top, 'child');
+      final file = childFile(top, 'child');
+      final directory = childDirectory(top, 'child');
+      expect(basename(link.path), 'child');
+      expect(basename(file.path), 'child');
+      expect(basename(directory.path), 'child');
       expect(link.parent.path, top.path);
       expect(file.parent.path, top.path);
       expect(directory.parent.path, top.path);

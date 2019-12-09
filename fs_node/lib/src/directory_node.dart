@@ -2,10 +2,11 @@ library fs_shim.src.io.io_directory;
 
 import 'dart:io' as vm_io;
 
-import 'package:tekartik_fs_node/src/file_node.dart';
 import 'package:tekartik_fs_node/src/file_system_entity_node.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
 
+import 'file_node.dart';
+import 'fs_node.dart';
 import 'import_common.dart';
 import 'import_common_node.dart' as node;
 
@@ -42,7 +43,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   Future<DirectoryNode> delete({bool recursive = false}) async {
     recursive ??= false;
     if (recursive) {
-      await fs.deleteAny(path);
+      await fsNode.deleteAny(path);
       return this;
     }
     await super.delete();
@@ -76,9 +77,9 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
   }
 
   @override
-  Stream<FileSystemEntityNode> list(
+  Stream<FileSystemEntity> list(
       {bool recursive = false, bool followLinks = true}) {
-    var controller = StreamController<FileSystemEntityNode>();
+    var controller = StreamController<FileSystemEntity>();
 
     var ioStream = ioDir.list(recursive: false, followLinks: followLinks);
     var futures = <Future>[];
@@ -92,7 +93,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
         if (recursive) {
           futures.add(subDir
               .list(recursive: true, followLinks: followLinks)
-              .listen((FileSystemEntityNode entity) {
+              .listen((FileSystemEntity entity) {
             controller.add(entity);
           }).asFuture());
         }

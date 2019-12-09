@@ -35,11 +35,11 @@ Future deleteDirectory(Directory dir, {DeleteOptions options}) =>
 
 Future<List<File>> copyDirectoryListFiles(Directory src,
     {CopyOptions options}) async {
-  List<File> ioFiles = [];
+  final ioFiles = <File>[];
 
-  List<fs.File> fsFiles = await fs
-      .copyDirectoryListFiles(fs_io.wrapIoDirectory(src), options: options);
-  for (fs.File fsFile in fsFiles) {
+  final fsFiles = await fs.copyDirectoryListFiles(fs_io.wrapIoDirectory(src),
+      options: options);
+  for (final fsFile in fsFiles) {
     ioFiles.add(fs_io.unwrapIoFile(fsFile));
   }
   return ioFiles;

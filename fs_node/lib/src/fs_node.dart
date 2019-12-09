@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs.dart';
+
 import 'package:tekartik_fs_node/src/file_system_node.dart';
 import 'package:tekartik_fs_node/src/import_common.dart';
 
@@ -17,7 +18,7 @@ FileSystemNode _fileSystemNode;
 FileSystemNode get fileSystemNode => _fileSystemNode ??= FileSystemNode();
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
-  if (fsFileMode == null) fsFileMode = fs.FileMode.write;
+  fsFileMode ??= fs.FileMode.write;
   return unwrapIoFileModeImpl(fsFileMode);
 }
 
@@ -163,7 +164,7 @@ class ReadFileStreamCtrlNode {
     });
   }
 
-  Stream<Uint8List> _nodeStream;
+  final Stream<Uint8List> _nodeStream;
   StreamController<Uint8List> _ctlr;
 
   Stream<Uint8List> get stream => _ctlr.stream;

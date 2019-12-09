@@ -22,9 +22,9 @@ void defineTests(IdbFileSystemTestContext ctx) {
   group('format', () {
     test('version', () async {
       await ctx.prepare();
-      idb.Database db = ctx.fs.db;
+      final db = ctx.fs.db;
       //TODOexpect(db.version, 2);
-      expect(List.from(db.objectStoreNames)..sort(), ["file", "tree"]);
+      expect(List.from(db.objectStoreNames)..sort(), ['file', 'tree']);
     });
 
     Future<int> getStoreSize(idb.Database db, String storeName) async {
@@ -32,23 +32,23 @@ void defineTests(IdbFileSystemTestContext ctx) {
       idb.ObjectStore store;
       txn = db.transaction(storeName, idb.idbModeReadOnly);
       store = txn.objectStore(storeName);
-      int count = await store.count();
+      final count = await store.count();
       await txn.completed;
       return count;
     }
 
-    Future<int> getTreeStoreSize(idb.Database db) => getStoreSize(db, "tree");
-    Future<int> getFileStoreSize(idb.Database db) => getStoreSize(db, "file");
+    Future<int> getTreeStoreSize(idb.Database db) => getStoreSize(db, 'tree');
+    Future<int> getFileStoreSize(idb.Database db) => getStoreSize(db, 'file');
 
     test('create_delete_file', () async {
-      Directory dir = await ctx.prepare();
-      idb.Database db = ctx.fs.db;
+      final dir = await ctx.prepare();
+      final db = ctx.fs.db;
 
       // check the tree size before creating and after creating then deleting
-      int treeStoreSize = await getTreeStoreSize(db);
-      int fileStoreSize = await getFileStoreSize(db);
+      final treeStoreSize = await getTreeStoreSize(db);
+      final fileStoreSize = await getFileStoreSize(db);
 
-      File file = ctx.fs.file(join(dir.path, "file"));
+      File file = ctx.fs.file(join(dir.path, 'file'));
       await file.create();
 
       expect(await getTreeStoreSize(db), treeStoreSize + 1);
@@ -61,14 +61,14 @@ void defineTests(IdbFileSystemTestContext ctx) {
     });
 
     test('write_delete_file', () async {
-      Directory dir = await ctx.prepare();
-      idb.Database db = ctx.fs.db;
+      final dir = await ctx.prepare();
+      final db = ctx.fs.db;
 
       // check the tree size before creating and after creating then deleting
-      int treeStoreSize = await getTreeStoreSize(db);
-      int fileStoreSize = await getFileStoreSize(db);
+      final treeStoreSize = await getTreeStoreSize(db);
+      final fileStoreSize = await getFileStoreSize(db);
 
-      File file = ctx.fs.file(join(dir.path, "file"));
+      File file = ctx.fs.file(join(dir.path, 'file'));
 
       // Write dummy file
       await file.writeAsString('test', flush: true);

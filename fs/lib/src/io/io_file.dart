@@ -37,7 +37,7 @@ class FileImpl extends FileSystemEntityImpl implements File {
   @override
   StreamSink<List<int>> openWrite(
       {fs.FileMode mode = fs.FileMode.write, Encoding encoding = utf8}) {
-    IoWriteFileSink sink = IoWriteFileSink(
+    final sink = IoWriteFileSink(
         ioFile.openWrite(mode: fileWriteMode(mode), encoding: encoding));
     return sink;
   }

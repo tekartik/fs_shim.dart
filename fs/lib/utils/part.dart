@@ -11,6 +11,6 @@ import 'package:path/path.dart' as _path;
 List<String> splitParts(String anyPath) => _parts(anyPath);
 
 List<String> _parts(String anyPath) {
-  List<String> parts = _path.windows.split(anyPath);
+  final parts = _path.windows.split(anyPath);
   return parts;
 }
