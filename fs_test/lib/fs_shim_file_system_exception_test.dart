@@ -46,6 +46,6 @@ void defineTests(FileSystemTestContext ctx) {
         // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
         // FileSystemException: Creation failed, path = '/default/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)
       }
-    }, solo: true);
+    });
   });
 }
