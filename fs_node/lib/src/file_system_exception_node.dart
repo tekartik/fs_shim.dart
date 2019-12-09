@@ -9,7 +9,7 @@ import 'import_common_node.dart' as io;
 OSErrorNode wrapIoOSError(io.OSError ioOSError) =>
     ioOSError != null ? OSErrorNode.io(ioOSError) : null;
 io.OSError unwrapIoOSError(OSError osError) =>
-    osError != null ? (osError as OSErrorNode).ioOSError : null;
+    osError != null ? (osError as OSErrorNode)?.ioOSError : null;
 
 class OSErrorNode implements fs.OSError {
   io.OSError ioOSError;
@@ -20,22 +20,24 @@ class OSErrorNode implements fs.OSError {
   String get message => ioOSError.message;
 
   @override
-  String toString() => ioOSError.toString();
+  String toString() => ioOSError?.toString() ?? 'OSErrorNode';
 }
 
 // FileSystemException Wrap/unwrap
 FileSystemException wrapIoFileSystemException(
         io.FileSystemException ioFileSystemException) =>
-    FileSystemExceptionNode.io(ioFileSystemException);
+    ioFileSystemException == null
+        ? null
+        : FileSystemExceptionNode.io(ioFileSystemException);
 io.FileSystemException unwrapIoFileSystemException(
         FileSystemException fileSystemException) =>
-    (fileSystemException as FileSystemExceptionNode).ioFileSystemException;
+    (fileSystemException as FileSystemExceptionNode)?.ioFileSystemException;
 
 int _statusFromException(io.FileSystemException ioFse) {
   // linux error code is 2
   int status;
   if (ioFse != null && ioFse.osError != null) {
-    int errorCode = ioFse.osError.errorCode;
+    final errorCode = ioFse.osError.errorCode;
 
     if (io.Platform.isWindows) {
       // https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
@@ -149,5 +151,5 @@ class FileSystemExceptionNode implements fs.FileSystemException {
 }
 
 OSErrorNode osErrorFromMessage(String message) {
-  return null;
+  return wrapIoOSError(io.OSError(message));
 }

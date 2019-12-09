@@ -133,7 +133,7 @@ class DeleteOptions extends Object
     with OptionsRecursiveMixin, OptionsCreateMixin, OptionsFollowLinksMixin {
   @override
   String toString() {
-    Map map = {};
+    final map = <String, dynamic>{};
     if (recursive) {
       map['recursive'] = recursive;
     }

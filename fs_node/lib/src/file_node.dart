@@ -38,6 +38,7 @@ class FileNode extends FileSystemEntityNode implements File {
       await pathRecursiveCreateParent(path);
     }
     await ioWrap(ioFile.create(recursive: false));
+
     return this;
   }
 
@@ -45,7 +46,7 @@ class FileNode extends FileSystemEntityNode implements File {
   Future<FileNode> delete({bool recursive = false}) async {
     // if recursive is true, delete whetever types it is per definition
     if (recursive) {
-      await fs.deleteAny(path);
+      await fsNode.deleteAny(path);
       return this;
     }
     await super.delete();
@@ -57,7 +58,7 @@ class FileNode extends FileSystemEntityNode implements File {
   StreamSink<List<int>> openWrite(
       {FileMode mode = FileMode.write, Encoding encoding = utf8}) {
     if (mode == FileMode.read) {
-      throw ArgumentError.value(mode, "mode cannot be read-only");
+      throw ArgumentError.value(mode, 'mode cannot be read-only');
     }
     // Test that parent dir exists as we don't get any error...
     /*
@@ -69,7 +70,7 @@ class FileNode extends FileSystemEntityNode implements File {
      */
     var ioMode = fileWriteMode(mode);
     var ioSink = ioFile.openWrite(mode: ioMode, encoding: encoding);
-    WriteFileSinkNode sink = WriteFileSinkNode(ioSink);
+    final sink = WriteFileSinkNode(ioSink);
 
     return sink;
   }

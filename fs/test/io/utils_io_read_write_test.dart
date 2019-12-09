@@ -1,4 +1,4 @@
-@TestOn("vm")
+@TestOn('vm')
 library fs_shim.test.utils_entity_tests;
 
 import 'dart:io';
@@ -14,21 +14,21 @@ String get outPath => ioFileSystemTestContext.outPath;
 void main() {
   group('utils_read_write', () {
     test('write_read', () async {
-      File file = File(join(outPath, 'file'));
-      await writeString(file, "test");
-      expect(await readString(file), "test");
+      final file = File(join(outPath, 'file'));
+      await writeString(file, 'test');
+      expect(await readString(file), 'test');
 
-      await writeString(file, "test2");
-      expect(await readString(file), "test2");
+      await writeString(file, 'test2');
+      expect(await readString(file), 'test2');
     });
 
     test('write_read_sub', () async {
-      File file = File(join(outPath, 'sub', 'file'));
-      await writeString(file, "test");
-      expect(await readString(file), "test");
+      final file = File(join(outPath, 'sub', 'file'));
+      await writeString(file, 'test');
+      expect(await readString(file), 'test');
 
-      await writeString(file, "test2");
-      expect(await readString(file), "test2");
+      await writeString(file, 'test2');
+      expect(await readString(file), 'test2');
     });
   });
 }

@@ -6,18 +6,18 @@ import 'package:path/path.dart';
 
 import 'idb_fs.dart';
 
-const String treeStoreName = "tree";
-const String fileStoreName = "file";
-const String nameKey = "name";
-const String parentNameKey = "pn"; // indexed
+const String treeStoreName = 'tree';
+const String fileStoreName = 'file';
+const String nameKey = 'name';
+const String parentNameKey = 'pn'; // indexed
 const String parentNameIndexName = parentNameKey;
 
-const String parentKey = "parent"; // indexed
+const String parentKey = 'parent'; // indexed
 const String parentIndexName = parentKey;
-const String typeKey = "type";
-const String modifiedKey = "modified";
-const String sizeKey = "size";
-const String targetKey = "target"; // Link only
+const String typeKey = 'type';
+const String modifiedKey = 'modified';
+const String sizeKey = 'size';
+const String targetKey = 'target'; // Link only
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
   return segments.isNotEmpty && segments.first.startsWith(separator);
@@ -30,7 +30,7 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
   if (segmentsAreAbsolute(target)) {
     return target;
   }
-  List<String> targetSegments = List.from(getParentSegments(origin.segments));
+  final targetSegments = List<String>.from(getParentSegments(origin.segments));
   targetSegments.addAll(target);
   return targetSegments;
 }
@@ -52,12 +52,12 @@ class IdbFileSystemStorage {
       // version 4: add file store
       db = await idbFactory.open(dbPath, version: 6,
           onUpgradeNeeded: (idb.VersionChangeEvent e) {
-        idb.Database db = e.database;
+        final db = e.database;
         idb.ObjectStore store;
 
         if (e.oldVersion < 6) {
           // delete previous if any
-          Iterable<String> storeNames = db.objectStoreNames;
+          final storeNames = db.objectStoreNames;
           if (storeNames.contains(treeStoreName)) {
             db.deleteObjectStore(treeStoreName);
           }
@@ -83,7 +83,7 @@ class IdbFileSystemStorage {
 
   Future<Node> txnGetChildNode(idb.ObjectStore treeStore, idb.Index index,
       Node parent, String name, bool followLastLink) {
-    String parentName = getParentName(parent, name);
+    final parentName = getParentName(parent, name);
 
     FutureOr<Node> _nodeFromKey(dynamic id) {
       if (id == null) {
@@ -91,7 +91,7 @@ class IdbFileSystemStorage {
       }
 
       FutureOr<Node> _nodeFromMap(dynamic map) {
-        Node entity = Node.fromMap(
+        final entity = Node.fromMap(
             parent, (map as Map)?.cast<String, dynamic>(), id as int);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
@@ -107,11 +107,12 @@ class IdbFileSystemStorage {
 
   Future<Node> getChildNode(Node parent, String name, bool followLink) async {
     await ready;
-    idb.Transaction txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
-    idb.ObjectStore store = txn.objectStore(treeStoreName);
-    idb.Index index = store.index(parentNameIndexName);
+    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final store = txn.objectStore(treeStoreName);
+    final index = store.index(parentNameIndexName);
 
-    Node entity = await txnGetChildNode(store, index, parent, name, followLink);
+    final entity =
+        await txnGetChildNode(store, index, parent, name, followLink);
 
     await txn.completed;
     return entity;
@@ -119,19 +120,18 @@ class IdbFileSystemStorage {
 
   Future<Node> txnResolveLinkNode(idb.ObjectStore treeStore, Node link) {
     // convert to absolute
-    List<String> targetSegments =
-        getAbsoluteSegments(link, link.targetSegments);
+    final targetSegments = getAbsoluteSegments(link, link.targetSegments);
     return txnGetNode(treeStore, targetSegments, true);
   }
 
   // Return a matching result
   Future<Node> txnGetNode(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
-    //idb.idbDevPrint("#XX");
+    //idb.idbDevPrint('#XX');
     Future<Node> __get(List<String> segments) {
       return txnSearch(store, segments, followLastLink)
           .then((NodeSearchResult result) {
-        Node entity = result.match;
+        final entity = result.match;
         //print('##${entity}');
         if (entity == null) {
           return null;
@@ -153,10 +153,10 @@ class IdbFileSystemStorage {
 
   Future<Node> getNode(List<String> segments, bool followLastLink) async {
     await ready;
-    idb.Transaction txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
-    idb.ObjectStore store = txn.objectStore(treeStoreName);
+    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final store = txn.objectStore(treeStoreName);
 
-    Node entity = await txnGetNode(store, segments, followLastLink);
+    final entity = await txnGetNode(store, segments, followLastLink);
     //print('##-${entity}');
     await txn.completed;
     return entity;
@@ -165,19 +165,19 @@ class IdbFileSystemStorage {
   // follow link only for last one
   Future<NodeSearchResult> txnSearch(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
-    NodeSearchResult result = NodeSearchResult()..segments = segments;
-    idb.Index index = store.index(parentNameIndexName);
+    final result = NodeSearchResult()..segments = segments;
+    final index = store.index(parentNameIndexName);
     Node parent;
     Node entity;
 
-    int i = 0;
+    var i = 0;
 
     bool isLastSegment() {
       return (i == segments.length - 1);
     }
 
     Future _next() {
-      String segment = segments[i];
+      final segment = segments[i];
 
       // try to lookup without following links for last segment
       if (isLastSegment()) {
@@ -235,10 +235,10 @@ class IdbFileSystemStorage {
   Future<NodeSearchResult> searchNode(
       List<String> segments, bool followLastLink) async {
     await ready;
-    idb.Transaction txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
-    idb.ObjectStore store = txn.objectStore(treeStoreName);
+    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final store = txn.objectStore(treeStoreName);
 
-    NodeSearchResult result = await txnSearch(store, segments, followLastLink);
+    final result = await txnSearch(store, segments, followLastLink);
     await txn.completed;
     return result;
   }
@@ -253,8 +253,8 @@ class IdbFileSystemStorage {
 
   Future<Node> addNode(Node entity) async {
     await ready;
-    idb.Transaction txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
-    idb.ObjectStore store = txn.objectStore(treeStoreName);
+    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final store = txn.objectStore(treeStoreName);
 
     await txnAddNode(store, entity);
 
@@ -270,7 +270,7 @@ List<fs.FileSystemEntityType> _allTypes = [
 ];
 
 fs.FileSystemEntityType typeFromString(String typeString) {
-  for (fs.FileSystemEntityType type in _allTypes) {
+  for (final type in _allTypes) {
     if (type.toString() == typeString) {
       return type;
     }
@@ -314,25 +314,25 @@ class Node {
   }
 
   factory Node.fromMap(Node parent, Map<String, dynamic> map, int id) {
-    int parentId = map[parentKey] as int;
+    final parentId = map[parentKey] as int;
     if (parentId != null || parent != null) {
       assert(parent.id == parentId);
     }
-    String name = map[nameKey] as String;
-    String modifiedString = map[modifiedKey] as String;
+    final name = map[nameKey] as String;
+    final modifiedString = map[modifiedKey] as String;
     DateTime modified;
     if (modifiedString != null) {
       modified = DateTime.parse(modifiedString);
     }
-    int size = map[sizeKey] as int;
-    fs.FileSystemEntityType type = typeFromString(map[typeKey] as String);
+    final size = map[sizeKey] as int;
+    final type = typeFromString(map[typeKey] as String);
 
     return Node(parent, name, type, modified, size, id)
       ..targetSegments = (map[targetKey] as List)?.cast<String>();
   }
 
-  Map toMap() {
-    Map map = {nameKey: name, typeKey: type.toString()};
+  Map<String, dynamic> toMap() {
+    final map = <String, dynamic>{nameKey: name, typeKey: type.toString()};
     if (parent != null) {
       map[parentKey] = parent.id;
     }
@@ -353,8 +353,8 @@ class Node {
   String get path => joinAll(segments);
 
   List<String> get segments {
-    List<String> segments = [];
-    Node entity = this;
+    final segments = <String>[];
+    var entity = this;
     do {
       segments.insert(0, entity.name);
       entity = entity.parent;
@@ -413,7 +413,7 @@ class NodeSearchResult {
 }
 
 List<String> getSegments(String path) {
-  List<String> segments = split(path);
+  final segments = split(path);
   if (!isAbsolute(path)) {
     segments.insert(0, separator);
   }

@@ -4,7 +4,7 @@ class IdbFileStat implements fs.FileStat {
   int _size;
 
   @override
-  int get size => _size == null ? -1 : _size;
+  int get size => _size ?? -1;
 
   set size(int size) => _size = size;
 

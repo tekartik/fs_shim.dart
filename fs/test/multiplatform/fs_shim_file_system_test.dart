@@ -6,7 +6,7 @@ library fs_shim.test.fs_shim_file_system_test;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
@@ -30,10 +30,10 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('prepare', () async {
-      Directory top = await ctx.prepare();
+      final top = await ctx.prepare();
 
-      List<String> parts = ctx.fs.path.split(top.path);
-      expect(parts, contains("prepare"));
+      final parts = ctx.fs.path.split(top.path);
+      expect(parts, contains('prepare'));
     });
   });
 }

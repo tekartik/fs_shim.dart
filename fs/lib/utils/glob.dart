@@ -17,13 +17,13 @@ class _PartMatchRunner {
 
   bool matches() {
     // at the end?
-    String partChr = partIndex == part.length ? null : part[partIndex];
-    String globChr = globIndex == glob.length ? null : glob[globIndex];
+    final partChr = partIndex == part.length ? null : part[partIndex];
+    final globChr = globIndex == glob.length ? null : glob[globIndex];
 
     bool _next() {
       globIndex++;
       partIndex++;
-      bool ok = matches();
+      final ok = matches();
       globIndex--;
       partIndex--;
       return ok;
@@ -47,7 +47,7 @@ class _PartMatchRunner {
       // any number char
       // try with zero
       partIndex--;
-      bool matches = _next();
+      var matches = _next();
       partIndex++;
 
       if (!matches && partChr != null) {
@@ -102,7 +102,7 @@ class _GlobMatchRunner {
   bool _next() {
     globIndex++;
     partIndex++;
-    bool ok = matchesFromCurrent();
+    final ok = matchesFromCurrent();
     globIndex--;
     partIndex--;
     return ok;
@@ -110,17 +110,17 @@ class _GlobMatchRunner {
 
   bool matchesFromCurrent() {
     // at the end?
-    bool partEnd = partIndex == parts.length;
-    bool globEnd = globIndex == globParts.length;
+    final partEnd = partIndex == parts.length;
+    final globEnd = globIndex == globParts.length;
     if (globEnd) {
       return true;
     }
 
-    String part = partEnd ? null : parts[partIndex];
-    String globPart = globParts[globIndex];
+    final part = partEnd ? null : parts[partIndex];
+    final globPart = globParts[globIndex];
 
     if (Glob.isGlobStar(globPart)) {
-      bool ok = false;
+      var ok = false;
       // Try 0
 
       partIndex--;
@@ -173,7 +173,7 @@ class Glob {
     if (part == null) {
       return globPart == null;
     }
-    _PartMatchRunner runner = _PartMatchRunner()
+    final runner = _PartMatchRunner()
       ..glob = globPart
       ..part = part;
     return runner.matches();
@@ -183,9 +183,8 @@ class Glob {
   List<String> __expressionParts;
 
   List<String> get _expressionParts {
-    if (__expressionParts == null) {
-      __expressionParts = split(expression);
-    }
+    __expressionParts ??= split(expression);
+
     return __expressionParts;
   }
 
@@ -195,12 +194,12 @@ class Glob {
 
   /// true if the name matches the pattern
   bool matches(String name) {
-    _GlobMatchRunner runner = _GlobMatchRunner(this, splitParts(name));
+    final runner = _GlobMatchRunner(this, splitParts(name));
     return runner.matches();
   }
 
   bool matchesParts(List<String> parts) {
-    _GlobMatchRunner runner = _GlobMatchRunner(this, parts);
+    final runner = _GlobMatchRunner(this, parts);
     return runner.matches();
   }
 

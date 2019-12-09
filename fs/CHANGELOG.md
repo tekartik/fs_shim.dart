@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.11.2
+
+* Pedantic 1.9 support
+
 ## 0.11.0+3
 
 * Sdk 2.5 support

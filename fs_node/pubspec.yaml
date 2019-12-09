@@ -1,12 +1,12 @@
 name: tekartik_fs_node
-description: Fs node
-version: 0.3.0
+description: fs_shim on node
+version: 0.4.0
 publish_to: none
 #homepage: https://www.example.com
 #author: alex <email@example.com>
 
 environment:
-  sdk: '>=2.4.0-dev <3.0.0'
+  sdk: '>=2.5.0 <3.0.0'
 
 dependencies:
   path: '>=1.6.1'

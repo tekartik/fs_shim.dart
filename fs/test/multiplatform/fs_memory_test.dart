@@ -6,8 +6,8 @@ library tekartik_fs_test.fs_memory_test;
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
 
-import '../test_common.dart';
 import 'fs_test.dart';
+import 'test_common.dart';
 
 void main() {
   group('memory', () {
@@ -17,20 +17,20 @@ void main() {
       test('writeAsString', () async {
         // direct file write, no preparation
         var fs = newFileSystemMemory();
-        await fs.file("file.tmp").writeAsString("context");
+        await fs.file('file.tmp').writeAsString('context');
       }, skip: false);
 
       test('createDirectory', () async {
         // direct file write, no preparation
         var fs = newFileSystemMemory();
-        await fs.directory("dir.tmp").create();
+        await fs.directory('dir.tmp').create();
       }, skip: false);
 
       test('createDirectoryRecursive', () async {
         // direct file write, no preparation
         var fs = newFileSystemMemory();
         var path = fs.path;
-        await fs.directory(path.join("dir.tmp", "sub")).create(recursive: true);
+        await fs.directory(path.join('dir.tmp', 'sub')).create(recursive: true);
       }, skip: false);
     });
   });

@@ -1,4 +1,4 @@
-@TestOn("vm")
+@TestOn('vm')
 library tekartik_fs.test.io_example_test;
 
 /// io_example_test.dart
@@ -18,13 +18,13 @@ import '../test_common_io.dart';
 /// This file must be the same besides the import above
 // ignore_for_file: avoid_slow_async_io
 
-const String groupName = "io_example";
+const String groupName = 'io_example';
 
 void main() {
   group(groupName, () {
     //testOutTopPath
     test('sample1', () async {
-      Directory dir = Directory(testOutPath);
+      final dir = Directory(testOutPath);
       try {
         await dir.delete(recursive: true);
       } on FileSystemException catch (_) {}
@@ -34,8 +34,8 @@ void main() {
 
       expect(dir.absolute.isAbsolute, isTrue);
 
-      String filePath = join(dir.path, "file");
-      File file = File(filePath);
+      final filePath = join(dir.path, 'file');
+      final file = File(filePath);
       expect(await FileSystemEntity.isFile(file.path), isFalse);
       expect(file.absolute.isAbsolute, isTrue);
 
@@ -46,7 +46,7 @@ void main() {
       expect(await FileSystemEntity.isFile(file.path), isTrue);
 
       var stream = file.openRead();
-      List<int> content = [];
+      final content = <int>[];
       await stream.listen((List<int> data) {
         content.addAll(data);
       }).asFuture();
@@ -57,11 +57,11 @@ void main() {
         expect(entity, const TypeMatcher<File>());
       }).asFuture();
 
-      File file2 = await file.copy(join(dir.path, "file2"));
-      expect(await file2.readAsString(), "test");
+      final file2 = await file.copy(join(dir.path, 'file2'));
+      expect(await file2.readAsString(), 'test');
 
       // stat
-      FileStat stat = await file.stat();
+      final stat = await file.stat();
       expect(stat.size, greaterThan(3));
 
       // error
@@ -70,7 +70,7 @@ void main() {
             .create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {
-        OSError osError = e.osError;
+        final osError = e.osError;
         expect(osError.errorCode, isNotNull);
       }
 

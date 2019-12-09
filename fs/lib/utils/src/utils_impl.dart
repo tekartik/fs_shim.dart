@@ -62,9 +62,9 @@ set fsDeleteDebug(bool debug) => _fsDeleteDebug = debug;
 
 // should not be exported
 List<Glob> globList(List<String> expressions) {
-  List<Glob> globs = [];
+  final globs = <Glob>[];
   if (expressions != null) {
-    for (String expression in expressions) {
+    for (final expression in expressions) {
       globs.add(Glob(expression));
     }
   }
@@ -102,9 +102,8 @@ class OptionsExcludeMixin {
   List<Glob> _excludeGlobs;
 
   List<Glob> get excludeGlobs {
-    if (_excludeGlobs == null) {
-      _excludeGlobs = globList(exclude);
-    }
+    _excludeGlobs ??= globList(exclude);
+
     return _excludeGlobs;
   }
 }
@@ -123,9 +122,8 @@ class OptionsIncludeMixin {
   List<Glob> _includeGlobs;
 
   List<Glob> get includeGlobs {
-    if (_includeGlobs == null) {
-      _includeGlobs = globList(include);
-    }
+    _includeGlobs ??= globList(include);
+
     return _includeGlobs;
   }
 }
@@ -292,7 +290,7 @@ Future<int> copyFileSystemEntityImpl(FileSystem srcFileSystem, String srcPath,
   int count = 0;
 
   if (fsCopyDebug) {
-    print("$srcPath => $dstPath");
+    print('$srcPath => $dstPath');
   }
 
   if (await srcFileSystem.isLink(srcPath) && (!options.followLinks)) {
@@ -391,11 +389,11 @@ Future<int> copyFileSystemEntityImpl(FileSystem srcFileSystem, String srcPath,
 /// Copy the file content
 Future<int> copyFileContent(File src, File dst) async {
   var inStream = src.openRead();
-  StreamSink<List<int>> outSink = dst.openWrite();
+  var outSink = dst.openWrite();
   try {
     await inStream.cast<List<int>>().pipe(outSink);
   } catch (_) {
-    Directory parent = dst.parent;
+    final parent = dst.parent;
     if (!await parent.exists()) {
       await parent.create(recursive: true);
     }
@@ -486,9 +484,8 @@ abstract class EntityPathMixin implements EntityNode {
 
   @override
   String get path {
-    if (_path == null) {
-      _path = fs.path.join(top, sub);
-    }
+    _path ??= fs.path.join(top, sub);
+
     return _path;
   }
 }
@@ -580,7 +577,7 @@ abstract class SourceNodeMixin implements SourceNode {
 
   Future<List<File>> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
-    ChildSourceNode sourceNode = ChildSourceNode(this, options, srcRelative);
+    final sourceNode = ChildSourceNode(this, options, srcRelative);
 
     // exclude?
     return sourceNode.run();
@@ -594,7 +591,7 @@ abstract class CopyNodeMixin implements CopyNode {
 
   Future<int> runChild(CopyOptions options, String srcRelative,
       [String dstRelative]) {
-    ChildCopy copy = ChildCopy(this, options, srcRelative, dstRelative);
+    final copy = ChildCopy(this, options, srcRelative, dstRelative);
 
     // exclude?
     return copy.run();
@@ -626,7 +623,7 @@ class TopCopy extends Object with CopyNodeMixin implements CopyNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildCopy copy = ChildCopy(this, null, '');
+    final copy = ChildCopy(this, null, '');
     return await copy.run();
   }
 }
@@ -654,7 +651,7 @@ class TopSourceNode extends Object with SourceNodeMixin implements SourceNode {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    ChildSourceNode sourceNode = ChildSourceNode(this, null, '');
+    final sourceNode = ChildSourceNode(this, null, '');
     return await sourceNode.run();
   }
 }
@@ -682,9 +679,8 @@ class ChildCopy extends Object
   // if [options] is null, we'll use the parent options
   ChildCopy(this.parent, this.options, String srcRelative,
       [String dstRelative]) {
-    if (options == null) {
-      options = parent.options;
-    }
+    options ??= parent.options;
+
     _id = ++ActionNodeMixin._staticId;
 
     dstRelative = dstRelative ?? srcRelative;
@@ -702,9 +698,9 @@ class ChildCopy extends Object
   String toString() => '  [$id] $src => $dst';
 
   Future<int> run() async {
-    int count = 0;
+    var count = 0;
     if (fsCopyDebug) {
-      print("$this");
+      print('$this');
     }
 
     if (await src.fs.isLink(src.path) && (!options.followLinks)) {
@@ -717,7 +713,7 @@ class ChildCopy extends Object
         return 0;
       }
 
-      CopyOptions options = this.options;
+      var options = this.options;
 
       if (hasIncludeRules) {
         // when including dir, sub include options will be ignored
@@ -726,7 +722,7 @@ class ChildCopy extends Object
         }
       }
 
-      Directory dstDirectory = dst.asDirectory();
+      final dstDirectory = dst.asDirectory();
       if (!await dstDirectory.exists()) {
         await dstDirectory.create(recursive: true);
         count++;
@@ -734,13 +730,13 @@ class ChildCopy extends Object
 
       // recursive
       if (options.recursive) {
-        Directory srcDirectory = src.asDirectory();
+        final srcDirectory = src.asDirectory();
 
-        List<Future> futures = [];
+        final futures = <Future>[];
         await srcDirectory
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
-          String basename = src.fs.path.basename(srcEntity.path);
+          final basename = src.fs.path.basename(srcEntity.path);
           futures.add(runChild(options, basename).then((int stepCount) {
             count += stepCount;
           }));
@@ -759,19 +755,19 @@ class ChildCopy extends Object
         }
       }
 
-      File srcFile = src.asFile();
-      File dstFile = dst.asFile();
+      final srcFile = src.asFile();
+      final dstFile = dst.asFile();
 
       // Try to link first
       // allow link if asked and on the same file system
       if (options.tryToLinkFile &&
           (src.fs == dst.fs) &&
           src.fs.supportsFileLink) {
-        String srcTarget = srcFile.absolute.path;
+        final srcTarget = srcFile.absolute.path;
         // Check if dst is link
-        FileSystemEntityType type = await dst.type(followLinks: false);
+        final type = await dst.type(followLinks: false);
 
-        bool deleteDst = false;
+        var deleteDst = false;
         if (type != FileSystemEntityType.notFound) {
           if (type == FileSystemEntityType.link) {
             // check target
@@ -799,8 +795,8 @@ class ChildCopy extends Object
 
       // Handle modified date
       if (options.checkSizeAndModifiedDate == true) {
-        FileStat srcStat = await srcFile.stat();
-        FileStat dstStat = await dstFile.stat();
+        final srcStat = await srcFile.stat();
+        final dstStat = await dstFile.stat();
         if ((dstStat.type != FileSystemEntityType.notFound) &&
             (srcStat.size == dstStat.size) &&
             (srcStat.modified.compareTo(dstStat.modified) <= 0)) {
@@ -836,9 +832,8 @@ class ChildSourceNode extends Object
 
   // if [options] is null, we'll use the parent options
   ChildSourceNode(this.parent, this.options, String srcRelative) {
-    if (options == null) {
-      options = parent.options;
-    }
+    options ??= parent.options;
+
     _id = ++ActionNodeMixin._staticId;
 
     src = parent.src.child(srcRelative);
@@ -850,9 +845,9 @@ class ChildSourceNode extends Object
   String toString() => '  [$id] $src';
 
   Future<List<File>> run() async {
-    List<File> entities = [];
+    final entities = <File>[];
     if (fsCopyDebug) {
-      print("$this");
+      print('$this');
     }
 
     if (await src.fs.isLink(src.path) && (!options.followLinks)) {
@@ -865,7 +860,7 @@ class ChildSourceNode extends Object
         return entities;
       }
 
-      CopyOptions options = this.options;
+      var options = this.options;
 
       if (hasIncludeRules) {
         // when including dir, sub include options will be ignored
@@ -875,13 +870,13 @@ class ChildSourceNode extends Object
       }
       // recursive
       if (options.recursive) {
-        Directory srcDirectory = src.asDirectory();
+        final srcDirectory = src.asDirectory();
 
-        List<Future> futures = [];
+        final futures = <Future>[];
         await srcDirectory
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
-          String basename = src.fs.path.basename(srcEntity.path);
+          final basename = src.fs.path.basename(srcEntity.path);
           futures
               .add(runChild(options, basename).then((List<File> childEntities) {
             entities.addAll(childEntities);
@@ -901,7 +896,7 @@ class ChildSourceNode extends Object
         }
       }
 
-      File srcFile = src.asFile();
+      final srcFile = src.asFile();
 
       entities.add(srcFile);
     }
@@ -919,7 +914,7 @@ abstract class NodeExcludeMixin {
     // to ignore?
     if (excludeOptions.excludeGlobs.isNotEmpty) {
       // only test on sub
-      for (Glob glob in excludeOptions.excludeGlobs) {
+      for (final glob in excludeOptions.excludeGlobs) {
         if (glob.matches(srcSub)) {
           return true;
         }
@@ -932,7 +927,7 @@ abstract class NodeExcludeMixin {
     // to ignore?
     if (excludeOptions.excludeGlobs.isNotEmpty) {
       // only test on sub
-      for (Glob glob in excludeOptions.excludeGlobs) {
+      for (final glob in excludeOptions.excludeGlobs) {
         if (!glob.isDir) {
           if (glob.matches(srcSub)) {
             return true;
@@ -955,7 +950,7 @@ abstract class NodeIncludeMixin {
     // to ignore?
     if (includeOptions.includeGlobs.isNotEmpty) {
       // only test on sub
-      for (Glob glob in includeOptions.includeGlobs) {
+      for (final glob in includeOptions.includeGlobs) {
         if (glob.isDir) {
           if (glob.matches(srcSub)) {
             return true;
@@ -970,7 +965,7 @@ abstract class NodeIncludeMixin {
     // to ignore?
     if (includeOptions.includeGlobs.isNotEmpty) {
       // only test on sub
-      for (Glob glob in includeOptions.includeGlobs) {
+      for (final glob in includeOptions.includeGlobs) {
         if (!glob.isDir) {
           if (glob.matches(srcSub)) {
             return true;

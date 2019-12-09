@@ -3,7 +3,7 @@
 
 library fs_shim.utils_test;
 
-import '../test_common.dart';
+import 'test_common.dart';
 import 'utils_copy_test.dart' as utils_copy_test;
 import 'utils_entity_test.dart' as utils_entity_test;
 import 'utils_part_test.dart' as utils_part_test;

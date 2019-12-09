@@ -12,7 +12,7 @@ export 'dart:async';
 export 'dart:convert';
 
 io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
-  if (fsFileMode == null) fsFileMode = fs.FileMode.write;
+  fsFileMode ??= fs.FileMode.write;
   return unwrapIofileModeImpl(fsFileMode);
 }
 

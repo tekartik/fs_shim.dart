@@ -1,4 +1,4 @@
-@TestOn("vm")
+@TestOn('vm')
 library tekartik_fs_test.fs_io_test;
 
 // Copyright (c) 2015, <your name>. All rights reserved. Use of this source code

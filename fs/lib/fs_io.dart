@@ -153,7 +153,7 @@ OSError wrapIoOSError(io.OSError ioOSError) => OSErrorImpl.io(ioOSError);
 
 /// Unwraps IO OS Error.
 io.OSError unwrapIoOSError(OSError osError) =>
-    (osError as OSErrorImpl).ioOSError;
+    (osError as OSErrorImpl)?.ioOSError;
 
 /// Wraps IO FileStat.
 FileStat wrapIoFileStat(io.FileStat ioFileStat) => FileStatImpl.io(ioFileStat);

@@ -6,7 +6,7 @@ library fs_shim.test.fs_shim_file_system_exception_test;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
@@ -20,7 +20,7 @@ final bool _doPrintErr = false;
 
 void _printErr(e) {
   if (_doPrintErr) {
-    print("${e} ${[e.runtimeType]}");
+    print('${e} ${[e.runtimeType]}');
   }
 }
 
@@ -29,15 +29,15 @@ void defineTests(FileSystemTestContext ctx) {
 
   group('file_system_exception_test', () {
     test('not_found', () async {
-      Directory dir = await ctx.prepare();
+      final dir = await ctx.prepare();
 
       // create a file too deep
-      Directory subDir = fs.directory(join(dir.path, "sub"));
-      File file = fs.file(join(subDir.path, "file"));
+      final subDir = fs.directory(join(dir.path, 'sub'));
+      final file = fs.file(join(subDir.path, 'file'));
 
       try {
         await file.create();
-        fail("shoud fail");
+        fail('shoud fail');
       } on FileSystemException catch (e) {
         _printErr(e);
         expect(e.osError.errorCode, isNotNull);

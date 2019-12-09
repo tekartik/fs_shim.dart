@@ -6,7 +6,7 @@ library fs_shim.test.path_exp_test;
 import 'package:fs_shim/utils/path.dart' as fs;
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   group('path_exp', () {
@@ -24,9 +24,9 @@ void main() {
     });
 
     test('convert', () {
-      String path = 'c:\\windows\\system';
+      final path = 'c:\\windows\\system';
       expect(windows.joinAll(windows.split(path)), path);
-      String posixPath = posix.joinAll(windows.split(path));
+      final posixPath = posix.joinAll(windows.split(path));
       expect(fs.posixPath(path), posixPath);
       expect(windows.joinAll(posix.split(posixPath)), path);
       expect(

@@ -1,4 +1,4 @@
-@TestOn("vm")
+@TestOn('vm')
 // Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
@@ -25,8 +25,8 @@ void main() {
     });
     test('equals', () {
       // Files cannot be compared!
-      expect(io.File("test"), isNot(io.File("test")));
-      expect(io.Directory("test"), isNot(io.Directory("test")));
+      expect(io.File('test'), isNot(io.File('test')));
+      expect(io.Directory('test'), isNot(io.Directory('test')));
     });
     test('type', () async {
       expect(
@@ -38,25 +38,25 @@ void main() {
     });
     test('test_path', () async {
       expect(ioFileSystemTestContext.outTopPath,
-          join(".dart_tool", "fs_shim", "test"));
+          join('.dart_tool', 'fs_shim', 'test'));
       expect(ioFileSystemTestContext.outPath,
           join(ioFileSystemTestContext.outTopPath, joinAll(testDescriptions)));
     });
 
     group('conversion', () {
       test('file', () {
-        io.File ioFile = io.File('file');
-        File file = wrapIoFile(ioFile);
+        final ioFile = io.File('file');
+        final file = wrapIoFile(ioFile);
         expect(unwrapIoFile(file), ioFile);
       });
       test('dir', () {
-        io.Directory ioDirectory = io.Directory('dir');
-        Directory dir = wrapIoDirectory(ioDirectory);
+        final ioDirectory = io.Directory('dir');
+        final dir = wrapIoDirectory(ioDirectory);
         expect(unwrapIoDirectory(dir), ioDirectory);
       });
       test('link', () {
-        io.Link ioLink = io.Link('link');
-        Link link = wrapIoLink(ioLink);
+        final ioLink = io.Link('link');
+        final link = wrapIoLink(ioLink);
         expect(unwrapIoLink(link), ioLink);
       });
 
@@ -74,27 +74,27 @@ void main() {
 
       test('oserror', () {
         const ioOSError = io.OSError();
-        OSError osError = wrapIoOSError(ioOSError);
+        final osError = wrapIoOSError(ioOSError);
         expect(unwrapIoOSError(osError), ioOSError);
       });
 
       test('filestat', () async {
-        io.FileStat ioFileStat = io.Directory.current.statSync();
-        FileStat fileStat = wrapIoFileStat(ioFileStat);
+        final ioFileStat = io.Directory.current.statSync();
+        final fileStat = wrapIoFileStat(ioFileStat);
         expect(unwrapIoFileStat(fileStat), ioFileStat);
       });
 
       test('filesystemexception', () {
         const ioFileSystemException = io.FileSystemException();
-        FileSystemException fileSystemException =
+        final fileSystemException =
             wrapIoFileSystemException(ioFileSystemException);
         expect(unwrapIoFileSystemException(fileSystemException),
             ioFileSystemException);
       });
 
       test('filemode', () async {
-        io.FileMode ioFileMode = io.FileMode.read;
-        FileMode fileMode = wrapIoFileMode(ioFileMode);
+        var ioFileMode = io.FileMode.read;
+        var fileMode = wrapIoFileMode(ioFileMode);
         expect(unwrapIoFileMode(fileMode), ioFileMode);
 
         ioFileMode = io.FileMode.write;
@@ -107,8 +107,8 @@ void main() {
       });
 
       test('fileentitytype', () async {
-        io.FileSystemEntityType ioFset = io.FileSystemEntityType.notFound;
-        FileSystemEntityType fset = wrapIoFileSystemEntityType(ioFset);
+        var ioFset = io.FileSystemEntityType.notFound;
+        var fset = wrapIoFileSystemEntityType(ioFset);
         expect(unwrapIoFileSystemEntityType(fset), ioFset);
 
         ioFset = io.FileSystemEntityType.file;
@@ -127,21 +127,21 @@ void main() {
 
     group('raw', () {
       test('dir', () async {
-        Directory dir = Directory("dir");
-        File file = File("file");
+        var dir = Directory('dir');
+        final file = File('file');
         expect(file.fs, fs);
         expect(dir.fs, fs);
 
         try {
           dir = Directory(join(Directory.current.path,
-              "never_exist_such_a_dummy_dir_for_fs_shim_testing"));
+              'never_exist_such_a_dummy_dir_for_fs_shim_testing'));
           await dir.list().toList();
         } catch (_) {}
       });
 
       test('filestat', () async {
-        io.FileStat ioFileStat = io.Directory.current.statSync();
-        FileStat fileStat = await Directory.current.stat();
+        final ioFileStat = io.Directory.current.statSync();
+        final fileStat = await Directory.current.stat();
         expect(fileStat.size, ioFileStat.size);
       });
 

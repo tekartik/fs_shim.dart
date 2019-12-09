@@ -36,7 +36,7 @@ abstract class FileSystemTestContext {
   String get outPath => joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
-    Directory dir = fs.directory(outPath);
+    final dir = fs.directory(outPath);
     try {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {
@@ -71,7 +71,7 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
 }
 
 void devPrintJson(Map json) {
-  print(const JsonEncoder.withIndent("  ").convert(json));
+  print(const JsonEncoder.withIndent('  ').convert(json));
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {

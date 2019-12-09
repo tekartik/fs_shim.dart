@@ -1,6 +1,3 @@
-@TestOn("vm")
-import 'dart:io';
-
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_io.dart' show unwrapIoDirectory;
 import 'package:fs_shim/utils/copy.dart' show TopSourceNode;
@@ -19,47 +16,47 @@ void main() {
   group('io_copy', () {
     test('dir', () async {
       // fsCopyDebug = true;
-      Directory top = unwrapIoDirectory(await ctx.prepare());
-      Directory src = childDirectory(top, "src");
-      Directory dst = childDirectory(top, "dst");
-      await writeString(childFile(src, "file"), "test");
+      final top = unwrapIoDirectory(await ctx.prepare());
+      final src = childDirectory(top, 'src');
+      final dst = childDirectory(top, 'dst');
+      await writeString(childFile(src, 'file'), 'test');
 
       await copyDirectory(src, dst);
-      expect(await readString(childFile(dst, "file")), "test");
+      expect(await readString(childFile(dst, 'file')), 'test');
 
-      List<File> files = await copyDirectoryListFiles(src);
+      final files = await copyDirectoryListFiles(src);
       expect(files, hasLength(1));
-      expect(relative(files[0].path, from: src.path), "file");
+      expect(relative(files[0].path, from: src.path), 'file');
     });
 
     test('file', () async {
-      Directory top = unwrapIoDirectory(await ctx.prepare());
-      File srcFile = childFile(top, "file");
-      File dstFile = childFile(top, "file2");
+      final top = unwrapIoDirectory(await ctx.prepare());
+      final srcFile = childFile(top, 'file');
+      final dstFile = childFile(top, 'file2');
 
       try {
         expect(await copyFile(srcFile, dstFile), dstFile);
         fail('should fail');
       } on ArgumentError catch (_) {}
 
-      await srcFile.writeAsString("test", flush: true);
+      await srcFile.writeAsString('test', flush: true);
 
       expect(await copyFile(srcFile, dstFile), dstFile);
 
       expect(await dstFile.exists(), isTrue);
-      expect(await dstFile.readAsString(), "test");
+      expect(await dstFile.readAsString(), 'test');
     });
 
     test('top_source_node', () {
       // just check the export
-      TopSourceNode topSourceNode = TopSourceNode(null);
+      final topSourceNode = TopSourceNode(null);
       expect(topSourceNode, isNotNull);
     });
 
     test('delete', () async {
-      Directory top = unwrapIoDirectory(await ctx.prepare());
-      File file = childFile(top, "file");
-      await writeString(file, "test");
+      final top = unwrapIoDirectory(await ctx.prepare());
+      final file = childFile(top, 'file');
+      await writeString(file, 'test');
       expect(await file.exists(), isTrue);
       await deleteFile(file);
       expect(await file.exists(), isFalse);

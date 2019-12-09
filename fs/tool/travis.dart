@@ -6,6 +6,7 @@ Future main() async {
   await shell.run('''
 # Analyze code
 dartanalyzer --fatal-warnings --fatal-infos .
+dartfmt -n --set-exit-if-changed .
 
 # Run tests
 pub run test -p vm -j 1 test/io test/multiplatform

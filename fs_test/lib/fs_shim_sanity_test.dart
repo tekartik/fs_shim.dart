@@ -4,6 +4,7 @@
 library fs_shim.test.fs_shim_sanity_test;
 
 import 'package:fs_shim/fs.dart';
+
 import 'test_common.dart';
 //import 'package:path/path.dart';
 
@@ -12,13 +13,14 @@ void main() {
 }
 
 FileSystemTestContext _ctx;
+
 FileSystem get fs => _ctx.fs;
 
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
 
   int indexOf(List<FileSystemEntity> list, FileSystemEntity entity) {
-    for (int i = 0; i < list.length; i++) {
+    for (var i = 0; i < list.length; i++) {
       if (list[i].path == entity.path) {
         return i;
       }
@@ -28,35 +30,35 @@ void defineTests(FileSystemTestContext ctx) {
 
   group('sanity', () {
     test('test1', () async {
-      Directory top = await ctx.prepare();
+      final top = await ctx.prepare();
 
-      Directory src = childDirectory(top, 'src');
+      final src = childDirectory(top, 'src');
       await src.create();
-      Directory dst = childDirectory(top, 'dst');
+      final dst = childDirectory(top, 'dst');
 
-      File file = childFile(src, "file");
-      await file.writeAsString("test", flush: true);
+      final file = childFile(src, 'file');
+      await file.writeAsString('test', flush: true);
 
       if (fs.supportsFileLink) {
-        Link link = childLink(src, 'link');
+        final link = childLink(src, 'link');
         await link.create(file.path);
         expect(await fs.isLink(link.path), isTrue);
       }
 
-      TopCopy copy = TopCopy(fsTopEntity(src), fsTopEntity(dst),
+      final copy = TopCopy(fsTopEntity(src), fsTopEntity(dst),
           options: CopyOptions(recursive: true));
       await copy.run();
 
-      File dstFile = childFile(dst, "file");
+      final dstFile = childFile(dst, 'file');
       expect(await dstFile.readAsString(), 'test');
 
       if (fs.supportsFileLink) {
-        File dstLink = childFile(dst, "link");
+        final dstLink = childFile(dst, 'link');
         expect(await dstLink.readAsString(), 'test');
         expect(await fs.isLink(dstLink.path), isFalse);
       }
 
-      List<FileSystemEntity> list = [];
+      final list = <FileSystemEntity>[];
       await top.list(recursive: true).listen((FileSystemEntity fse) {
         list.add(fse);
       }).asFuture();
@@ -64,7 +66,6 @@ void defineTests(FileSystemTestContext ctx) {
       expect(indexOf(list, src), isNot(-1));
       expect(indexOf(list, dst), isNot(-1));
       expect(list.length, fs.supportsFileLink ? 6 : 4);
-    }, skip: isNode(ctx) //TODO fix node
-        );
+    });
   });
 }

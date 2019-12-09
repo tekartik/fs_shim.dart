@@ -6,7 +6,7 @@ library fs_shim.test.fs_shim_file_stat_test;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
-import '../test_common.dart';
+import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
@@ -21,12 +21,12 @@ void defineTests(FileSystemTestContext ctx) {
 
   group('file_stat', () {
     test('stat', () async {
-      Directory top = await ctx.prepare();
+      final top = await ctx.prepare();
 
-      File file = fs.file(join(top.path, "file"));
+      final file = fs.file(join(top.path, 'file'));
 
-      await file.writeAsString("test", flush: true);
-      FileStat stat = await file.stat();
+      await file.writeAsString('test', flush: true);
+      final stat = await file.stat();
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);
       expect(stat.modified, isNotNull);

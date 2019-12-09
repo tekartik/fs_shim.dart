@@ -27,7 +27,7 @@ class FileStatNotFound extends FileStatNode {
   FileSystemEntityType get type => FileSystemEntityType.notFound;
 
   @override
-  String toString() => "FileStat($type)";
+  String toString() => 'FileStat($type)';
 }
 
 class FileStatNode implements FileStat {

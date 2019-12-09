@@ -39,5 +39,20 @@ Future main() async {
     ...list,
   ]);
    */
-  await copyAll(['multiplatform/fs_shim_link_test.dart']);
+  await copyAll([
+    'multiplatform/fs_shim_link_test.dart',
+    'multiplatform/fs_shim_dir_test.dart',
+    'multiplatform/fs_shim_file_stat_test.dart',
+    'multiplatform/fs_shim_file_system_exception_test.dart',
+    'multiplatform/fs_shim_file_system_test.dart',
+    'multiplatform/fs_shim_file_test.dart',
+    'multiplatform/fs_shim_sanity_test.dart',
+    'multiplatform/fs_test.dart',
+    'multiplatform/utils_copy_test.dart',
+    'multiplatform/utils_entity_test.dart',
+    'multiplatform/utils_part_test.dart',
+    'multiplatform/utils_path_test.dart',
+    'multiplatform/utils_read_write_test.dart',
+    'multiplatform/utils_test.dart',
+  ]);
 }

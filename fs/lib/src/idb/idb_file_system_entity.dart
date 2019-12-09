@@ -6,7 +6,7 @@ import 'idb_directory.dart';
 import 'idb_fs.dart';
 
 abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
-  IdbFileSystem _fs;
+  final IdbFileSystem _fs;
 
   @override
   IdbFileSystem get fs => _fs;
@@ -24,7 +24,7 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
 
   IdbFileSystemEntity(this._fs, this._path) {
     if (path == null) {
-      throw ArgumentError.notNull("path");
+      throw ArgumentError.notNull('path');
     }
   }
 
