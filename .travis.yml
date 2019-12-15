@@ -15,7 +15,7 @@ jobs:
       dart: stable
     - stage: min
       script: dart ./tool/travis.dart
-      dart: 2.5.0
+      dart: 2.7.0
     - stage: dev
       script: dart ./tool/travis.dart
       dart: dev
