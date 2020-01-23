@@ -1,7 +1,6 @@
 # fs_shim
 
-A portable file system library to allow working on io and browser (though idb_shim) and memory (through idb_shim), 
-and soon google storage (through storage api), google drive (through google drive api)
+A portable file system library to allow working on io, browser (though idb_shim) and memory (through idb_shim).
 
 [![Build Status](https://travis-ci.org/tekartik/fs_shim.dart.svg?branch=master)](https://travis-ci.org/tekartik/fs_shim.dart)
 
@@ -12,7 +11,7 @@ Classes
 - File (create, openWrite, openRead, writeAsBytes, writeAsString, copy)
 - Link (create, target)
 - Directory (create, list)
-- FileSystem (newDirectory, newFile, newLink, type, isFile, isDirectory, isLink)
+- FileSystem (file, link, directory, type, isFile, isDirectory, isLink)
 - FileSystemEntity (path, exists, delete, rename, absolute, isAbsolute, state, parent)
 - FileStat
 - FileSystemEntityType,
@@ -40,10 +39,10 @@ main() async {
   FileSystem fs = newMemoryFileSystem();
 
   // Create a top level directory
-  Directory dir = fs.newDirectory('/dir');
+  Directory dir = fs.directory('/dir');
 
   // and a file in it
-  File file = fs.newFile(join(dir.path, "file"));
+  File file = fs.file(join(dir.path, "file"));
 
   // create a file
   await file.create(recursive: true);
@@ -54,10 +53,10 @@ main() async {
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    Link link = fs.newLink(join(dir.path, "link"));
+    Link link = fs.link(join(dir.path, "link"));
     await link.create(file.path);
 
-    print('link: ${await fs.newFile(link.path).readAsString()}');
+    print('link: ${await fs.file(link.path).readAsString()}');
   }
 
   // list dir content
@@ -90,14 +89,14 @@ main() async {
   String dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
-  // fs.newDirectory('/dir');
+  // fs.directory('/dir');
   Directory dir = new Directory(dirPath);
 
   // delete its content
   await dir.delete(recursive: true);
 
   // and a file in it
-  // fs.newFile(join(dir.path, "file"));
+  // fs.file(join(dir.path, "file"));
   File file = new File(join(dir.path, "file"));
 
   // create a file
@@ -109,7 +108,7 @@ main() async {
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    // fs.newLink(join(dir.path, "link"));
+    // fs.link(join(dir.path, "link"));
     Link link = new Link(join(dir.path, "link"));
     await link.create(file.path);
 

@@ -57,14 +57,14 @@ main() async {
   String dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
-  // fs.newDirectory('/dir');
+  // fs.directory('/dir');
   Directory dir = new Directory(dirPath);
 
   // delete its content
   await dir.delete(recursive: true);
 
   // and a file in it
-  // fs.newFile(join(dir.path, "file"));
+  // fs.file(join(dir.path, "file"));
   File file = new File(join(dir.path, "file"));
 
   // create a file
@@ -76,7 +76,7 @@ main() async {
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    // fs.newLink(join(dir.path, "link"));
+    // fs.link(join(dir.path, "link"));
     Link link = new Link(join(dir.path, "link"));
     await link.create(file.path);
 
@@ -115,10 +115,10 @@ main() async {
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    Link link = fs.newLink(join(dir.path, "link"));
+    Link link = fs.link(join(dir.path, "link"));
     await link.create(file.path);
 
-    print('link: ${await fs.newFile(link.path).readAsString()}');
+    print('link: ${await fs.file(link.path).readAsString()}');
   }
 
   // list dir content
