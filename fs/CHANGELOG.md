@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.12.0
+
+* copy utils cleanup
+
 ## 0.11.2
 
 * Pedantic 1.9 support

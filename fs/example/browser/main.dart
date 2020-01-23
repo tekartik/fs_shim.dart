@@ -3,11 +3,11 @@ import 'dart:core' hide print;
 import 'dart:core' as core;
 import 'dart:html' hide FileSystem, File;
 
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/fs_idb.dart';
-import 'package:idb_shim/idb_client_native.dart';
 import 'package:path/path.dart';
 
-FileSystem fs = newFileSystemIdb(idbFactoryNative);
+FileSystem fs = fileSystemIdb;
 
 PreElement outElement;
 

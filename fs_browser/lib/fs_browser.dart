@@ -1,4 +1,1 @@
-import 'package:fs_shim/fs_idb.dart';
-import 'package:idb_shim/idb_client_native.dart';
-
-FileSystem fileSystemIdb = newFileSystemIdb(idbFactoryNative);
+export 'package:fs_shim/fs_browser.dart';
