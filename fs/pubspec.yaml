@@ -10,6 +10,7 @@ environment:
 dependencies:
   idb_shim: '>=1.10.0-dev <3.0.0'
   path: '>=1.5.1 <3.0.0'
+  meta:
 
 dev_dependencies:
   pedantic: '>=1.4.0'

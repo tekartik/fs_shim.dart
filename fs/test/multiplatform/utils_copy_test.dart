@@ -19,6 +19,19 @@ FileSystem get fs => _ctx.fs;
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('copy', () {
+    group('api', () {
+      // ignore: unnecessary_statements
+      TopCopy;
+      TopCopy topCopy;
+      topCopy?.options;
+      topCopy?.dst;
+      topCopy?.src;
+      topCopy?.id;
+      // ignore: unnecessary_statements
+      topCopy?.run;
+      // ignore: unnecessary_statements
+      topCopy?.runChild;
+    });
     group('copy_options', () {
       test('include_exclude', () {
         var options = recursiveLinkOrCopyNewerOptions;
