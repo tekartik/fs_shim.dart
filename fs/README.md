@@ -121,6 +121,15 @@ main() async {
 }
 ````
 
+### Browser usage
+
+```dart
+import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_idb.dart';
+
+FileSystem fs = fileSystemIdb;
+```
+
 ### Utilities
 
 * Lightweight glob support (`**`, `*` and `?` in a posix style path)

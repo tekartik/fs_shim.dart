@@ -13,17 +13,18 @@ export 'src/utils_impl.dart'
         fsCopyDebug,
         fsDeleteDebug,
         fsTopEntity,
+        // should deprecate
         TopCopy,
+        // should deprecate
         TopSourceNode,
+        // should deprecate
         CopyEntity,
+        // should deprecate
         ChildCopy,
+        // should deprecate
         TopEntity,
+        // should deprecate
         topEntityPath;
-
-//import 'package:logging/logging.dart' as log;
-//import 'package:path/path.dart';
-//import 'package:path/path.dart' as _path;
-// SOON not exported any more
 
 /// Main entry point
 ///
@@ -36,6 +37,9 @@ Future<Directory> copyDirectory(Directory src, Directory dst,
 Future<File> copyFile(File src, File dst, {CopyOptions options}) =>
     _impl.copyFile(src, dst, options: options);
 
+///
+/// List the files to be copied
+///
 Future<List<File>> copyDirectoryListFiles(Directory src,
         {CopyOptions options}) =>
     _impl.copyDirectoryListFiles(src, options: options);
@@ -50,8 +54,10 @@ Future<FileSystemEntity> copyFileSystemEntity(
   return _impl.copyFileSystemEntity(src, dst, options: options);
 }
 
-// If [include] is specified, only files specified will be copied
-// for "include", use trailing / to specify a directoy
+/// Copy options.
+///
+/// If [include] is specified, only files specified will be copied.
+/// for "include", use trailing / to specify a directoy
 class CopyOptions extends Object
     with
         OptionsDeleteMixin,
@@ -64,6 +70,7 @@ class CopyOptions extends Object
   bool tryToLinkFile;
   bool tryToLinkDir; // not supported yet
 
+  /// Copy options.
   CopyOptions(
       {bool recursive = false,
       this.checkSizeAndModifiedDate = false,
@@ -80,6 +87,7 @@ class CopyOptions extends Object
     this.followLinks = followLinks;
   }
 
+  /// Clone options.
   CopyOptions get clone => CopyOptions()
     ..recursive = recursive
     ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
@@ -100,14 +108,15 @@ CopyOptions get defaultCloneOptions => CopyOptions(tryToLinkFile: true);
 
 CopyOptions get defaultCopyOptions => CopyOptions()..recursive = true;
 
-/// Delete a directory recursively
+/// Delete a directory recursively.
 Future deleteDirectory(Directory dir, {DeleteOptions options}) =>
     _impl.deleteDirectory(dir, options: options);
 
-/// Delete a file recursively
+/// Delete a file recursively.
 Future deleteFile(File file, {DeleteOptions options}) =>
     _impl.deleteFile(file, options: options);
 
+/// Create options.
 class CreateOptions extends Object
     with OptionsDeleteMixin, OptionsRecursiveMixin {
   CreateOptions get clone => CreateOptions()
@@ -129,6 +138,7 @@ Future<Directory> createDirectory(Directory dir, {CreateOptions options}) =>
 Future<File> createFile(File file, {CreateOptions options}) =>
     _impl.createFile(file, options: options);
 
+/// Delete options.
 class DeleteOptions extends Object
     with OptionsRecursiveMixin, OptionsCreateMixin, OptionsFollowLinksMixin {
   @override
@@ -140,12 +150,16 @@ class DeleteOptions extends Object
     return map.toString();
   }
 
+  /// Create new options
   DeleteOptions get clone => DeleteOptions()
     ..recursive = recursive
     ..followLinks = followLinks
     ..create = create;
 }
 
+/// Delete recursively options
 final DeleteOptions defaultRecursiveDeleteOptions = DeleteOptions()
   ..recursive = true;
+
+/// Delete options default, delete recursively.
 final DeleteOptions defaultDeleteOptions = defaultRecursiveDeleteOptions;

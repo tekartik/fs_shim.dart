@@ -126,6 +126,16 @@ main() async {
 }
 ````
 
+### Browser usage
+
+```dart
+import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_idb.dart';
+
+FileSystem fs = fileSystemIdb;
+```
+
+
 ### Node
 
 #### Setup
@@ -150,7 +160,6 @@ main() async {
   FileSystem fs = fileSystemNode;
   ...
 ````  
-
 
 ### Utilities
 
