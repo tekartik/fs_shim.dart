@@ -185,7 +185,6 @@ void defineTests(FileSystemTestContext ctx) {
       var stat = await file.stat();
       expect(stat.type, FileSystemEntityType.notFound);
       expect(stat.size, -1);
-      expect(stat.modified, null);
 
       await file.create();
       stat = await file.stat();

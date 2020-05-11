@@ -6,6 +6,7 @@ library fs_shim.test.fs_shim_link_test;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
+import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
 
 void main() {
@@ -593,13 +594,13 @@ void defineTests(FileSystemTestContext ctx) {
           var stat = await link.stat();
           expect(stat.type, FileSystemEntityType.notFound);
           expect(stat.size, -1);
-          expect(stat.modified, null);
+          expectNotFoundDateTime(stat.modified);
 
           await link.create('file');
           stat = await link.stat();
           expect(stat.type, FileSystemEntityType.notFound);
           expect(stat.size, -1);
-          expect(stat.modified, isNull);
+          expectNotFoundDateTime(stat.modified);
 
           final file = fs.file(join(_dir.path, 'file'));
 
@@ -625,7 +626,7 @@ void defineTests(FileSystemTestContext ctx) {
         var stat = await link.stat();
         expect(stat.type, FileSystemEntityType.notFound);
         expect(stat.size, -1);
-        expect(stat.modified, null);
+        expectNotFoundDateTime(stat.modified);
 
         await link.create('dir');
         stat = await link.stat();
@@ -639,7 +640,7 @@ void defineTests(FileSystemTestContext ctx) {
         } else {
           expect(stat.type, FileSystemEntityType.notFound);
           expect(stat.size, -1);
-          expect(stat.modified, isNull);
+          expectNotFoundDateTime(stat.modified);
         }
 
         final dir = fs.directory(join(top.path, 'dir'));
