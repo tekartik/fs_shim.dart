@@ -58,6 +58,11 @@ void defineTests(FileSystemTestContext ctx) {
           fail('should fail');
         } on ArgumentError catch (_) {
           // Invalid argument(s): null is not a String
+        } on NoSuchMethodError catch (_) {
+          // New in IO 2.9.0
+          // NoSuchMethodError: The getter 'length' was called on null.
+        } catch (e) {
+          print('unexpected error $e in fs.link(null)');
         }
       });
 
