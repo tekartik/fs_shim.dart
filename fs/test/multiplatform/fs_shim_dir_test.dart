@@ -6,6 +6,7 @@ library fs_shim.test.fs_shim_dir_test;
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart';
 
+import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
 
 void main() {
@@ -84,7 +85,7 @@ void defineTests(FileSystemTestContext ctx) {
       //print(stat);
       expect(stat.type, FileSystemEntityType.notFound);
       expect(stat.size, -1);
-      expect(stat.modified, null);
+      expectNotFoundDateTime(stat.modified);
 
       await dir.create();
       stat = await dir.stat();

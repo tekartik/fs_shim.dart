@@ -8,6 +8,23 @@ import 'package:path/path.dart';
 
 import 'test_common.dart';
 
+var allowNullNotFoundDate = false;
+
+/// Since 2.8, Not Found date time for access, modified, created is never null
+/// but set to 0 epoch
+void expectNotFoundDateTime(DateTime dateTime) {
+  try {
+    expect(dateTime.millisecondsSinceEpoch, 0);
+  } catch (e) {
+    // Allow null
+    if (allowNullNotFoundDate) {
+      expect(dateTime, null);
+    } else {
+      rethrow;
+    }
+  }
+}
+
 void main() {
   defineTests(memoryFileSystemTestContext);
 }

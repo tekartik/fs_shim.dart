@@ -16,12 +16,11 @@ FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
-final bool _doPrintErr = false; // devWarning(true); //false;
+final bool _doPrintErr = false;
 
-void _printErr(e, [StackTrace st]) {
+void _printErr(e) {
   if (_doPrintErr) {
     print('${e} ${[e.runtimeType]}');
-    print(st);
   }
 }
 
@@ -39,8 +38,8 @@ void defineTests(FileSystemTestContext ctx) {
       try {
         await file.create();
         fail('shoud fail');
-      } on FileSystemException catch (e, st) {
-        _printErr(e, st);
+      } on FileSystemException catch (e) {
+        _printErr(e);
         expect(e.osError.errorCode, isNotNull);
         expect(e.status, FileSystemException.statusNotFound);
         // FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/create_recursive/sub/subsub' (OS Error: No such file or directory, errno = 2)

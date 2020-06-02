@@ -9,7 +9,7 @@ Future main() async {
   var packages = [
     'fs',
     'fs_browser',
-    'fs_node',
+    // 'fs_node',
     'fs_test',
   ];
   // print('dartVersion: $dartVersion, oldListInt:${oldListInt}');
