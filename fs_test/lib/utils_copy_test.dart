@@ -535,9 +535,13 @@ void defineTests(FileSystemTestContext ctx) {
 
         await srcDir.create();
 
-        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 1);
-
-        expect(await dstDir.exists(), isTrue);
+        if (isIoWindows(ctx)) {
+          expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
+          expect(await dstDir.exists(), isFalse);
+        } else {
+          expect(await copyFileSystemEntityImpl(srcLink, dstDir), 1);
+          expect(await dstDir.exists(), isTrue);
+        }
 
         expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
       });
