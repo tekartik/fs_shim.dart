@@ -64,6 +64,18 @@ class IoFileSystemImpl extends Object
 
   @override
   Context get path => context;
+
+  @override
+  Future<bool> isLink(String path) =>
+      Future.value(io.FileSystemEntity.isLinkSync(path));
+
+  @override
+  Future<bool> isFile(String path) =>
+      Future.value(io.FileSystemEntity.isFileSync(path));
+
+  @override
+  Future<bool> isDirectory(String path) =>
+      Future.value(io.FileSystemEntity.isDirectorySync(path));
 }
 
 /// File system
