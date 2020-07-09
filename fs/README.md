@@ -6,6 +6,9 @@ A portable file system library to allow working on io, browser (though idb_shim)
 
 ## API supported
 
+It contains a subset of the io `File/Directory` API. Basically all sync methods are removed since
+on the web indexedDB cannot be accessed in a synchronous way.
+
 Classes
 
 - File (create, openWrite, openRead, writeAsBytes, writeAsString, copy)
@@ -30,30 +33,29 @@ Static method (IO only)
 
 A simple usage example:
 
-````
-import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/fs_memory.dart';
+```dart
+import 'package:fs_shim/fs_shim.dart';
 import 'package:path/path.dart';
 
-main() async {
-  FileSystem fs = newMemoryFileSystem();
+Future main() async {
+  final fs = fileSystemMemory;
 
   // Create a top level directory
-  Directory dir = fs.directory('/dir');
+  final dir = fs.directory('/dir');
 
   // and a file in it
-  File file = fs.file(join(dir.path, "file"));
+  final file = fs.file(join(dir.path, 'file'));
 
   // create a file
   await file.create(recursive: true);
-  await file.writeAsString("Hello world!");
+  await file.writeAsString('Hello world!');
 
   // read a file
   print('file: ${await file.readAsString()}');
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    Link link = fs.link(join(dir.path, "link"));
+    final link = fs.link(join(dir.path, 'link'));
     await link.create(file.path);
 
     print('link: ${await fs.file(link.path).readAsString()}');
@@ -62,17 +64,38 @@ main() async {
   // list dir content
   print(await dir.list(recursive: true, followLinks: true).toList());
 }
-````
+```
 
 ### Using IO API
 
-Replace
+### Using fs_shim.dart
 
-    import 'dart:io';
+You can simply replace in the above example:
 
-with
+```dart
+final fs = fileSystemMemory;
+```
 
-    import 'package:fs_shim/fs_io.dart';
+by
+
+```dart
+final fs = fileSystemIo;
+```
+
+### Using fs_io.dart
+
+If you only target io, you can still be able to use `File` and `Directory` constructor, replace
+
+```dart
+import 'dart:io';
+```
+
+by
+
+```dart
+import 'package:fs_shim/fs_io.dart';
+```
+
 
 Then a reduced set of the IO API can be used, same source code that might requires some cleanup if you import from
 existing code
@@ -80,39 +103,43 @@ existing code
 Simple example
 
 ````
+import 'dart:async';
+
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
-main() async {
-  FileSystem fs = ioFileSystem;
+Future main() async {
+  final fs = fileSystemIo;
   // safe place when running from package root
-  String dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
+  final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
   // fs.directory('/dir');
-  Directory dir = new Directory(dirPath);
-
+  final dir = Directory(dirPath);
+  print('dir: $dir');
   // delete its content
-  await dir.delete(recursive: true);
+  if (await dir.exists()) {
+    await dir.delete(recursive: true);
+  }
 
   // and a file in it
   // fs.file(join(dir.path, "file"));
-  File file = new File(join(dir.path, "file"));
+  final file = File(join(dir.path, 'file'));
 
   // create a file
   await file.create(recursive: true);
-  await file.writeAsString("Hello world!");
+  await file.writeAsString('Hello world!');
 
   // read a file
   print('file: ${await file.readAsString()}');
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    // fs.link(join(dir.path, "link"));
-    Link link = new Link(join(dir.path, "link"));
+    // fs.newLink(join(dir.path, "link"));
+    final link = Link(join(dir.path, 'link'));
     await link.create(file.path);
 
-    print('link: ${await new File(link.path).readAsString()}');
+    print('link: ${await File(link.path).readAsString()}');
   }
 
   // list dir content
@@ -122,11 +149,16 @@ main() async {
 
 ### Browser usage
 
-```dart
-import 'package:fs_shim/fs_browser.dart';
-import 'package:fs_shim/fs_idb.dart';
+You can simply replace in the in memory example:
 
-FileSystem fs = fileSystemIdb;
+```dart
+final fs = fileSystemMemory;
+```
+
+by
+
+```dart
+final fs = fileSystemWeb;
 ```
 
 ### Utilities
@@ -147,13 +179,9 @@ Bleeding age
     fs_shim:
         git: git://github.com/tekartik/fs_shim.dart
 
-### Testing with dartdevc
-
-    pub serve test --web-compiler=dartdevc --port=8079
-    pub run test -p chrome --pub-serve=8079
-
 ## Features and bugs
 
 * On windows file links are not supported (fs.supportsFileLink returns false)
 * On windows directory link target are absolutes
+* On the web, the size of the file system is limited by the limit size of indexedDB databases (browser dependent)
 

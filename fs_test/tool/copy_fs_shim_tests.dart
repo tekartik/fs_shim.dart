@@ -48,6 +48,7 @@ Future main() async {
     'multiplatform/fs_shim_file_test.dart',
     'multiplatform/fs_shim_sanity_test.dart',
     'multiplatform/fs_test.dart',
+    'multiplatform/fs_shim_test.dart',
     'multiplatform/utils_copy_test.dart',
     'multiplatform/utils_entity_test.dart',
     'multiplatform/utils_part_test.dart',

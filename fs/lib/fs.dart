@@ -4,7 +4,7 @@
 /// The fs_shim library.
 ///
 /// This is an awesome library. More dartdocs go here.
-library fs_shim;
+library fs_shim.fs;
 
 import 'dart:async';
 import 'dart:convert';

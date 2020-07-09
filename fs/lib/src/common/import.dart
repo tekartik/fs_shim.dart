@@ -12,4 +12,5 @@ export 'package:fs_shim/utils/read_write.dart';
 export 'package:idb_shim/src/utils/dev_utils.dart';
 export 'package:path/path.dart';
 
+export 'env_utils.dart';
 export 'fs_path.dart';

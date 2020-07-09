@@ -16,7 +16,7 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   FileSystemEntity _me(_) => this;
 
   @override
-  FileSystemIo get fs => ioFileSystem as FileSystemIo;
+  FileSystemIo get fs => fileSystemIo as FileSystemIo;
 
   @override
   String get path => ioFileSystemEntity.path;

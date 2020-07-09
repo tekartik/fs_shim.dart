@@ -1,5 +1,5 @@
 import 'package:fs_shim/fs_idb.dart';
-import 'package:idb_shim/idb_client_native.dart';
+import 'package:fs_shim/src/web/fs_web.dart';
 
 /// The default browser file system on top of IndexedDB.
-final FileSystem fileSystemIdb = newFileSystemIdb(idbFactoryNative);
+FileSystem get fileSystemIdb => fileSystemWeb;
