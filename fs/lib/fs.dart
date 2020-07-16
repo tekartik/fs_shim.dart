@@ -29,7 +29,7 @@ abstract class FileSystemEntity {
   /// of these subclasses checks whether the object exists in the file
   /// system object exists and is of the correct type (file, directory,
   /// or link).  To check whether a path points to an object on the
-  /// file system, regardless of the object's type, use the [type]
+  /// file system, regardless of the object's type, use the [FileSystem.type]
   /// static method.
   ///
   Future<bool> exists();
@@ -173,19 +173,19 @@ abstract class File extends FileSystemEntity {
   Future<File> create({bool recursive = false});
 
   ///
-  /// Creates a new independent [IOSink] for the file. The
-  /// [IOSink] must be closed when no longer used, to free
+  /// Creates a new independent [StreamSink] for the file. The
+  /// [StreamSink] must be closed when no longer used, to free
   /// system resources.
   ///
-  /// An [IOSink] for a file can be opened in two modes:
+  /// An [StreamSink] for a file can be opened in two modes:
   /// * [FileMode.WRITE]: truncates the file to length zero.
   /// * [FileMode.APPEND]: sets the initial write position to the end
   ///   of the file.
   ///
-  /// When writing strings through the returned [IOSink] the encoding
-  /// specified using [encoding] will be used. The returned [IOSink]
+  /// When writing strings through the returned [StreamSink] the encoding
+  /// specified using [encoding] will be used. The returned [StreamSink]
   /// has an [:encoding:] property which can be changed after the
-  /// [IOSink] has been created.
+  /// [StreamSink] has been created.
   ///
   StreamSink<List<int>> openWrite(
       {FileMode mode = FileMode.write, Encoding encoding = utf8});

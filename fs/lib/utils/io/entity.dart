@@ -1,4 +1,4 @@
-library fs_shim.utils.entity;
+library fs_shim.utils.io.entity;
 
 import 'dart:async';
 import 'dart:io';

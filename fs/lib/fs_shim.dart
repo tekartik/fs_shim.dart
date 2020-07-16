@@ -1,3 +1,4 @@
+/// {@canonicalFor fs_io_stub.fileSystemIo}
 library fs_shim;
 
 export 'fs.dart';
