@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0
+## 1.0.0+1
 
 * Make `fs_shim.dart` import work on both io and web
 * First stable release
