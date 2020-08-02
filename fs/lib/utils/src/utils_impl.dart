@@ -726,8 +726,10 @@ mixin SourceNodeTreeRunnerMixin
   }
 
   Future<List<CopyNodeOperation>> _runTreeChild(
-      CopyOptions options, String srcRelative,
-      [String dstRelative]) async {
+    CopyOptions options,
+    String srcRelative,
+    /*[String dstRelative]*/
+  ) async {
     final sourceNode = ChildSourceNode(this, options, srcRelative);
 
     // exclude?
