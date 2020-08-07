@@ -4,12 +4,13 @@ import 'dart:io' as io;
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
 
 import 'io_fs.dart';
 
 export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
-class FileStatImpl implements FileStat {
+class FileStatImpl extends Object with FileStatModeMixin implements FileStat {
   FileStatImpl.io(this.ioFileStat);
 
   io.FileStat ioFileStat;
@@ -26,4 +27,7 @@ class FileStatImpl implements FileStat {
 
   @override
   String toString() => ioFileStat.toString();
+
+  @override
+  int get mode => ioFileStat.mode;
 }

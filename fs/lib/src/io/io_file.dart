@@ -7,6 +7,8 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_io.dart';
 import 'package:fs_shim/src/common/compat.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart' show FileExecutableSupport;
+import 'package:fs_shim/src/common/import.dart' show isDebug;
 
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
@@ -17,7 +19,8 @@ Future<T> _wrapFutureFile<T>(Future<T> future) => ioWrap(future);
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
-class FileImpl extends FileSystemEntityImpl implements File {
+class FileImpl extends FileSystemEntityImpl
+    implements File, FileExecutableSupport {
   io.File get ioFile => ioFileSystemEntity as io.File;
 
   FileImpl.io(io.File file) {
@@ -89,4 +92,17 @@ class FileImpl extends FileSystemEntityImpl implements File {
 
   @override
   File get absolute => FileImpl.io(ioFile.absolute);
+
+  @override
+  Future<void> setExecutablePermission(bool enable) async {
+    if (!Platform.isWindows) {
+      try {
+        await Process.run('chmod', [enable ? '+x' : '-x', absolute.path]);
+      } catch (e) {
+        if (isDebug) {
+          print('setExecutablePermission error $e');
+        }
+      }
+    }
+  }
 }

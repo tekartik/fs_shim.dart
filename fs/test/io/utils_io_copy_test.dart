@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:io' as io;
+
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_io.dart' show unwrapIoDirectory;
 import 'package:fs_shim/utils/copy.dart' show TopSourceNode;
@@ -45,6 +48,56 @@ void main() {
 
       expect(await dstFile.exists(), isTrue);
       expect(await dstFile.readAsString(), 'test');
+    });
+
+    String formatModeInt(int mode) {
+      return mode.toRadixString(8);
+    }
+
+    var fileStatModeOtherExecute = 0x01;
+    var fileStatModeGroupExecute = 0x08;
+    var fileStatModeUserExecute = 0x40;
+    bool isExecutable(int mode) {
+      return ((fileStatModeGroupExecute |
+                  fileStatModeOtherExecute |
+                  fileStatModeUserExecute) &
+              mode) !=
+          0;
+    }
+
+    test('unix executable', () async {
+      expect(1.toRadixString(8), '1');
+      expect(fileStatModeOtherExecute.toRadixString(8), '1');
+
+      expect(8.toRadixString(8), '10');
+      expect(fileStatModeGroupExecute.toRadixString(8), '10');
+      expect(64.toRadixString(8), '100');
+      expect(fileStatModeUserExecute.toRadixString(8), '100');
+      if (Platform.isLinux) {
+        final top = unwrapIoDirectory(await ctx.prepare());
+        final srcFile = childFile(top, 'file');
+        final dstFile = childFile(top, 'file2');
+
+        var file = io.File('test/io/src/current_dir');
+        print(file.statSync());
+        var stat = file.statSync();
+        var mode = stat.mode;
+        expect(isExecutable(mode), isTrue);
+        print('mode: ${formatModeInt(mode)} 0x${mode.toRadixString(16)}');
+        await file.copy(srcFile.path);
+        expect(await copyFile(srcFile, dstFile), dstFile);
+
+        print(srcFile);
+        stat = srcFile.statSync();
+        mode = stat.mode;
+        expect(isExecutable(mode), isTrue);
+        print('mode: ${formatModeInt(mode)}');
+        print(dstFile);
+        stat = dstFile.statSync();
+        mode = stat.mode;
+        print('mode: ${formatModeInt(mode)}');
+        expect(isExecutable(mode), isTrue);
+      }
     });
 
     test('top_source_node', () {

@@ -3,6 +3,7 @@ library fs_shim.utils.src.utils_impl;
 import 'dart:async';
 
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/utils/copy.dart';
 import 'package:fs_shim/utils/glob.dart';
@@ -303,7 +304,24 @@ Future<int> copyFileContent(File src, File dst) async {
     inStream = src.openRead();
     await inStream.cast<List<int>>().pipe(outSink);
   }
+  // Copy mode for unix executables
   return 1;
+}
+
+/// Copy the file meta for executable
+Future<int> copyFileMeta(File src, File dst) async {
+  var srcMode = (await src.stat())?.mode;
+  var dstMode = (await dst.stat())?.mode;
+  if (dst is FileExecutableSupport) {
+    if (dstMode != FileStat.modeNotSupported && dstMode != null) {
+      if (srcMode != FileStat.modeNotSupported && srcMode != null) {
+        if (_isUnixExecutable(srcMode) != _isUnixExecutable(dstMode)) {
+          await (dst.setExecutablePermission(_isUnixExecutable(srcMode)));
+        }
+      }
+    }
+  }
+  return 0;
 }
 
 Future emptyOrCreateDirectory(Directory dir) async {
@@ -587,6 +605,17 @@ class ChildCopy extends Object
   }
 }
 
+var fileStatModeOtherExecute = 0x01;
+var fileStatModeGroupExecute = 0x08;
+var fileStatModeUserExecute = 0x40;
+bool _isUnixExecutable(int mode) {
+  return ((fileStatModeGroupExecute |
+              fileStatModeOtherExecute |
+              fileStatModeUserExecute) &
+          mode) !=
+      0;
+}
+
 class CopyNodeOperation extends CopyNode {
   final bool isDirectory;
   @override
@@ -656,7 +685,9 @@ class CopyNodeOperation extends CopyNode {
         }
       }
 
-      return await copyFileContent(srcFile, dstFile);
+      var count = await copyFileContent(srcFile, dstFile);
+      await copyFileMeta(srcFile, dstFile);
+      return count;
     }
   }
 }

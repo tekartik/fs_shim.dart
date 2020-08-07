@@ -4,6 +4,7 @@ import 'dart:io' as vm_io show FileStat;
 
 import 'package:fs_shim/fs.dart';
 import 'package:tekartik_fs_node/src/fs_node.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart'; // ignore: implementation_imports
 
 import 'import_common_node.dart' as io;
 
@@ -30,7 +31,7 @@ class FileStatNotFound extends FileStatNode {
   String toString() => 'FileStat($type)';
 }
 
-class FileStatNode implements FileStat {
+class FileStatNode with FileStatModeMixin implements FileStat {
   FileStatNode.io(this.ioFileStat);
 
   vm_io.FileStat ioFileStat;

@@ -135,6 +135,9 @@ class FileMode {
 /// snapshotted values returned by the stat() call.
 ///
 abstract class FileStat {
+  /// mode only supported on io file system
+  static const modeNotSupported = -1;
+
   ///
   /// The time of the last change to the data of the file system
   /// object.
@@ -151,6 +154,11 @@ abstract class FileStat {
   /// The size of the file system object.
   ///
   int get size;
+
+  ///
+  /// mode (unix executable only)
+  ///
+  int get mode;
 }
 
 /// Abstract File entity.
