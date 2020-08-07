@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+* Fix executable flag when copying on io
+
 ## 1.0.0+1
 
 * Make `fs_shim.dart` import work on both io and web
