@@ -22,5 +22,7 @@ pub run test -p chrome -j 1 test/web test/multiplatform
 # in fs_browser
 # pub run build_runner test -- -p vm -j 1 test/io test/multiplatform
 # pub run build_runner test -- -p chrome -j 1 test/web test/multiplatform
+
+dartdoc
 ''');
 }

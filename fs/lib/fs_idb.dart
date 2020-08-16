@@ -14,6 +14,6 @@ FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String name]) =>
     IdbFileSystem(idbFactory, name);
 
 /// Prefer newFileSystemIdb
-// @deprecate
+@Deprecated('use newFileSystemIdb')
 FileSystem newIdbFileSystem(idb.IdbFactory idbFactory, [String name]) =>
     newFileSystemIdb(idbFactory, name);

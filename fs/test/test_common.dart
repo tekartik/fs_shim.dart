@@ -17,7 +17,8 @@ export 'dart:async';
 export 'dart:convert';
 
 export 'package:dev_test/test.dart';
-export 'package:fs_shim/src/common/import.dart' show devPrint, devWarning;
+export 'package:fs_shim/src/common/import.dart'
+    show devPrint, devWarning, isRunningAsJavascript;
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -65,7 +66,7 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   @override
   final PlatformContext platform = null;
   @override
-  final IdbFileSystem fs = newMemoryFileSystem() as IdbFileSystem;
+  final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
 
   MemoryFileSystemTestContext();
 }

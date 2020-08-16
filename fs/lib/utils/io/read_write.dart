@@ -1,4 +1,4 @@
-library fs_shim.utils.read_write;
+library fs_shim.utils.io.read_write;
 
 import 'dart:async';
 import 'dart:io';

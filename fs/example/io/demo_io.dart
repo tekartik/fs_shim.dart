@@ -4,7 +4,7 @@ import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
 Future main() async {
-  final fs = ioFileSystem;
+  final fs = fileSystemIo;
   // safe place when running from package root
   final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 

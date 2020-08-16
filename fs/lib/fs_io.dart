@@ -12,6 +12,7 @@ import 'fs.dart'
         FileStat,
         FileMode,
         OSError;
+import 'src/io/fs_io.dart';
 import 'src/io/io_directory.dart';
 import 'src/io/io_file.dart';
 import 'src/io/io_file_stat.dart';
@@ -40,13 +41,9 @@ export 'fs.dart'
         FileStat,
         FileMode,
         OSError;
+export 'src/io/fs_io.dart' show fileSystemIo;
 
-FileSystem _fileSystemIo;
-
-/// IO file system.
-FileSystem get fileSystemIo => _fileSystemIo ??= FileSystemIo();
-
-// @Deprecated("Use fileSystemIo instead")
+@Deprecated('Use fileSystemIo instead')
 // ignore: public_member_api_docs
 FileSystem get ioFileSystem => fileSystemIo;
 
@@ -104,7 +101,7 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
   /// Checks if type(path, followLinks: false) returns
   /// FileSystemEntityType.LINK.
   ///
-  static Future<bool> isLink(String path) => ioFileSystem.isLink(path);
+  static Future<bool> isLink(String path) => fileSystemIo.isLink(path);
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.FILE.
@@ -114,12 +111,12 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
   /// Checks if type(path) returns FileSystemEntityType.DIRECTORY.
   ///
   static Future<bool> isDirectory(String path) =>
-      ioFileSystem.isDirectory(path);
+      fileSystemIo.isDirectory(path);
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.FILE.
   ///
-  static Future<bool> isFile(String path) => ioFileSystem.isFile(path);
+  static Future<bool> isFile(String path) => fileSystemIo.isFile(path);
 
   ///
   /// Finds the type of file system object that a path points to. Returns
@@ -135,7 +132,7 @@ abstract class FileSystemEntity extends fs.FileSystemEntity {
   ///
   static Future<FileSystemEntityType> type(String path,
           {bool followLinks = true}) =>
-      ioFileSystem.type(path, followLinks: followLinks);
+      fileSystemIo.type(path, followLinks: followLinks);
 }
 
 /// Wraps IO FileSystemException.

@@ -21,3 +21,4 @@ doc/api/
 
 # prevent dartfmt formatting
 fs_node/build
+

@@ -17,21 +17,21 @@ import '../multiplatform/fs_idb_test.dart';
 import '../multiplatform/platform.dart';
 import '../test_common.dart';
 
-FileSystem newIdbBrowserFileSystem([String name]) =>
-    newIdbFileSystem(idbFactoryBrowser, name);
+FileSystem newFileSystemIdbBrowser([String name]) =>
+    newFileSystemIdb(idbFactoryBrowser, name);
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
   final PlatformContext platform = PlatformContextBrowser();
   @override
-  IdbFileSystem fs = newIdbBrowserFileSystem()
+  IdbFileSystem fs = newFileSystemIdbBrowser()
       as IdbFileSystem; // Needed for initialization (supportsLink)
   IdbBrowserFileSystemTestContext();
 
   @override
   Future<Directory> prepare() {
     fs =
-        newIdbBrowserFileSystem(join(super.outPath, 'lfs.db')) as IdbFileSystem;
+        newFileSystemIdbBrowser(join(super.outPath, 'lfs.db')) as IdbFileSystem;
     return super.prepare();
   }
 }

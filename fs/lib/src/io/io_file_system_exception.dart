@@ -32,6 +32,7 @@ int _statusFromException(io.FileSystemException ioFse) {
       switch (errorCode) {
         case 2: // ERROR_FILE_NOT_FOUND
         case 3: // ERROR_PATH_NOT_FOUND
+        case 267: // ERROR_DIRECTORY - 267 (0x10B) - The directory name is invalid.
           status = fs.FileSystemException.statusNotFound;
           break;
         case 5: // ERROR_ACCESS_DENIED
