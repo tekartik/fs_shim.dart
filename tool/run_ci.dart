@@ -6,7 +6,7 @@ Future main() async {
     'fs',
     'fs_browser',
     'fs_io',
-    'fs_node',
+    // 'fs_node',
     'fs_test',
   ]) {
     await packageRunCi(dir);
