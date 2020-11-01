@@ -5,7 +5,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/src/common/compat.dart';
+import 'package:fs_shim/src/common/bytes_utils.dart';
 
 abstract class FileSystemMixin implements FileSystem {
   @override
@@ -57,14 +57,7 @@ abstract class FileMixin {
       doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
 
   //@override
-  Future<Uint8List> readAsBytes() async {
-    var content = <int>[];
-    var stream = openRead();
-    await stream.listen((Uint8List data) {
-      content.addAll(data);
-    }).asFuture();
-    return asUint8List(content);
-  }
+  Future<Uint8List> readAsBytes() => doReadAsBytes();
 
   String _tryDecode(List<int> bytes, Encoding encoding) {
     try {
@@ -73,6 +66,10 @@ abstract class FileMixin {
       throw FormatException(
           "Failed to decode data using encoding '${encoding.name}' $e", path);
     }
+  }
+
+  Future<Uint8List> doReadAsBytes() async {
+    return streamToBytes(openRead());
   }
 
   //@override

@@ -157,8 +157,9 @@ class IdbWriteStreamSink extends MemorySink {
           await fileStore.delete(entity.id);
         }
       } else {
-        // devWarning('temp was not there');
-        // content = asUint8List(content);
+        // devPrint('wrilte all ${content.length}');
+        // New in 2020/11/1
+        content = asUint8List(content);
 
         await fileStore.put(content, entity.id);
       }
@@ -726,20 +727,29 @@ class IdbFileSystem extends Object
       store = txn.objectStore(fileStoreName);
 
       // get original
-      final data = (await store.getObject(entity.id) as List)?.cast<int>();
+      final data = await store.getObject(entity.id) as List;
       if (data != null) {
-        await store.put(data, newEntity.id);
-
-        // update size
-        newEntity.size = data.length;
-        store = txn.objectStore(treeStoreName);
-        await store.put(newEntity.toMap(), newEntity.id);
+        await _txnSetFileData(txn, newEntity, asUint8List(data));
       } else {
         await store.delete(newEntity.id);
       }
     } finally {
       await txn.completed;
     }
+  }
+
+  /// Set the content of a file and update meta.
+  Future<void> _txnSetFileData(
+      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
+    // devPrint('_txnSetFileData all ${bytes.length}');
+    // Content store
+    var fileStore = txn.objectStore(fileStoreName);
+    await fileStore.put(bytes, treeEntity.id);
+
+    // update size
+    treeEntity.size = bytes.length;
+    var treeStore = txn.objectStore(treeStoreName);
+    await treeStore.put(treeEntity.toMap(), treeEntity.id);
   }
 
   Future<Node> txnGetWithParent(idb.ObjectStore treeStore, idb.Index index,

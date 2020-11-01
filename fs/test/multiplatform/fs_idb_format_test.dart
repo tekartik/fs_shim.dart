@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 //import 'package:test/test.dart';
 import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_shim.dart';
@@ -97,7 +98,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
             'name': 'file',
             'keys': [2],
             'values': [
-              [116, 101, 115, 116]
+              {'@Blob': 'dGVzdA=='}
             ]
           },
           {
@@ -212,7 +213,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
               'name': 'file',
               'keys': [2],
               'values': [
-                [116, 101, 115, 116]
+                {'@Blob': 'dGVzdA=='}
               ]
             },
             {
@@ -255,74 +256,58 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
       },
       //solo: true,
       // Temp timeout
-      //timeout: devWarning(const Timeout(Duration(hours: 1)))
+      // timeout: devWarning(const Timeout(Duration(hours: 1)))
+      //
     );
   });
 
-  test('v1 export 2', () async {
-    var exportMap = {
-      'sembast_export': 1,
-      'version': 1,
-      'stores': [
-        {
-          'name': '_main',
-          'keys': ['store_file', 'store_tree', 'stores', 'version'],
-          'values': [
-            {'name': 'file'},
-            {
-              'name': 'tree',
-              'autoIncrement': true,
-              'indecies': [
-                {'name': 'parent', 'keyPath': 'parent'},
-                {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-              ]
-            },
-            ['file', 'tree'],
-            6
-          ]
-        },
-        {
-          'name': 'file',
-          'keys': [2],
-          'values': [
-            [116, 101, 115, 116]
-          ]
-        },
-        {
-          'name': 'tree',
-          'keys': [1, 2],
-          'values': [
-            {
-              'name': '/',
-              'type': 'DIRECTORY',
-              'modified': '2020-10-31T23:27:05.073',
-              'size': 0,
-              'pn': '/'
-            },
-            {
-              'name': 'file.txt',
-              'type': 'FILE',
-              'parent': 1,
-              'modified': '2020-10-31T23:27:05.075',
-              'size': 4,
-              'pn': '1/file.txt'
-            }
-          ]
-        }
-      ]
-    };
-    var dbName = 'import_v1.sdb';
-    // devPrint('ds_idb_format_test: idbFactory: $idbFactory');
+  test('complex1', () async {
+    var dbName = 'complex1.db';
+    var dbNameImported = 'complex1_imported.db';
     await idbFactory.deleteDatabase(dbName);
-    var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
+    var fs = IdbFileSystem(idbFactory, dbName);
+    await fs
+        .directory(fs.path.join('dir1', 'sub2', 'nested1'))
+        .create(recursive: true);
+    await fs.directory(fs.path.join('dir1', 'sub1')).create(recursive: true);
+    await fs
+        .file(fs.path.join('dir1', 'sub1', 'file1.text'))
+        .writeAsString('test1');
+    await fs
+        .file(fs.path.join('dir1', 'sub1', 'file2.text'))
+        .writeAsString('test2');
+    await fs
+        .file(fs.path.join('dir1', 'sub2', 'nested1', 'file3.bin'))
+        .writeAsBytes([1, 2, 3]);
+
+    await fsCheckComplex1(fs);
+    fs.close();
+
+    var db = await idbFactory.open(dbName);
+    var exportMap = await sdbExportDatabase(db);
+    // devPrint(jsonPretty(exportMap)); print for copying/pasting for import
     db.close();
 
-    var fs = IdbFileSystem(idbFactory, dbName);
-    var filePath = 'file.txt';
+    db = await sdbImportDatabase(exportMap, idbFactory, dbNameImported);
+    expect(await sdbExportDatabase(db), exportMap);
+    db.close();
 
-    var file = fs.file(filePath);
-    expect(await file.readAsString(), 'test');
-
+    fs = IdbFileSystem(idbFactory, dbNameImported);
+    await fsCheckComplex1(fs);
     fs.close();
   });
+}
+
+Future<void> fsCheckComplex1(FileSystem fs) async {
+  expect(
+      await fs
+          .file(fs.path.join('dir1', 'sub2', 'nested1', 'file3.bin'))
+          .readAsBytes(),
+      [1, 2, 3]);
+  expect(
+      await fs.file(fs.path.join('dir1', 'sub1', 'file2.text')).readAsString(),
+      'test2');
+  expect(
+      await fs.file(fs.path.join('dir1', 'sub1', 'file1.text')).readAsBytes(),
+      [116, 101, 115, 116, 49]);
 }

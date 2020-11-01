@@ -570,5 +570,26 @@ void defineTests(FileSystemTestContext ctx) {
       await file.writeAsString(text, mode: FileMode.append, flush: true);
       expect(await file.readAsString(), '$text$text');
     });
+
+    test('big file', () async {
+      var size = 8000000;
+      try {
+        // 8Mb
+        var bytes = Uint8List(size);
+        final _dir = await ctx.prepare();
+        var filePath = join(_dir.path, 'big_file');
+        final file = fs.file(filePath);
+
+        await file.writeAsBytes(bytes);
+
+        var read = await file.readAsBytes();
+        expect(read.length, bytes.length);
+      } catch (e) {
+        print('ERROR writing $size byes files, allowed on CI');
+      }
+    }
+        // , solo: true, timeout: const Timeout(Duration(minutes: 5))
+        //
+        );
   });
 }
