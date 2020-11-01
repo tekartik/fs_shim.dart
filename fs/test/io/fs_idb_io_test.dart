@@ -10,13 +10,18 @@ import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_io.dart';
 import 'package:path/path.dart';
 
+import '../multiplatform/fs_idb_format_test.dart';
+import '../multiplatform/fs_idb_format_v1_test.dart';
 import '../multiplatform/fs_idb_test.dart';
 import '../multiplatform/platform.dart';
 import '../test_common.dart';
 import '../test_common_io.dart';
+
+idb.IdbFactory get idbFactory => getIdbFactorySembastIo(testOutTopPath);
 
 FileSystem newIdbIoFileSystem([String name]) =>
     newFileSystemIdb(getIdbFactorySembastIo(testOutTopPath), name);
@@ -42,6 +47,9 @@ IdbIoFileSystemTestContext idbIoFileSystemContext =
 void main() {
   group('idb_io', () {
     // All tests
+    fsIdbFormatGroup(idbFactory);
+    fsIdbFormatV1Group(idbFactory);
+
     defineTests(idbIoFileSystemContext);
   });
 }

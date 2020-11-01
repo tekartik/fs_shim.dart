@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
-import 'package:fs_shim/src/common/compat.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
+import 'package:meta/meta.dart';
 import 'package:path/path.dart';
 
 import 'idb_directory.dart';
@@ -77,6 +77,22 @@ class IdbReadStreamCtlr {
   Stream<Uint8List> get stream => _ctlr.stream;
 }
 
+Uint8List asUint8List(List list) {
+  if (list is Uint8List) {
+    return list;
+  } else if (list is List<int>) {
+    return Uint8List.fromList(list);
+  }
+  return Uint8List.fromList(list.cast<int>());
+}
+
+List<int> asIntList(List /*?*/ list) {
+  if (list is List<int>) {
+    return list;
+  }
+  return list.cast<int>();
+}
+
 class IdbWriteStreamSink extends MemorySink {
   final IdbFileSystem _fs;
   String path;
@@ -121,7 +137,11 @@ class IdbWriteStreamSink extends MemorySink {
         content = (await fileStore.getObject(entity.id) as List)?.cast<int>();
         if (content != null) {
           // on idb the content is readonly, create a new done
+
+          // devWarning('was content = List.from(content);');
           content = List.from(content);
+          //content = Uint8List.fromList(content);
+
           exists = true;
         }
       }
@@ -137,6 +157,9 @@ class IdbWriteStreamSink extends MemorySink {
           await fileStore.delete(entity.id);
         }
       } else {
+        // devWarning('temp was not there');
+        // content = asUint8List(content);
+
         await fileStore.put(content, entity.id);
       }
 
@@ -892,5 +915,17 @@ class IdbFileSystem extends Object
       });
     });
     return ctlr.stream;
+  }
+
+  /// Cannot be reused, used in tests only.
+  @visibleForTesting
+  void close() {
+    _db?.close();
+  }
+
+  /// Get IdbFactory, used in tests only
+  @visibleForTesting
+  idb.IdbFactory get idbFactory {
+    return _db?.factory;
   }
 }

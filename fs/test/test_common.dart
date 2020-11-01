@@ -86,3 +86,10 @@ bool isIoMac(FileSystemTestContext ctx) {
 bool isIo(FileSystemTestContext ctx) {
   return ctx.platform?.isIo == true;
 }
+
+String jsonPretty(dynamic json) {
+  if (json is String) {
+    json = jsonDecode(json as String);
+  }
+  return const JsonEncoder.withIndent('  ').convert(json);
+}

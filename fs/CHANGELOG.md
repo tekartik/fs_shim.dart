@@ -1,8 +1,9 @@
 # Changelog
 
-## 1.0.1
+## 1.0.1+1
 
 * Fix executable flag when copying on io
+* Prepare for indexeddb format update
 
 ## 1.0.0+1
 

@@ -9,7 +9,7 @@ import 'idb_fs.dart';
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file';
 const String nameKey = 'name';
-const String parentNameKey = 'pn'; // indexed
+const String parentNameKey = 'pn'; // indexed - this is actually the full name
 const String parentNameIndexName = parentNameKey;
 
 const String parentKey = 'parent'; // indexed
@@ -55,7 +55,8 @@ class IdbFileSystemStorage {
         final db = e.database;
         idb.ObjectStore store;
 
-        if (e.oldVersion < 6) {
+        // Older export have version equals to 1 so handle it
+        if (e.oldVersion < 1) {
           // delete previous if any
           final storeNames = db.objectStoreNames;
           if (storeNames.contains(treeStoreName)) {

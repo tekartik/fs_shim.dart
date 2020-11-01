@@ -1,7 +1,7 @@
 // Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library fs_shim.fs_src_idb_test;
+library fs_shim.test.multiplatform.fs_idb_test;
 
 import 'dart:async';
 
@@ -19,7 +19,7 @@ void main() {
 
 void defineTests(IdbFileSystemTestContext ctx) {
   _test.defineTests(ctx);
-  group('format', () {
+  group('idb', () {
     test('version', () async {
       await ctx.prepare();
       final db = ctx.fs.db;

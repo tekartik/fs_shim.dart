@@ -71,6 +71,13 @@ void devPrintJson(Map json) {
   print(const JsonEncoder.withIndent('  ').convert(json));
 }
 
+String jsonPretty(dynamic json) {
+  if (json is String) {
+    json = jsonDecode(json as String);
+  }
+  return const JsonEncoder.withIndent('  ').convert(json);
+}
+
 bool isIoWindows(FileSystemTestContext ctx) {
   return (isIo(ctx) && ctx.platform.io.isWindows);
 }
