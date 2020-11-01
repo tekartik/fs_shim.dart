@@ -1,9 +1,10 @@
 # Changelog
 
-## 1.0.1+1
+## 1.0.2
 
 * Fix executable flag when copying on io
-* Prepare for indexeddb format update
+* Save binary as blob instead of List<int> on indexeddb
+* Support larger file on the web (slow though)
 
 ## 1.0.0+1
 
