@@ -2,7 +2,7 @@ import 'package:dev_test/package.dart';
 
 Future main() async {
   for (var dir in [
-    '.',
+    // '.',
     'fs',
     'fs_browser',
     'fs_io',
