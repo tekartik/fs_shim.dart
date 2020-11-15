@@ -656,8 +656,8 @@ class IdbFileSystem extends Object
         }
 
         return _changeParent();
-      }).whenComplete(() {
-        return txn.completed;
+      }).whenComplete(() async {
+        await txn.completed;
       });
     });
   }
@@ -675,8 +675,8 @@ class IdbFileSystem extends Object
         return joinAll(result.match.targetSegments);
       }
       return null;
-    }).whenComplete(() {
-      return txn.completed;
+    }).whenComplete(() async {
+      await txn.completed;
     });
     return await target;
   }
