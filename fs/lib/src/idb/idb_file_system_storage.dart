@@ -414,9 +414,9 @@ class NodeSearchResult {
 }
 
 List<String> getSegments(String path) {
-  final segments = split(path);
-  if (!isAbsolute(path)) {
-    segments.insert(0, separator);
+  final segments = idbPathContext.split(path);
+  if (!idbPathContext.isAbsolute(path)) {
+    segments.insert(0, idbPathContext.separator);
   }
   return segments;
 }
@@ -430,8 +430,8 @@ List<String> getParentSegments(List<String> segments) {
 
 String getParentName(Node parent, String name) {
   if (parent == null) {
-    return join(separator, name);
+    return idbPathContext.join(idbPathContext.separator, separator, name);
   } else {
-    return join(parent.id.toString(), name);
+    return idbPathContext.join(parent.id.toString(), name);
   }
 }

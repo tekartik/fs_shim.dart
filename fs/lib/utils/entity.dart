@@ -4,8 +4,6 @@ import 'dart:async';
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
-import 'package:path/path.dart';
-//import 'package:logging/logging.dart' as log;
 
 ///
 /// convert to a directory object if necessary
@@ -20,7 +18,7 @@ Directory asDirectory(FileSystemEntity dir) {
 
 /// get a child as a directory
 Directory childDirectory(Directory dir, String sub) {
-  return dir.fs.directory(join(dir.path, sub));
+  return dir.fs.directory(dir.fs.path.join(dir.path, sub));
 }
 
 ///
@@ -36,7 +34,7 @@ File asFile(FileSystemEntity file) {
 
 /// get a child as a file
 File childFile(Directory dir, String sub) {
-  return dir.fs.file(join(dir.path, sub));
+  return dir.fs.file(dir.fs.path.join(dir.path, sub));
 }
 
 ///
@@ -52,7 +50,7 @@ Link asLink(FileSystemEntity link) {
 
 /// get a child as a link
 Link childLink(Directory dir, String sub) {
-  return dir.fs.link(join(dir.path, sub));
+  return dir.fs.link(dir.fs.path.join(dir.path, sub));
 }
 
 Future<bool> entityExists(FileSystemEntity entity) async {

@@ -183,7 +183,7 @@ class Glob {
   List<String> __expressionParts;
 
   List<String> get _expressionParts {
-    __expressionParts ??= split(expression);
+    __expressionParts ??= posix.split(expression);
 
     return __expressionParts;
   }

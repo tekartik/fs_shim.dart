@@ -18,14 +18,17 @@ import 'idb_file_system_storage.dart';
 import 'idb_fs.dart';
 import 'idb_link.dart';
 
+/// Settle on using url way for idb files, (soon even on Windows).
+Context get idbPathContext => context; // url;
+
 List<String> _getPathSegments(String path) {
   path = idbMakePathAbsolute(path);
-  return split(path);
+  return idbPathContext.split(path);
 }
 
 // might not be absolute
 List<String> _getTargetSegments(String path) {
-  return split(path);
+  return idbPathContext.split(path);
 }
 
 class IdbReadStreamCtlr {
@@ -177,7 +180,7 @@ class IdbWriteStreamSink extends MemorySink {
 
 String idbMakePathAbsolute(String path) {
   if (!isAbsolute(path)) {
-    return join(separator, path);
+    return idbPathContext.join(separator, path);
   }
   return path;
 }
@@ -225,7 +228,7 @@ class IdbFileSystem extends Object
   Context get pathContext => path;
 
   @override
-  Context get path => context;
+  Context get path => idbPathContext;
 
   // when storage is ready
   Future get _ready => _storage.ready;
@@ -871,7 +874,7 @@ class IdbFileSystem extends Object
                   entity,
                   (cwv.value as Map)?.cast<String, dynamic>(),
                   cwv.primaryKey as int);
-              final relativePath = join(path, childNode.name);
+              final relativePath = pathContext.join(path, childNode.name);
               if (childNode.isDir) {
                 final dir = IdbDirectory(this, relativePath);
                 ctlr.add(dir);
