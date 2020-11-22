@@ -7,25 +7,25 @@ import 'package:fs_shim/fs.dart' as fs;
 export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
 class OSErrorImpl implements fs.OSError {
-  io.OSError ioOSError;
+  io.OSError? ioOSError;
 
   OSErrorImpl.io(this.ioOSError);
 
   @override
-  int get errorCode => ioOSError.errorCode;
+  int get errorCode => ioOSError!.errorCode;
 
   @override
-  String get message => ioOSError.message;
+  String get message => ioOSError!.message;
 
   @override
   String toString() => ioOSError.toString();
 }
 
-int _statusFromException(io.FileSystemException ioFse) {
+int? _statusFromException(io.FileSystemException ioFse) {
   // linux error code is 2
-  int status;
-  if (ioFse != null && ioFse.osError != null) {
-    final errorCode = ioFse.osError.errorCode;
+  int? status;
+  if (ioFse.osError != null) {
+    final errorCode = ioFse.osError!.errorCode;
 
     if (io.Platform.isWindows) {
       // https://msdn.microsoft.com/en-us/library/windows/desktop/ms681387(v=vs.85).aspx
@@ -110,7 +110,7 @@ class FileSystemExceptionImpl implements fs.FileSystemException {
         status = _statusFromException(ioFileSystemException);
 
   @override
-  final int status;
+  final int? status;
 
   @override
   final OSErrorImpl osError;
@@ -119,7 +119,7 @@ class FileSystemExceptionImpl implements fs.FileSystemException {
   String get message => ioFileSystemException.message;
 
   @override
-  String get path => ioFileSystemException.path;
+  String? get path => ioFileSystemException.path;
 
   @override
   String toString() =>

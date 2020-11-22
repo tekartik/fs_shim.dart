@@ -5,7 +5,7 @@ library fs_shim.test.multiplatform.fs_idb_test;
 
 import 'dart:async';
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:path/path.dart';
@@ -22,7 +22,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
   group('idb', () {
     test('version', () async {
       await ctx.prepare();
-      final db = ctx.fs.db;
+      final db = ctx.fs.db!;
       //TODOexpect(db.version, 2);
       expect(List.from(db.objectStoreNames)..sort(), ['file', 'tree']);
     });
@@ -42,7 +42,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
 
     test('create_delete_file', () async {
       final dir = await ctx.prepare();
-      final db = ctx.fs.db;
+      final db = ctx.fs.db!;
 
       // check the tree size before creating and after creating then deleting
       final treeStoreSize = await getTreeStoreSize(db);
@@ -62,7 +62,7 @@ void defineTests(IdbFileSystemTestContext ctx) {
 
     test('write_delete_file', () async {
       final dir = await ctx.prepare();
-      final db = ctx.fs.db;
+      final db = ctx.fs.db!;
 
       // check the tree size before creating and after creating then deleting
       final treeStoreSize = await getTreeStoreSize(db);

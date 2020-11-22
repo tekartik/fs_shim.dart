@@ -10,7 +10,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 

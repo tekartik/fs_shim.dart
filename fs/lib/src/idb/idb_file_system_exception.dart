@@ -50,18 +50,18 @@ class IdbFileSystemException implements fs.FileSystemException {
   @override
   final int status;
 
-  final String _message;
+  final String? _message;
   @override
-  final IdbError osError;
+  final IdbError? osError;
 
   @override
-  String get message => _message ?? (osError?.message);
+  String get message => (_message ?? osError?.message)!;
 
   @override
   final String path;
 
   @override
   String toString() {
-    return "${status == null ? '' : '[${status}] '}FileSystemException: ${message}, path = '${path}' ${osError}";
+    return "${'[${status}] '}FileSystemException: ${message}, path = '${path}' ${osError}";
   }
 }

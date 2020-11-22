@@ -3,12 +3,13 @@
 @TestOn('vm || chrome')
 library fs_shim.test.multiplatform.fs_idb_format_v1_test;
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
 
+import '../test_common.dart';
 import 'fs_idb_format_test.dart';
 
 void main() {
@@ -87,7 +88,6 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
     // 3 files here
     test('complex1_v1', () async {
       var dbName = 'complex1_v1.db';
-
       var db =
           await sdbImportDatabase(exportMap3FilesComplex1, idbFactory, dbName);
       db.close();

@@ -2,7 +2,6 @@
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
-import '../fs_test_common.dart';
 import '../test_common_io.dart';
 
 const String groupName = 'io_example_fs_shim';
@@ -69,7 +68,7 @@ void main() {
             .create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {
-        final osError = e.osError;
+        final osError = e.osError!;
         expect(osError.errorCode, isNotNull);
       }
 

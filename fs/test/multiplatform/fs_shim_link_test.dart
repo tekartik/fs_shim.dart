@@ -13,7 +13,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -53,17 +53,6 @@ void defineTests(FileSystemTestContext ctx) {
         expect(link.path, r'\');
         link = fs.link(r'');
         expect(link.path, r'');
-        try {
-          link = fs.link(null);
-          fail('should fail');
-        } on ArgumentError catch (_) {
-          // Invalid argument(s): null is not a String
-        } on NoSuchMethodError catch (_) {
-          // New in IO 2.9.0
-          // NoSuchMethodError: The getter 'length' was called on null.
-        } catch (e) {
-          print('unexpected error $e in fs.link(null)');
-        }
       });
 
       test('toString', () {
@@ -829,7 +818,7 @@ void defineTests(FileSystemTestContext ctx) {
           return -1;
         }
 
-        FileSystemEntity getInList(
+        FileSystemEntity? getInList(
             List<FileSystemEntity> list, FileSystemEntity entity) {
           for (var i = 0; i < list.length; i++) {
             if (list[i].path == entity.path) {

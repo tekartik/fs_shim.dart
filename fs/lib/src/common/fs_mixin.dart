@@ -9,26 +9,26 @@ import 'package:fs_shim/src/common/bytes_utils.dart';
 
 abstract class FileSystemMixin implements FileSystem {
   @override
-  Future<FileSystemEntityType> type(String path, {bool followLinks = true});
+  Future<FileSystemEntityType> type(String? path, {bool followLinks = true});
 
-  Future<bool> _isType(String path, FileSystemEntityType fseType,
+  Future<bool> _isType(String? path, FileSystemEntityType fseType,
       {bool followLinks = true}) async {
     return (await type(path, followLinks: followLinks)) == fseType;
   }
 
   // helper
   @override
-  Future<bool> isFile(String path) => _isType(path, FileSystemEntityType.file);
+  Future<bool> isFile(String? path) => _isType(path, FileSystemEntityType.file);
 
   // helper
   @override
-  Future<bool> isDirectory(String path) =>
+  Future<bool> isDirectory(String? path) =>
       _isType(path, FileSystemEntityType.directory);
 
   // helper
   // do not follow links for link check
   @override
-  Future<bool> isLink(String path) =>
+  Future<bool> isLink(String? path) =>
       _isType(path, FileSystemEntityType.link, followLinks: false);
 }
 
@@ -38,7 +38,7 @@ abstract class FileMixin {
       {FileMode mode = FileMode.write, Encoding encoding = utf8});
 
   // implemented by IdbFile
-  Stream<Uint8List> openRead([int start, int end]);
+  Stream<Uint8List> openRead([int? start, int? end]);
 
   // implemented by IdbFileSystemEntity
   String get path;
@@ -59,7 +59,7 @@ abstract class FileMixin {
   //@override
   Future<Uint8List> readAsBytes() => doReadAsBytes();
 
-  String _tryDecode(List<int> bytes, Encoding encoding) {
+  String _tryDecode(Uint8List bytes, Encoding encoding) {
     try {
       return encoding.decode(bytes);
     } catch (e) {
@@ -75,10 +75,7 @@ abstract class FileMixin {
   //@override
   Future<String> readAsString({Encoding encoding = utf8}) async {
     var content = await readAsBytes();
-    if (content != null) {
-      return _tryDecode(content, encoding);
-    }
-    return null;
+    return _tryDecode(content, encoding);
   }
 }
 

@@ -7,7 +7,7 @@ import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
 class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
-  IdbFile(IdbFileSystem fs, String path) : super(fs, path);
+  IdbFile(IdbFileSystem fs, String? path) : super(fs, path);
 
   IdbFileSystem get _fs => super.fs;
 
@@ -27,7 +27,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
       _fs.openWrite(path, mode: mode);
 
   @override
-  Stream<Uint8List> openRead([int start, int end]) =>
+  Stream<Uint8List> openRead([int? start, int? end]) =>
       _fs.openRead(path, start, end);
 
   @override
@@ -41,7 +41,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
   }
 
   @override
-  Future<IdbFile> writeAsBytes(List<int> bytes,
+  Future<IdbFile> writeAsBytes(Uint8List bytes,
           {fs.FileMode mode = fs.FileMode.write, bool flush = false}) async =>
       await doWriteAsBytes(bytes, mode: mode, flush: flush) as IdbFile;
 

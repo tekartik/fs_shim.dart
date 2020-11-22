@@ -6,7 +6,7 @@ library fs_shim.fs_browser_test;
 
 import 'dart:async';
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
@@ -19,7 +19,7 @@ import '../multiplatform/fs_idb_test.dart';
 import '../multiplatform/platform.dart';
 import '../test_common.dart';
 
-FileSystem newFileSystemIdbBrowser([String name]) =>
+FileSystem newFileSystemIdbBrowser([String? name]) =>
     newFileSystemIdb(idbFactoryBrowser, name);
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {

@@ -14,7 +14,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -40,12 +40,6 @@ void defineTests(FileSystemTestContext ctx) {
       expect(file.path, r'\');
       file = fs.file(r'');
       expect(file.path, r'');
-      try {
-        file = fs.file(null);
-        fail('should fail');
-      } on ArgumentError catch (_) {
-        // Invalid argument(s): null is not a String
-      }
     });
 
     test('toString', () {
@@ -536,7 +530,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('read_write_bytes', () async {
-      final bytes = <int>[0, 1, 2, 3];
+      final bytes = Uint8List.fromList([0, 1, 2, 3]);
       final _dir = await ctx.prepare();
       var filePath = join(_dir.path, 'file');
       final file = fs.file(filePath);

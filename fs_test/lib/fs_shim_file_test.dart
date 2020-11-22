@@ -536,7 +536,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('read_write_bytes', () async {
-      final bytes = <int>[0, 1, 2, 3];
+      final bytes = Uint8List.fromList([0, 1, 2, 3]);
       final _dir = await ctx.prepare();
       var filePath = join(_dir.path, 'file');
       final file = fs.file(filePath);

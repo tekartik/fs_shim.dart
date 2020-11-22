@@ -6,22 +6,15 @@ library fs_shim.fs_io_test;
 
 import 'dart:io' as io;
 
-import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
-import 'package:process_run/shell.dart';
-import 'package:pub_semver/pub_semver.dart';
+import 'package:test/test.dart';
 
-import '../multiplatform/fs_shim_file_stat_test.dart'
-    show allowNullNotFoundDate;
 import '../multiplatform/fs_test.dart';
 import '../test_common.dart';
 import '../test_common_io.dart';
 
 void main() {
-  if (dartVersion < Version(2, 8, 1, pre: '0')) {
-    allowNullNotFoundDate = true;
-  }
   FileSystem fs = ioFileSystemTestContext.fs;
   group('io', () {
     test('windows', () {
@@ -46,8 +39,10 @@ void main() {
     test('test_path', () async {
       expect(ioFileSystemTestContext.outTopPath,
           join('.dart_tool', 'fs_shim', 'test'));
-      expect(ioFileSystemTestContext.outPath,
-          join(ioFileSystemTestContext.outTopPath, joinAll(testDescriptions)));
+      expect(
+          dirname(ioFileSystemTestContext.outPath),
+          dirname(join(
+              ioFileSystemTestContext.outTopPath!, joinAll(testDescriptions))));
     });
 
     group('conversion', () {

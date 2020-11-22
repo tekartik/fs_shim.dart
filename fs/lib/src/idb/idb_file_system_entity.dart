@@ -11,10 +11,10 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   @override
   IdbFileSystem get fs => _fs;
 
-  final String _path;
+  final String? _path;
 
   @override
-  String get path => _path;
+  String get path => _path!;
 
   // subclass type
   FileSystemEntityType get type;
@@ -22,11 +22,7 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   @override
   IdbDirectory get parent => fs.directory(path_pkg.dirname(path));
 
-  IdbFileSystemEntity(this._fs, this._path) {
-    if (path == null) {
-      throw ArgumentError.notNull('path');
-    }
-  }
+  IdbFileSystemEntity(this._fs, this._path);
 
   @override
   Future<IdbFileSystemEntity> delete({bool recursive = false}) {

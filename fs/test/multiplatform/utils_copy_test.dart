@@ -12,7 +12,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -22,7 +22,7 @@ void defineTests(FileSystemTestContext ctx) {
     group('api', () {
       // ignore: unnecessary_statements
       TopCopy;
-      TopCopy topCopy;
+      TopCopy? topCopy;
       topCopy?.options;
       topCopy?.dst;
       topCopy?.src;
@@ -259,8 +259,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       group('exclude', () {
         Directory top;
-        Directory src;
-        Directory dst;
+        late Directory src;
+        Directory? dst;
 
         Future _prepare() async {
           top = await ctx.prepare();
@@ -274,8 +274,8 @@ void defineTests(FileSystemTestContext ctx) {
           await writeString(childFile(src, 'file2'), 'test');
           final options = CopyOptions(recursive: true, exclude: ['file1']);
           await copyDirectory(src, dst, options: options);
-          expect(await entityExists(childFile(dst, 'file1')), isFalse);
-          expect(await readString(childFile(dst, 'file2')), 'test');
+          expect(await entityExists(childFile(dst!, 'file1')), isFalse);
+          expect(await readString(childFile(dst!, 'file2')), 'test');
 
           final files = await copyDirectoryListFiles(src, options: options);
           expect(files, hasLength(1));
@@ -288,15 +288,15 @@ void defineTests(FileSystemTestContext ctx) {
           await writeString(childFile(src, 'file2'), 'test');
           await copyDirectory(src, dst,
               options: CopyOptions(recursive: true, exclude: ['file1/']));
-          expect(await entityExists(childFile(dst, 'file1')), isTrue);
-          expect(await readString(childFile(dst, 'file2')), 'test');
+          expect(await entityExists(childFile(dst!, 'file1')), isTrue);
+          expect(await readString(childFile(dst!, 'file2')), 'test');
         });
       });
 
       group('include', () {
         Directory top;
-        Directory src;
-        Directory dst;
+        late Directory src;
+        Directory? dst;
 
         Future _prepare() async {
           top = await ctx.prepare();
@@ -310,8 +310,8 @@ void defineTests(FileSystemTestContext ctx) {
           await writeString(childFile(src, 'file2'), 'test');
           var options = CopyOptions(recursive: true, include: ['file1']);
           await copyDirectory(src, dst, options: options);
-          expect(await readString(childFile(dst, 'file1')), 'test');
-          expect(await entityExists(childFile(dst, 'file2')), isFalse);
+          expect(await readString(childFile(dst!, 'file1')), 'test');
+          expect(await entityExists(childFile(dst!, 'file2')), isFalse);
 
           final files = await copyDirectoryListFiles(src, options: options);
           expect(files, hasLength(1));
@@ -326,9 +326,10 @@ void defineTests(FileSystemTestContext ctx) {
           await copyDirectory(src, dst,
               options: CopyOptions(recursive: true, include: ['dir1']));
           expect(
-              await readString(childFile(childDirectory(dst, 'dir1'), 'file1')),
+              await readString(
+                  childFile(childDirectory(dst!, 'dir1'), 'file1')),
               'test');
-          expect(await entityExists(childFile(dst, 'file2')), isFalse);
+          expect(await entityExists(childFile(dst!, 'file2')), isFalse);
         });
       });
     });
@@ -393,8 +394,8 @@ void defineTests(FileSystemTestContext ctx) {
         await writeString(childFile(src, 'file'), 'test');
 
         final copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
-        expect(copy.src.path, src.path);
-        expect(copy.dst.path, dst.path);
+        expect(copy.src!.path, src.path);
+        expect(copy.dst!.path, dst.path);
         expect(copy.options, isNotNull);
         //await copy.run();
       });
@@ -441,8 +442,8 @@ void defineTests(FileSystemTestContext ctx) {
     });
     group('copy_scenarii', () {
       Directory top;
-      Directory src;
-      Directory dst;
+      late Directory src;
+      late Directory dst;
 
       Future _prepare() async {
         top = await ctx.prepare();

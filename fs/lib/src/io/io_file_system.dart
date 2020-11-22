@@ -16,28 +16,19 @@ class IoFileSystemImpl extends Object
     with FileSystemMixin
     implements FileSystemIo {
   @override
-  Future<fs.FileSystemEntityType> type(String path,
+  Future<fs.FileSystemEntityType> type(String? path,
           {bool followLinks = true}) async =>
       wrapIoFileSystemEntityTypeImpl(
-          io.FileSystemEntity.typeSync(path, followLinks: followLinks));
+          io.FileSystemEntity.typeSync(path!, followLinks: followLinks));
 
   @override
-  File newFile(String path) => file(path);
+  File file(String? path) => File(path!);
 
   @override
-  Directory newDirectory(String path) => directory(path);
+  Directory directory(String? path) => Directory(path!);
 
   @override
-  Link newLink(String path) => link(path);
-
-  @override
-  File file(String path) => File(path);
-
-  @override
-  Directory directory(String path) => Directory(path);
-
-  @override
-  Link link(String path) => Link(path);
+  Link link(String? path) => Link(path!);
 
   @override
   String get name => 'io';
@@ -66,16 +57,16 @@ class IoFileSystemImpl extends Object
   Context get path => context;
 
   @override
-  Future<bool> isLink(String path) =>
-      Future.value(io.FileSystemEntity.isLinkSync(path));
+  Future<bool> isLink(String? path) =>
+      Future.value(io.FileSystemEntity.isLinkSync(path!));
 
   @override
-  Future<bool> isFile(String path) =>
-      Future.value(io.FileSystemEntity.isFileSync(path));
+  Future<bool> isFile(String? path) =>
+      Future.value(io.FileSystemEntity.isFileSync(path!));
 
   @override
-  Future<bool> isDirectory(String path) =>
-      Future.value(io.FileSystemEntity.isDirectorySync(path));
+  Future<bool> isDirectory(String? path) =>
+      Future.value(io.FileSystemEntity.isDirectorySync(path!));
 }
 
 /// File system

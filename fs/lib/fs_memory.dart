@@ -11,13 +11,13 @@ export 'fs.dart';
 /// In memory implementation
 ///
 @Deprecated('Use newFileSystemMemory instead')
-FileSystem newMemoryFileSystem([String name]) => newFileSystemMemory(name);
+FileSystem newMemoryFileSystem([String? name]) => newFileSystemMemory(name);
 
 /// Creates a new file system in memory.
-FileSystem newFileSystemMemory([String name]) =>
+FileSystem newFileSystemMemory([String? name]) =>
     newFileSystemIdb(idbFactoryMemory, name);
 
-FileSystem _fileSystemMemory;
+FileSystem? _fileSystemMemory;
 
 /// Global in memory file system.
 FileSystem get fileSystemMemory => _fileSystemMemory ??= newFileSystemMemory();

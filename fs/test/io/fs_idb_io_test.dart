@@ -6,7 +6,7 @@ library fs_shim.fs_src_idb_io_test;
 
 import 'dart:async';
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
@@ -23,12 +23,12 @@ import '../test_common_io.dart';
 
 idb.IdbFactory get idbFactory => getIdbFactorySembastIo(testOutTopPath);
 
-FileSystem newIdbIoFileSystem([String name]) =>
+FileSystem newIdbIoFileSystem([String? name]) =>
     newFileSystemIdb(getIdbFactorySembastIo(testOutTopPath), name);
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   @override
-  final PlatformContext platform = null;
+  final PlatformContext? platform = null;
   @override
   IdbFileSystem fs = newIdbIoFileSystem() as IdbFileSystem;
 

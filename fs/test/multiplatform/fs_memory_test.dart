@@ -3,7 +3,7 @@
 
 library tekartik_fs_test.fs_memory_test;
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
 
 import 'fs_test.dart';

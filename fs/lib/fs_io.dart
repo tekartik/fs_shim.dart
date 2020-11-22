@@ -57,7 +57,7 @@ abstract class File implements fs.File, FileSystemEntity {
 File wrapIoFile(io.File ioFile) => FileImpl.io(ioFile);
 
 /// Unwrap IO file.
-io.File unwrapIoFile(fs.File file) => (file as FileImpl).ioFile;
+io.File unwrapIoFile(fs.File file) => (file as FileImpl).ioFile!;
 
 /// Directory.
 abstract class Directory implements fs.Directory, FileSystemEntity {
@@ -80,8 +80,8 @@ Directory wrapIoDirectory(io.Directory ioDirectory) =>
     DirectoryImpl.io(ioDirectory);
 
 /// Unwrap IO directory.
-io.Directory unwrapIoDirectory(fs.Directory dir) =>
-    (dir as DirectoryImpl).ioDir;
+io.Directory /*!*/ unwrapIoDirectory(fs.Directory dir) =>
+    (dir as DirectoryImpl).ioDir!;
 
 /// Link
 abstract class Link extends fs.Link implements FileSystemEntity {
@@ -93,7 +93,7 @@ abstract class Link extends fs.Link implements FileSystemEntity {
 Link wrapIoLink(io.Link ioLink) => LinkImpl.io(ioLink);
 
 /// Unwraps IO link.
-io.Link unwrapIoLink(Link dir) => (dir as LinkImpl).ioLink;
+io.Link /*!*/ unwrapIoLink(Link dir) => (dir as LinkImpl).ioLink!;
 
 /// File System Entity
 abstract class FileSystemEntity extends fs.FileSystemEntity {
@@ -146,11 +146,12 @@ io.FileSystemException unwrapIoFileSystemException(
     (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
 
 /// Wraps IO OS Error.
-OSError wrapIoOSError(io.OSError ioOSError) => OSErrorImpl.io(ioOSError);
+OSError? /*!*/ /*!*/ wrapIoOSError(io.OSError? /*!*/ ioOSError) =>
+    OSErrorImpl.io(ioOSError);
 
 /// Unwraps IO OS Error.
-io.OSError unwrapIoOSError(OSError osError) =>
-    (osError as OSErrorImpl)?.ioOSError;
+io.OSError? /*!*/ unwrapIoOSError(OSError? /*!*/ osError) =>
+    (osError as OSErrorImpl?)?.ioOSError;
 
 /// Wraps IO FileStat.
 FileStat wrapIoFileStat(io.FileStat ioFileStat) => FileStatImpl.io(ioFileStat);
@@ -161,11 +162,11 @@ io.FileStat unwrapIoFileStat(FileStat fileStat) =>
 
 /// Wraps IO FileMode.
 FileMode wrapIoFileMode(io.FileMode ioFileMode) =>
-    wrapIofileModeImpl(ioFileMode);
+    wrapIoFileModeImpl(ioFileMode);
 
 /// Unwraps IO FileMode.
 io.FileMode unwrapIoFileMode(FileMode fileMode) =>
-    unwrapIofileModeImpl(fileMode);
+    unwrapIoFileModeImpl(fileMode);
 
 /// Wraps IO FileSystemEntityType.
 FileSystemEntityType wrapIoFileSystemEntityType(

@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'dart:io' as io;
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs_io.dart' show unwrapIoDirectory;
 import 'package:fs_shim/utils/copy.dart' show TopSourceNode;
 import 'package:fs_shim/utils/io/copy.dart';

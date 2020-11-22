@@ -30,18 +30,18 @@ export 'src/utils_impl.dart'
 ///
 /// returns dst directory
 ///
-Future<Directory> copyDirectory(Directory src, Directory dst,
-        {CopyOptions options}) =>
+Future<Directory> copyDirectory(Directory src, Directory? dst,
+        {CopyOptions? options}) =>
     _impl.copyDirectory(src, dst, options: options);
 
-Future<File> copyFile(File src, File dst, {CopyOptions options}) =>
+Future<File> copyFile(File src, File dst, {CopyOptions? options}) =>
     _impl.copyFile(src, dst, options: options);
 
 ///
 /// List the files to be copied
 ///
 Future<List<File>> copyDirectoryListFiles(Directory src,
-        {CopyOptions options}) =>
+        {CopyOptions? options}) =>
     _impl.copyDirectoryListFiles(src, options: options);
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
@@ -49,7 +49,7 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
 @deprecated
 Future<FileSystemEntity> copyFileSystemEntity(
     FileSystemEntity src, FileSystemEntity dst,
-    {CopyOptions options}) {
+    {CopyOptions? options}) {
   options ??= CopyOptions(); // old behavior will change!
   return _impl.copyFileSystemEntity(src, dst, options: options);
 }
@@ -78,8 +78,8 @@ class CopyOptions extends Object
       this.tryToLinkDir = false,
       bool followLinks = true,
       bool delete = false,
-      List<String> include,
-      List<String> exclude}) {
+      List<String>? include,
+      List<String>? exclude}) {
     this.recursive = recursive;
     this.delete = delete;
     this.exclude = exclude;
@@ -109,11 +109,11 @@ CopyOptions get defaultCloneOptions => CopyOptions(tryToLinkFile: true);
 CopyOptions get defaultCopyOptions => CopyOptions()..recursive = true;
 
 /// Delete a directory recursively.
-Future deleteDirectory(Directory dir, {DeleteOptions options}) =>
+Future deleteDirectory(Directory dir, {DeleteOptions? options}) =>
     _impl.deleteDirectory(dir, options: options);
 
 /// Delete a file recursively.
-Future deleteFile(File file, {DeleteOptions options}) =>
+Future deleteFile(File file, {DeleteOptions? options}) =>
     _impl.deleteFile(file, options: options);
 
 /// Create options.
@@ -131,11 +131,11 @@ final CreateOptions defaultRecursiveCreateOptions = CreateOptions()
 final CreateOptions defaultCreateOptions = defaultRecursiveCreateOptions;
 
 /// Create a directory recursively
-Future<Directory> createDirectory(Directory dir, {CreateOptions options}) =>
+Future<Directory> createDirectory(Directory dir, {CreateOptions? options}) =>
     _impl.createDirectory(dir, options: options);
 
 /// Create a directory recursively
-Future<File> createFile(File file, {CreateOptions options}) =>
+Future<File> createFile(File file, {CreateOptions? options}) =>
     _impl.createFile(file, options: options);
 
 /// Delete options.
@@ -143,7 +143,7 @@ class DeleteOptions extends Object
     with OptionsRecursiveMixin, OptionsCreateMixin, OptionsFollowLinksMixin {
   @override
   String toString() {
-    final map = <String, dynamic>{};
+    final map = <String, Object?>{};
     if (recursive) {
       map['recursive'] = recursive;
     }

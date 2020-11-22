@@ -1,3 +1,4 @@
+// @dart=2.9
 import 'package:process_run/shell.dart';
 
 Future main() async {
@@ -5,10 +6,11 @@ Future main() async {
 
   await shell.run('''
 # Analyze code
-dartanalyzer --fatal-warnings --fatal-infos .
-dartfmt -n --set-exit-if-changed .
+dart analyze --fatal-warnings --fatal-infos .
+dart format -o none --set-exit-if-changed .
 
-# Run tests
+
+# Run tests -j 1 is important!
 pub run test -p vm -j 1 test/io test/multiplatform
 pub run test -p chrome -j 1 test/web test/multiplatform
 # skip: pub run test -p chrome test/fs_memory_test.dart

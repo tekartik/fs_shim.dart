@@ -8,11 +8,11 @@ import 'package:fs_shim/src/common/import.dart';
 ///
 /// convert to a directory object if necessary
 ///
-Directory asDirectory(FileSystemEntity dir) {
+Directory asDirectory(FileSystemEntity? dir) {
   if (dir is Directory) {
     return dir;
   } else {
-    return dir.fs.directory(dir.path);
+    return dir!.fs.directory(dir.path);
   }
 }
 

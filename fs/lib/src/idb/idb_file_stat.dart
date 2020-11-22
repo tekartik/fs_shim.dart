@@ -4,7 +4,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 final _epochDateTime = DateTime.fromMillisecondsSinceEpoch(0).toUtc();
 
 class IdbFileStat with FileStatModeMixin implements fs.FileStat {
-  int _size;
+  int? _size;
 
   @override
   int get size => _size ?? -1;
@@ -12,9 +12,9 @@ class IdbFileStat with FileStatModeMixin implements fs.FileStat {
   set size(int size) => _size = size;
 
   @override
-  fs.FileSystemEntityType type;
+  fs.FileSystemEntityType? type;
 
-  DateTime _modified;
+  DateTime? _modified;
 
   set modified(DateTime modified) => _modified = modified;
 
@@ -24,7 +24,7 @@ class IdbFileStat with FileStatModeMixin implements fs.FileStat {
 
   @override
   String toString() {
-    final map = <String, dynamic>{'type': type};
+    final map = <String, Object?>{'type': type};
     if (_modified != null) {
       map['modified'] = _modified;
     }

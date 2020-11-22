@@ -19,15 +19,6 @@ class FileSystemNode extends Object with FileSystemMixin implements FileSystem {
   }
 
   @override
-  File newFile(String path) => file(path);
-
-  @override
-  Directory newDirectory(String path) => directory(path);
-
-  @override
-  Link newLink(String path) => link(path);
-
-  @override
   File file(String path) => FileNode(path);
 
   @override

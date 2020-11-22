@@ -12,7 +12,7 @@ void main() {
           reason: "'$glob' '$name'");
     }
 
-    void checkPart(String expression, String name, Matcher matcher) {
+    void checkPart(String? expression, String? name, Matcher matcher) {
       expect(Glob.matchPart(expression, name), matcher,
           reason: "'$expression' '$name'");
     }

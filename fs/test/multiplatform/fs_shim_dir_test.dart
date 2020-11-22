@@ -13,7 +13,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -30,12 +30,6 @@ void defineTests(FileSystemTestContext ctx) {
       expect(dir.path, r'\');
       dir = fs.directory(r'');
       expect(dir.path, r'');
-      try {
-        dir = fs.directory(null);
-        fail('should fail');
-      } on ArgumentError catch (_) {
-        // Invalid argument(s): null is not a String
-      }
     });
 
     test('toString', () {
@@ -335,7 +329,7 @@ void defineTests(FileSystemTestContext ctx) {
       return -1;
     }
 
-    FileSystemEntity getInList(
+    FileSystemEntity? getInList(
         List<FileSystemEntity> list, FileSystemEntity entity) {
       for (var i = 0; i < list.length; i++) {
         if (list[i].path == entity.path) {

@@ -9,7 +9,7 @@ import 'package:path/path.dart';
 import 'multiplatform/platform.dart';
 import 'test_common.dart';
 
-export 'package:dev_test/test.dart';
+export 'package:test/test.dart';
 
 final IoFileSystemTestContext ioFileSystemTestContext =
     IoFileSystemTestContext();
@@ -21,14 +21,14 @@ class IoFileSystemTestContext extends FileSystemTestContext {
     ..isIoWindows = Platform.isWindows;
   @override
   final FileSystemIo fs = FileSystemIo();
-  String outTopPath;
+  String? outTopPath;
 
   IoFileSystemTestContext() {
     outTopPath = testOutTopPath;
   }
 
   @override
-  String get outPath => join(outTopPath, super.outPath);
+  String get outPath => join(outTopPath!, super.outPath);
 }
 
 String get testOutTopPath => join('.dart_tool', 'fs_shim', 'test');
