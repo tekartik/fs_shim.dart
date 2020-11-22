@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.0-nullsafety.0
+
+* `nnbd` supports, breaking change.
+
 ## 1.0.2
 
 * Fix executable flag when copying on io
