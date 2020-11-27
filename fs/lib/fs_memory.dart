@@ -15,7 +15,7 @@ FileSystem newMemoryFileSystem([String? name]) => newFileSystemMemory(name);
 
 /// Creates a new file system in memory.
 FileSystem newFileSystemMemory([String? name]) =>
-    newFileSystemIdb(idbFactoryMemory, name);
+    newFileSystemIdb(newIdbFactoryMemory(), name);
 
 FileSystem? _fileSystemMemory;
 
