@@ -32,6 +32,19 @@ void main() {
         var path = fs.path;
         await fs.directory(path.join('dir.tmp', 'sub')).create(recursive: true);
       }, skip: false);
+
+      test('new', () async {
+        var fs = newFileSystemMemory();
+        await fs.file('test').writeAsString('test');
+        expect(await fs.file('test').readAsString(), 'test');
+        fs = newFileSystemMemory();
+        try {
+          await fs.file('test').readAsString();
+          fail('should fail');
+        } catch (e) {
+          expect(e, isNot(const TypeMatcher<TestFailure>()));
+        }
+      });
     });
   });
 }
