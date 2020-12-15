@@ -1,6 +1,6 @@
 name: fs_shim
 description: A portable file system implementation working on io, browser and memory (through idb_shim)
-version: 2.0.0-nullsafety.0
+version: 2.0.0-nullsafety.1
 homepage: https://github.com/tekartik/fs_shim.dart/tree/master/fs
 
 environment:
@@ -21,6 +21,6 @@ dev_dependencies:
   build_test: '>=0.10.2'
   build_web_compilers: '>=0.4.0'
   io:
-  yaml:
+  yaml: '>=3.0.0-nullsafety.0'
   pub_semver:
 
