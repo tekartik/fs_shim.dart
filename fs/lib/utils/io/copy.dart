@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_io.dart' as fs_io;
 import 'package:fs_shim/utils/copy.dart';
 import 'package:fs_shim/utils/copy.dart' as fs;
