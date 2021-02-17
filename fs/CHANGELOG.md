@@ -4,7 +4,7 @@
 
 * `nnbd` supports, breaking change.
 
-## 1.0.2
+## 1.0.2+3
 
 * Fix executable flag when copying on io
 * Save binary as blob instead of List<int> on indexeddb

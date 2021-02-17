@@ -345,12 +345,12 @@ void defineTests(FileSystemTestContext ctx) {
       expect(list, isEmpty);
 
       // Create one two dirs
-      final dir1 = fs.directory(join(_dir.path, 'dir1'));
-      final dir2 = fs.directory(join(_dir.path, 'dir2'));
+      final dir1 = fs.directory(fs.path.join(_dir.path, 'dir1'));
+      final dir2 = fs.directory(fs.path.join(_dir.path, 'dir2'));
       // And one sub dir in dir1
-      final subDir = fs.directory(join(dir1.path, 'sub'));
+      final subDir = fs.directory(fs.path.join(dir1.path, 'sub'));
       // And one file
-      final file = fs.file(join(subDir.path, 'file'));
+      final file = fs.file(fs.path.join(subDir.path, 'file'));
 
       await file.create(recursive: true);
       await dir2.create();
