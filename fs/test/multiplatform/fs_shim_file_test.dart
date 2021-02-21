@@ -56,9 +56,13 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('parent', () {
-      final file = fs.file(fs.path.join(fs.path.separator, 'dummy'));
-      expect(file.isAbsolute, isTrue);
-      expect(file.parent.path, fs.directory('/').path);
+      // ignore: deprecated_member_use_from_same_package
+      if (!contextIsWindows) {
+        // Windows view this differently
+        final file = fs.file(fs.path.join(fs.path.separator, 'dummy'));
+        expect(file.isAbsolute, isTrue);
+        expect(file.parent.path, fs.directory('/').path);
+      }
     });
 
     test('exists', () async {
