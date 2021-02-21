@@ -162,7 +162,9 @@ class _GlobMatchRunner {
   String toString() => "'$glob' $globIndex '$parts' $partIndex";
 }
 
-// only support / * ** and ?
+/// only support / * ** and ?
+///
+/// Convert everything to url internally
 class Glob {
   static bool isGlobStar(String globPart) => globPart == '**';
 
@@ -194,8 +196,12 @@ class Glob {
 
   /// true if the name matches the pattern
   bool matches(String name) {
-    final runner = _GlobMatchRunner(this, splitParts(name));
-    return runner.matches();
+    try {
+      final runner = _GlobMatchRunner(this, contextPathSplit(posix, name));
+      return runner.matches();
+    } catch (_) {
+      return false;
+    }
   }
 
   bool matchesParts(List<String> parts) {

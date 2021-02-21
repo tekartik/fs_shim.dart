@@ -2,7 +2,7 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
-
+import 'package:path/path.dart' as p;
 import 'bytes_utils.dart';
 
 class FileSystemNone implements FileSystem {
@@ -29,10 +29,10 @@ class FileSystemNone implements FileSystem {
   String get name => throw UnsupportedError('fs.name');
 
   @override
-  Context get pathContext => path;
+  p.Context get pathContext => path;
 
   @override
-  Context get path => throw UnsupportedError('fs.path');
+  p.Context get path => throw UnsupportedError('fs.path');
 
   @override
   bool get supportsFileLink => throw UnsupportedError('fs.supportsFileLink');

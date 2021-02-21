@@ -467,7 +467,9 @@ class CopyEntity extends Object
     //relative = _path.relative(relative, from: parent.path);
     basename = _path.basename(relative);
     _parts = List.from(parent.parts!);
-    _parts!.addAll(splitParts(relative));
+    if (relative != utilsCurrentFolderPart) {
+      _parts!.addAll(contextPathSplit(fs.path, relative));
+    }
     _sub = fs.path.join(parent.sub!, relative);
   }
 
@@ -565,10 +567,13 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    final sourceNode = ChildSourceNode(this, null, '');
+    final sourceNode = ChildSourceNode(this, null, utilsCurrentFolderPart);
     return await sourceNode._runTree();
   }
 }
+
+/// Special part name
+const utilsCurrentFolderPart = '';
 
 class TopSourceNode extends Object
     with SourceNodeMixin, TopNodeMixin

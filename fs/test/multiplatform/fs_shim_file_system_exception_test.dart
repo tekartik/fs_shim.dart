@@ -4,7 +4,6 @@
 library fs_shim.test.fs_shim_file_system_exception_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
 
 import 'test_common.dart';
 
@@ -32,8 +31,8 @@ void defineTests(FileSystemTestContext ctx) {
       final dir = await ctx.prepare();
 
       // create a file too deep
-      final subDir = fs.directory(join(dir.path, 'sub'));
-      final file = fs.file(join(subDir.path, 'file'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
+      final file = fs.file(fs.path.join(subDir.path, 'file'));
 
       try {
         await file.create();

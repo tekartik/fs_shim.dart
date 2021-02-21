@@ -4,7 +4,6 @@ import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/copy.dart';
 import 'package:fs_shim/utils/src/utils_impl.dart'
     show copyFileSystemEntityImpl;
-import 'package:path/path.dart';
 
 import 'test_common.dart';
 
@@ -140,7 +139,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('file', () async {
         final top = await ctx.prepare();
-        final srcFile = fs.file(join(top.path, 'file'));
+        final srcFile = fs.file(fs.path.join(top.path, 'file'));
 
         // not exists ok
         await deleteFile(srcFile);
@@ -164,7 +163,7 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await readString(childFile(dst, 'file')), 'test');
         final files = await copyDirectoryListFiles(src);
         expect(files, hasLength(1));
-        expect(relative(files[0].path, from: src.path), 'file');
+        expect(fs.path.relative(files[0].path, from: src.path), 'file');
       });
 
       test('dir_delete', () async {
@@ -191,8 +190,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('file', () async {
         final top = await ctx.prepare();
-        final srcFile = fs.file(join(top.path, 'file'));
-        final dstFile = fs.file(join(top.path, 'file2'));
+        final srcFile = fs.file(fs.path.join(top.path, 'file'));
+        final dstFile = fs.file(fs.path.join(top.path, 'file2'));
 
         try {
           expect(await copyFile(srcFile, dstFile), dstFile);
@@ -227,12 +226,12 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('sub_file', () async {
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final dstDir = fs.directory(join(top.path, 'dir2'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dir2'));
 
         final options = defaultCopyOptions;
 
-        final srcFile = fs.file(join(srcDir.path, 'file'));
+        final srcFile = fs.file(fs.path.join(srcDir.path, 'file'));
 
         //await copyDirectory(srcDir, dstDir, options: options);
 
@@ -254,7 +253,7 @@ void defineTests(FileSystemTestContext ctx) {
             dstDir);
         final files = await copyDirectoryListFiles(srcDir);
         expect(files, hasLength(1));
-        expect(relative(files[0].path, from: srcDir.path), 'file');
+        expect(fs.path.relative(files[0].path, from: srcDir.path), 'file');
       });
 
       group('exclude', () {
@@ -279,7 +278,7 @@ void defineTests(FileSystemTestContext ctx) {
 
           final files = await copyDirectoryListFiles(src, options: options);
           expect(files, hasLength(1));
-          expect(relative(files[0].path, from: src.path), 'file2');
+          expect(fs.path.relative(files[0].path, from: src.path), 'file2');
         });
 
         test('copy_exclude_dir', () async {
@@ -315,7 +314,7 @@ void defineTests(FileSystemTestContext ctx) {
 
           final files = await copyDirectoryListFiles(src, options: options);
           expect(files, hasLength(1));
-          expect(relative(files[0].path, from: src.path), 'file1');
+          expect(fs.path.relative(files[0].path, from: src.path), 'file1');
         });
 
         test('copy_include_dir', () async {
@@ -356,20 +355,20 @@ void defineTests(FileSystemTestContext ctx) {
         expect(entity.parts, ['entity']);
         expect(entity.sub, 'entity');
         expect(entity.top, top.path);
-        expect(entity.path, join(top.path, 'entity'));
+        expect(entity.path, fs.path.join(top.path, 'entity'));
       });
 
       test('CopyEntity_sub', () async {
         // fsCopyDebug = true;
         final top = await ctx.prepare();
         final topEntity = topEntityPath(fs, top.path);
-        final entity = CopyEntity(topEntity, join('entity', 'sub'));
+        final entity = CopyEntity(topEntity, fs.path.join('entity', 'sub'));
         expect(entity.parent, topEntity);
         expect(entity.basename, 'sub');
         expect(entity.parts, ['entity', 'sub']);
-        expect(entity.sub, join('entity', 'sub'));
+        expect(entity.sub, fs.path.join('entity', 'sub'));
         expect(entity.top, top.path);
-        expect(entity.path, join(top.path, 'entity', 'sub'));
+        expect(entity.path, fs.path.join(top.path, 'entity', 'sub'));
       });
 
       test('CopyEntity_child', () async {
@@ -381,9 +380,9 @@ void defineTests(FileSystemTestContext ctx) {
         expect(subEntity.parent, entity);
         expect(subEntity.basename, 'sub');
         expect(subEntity.parts, ['entity', 'sub']);
-        expect(subEntity.sub, join('entity', 'sub'));
+        expect(subEntity.sub, fs.path.join('entity', 'sub'));
         expect(subEntity.top, top.path);
-        expect(subEntity.path, join(top.path, 'entity', 'sub'));
+        expect(subEntity.path, fs.path.join(top.path, 'entity', 'sub'));
       });
 
       test('TopCopy', () async {
@@ -471,8 +470,8 @@ void defineTests(FileSystemTestContext ctx) {
       });
       test('copy_dir', () async {
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final dstDir = fs.directory(join(top.path, 'dir2'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dir2'));
 
         expect(await copyFileSystemEntityImpl(srcDir, dstDir), 0);
 
@@ -487,8 +486,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('copy_file', () async {
         final top = await ctx.prepare();
-        final srcFile = fs.file(join(top.path, 'file'));
-        final dstFile = fs.file(join(top.path, 'file2'));
+        final srcFile = fs.file(fs.path.join(top.path, 'file'));
+        final dstFile = fs.file(fs.path.join(top.path, 'file2'));
 
         expect(await copyFileSystemEntityImpl(srcFile, dstFile), 0);
 
@@ -524,9 +523,9 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('copy_link_dir', () async {
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final srcLink = fs.link(join(top.path, 'link'));
-        final dstDir = fs.directory(join(top.path, 'dir2'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final srcLink = fs.link(fs.path.join(top.path, 'link'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dir2'));
 
         expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
 
@@ -550,9 +549,9 @@ void defineTests(FileSystemTestContext ctx) {
       test('copy_link_file', () async {
         if (fs.supportsFileLink) {
           final top = await ctx.prepare();
-          final srcFile = fs.file(join(top.path, 'file'));
-          final srcLink = fs.link(join(top.path, 'link'));
-          final dstFile = fs.file(join(top.path, 'file2'));
+          final srcFile = fs.file(fs.path.join(top.path, 'file'));
+          final srcLink = fs.link(fs.path.join(top.path, 'link'));
+          final dstFile = fs.file(fs.path.join(top.path, 'file2'));
 
           expect(await copyFileSystemEntityImpl(srcLink, dstFile), 0);
 
@@ -574,10 +573,10 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('copy_dir_exclude', () async {
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final srcFile1 = fs.file(join(srcDir.path, 'file1'));
-        final srcFile2 = fs.file(join(srcDir.path, 'file2'));
-        final dstDir = fs.directory(join(top.path, 'dst'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final srcFile1 = fs.file(fs.path.join(srcDir.path, 'file1'));
+        final srcFile2 = fs.file(fs.path.join(srcDir.path, 'file2'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dst'));
 
         await srcDir.create();
         await srcFile1.writeAsString('test1', flush: true);
@@ -589,9 +588,10 @@ void defineTests(FileSystemTestContext ctx) {
 
         expect(await dstDir.exists(), isTrue);
 
-        expect(
-            await fs.file(join(dstDir.path, 'file2')).readAsString(), 'test2');
-        expect(await fs.file(join(dstDir.path, 'file1')).exists(), isFalse);
+        expect(await fs.file(fs.path.join(dstDir.path, 'file2')).readAsString(),
+            'test2');
+        expect(await fs.file(fs.path.join(dstDir.path, 'file1')).exists(),
+            isFalse);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: CopyOptions(recursive: false)),
@@ -603,10 +603,10 @@ void defineTests(FileSystemTestContext ctx) {
         //fsCopyDebug = true;
         // exclude test on purpose to see if it get ejected as it is part of the while file
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final srcFile1 = fs.file(join(srcDir.path, 'test'));
-        final srcFile2 = fs.file(join(srcDir.path, 'file2'));
-        final dstDir = fs.directory(join(top.path, 'dst'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final srcFile1 = fs.file(fs.path.join(srcDir.path, 'test'));
+        final srcFile2 = fs.file(fs.path.join(srcDir.path, 'file2'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dst'));
 
         await srcDir.create();
         await srcFile1.writeAsString('test1', flush: true);
@@ -618,9 +618,10 @@ void defineTests(FileSystemTestContext ctx) {
 
         expect(await dstDir.exists(), isTrue);
 
+        expect(await fs.file(fs.path.join(dstDir.path, 'file2')).readAsString(),
+            'test2');
         expect(
-            await fs.file(join(dstDir.path, 'file2')).readAsString(), 'test2');
-        expect(await fs.file(join(dstDir.path, 'test')).exists(), isFalse);
+            await fs.file(fs.path.join(dstDir.path, 'test')).exists(), isFalse);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: CopyOptions(recursive: false)),
@@ -630,11 +631,11 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('copy_sub_dir_exclude', () async {
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final subDir = fs.directory(join(srcDir.path, 'sub'));
-        final srcFile1 = fs.file(join(subDir.path, 'file1'));
-        final srcFile2 = fs.file(join(subDir.path, 'file2'));
-        final dstDir = fs.directory(join(top.path, 'dst'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final subDir = fs.directory(fs.path.join(srcDir.path, 'sub'));
+        final srcFile1 = fs.file(fs.path.join(subDir.path, 'file1'));
+        final srcFile2 = fs.file(fs.path.join(subDir.path, 'file2'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dst'));
 
         await subDir.create(recursive: true);
         await srcFile1.writeAsString('test1', flush: true);
@@ -646,10 +647,14 @@ void defineTests(FileSystemTestContext ctx) {
 
         expect(await dstDir.exists(), isTrue);
 
-        expect(await fs.file(join(dstDir.path, 'sub', 'file2')).readAsString(),
+        expect(
+            await fs
+                .file(fs.path.join(dstDir.path, 'sub', 'file2'))
+                .readAsString(),
             'test2');
         expect(
-            await fs.file(join(dstDir.path, 'sub', 'file1')).exists(), isFalse);
+            await fs.file(fs.path.join(dstDir.path, 'sub', 'file1')).exists(),
+            isFalse);
         expect(
             await copyFileSystemEntityImpl(srcDir, dstDir,
                 options: CopyOptions(recursive: false)),
@@ -660,8 +665,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('link_file', () async {
         if (fs.supportsLink) {
           final top = await ctx.prepare();
-          final srcFile = fs.file(join(top.path, 'file'));
-          final dstFile = fs.file(join(top.path, 'file2'));
+          final srcFile = fs.file(fs.path.join(top.path, 'file'));
+          final dstFile = fs.file(fs.path.join(top.path, 'file2'));
 
           final options = CopyOptions(tryToLinkFile: true);
 
@@ -695,12 +700,12 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('sub_file', () async {
         final top = await ctx.prepare();
-        final srcDir = fs.directory(join(top.path, 'dir'));
-        final dstDir = fs.directory(join(top.path, 'dir2'));
+        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+        final dstDir = fs.directory(fs.path.join(top.path, 'dir2'));
 
         final options = CopyOptions(recursive: true);
 
-        final srcFile = fs.file(join(srcDir.path, 'file'));
+        final srcFile = fs.file(fs.path.join(srcDir.path, 'file'));
 
         expect(await copyFileSystemEntityImpl(srcDir, dstDir, options: options),
             0);

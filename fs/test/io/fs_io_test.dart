@@ -21,7 +21,7 @@ void main() {
       expect(isIoWindows(ioFileSystemTestContext), io.Platform.isWindows);
     });
     test('name', () {
-      expect(ioFileSystemTestContext.fs.name, 'io');
+      expect(fs.name, 'io');
     });
     test('equals', () {
       // Files cannot be compared!
@@ -31,17 +31,16 @@ void main() {
     test('type', () async {
       expect(
           await ioFileSystemTestContext.fs
-              .type(join('test', 'io', 'fs_io_test.dart')),
+              .type(fs.path.join('test', 'io', 'fs_io_test.dart')),
           FileSystemEntityType.file);
-      expect(await ioFileSystemTestContext.fs.type('test'),
-          FileSystemEntityType.directory);
+      expect(await fs.type('test'), FileSystemEntityType.directory);
     });
     test('test_path', () async {
       expect(ioFileSystemTestContext.outTopPath,
           join('.dart_tool', 'fs_shim', 'test'));
       expect(
           dirname(ioFileSystemTestContext.outPath),
-          dirname(join(
+          dirname(fs.path.join(
               ioFileSystemTestContext.outTopPath!, joinAll(testDescriptions))));
     });
 
@@ -135,7 +134,7 @@ void main() {
         expect(dir.fs, fs);
 
         try {
-          dir = Directory(join(Directory.current.path,
+          dir = Directory(fs.path.join(Directory.current.path,
               'never_exist_such_a_dummy_dir_for_fs_shim_testing'));
           await dir.list().toList();
         } catch (_) {}

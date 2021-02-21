@@ -6,13 +6,12 @@ library fs_shim.fs_src_idb_io_test;
 
 import 'dart:async';
 
-import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_io.dart';
-import 'package:path/path.dart';
+import 'package:test/test.dart';
 
 import '../multiplatform/fs_idb_format_test.dart';
 import '../multiplatform/fs_idb_format_v1_test.dart';
@@ -36,7 +35,8 @@ class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
 
   @override
   Future<Directory> prepare() {
-    fs = newIdbIoFileSystem(join(super.outPath, 'fs.db')) as IdbFileSystem;
+    fs = newIdbIoFileSystem(fs.path.join(super.outPath, 'fs.db'))
+        as IdbFileSystem;
     return super.prepare();
   }
 }

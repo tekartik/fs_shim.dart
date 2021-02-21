@@ -17,14 +17,17 @@ void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
   group('path', () {
     test('posixPath', () async {
+      // ignore: deprecated_member_use
       expect(posixPath('a\\b'), 'a/b');
     });
 
     test('contextPath', () async {
+      // ignore: deprecated_member_use
       expect(contextPath('a\\b'), join('a', 'b'));
     });
 
     test('contextIsWindows', () async {
+      // ignore: deprecated_member_use
       if (contextIsWindows) {
         expect(separator, '\\');
       } else {

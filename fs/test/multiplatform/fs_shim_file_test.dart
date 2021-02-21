@@ -6,7 +6,6 @@ library fs_shim.test.fs_shim_file_test;
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
 
 import 'test_common.dart';
 
@@ -57,24 +56,21 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('parent', () {
-      final file = fs.file(join(separator, 'dummy'));
-      if (!contextIsWindows) {
-        // somehow absolute means more on windows
-        expect(file.isAbsolute, isTrue);
-        expect(file.parent.path, fs.directory('/').path);
-      }
+      final file = fs.file(fs.path.join(fs.path.separator, 'dummy'));
+      expect(file.isAbsolute, isTrue);
+      expect(file.parent.path, fs.directory('/').path);
     });
 
     test('exists', () async {
       final dir = await ctx.prepare();
-      final file = fs.file(join(dir.path, 'file'));
+      final file = fs.file(fs.path.join(dir.path, 'file'));
       expect(await file.exists(), isFalse);
     });
 
     test('create', () async {
       final dir = await ctx.prepare();
 
-      final file = fs.file(join(dir.path, 'file'));
+      final file = fs.file(fs.path.join(dir.path, 'file'));
       expect(await file.exists(), isFalse);
       expect(await fs.isFile(file.path), isFalse);
       expect(await (await file.create()).exists(), isTrue);
@@ -87,9 +83,9 @@ void defineTests(FileSystemTestContext ctx) {
     test('create_recursive', () async {
       final dir = await ctx.prepare();
 
-      final subDir = fs.directory(join(dir.path, 'sub'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
 
-      final file = fs.file(join(subDir.path, 'file'));
+      final file = fs.file(fs.path.join(subDir.path, 'file'));
 
       try {
         await file.create();
@@ -108,7 +104,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('delete', () async {
       final dir = await ctx.prepare();
 
-      final file = fs.file(join(dir.path, 'file'));
+      final file = fs.file(fs.path.join(dir.path, 'file'));
       expect(await (await file.create()).exists(), isTrue);
       expect(await fs.isFile(file.path), isTrue);
 
@@ -130,8 +126,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       await file.create();
       final file2 = await file.rename(path2) as File;
@@ -144,8 +140,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_notfound', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       try {
         await file.rename(path2);
@@ -160,8 +156,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_with_content', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       await file.writeAsString('test', flush: true);
       final file2 = await file.rename(path2) as File;
@@ -175,7 +171,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('stat', () async {
       final _dir = await ctx.prepare();
 
-      var file = fs.file(join(_dir.path, 'file'));
+      var file = fs.file(fs.path.join(_dir.path, 'file'));
       var stat = await file.stat();
       expect(stat.type, FileSystemEntityType.notFound);
       expect(stat.size, -1);
@@ -193,14 +189,14 @@ void defineTests(FileSystemTestContext ctx) {
       expect(stat.modified, isNotNull);
 
       // rename
-      file = await file.rename(join(_dir.path, 'file2')) as File;
+      file = await file.rename(fs.path.join(_dir.path, 'file2')) as File;
       stat = await file.stat();
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);
       expect(stat.modified, isNotNull);
 
       // copy
-      file = await file.copy(join(_dir.path, 'file3'));
+      file = await file.copy(fs.path.join(_dir.path, 'file3'));
       stat = await file.stat();
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);
@@ -210,8 +206,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_over_existing_different_type', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'file');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'file');
       final dir = fs.directory(path);
       final file2 = fs.file(path2);
       await dir.create();
@@ -233,8 +229,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_over_existing_content', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       var file2 = fs.file(path2);
       await file.writeAsString('test', flush: true);
@@ -250,8 +246,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('copy', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       await file.create();
       final file2 = await file.copy(path2);
@@ -264,8 +260,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('copy_with_content', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       await file.writeAsString('test', flush: true);
       final file2 = await file.copy(path2);
@@ -279,8 +275,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('copy_overwrite_content', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'file');
-      final path2 = join(_dir.path, 'file2');
+      final path = fs.path.join(_dir.path, 'file');
+      final path2 = fs.path.join(_dir.path, 'file2');
       final file = fs.file(path);
       var file2 = fs.file(path2);
       await file.writeAsString('test', flush: true);
@@ -296,7 +292,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('create_dir_or_file', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir_or_file');
+      final path = fs.path.join(_dir.path, 'dir_or_file');
 
       final file = fs.file(path);
       final dir = fs.directory(path);
@@ -372,7 +368,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('simple_write_read', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       await file.create();
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
@@ -399,7 +395,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('read_not_found', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       try {
         await file.openRead().listen((Uint8List data) {
           //content.addAll(data);
@@ -414,7 +410,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_bad_mode', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       try {
         var sink = file.openWrite(mode: FileMode.read);
         sink.add('test'.codeUnits);
@@ -426,7 +422,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('append_not_found', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       var sink = file.openWrite(mode: FileMode.append);
       sink.add('test'.codeUnits);
       await sink.close();
@@ -440,7 +436,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_not_found', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       try {
         var sink = file.openWrite(mode: FileMode.append);
         sink.add('test'.codeUnits);
@@ -460,7 +456,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('overwrite', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
@@ -484,7 +480,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('append', () async {
       final _dir = await ctx.prepare();
-      final file = fs.file(join(_dir.path, 'file'));
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
       var sink = file.openWrite(mode: FileMode.write);
       sink.add('test'.codeUnits);
       await sink.close();
@@ -508,7 +504,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('write_on_dir', () async {
       final _dir = await ctx.prepare();
-      var filePath = join(_dir.path, 'file');
+      var filePath = fs.path.join(_dir.path, 'file');
       final dir = fs.directory(filePath);
       final file = fs.file(filePath);
 
@@ -532,7 +528,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('read_write_bytes', () async {
       final bytes = Uint8List.fromList([0, 1, 2, 3]);
       final _dir = await ctx.prepare();
-      var filePath = join(_dir.path, 'file');
+      var filePath = fs.path.join(_dir.path, 'file');
       final file = fs.file(filePath);
 
       await file.writeAsBytes(bytes, flush: true);
@@ -550,7 +546,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('read_write_string', () async {
       final text = 'test';
       final _dir = await ctx.prepare();
-      var filePath = join(_dir.path, 'file');
+      var filePath = fs.path.join(_dir.path, 'file');
       final file = fs.file(filePath);
 
       await file.writeAsString(text, flush: true);
@@ -571,7 +567,7 @@ void defineTests(FileSystemTestContext ctx) {
         // 8Mb
         var bytes = Uint8List(size);
         final _dir = await ctx.prepare();
-        var filePath = join(_dir.path, 'big_file');
+        var filePath = fs.path.join(_dir.path, 'big_file');
         final file = fs.file(filePath);
 
         await file.writeAsBytes(bytes);

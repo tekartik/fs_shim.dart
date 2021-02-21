@@ -64,6 +64,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('parent', () {
       final file = fs.file(join(separator, 'dummy'));
+      // ignore: deprecated_member_use
       if (!contextIsWindows) {
         // somehow absolute means more on windows
         expect(file.isAbsolute, isTrue);

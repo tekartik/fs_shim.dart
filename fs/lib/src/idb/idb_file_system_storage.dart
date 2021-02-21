@@ -3,16 +3,23 @@ import 'dart:async';
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/import.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
-import 'package:path/path.dart';
 
 import 'idb_fs.dart';
 
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file';
 const String nameKey = 'name';
+
+/// That's life to deal with existing
+///
+/// For file: 'pn': '1/file.txt'
+/// For root: 'pn': '/'
+///
+/// So basically the id of the parent separated with the file name. Unique access
 const String parentNameKey = 'pn'; // indexed - this is actually the full name
 const String parentNameIndexName = parentNameKey;
 
+/// Indexed, id of the parent record
 const String parentKey = 'parent'; // indexed
 const String parentIndexName = parentKey;
 const String typeKey = 'type';
@@ -21,7 +28,8 @@ const String sizeKey = 'size';
 const String targetKey = 'target'; // Link only
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
-  return segments.isNotEmpty && segments.first.startsWith(separator);
+  return segments.isNotEmpty &&
+      segments.first.startsWith(idbPathContext.separator);
 }
 
 bool segmentsAreRelative(Iterable<String> segments) =>
@@ -83,6 +91,7 @@ class IdbFileSystemStorage {
     return _readyCompleter!.future;
   }
 
+  /// For the given [parent] find the child named [name]
   Future<Node?> txnGetChildNode(idb.ObjectStore treeStore, idb.Index index,
       Node? parent, String name, bool followLastLink) {
     final parentName = getParentName(parent, name);
@@ -164,7 +173,8 @@ class IdbFileSystemStorage {
     return entity;
   }
 
-  // follow link only for last one
+  /// Search in the tree
+  /// follow link only for last one
   Future<NodeSearchResult> txnSearch(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
     final result = NodeSearchResult()..segments = segments;
@@ -245,7 +255,7 @@ class IdbFileSystemStorage {
   }
 
   Future<Node> txnAddNode(idb.ObjectStore store, Node entity) {
-    //print('adding ${entity}');
+    // devPrint('adding ${entity}');
     return store.add(entity.toMap()).then((dynamic id) {
       entity.id = id as int;
       return entity;
@@ -279,6 +289,7 @@ fs.FileSystemEntityType typeFromString(String? typeString) {
   return fs.FileSystemEntityType.notFound;
 }
 
+/// Tree entity
 class Node {
   int? id;
   Node? parent;
@@ -316,8 +327,10 @@ class Node {
 
   factory Node.fromMap(Node? parent, Map<String, Object?> map, int id) {
     final parentId = map[parentKey] as int?;
+    // For root: map: {name: /, type: DIRECTORY, modified: 2021-02-21T14:42:55.508406, size: 0, pn: /}
+    // devPrint('$parentId ${parent?.id} fromMap: $map');
     if (parentId != null || parent != null) {
-      assert(parent!.id == parentId);
+      assert(parent?.id == parentId, '$parentId != ${parent?.id}');
     }
     final name = map[nameKey] as String;
     final modifiedString = map[modifiedKey] as String?;
@@ -351,7 +364,7 @@ class Node {
   }
 
   // Slow!
-  String get path => joinAll(segments);
+  String get path => idbPathContext.joinAll(segments);
 
   List<String> get segments {
     final segments = <String>[];
@@ -404,7 +417,7 @@ class NodeSearchResult {
   Iterable<String?> get remainingSegments =>
       segments!.getRange(depth!, segments!.length);
 
-  String get path => joinAll(segments as Iterable<String>);
+  String get path => idbPathContext.joinAll(segments as Iterable<String>);
 
   NodeSearchResult get parent {
     assert(!matches!);
@@ -434,7 +447,7 @@ List<String>? getParentSegments(List<String> segments) {
 
 String getParentName(Node? parent, String? name) {
   if (parent == null) {
-    return idbPathContext.join(idbPathContext.separator, separator, name);
+    return idbPathContext.join(idbPathContext.separator, name);
   } else {
     return idbPathContext.join(parent.id.toString(), name);
   }

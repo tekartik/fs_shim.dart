@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
-import 'package:path/path.dart';
 import 'package:test/test.dart';
 
 import 'multiplatform/platform.dart';
@@ -27,6 +26,7 @@ export 'package:fs_shim/utils/read_write.dart';
 export 'package:test/test.dart';
 
 int _testId = 0;
+
 List<String> get testDescriptions => ['test${++_testId}'];
 
 // FileSystem context
@@ -37,7 +37,7 @@ abstract class FileSystemTestContext {
   FileSystem get fs;
 
   // The path to use for testing
-  String get outPath => joinAll(testDescriptions);
+  String get outPath => fs.path.joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
     final dir = fs.directory(outPath);

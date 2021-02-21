@@ -4,7 +4,7 @@
 library fs_shim.test.fs_shim_link_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
@@ -71,7 +71,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('exists', () async {
         final dir = await ctx.prepare();
-        final file = fs.link(join(dir.path, 'link'));
+        final file = fs.link(fs.path.join(dir.path, 'link'));
         expect(await file.exists(), isFalse);
       });
 
@@ -79,7 +79,7 @@ void defineTests(FileSystemTestContext ctx) {
         final dir = await ctx.prepare();
 
         final target = 'target';
-        final link = fs.link(join(dir.path, 'link'));
+        final link = fs.link(fs.path.join(dir.path, 'link'));
         expect(await link.exists(), isFalse);
         expect(await fs.isLink(link.path), isFalse);
         expect(await (await link.create(target)).exists(), isTrue);
@@ -107,7 +107,7 @@ void defineTests(FileSystemTestContext ctx) {
         final dir = await ctx.prepare();
 
         final target = 'target';
-        final link = fs.link(join(dir.path, 'link'));
+        final link = fs.link(fs.path.join(dir.path, 'link'));
         try {
           await link.target();
         } on FileSystemException catch (e) {
@@ -124,7 +124,7 @@ void defineTests(FileSystemTestContext ctx) {
           if (isIoWindows(ctx)) {
             // on io windows link were absolute
             // This did no happen when tested on 2019-09-05
-            expect(await link.target(), join(dir.path, target));
+            expect(await link.target(), p.join(dir.path, target));
             rethrow;
           }
         }
@@ -134,9 +134,9 @@ void defineTests(FileSystemTestContext ctx) {
         final dir = await ctx.prepare();
 
         final target = 'target';
-        final link = fs.link(join(dir.path, 'link'));
+        final link = fs.link(fs.path.join(dir.path, 'link'));
         await link.create(target);
-        final link2 = fs.link(join(dir.path, 'link2'));
+        final link2 = fs.link(fs.path.join(dir.path, 'link2'));
         await link2.create(link.path);
 
         expect(await link2.target(), link.path);
@@ -145,11 +145,11 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_file', () async {
         final dir = await ctx.prepare();
 
-        final target = join(dir.path, 'target');
+        final target = fs.path.join(dir.path, 'target');
         /*File file = */
         final file = fs.file(target);
         await file.create();
-        final link = fs.link(join(dir.path, 'link'));
+        final link = fs.link(fs.path.join(dir.path, 'link'));
         expect(await link.exists(), isFalse);
         expect(await fs.isLink(link.path), isFalse);
         expect(await (await link.create(target)).exists(), isTrue);
@@ -167,7 +167,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         // different target fails too
         try {
-          await link.create(join(dir.path, 'other_target'));
+          await link.create(fs.path.join(dir.path, 'other_target'));
           fail('shoud fail');
         } on FileSystemException catch (e) {
           _printErr(e);
@@ -179,8 +179,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_link_file', () async {
         final dir = await ctx.prepare();
 
-        final file = fs.file(join(dir.path, 'file'));
-        final link = fs.link(join(dir.path, 'link'));
+        final file = fs.file(fs.path.join(dir.path, 'file'));
+        final link = fs.link(fs.path.join(dir.path, 'link'));
 
         if (isIoWindows(ctx)) {
           try {
@@ -203,11 +203,11 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_dir', () async {
         final top = await ctx.prepare();
 
-        final target = join(top.path, 'target');
+        final target = fs.path.join(top.path, 'target');
         /*File file = */
         final dir = fs.directory(target);
         await dir.create();
-        final link = fs.link(join(top.path, 'link'));
+        final link = fs.link(fs.path.join(top.path, 'link'));
         expect(await link.exists(), isFalse);
         expect(await fs.isLink(link.path), isFalse);
         expect(await (await link.create(target)).exists(), isTrue);
@@ -225,7 +225,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         // different target fails too
         try {
-          await link.create(join(top.path, 'other_target'));
+          await link.create(fs.path.join(top.path, 'other_target'));
           fail('shoud fail');
         } on FileSystemException catch (e) {
           _printErr(e);
@@ -243,8 +243,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_link_dir', () async {
         final top = await ctx.prepare();
 
-        final dir = fs.directory(join(top.path, 'dir'));
-        final link = fs.link(join(top.path, 'link'));
+        final dir = fs.directory(fs.path.join(top.path, 'dir'));
+        final link = fs.link(fs.path.join(top.path, 'link'));
         await link.create(dir.path);
         final linkDir = fs.directory(link.path);
 
@@ -281,9 +281,9 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_recursive', () async {
         final dir = await ctx.prepare();
 
-        final subDir = fs.directory(join(dir.path, 'sub'));
+        final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
 
-        final link = fs.link(join(subDir.path, 'file'));
+        final link = fs.link(fs.path.join(subDir.path, 'file'));
 
         try {
           await link.create('target');
@@ -300,7 +300,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('delete', () async {
         final dir = await ctx.prepare();
 
-        final link = fs.link(join(dir.path, 'file'));
+        final link = fs.link(fs.path.join(dir.path, 'file'));
         expect(await (await link.create('target')).exists(), isTrue);
         expect(await fs.isLink(link.path), isTrue);
 
@@ -335,8 +335,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('rename', () async {
         final _dir = await ctx.prepare();
 
-        final path = join(_dir.path, 'link');
-        final path2 = join(_dir.path, 'link2');
+        final path = fs.path.join(_dir.path, 'link');
+        final path2 = fs.path.join(_dir.path, 'link2');
         final link = fs.link(path);
         await link.create('target');
         final link2 = await link.rename(path2);
@@ -349,8 +349,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('rename_not_found', () async {
         final _dir = await ctx.prepare();
 
-        final path = join(_dir.path, 'link');
-        final path2 = join(_dir.path, 'link2');
+        final path = fs.path.join(_dir.path, 'link');
+        final path2 = fs.path.join(_dir.path, 'link2');
         final file = fs.link(path);
         try {
           await file.rename(path2);
@@ -373,8 +373,9 @@ void defineTests(FileSystemTestContext ctx) {
       test('file_follow_links', () async {
         if (fs.supportsFileLink) {
           final _dir = await ctx.prepare();
-          final file = fs.file(join(_dir.path, 'file'));
-          final link = await fs.link(join(_dir.path, 'link')).create(file.path);
+          final file = fs.file(fs.path.join(_dir.path, 'file'));
+          final link =
+              await fs.link(fs.path.join(_dir.path, 'link')).create(file.path);
 
           expect(await fs.type(link.path, followLinks: false),
               FileSystemEntityType.link);
@@ -392,8 +393,9 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('dir_follow_links', () async {
         final top = await ctx.prepare();
-        final dir = fs.directory(join(top.path, 'dir'));
-        final link = await fs.link(join(top.path, 'link')).create(dir.path);
+        final dir = fs.directory(fs.path.join(top.path, 'dir'));
+        final link =
+            await fs.link(fs.path.join(top.path, 'link')).create(dir.path);
 
         expect(await fs.type(link.path, followLinks: false),
             FileSystemEntityType.link);
@@ -424,14 +426,15 @@ void defineTests(FileSystemTestContext ctx) {
         if (fs.supportsFileLink) {
           final text = 'test';
           final _dir = await ctx.prepare();
-          var filePath = join(_dir.path, 'file');
+          var filePath = fs.path.join(_dir.path, 'file');
           var file = fs.file(filePath);
           await file.writeAsString(text, flush: true);
           // check content
           expect(await file.readAsString(), text);
 
           // create a link to the file
-          final link = await fs.link(join(_dir.path, 'link')).create(filePath);
+          final link =
+              await fs.link(fs.path.join(_dir.path, 'link')).create(filePath);
           expect(await fs.isLink(link.path), isTrue);
 
           // check again content
@@ -447,11 +450,12 @@ void defineTests(FileSystemTestContext ctx) {
         if (fs.supportsFileLink) {
           final text = 'test';
           final _dir = await ctx.prepare();
-          var filePath = join(_dir.path, 'file');
+          var filePath = fs.path.join(_dir.path, 'file');
           final file = fs.file(filePath);
 
           // create a link to the file
-          final link = await fs.link(join(_dir.path, 'link')).create(filePath);
+          final link =
+              await fs.link(fs.path.join(_dir.path, 'link')).create(filePath);
 
           expect(await fs.isLink(link.path), isTrue);
 
@@ -475,12 +479,12 @@ void defineTests(FileSystemTestContext ctx) {
           final text = 'test';
           final top = await ctx.prepare();
 
-          final dir = fs.directory(join(top.path, 'dir'));
-          final file = fs.file(join(dir.path, 'file'));
+          final dir = fs.directory(fs.path.join(top.path, 'dir'));
+          final file = fs.file(fs.path.join(dir.path, 'file'));
 
-          final link = fs.link(join(top.path, 'link'));
+          final link = fs.link(fs.path.join(top.path, 'link'));
           await link.create('dir/file');
-          expect(await link.target(), join('dir', 'file'));
+          expect(await link.target(), fs.path.join('dir', 'file'));
 
           await file.create(recursive: true);
           expect(await fs.isFile(link.path), isTrue);
@@ -496,14 +500,14 @@ void defineTests(FileSystemTestContext ctx) {
       test('link_to_subdir', () async {
         final top = await ctx.prepare();
 
-        final dir = fs.directory(join(top.path, 'dir'));
-        final sub = fs.directory(join(dir.path, 'sub'));
+        final dir = fs.directory(fs.path.join(top.path, 'dir'));
+        final sub = fs.directory(fs.path.join(dir.path, 'sub'));
 
-        final link = fs.link(join(top.path, 'link'));
-        await link.create(join('dir', 'sub'));
+        final link = fs.link(fs.path.join(top.path, 'link'));
+        await link.create(fs.path.join('dir', 'sub'));
 
         // 2019-09-06 fixed
-        expect(await link.target(), join('dir', 'sub'));
+        expect(await link.target(), fs.path.join('dir', 'sub'));
 
         await sub.create(recursive: true);
         if (isIoWindows(ctx)) {
@@ -519,13 +523,13 @@ void defineTests(FileSystemTestContext ctx) {
           final text = 'test';
           final top = await ctx.prepare();
 
-          final dir = fs.directory(join(top.path, 'dir'));
+          final dir = fs.directory(fs.path.join(top.path, 'dir'));
           await dir.create();
-          final file = fs.file(join(dir.path, 'file'));
+          final file = fs.file(fs.path.join(dir.path, 'file'));
 
-          final link = fs.link(join(top.path, 'link'));
+          final link = fs.link(fs.path.join(top.path, 'link'));
           await link.create('dir/file');
-          expect(await link.target(), join('dir', 'file'));
+          expect(await link.target(), fs.path.join('dir', 'file'));
 
           final linkFile = fs.file(link.path);
           await linkFile.writeAsString(text, flush: true);
@@ -538,16 +542,16 @@ void defineTests(FileSystemTestContext ctx) {
         final text = 'test';
         final top = await ctx.prepare();
 
-        final dir = fs.directory(join(top.path, 'dir'));
-        final file = fs.file(join(dir.path, 'file'));
+        final dir = fs.directory(fs.path.join(top.path, 'dir'));
+        final file = fs.file(fs.path.join(dir.path, 'file'));
 
-        final link = fs.link(join(top.path, 'link'));
+        final link = fs.link(fs.path.join(top.path, 'link'));
         await link.create('dir');
 
         expect(await link.target(), 'dir');
 
         await file.create(recursive: true);
-        final linkFile = fs.file(join(link.path, 'file'));
+        final linkFile = fs.file(fs.path.join(link.path, 'file'));
         expect(await fs.isFile(linkFile.path), isTrue);
         expect(await fs.isLink(linkFile.path), isFalse);
 
@@ -562,11 +566,12 @@ void defineTests(FileSystemTestContext ctx) {
         if (fs.supportsFileLink) {
           final text = 'test';
           final _dir = await ctx.prepare();
-          var filePath = join(_dir.path, 'file');
+          var filePath = fs.path.join(_dir.path, 'file');
           final file = fs.file(filePath);
 
           // create a link to the file
-          final link = await fs.link(join(_dir.path, 'link')).create(filePath);
+          final link =
+              await fs.link(fs.path.join(_dir.path, 'link')).create(filePath);
 
           expect(await fs.isLink(link.path), isTrue);
 
@@ -594,7 +599,7 @@ void defineTests(FileSystemTestContext ctx) {
         if (fs.supportsFileLink) {
           final _dir = await ctx.prepare();
 
-          var link = fs.link(join(_dir.path, 'link'));
+          var link = fs.link(fs.path.join(_dir.path, 'link'));
           var stat = await link.stat();
           expect(stat.type, FileSystemEntityType.notFound);
           expect(stat.size, -1);
@@ -606,7 +611,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(stat.size, -1);
           expectNotFoundDateTime(stat.modified);
 
-          final file = fs.file(join(_dir.path, 'file'));
+          final file = fs.file(fs.path.join(_dir.path, 'file'));
 
           await file.writeAsString('test', flush: true);
           stat = await link.stat();
@@ -615,7 +620,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(stat.modified, isNotNull);
 
           // rename
-          link = await link.rename(join(_dir.path, 'link2'));
+          link = await link.rename(fs.path.join(_dir.path, 'link2'));
           stat = await link.stat();
           expect(stat.type, FileSystemEntityType.file);
           expect(stat.size, 4);
@@ -626,7 +631,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('dir_stat', () async {
         final top = await ctx.prepare();
 
-        final link = fs.link(join(top.path, 'link'));
+        final link = fs.link(fs.path.join(top.path, 'link'));
         var stat = await link.stat();
         expect(stat.type, FileSystemEntityType.notFound);
         expect(stat.size, -1);
@@ -647,7 +652,7 @@ void defineTests(FileSystemTestContext ctx) {
           expectNotFoundDateTime(stat.modified);
         }
 
-        final dir = fs.directory(join(top.path, 'dir'));
+        final dir = fs.directory(fs.path.join(top.path, 'dir'));
         await dir.create();
         stat = await link.stat();
 
@@ -667,8 +672,8 @@ void defineTests(FileSystemTestContext ctx) {
       test('rename_over_existing_different_type', () async {
         final _dir = await ctx.prepare();
 
-        final path = join(_dir.path, 'dir');
-        final path2 = join(_dir.path, 'link');
+        final path = fs.path.join(_dir.path, 'dir');
+        final path2 = fs.path.join(_dir.path, 'link');
         final dir = fs.directory(path);
         final link = fs.link(path2);
         await dir.create();
@@ -690,7 +695,7 @@ void defineTests(FileSystemTestContext ctx) {
       test('create_dir_or_file', () async {
         final top = await ctx.prepare();
 
-        final path = join(top.path, 'dir_or_file');
+        final path = fs.path.join(top.path, 'dir_or_file');
 
         final file = fs.file(path);
         final dir = fs.directory(path);

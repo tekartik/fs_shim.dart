@@ -10,7 +10,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 /// FileSystem eneity.
 abstract class FileSystemEntity {
@@ -502,12 +502,12 @@ abstract class FileSystem {
   ///
   /// Get the path context for patch operation
   ///
-  Context get path;
+  p.Context get path;
 
   // User [path] instead
   @deprecated
   // ignore: public_member_api_docs
-  Context get pathContext;
+  p.Context get pathContext;
 }
 
 /// Generic OS error.

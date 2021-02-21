@@ -1,7 +1,6 @@
 library fs_shim.test.utils_read_write_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
 
 import 'test_common.dart';
 
@@ -18,7 +17,7 @@ void defineTests(FileSystemTestContext ctx) {
   group('utils_read_write', () {
     test('write_read', () async {
       final top = await ctx.prepare();
-      final file = fs.file(join(top.path, 'file'));
+      final file = fs.file(fs.path.join(top.path, 'file'));
       await writeString(file, 'test');
       expect(await readString(file), 'test');
 

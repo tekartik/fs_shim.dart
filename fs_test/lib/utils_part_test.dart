@@ -23,6 +23,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(parts, contains('splitParts'));
 
       // always working
+      // ignore: deprecated_member_use
       parts = splitParts(top.path);
       expect(parts, contains('splitParts'));
 
@@ -30,6 +31,7 @@ void defineTests(FileSystemTestContext ctx) {
       parts = windows.split(top.path);
       expect(parts, contains('splitParts'));
 
+      // ignore: deprecated_member_use
       if (!contextIsWindows) {
         parts = url.split(top.path);
         expect(parts, contains('splitParts'));

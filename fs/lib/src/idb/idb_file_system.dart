@@ -7,7 +7,7 @@ import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:meta/meta.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 import 'idb_directory.dart';
 import 'idb_file.dart';
@@ -18,8 +18,8 @@ import 'idb_file_system_storage.dart';
 import 'idb_fs.dart';
 import 'idb_link.dart';
 
-/// Settle on using url way for idb files, (soon even on Windows).
-Context get idbPathContext => context; // url;
+/// Settle on using url way for idb files, (even on Windows).
+p.Context get idbPathContext => p.url;
 
 List<String> _getPathSegments(String path) {
   path = idbMakePathAbsolute(path);
@@ -177,8 +177,8 @@ class IdbWriteStreamSink extends MemorySink {
 }
 
 String idbMakePathAbsolute(String path) {
-  if (!isAbsolute(path)) {
-    return idbPathContext.join(separator, path);
+  if (!idbPathContext.isAbsolute(path)) {
+    return idbPathContext.join(idbPathContext.separator, path);
   }
   return path;
 }
@@ -214,6 +214,9 @@ class IdbFileSystem extends Object
   }
 
   @override
+  String toString() => 'Idb($db)';
+
+  @override
   int get hashCode => _storage.hashCode;
 
   @override
@@ -223,10 +226,10 @@ class IdbFileSystem extends Object
   bool get supportsFileLink => true;
 
   @override
-  Context get pathContext => path;
+  p.Context get pathContext => path;
 
   @override
-  Context get path => idbPathContext;
+  p.Context get path => idbPathContext;
 
   // when storage is ready
   Future get _ready => _storage.ready;
@@ -659,7 +662,7 @@ class IdbFileSystem extends Object
     final target =
         txnSearch(store, segments, false).then((NodeSearchResult result) {
       if (result.matches!) {
-        return joinAll(result.match!.targetSegments!);
+        return pathContext.joinAll(result.match!.targetSegments!);
       }
       throw idbNotFoundException(path, 'target not found');
     }).whenComplete(() async {
