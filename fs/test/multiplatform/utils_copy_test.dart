@@ -393,7 +393,7 @@ void defineTests(FileSystemTestContext ctx) {
         await writeString(childFile(src, 'file'), 'test');
 
         final copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
-        expect(copy.src!.path, src.path);
+        expect(copy.src.path, src.path);
         expect(copy.dst!.path, dst.path);
         expect(copy.options, isNotNull);
         //await copy.run();

@@ -4,7 +4,6 @@
 library fs_shim.test.fs_shim_dir_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
 
 import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
@@ -13,7 +12,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -30,12 +29,6 @@ void defineTests(FileSystemTestContext ctx) {
       expect(dir.path, r'\');
       dir = fs.directory(r'');
       expect(dir.path, r'');
-      try {
-        dir = fs.directory(null);
-        fail('should fail');
-      } on ArgumentError catch (_) {
-        // Invalid argument(s): null is not a String
-      }
     });
 
     test('toString', () {
@@ -60,14 +53,14 @@ void defineTests(FileSystemTestContext ctx) {
     test('exists', () async {
       final dir = await ctx.prepare();
       expect(await dir.exists(), isTrue);
-      final subDir = fs.directory(join(dir.path, 'sub'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
       expect(await subDir.exists(), isFalse);
     });
 
     test('create', () async {
       final dir = await ctx.prepare();
 
-      final subDir = fs.directory(join(dir.path, 'sub'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
       expect(await subDir.exists(), isFalse);
       expect(await fs.isDirectory(subDir.path), isFalse);
       expect(await (await subDir.create()).exists(), isTrue);
@@ -80,7 +73,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('stat', () async {
       final _dir = await ctx.prepare();
 
-      final dir = fs.directory(join(_dir.path, 'dir'));
+      final dir = fs.directory(fs.path.join(_dir.path, 'dir'));
       var stat = await dir.stat();
       //print(stat);
       expect(stat.type, FileSystemEntityType.notFound);
@@ -99,8 +92,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('create_recursive', () async {
       final dir = await ctx.prepare();
 
-      final subDir = fs.directory(join(dir.path, 'sub'));
-      final subSubDir = fs.directory(join(subDir.path, 'subsub'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
+      final subSubDir = fs.directory(fs.path.join(subDir.path, 'subsub'));
 
       try {
         await subSubDir.create();
@@ -118,7 +111,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('delete', () async {
       final dir = await ctx.prepare();
 
-      final subDir = fs.directory(join(dir.path, 'sub'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
       expect(await (await subDir.create()).exists(), isTrue);
       expect(await fs.isDirectory(subDir.path), isTrue);
 
@@ -139,8 +132,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
       final dir = fs.directory(path);
       await dir.create();
       final dir2 = await dir.rename(path2) as Directory;
@@ -153,8 +146,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_not_found', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
       final dir = fs.directory(path);
       try {
         await dir.rename(path2);
@@ -169,8 +162,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_over_existing', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
       final dir = fs.directory(path);
       final dir2 = fs.directory(path2);
       await dir.create();
@@ -185,10 +178,10 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_over_existing_not_empty', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
       final dir = fs.directory(path);
-      final subDir = fs.directory(join(path2, 'sub'));
+      final subDir = fs.directory(fs.path.join(path2, 'sub'));
       await dir.create();
       await subDir.create(recursive: true);
 
@@ -213,8 +206,8 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_over_existing_different_type', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'file');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'file');
       final dir = fs.directory(path);
       final file2 = fs.file(path2);
       await dir.create();
@@ -238,10 +231,10 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_has_content', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
-      final file = fs.file(join(path, 'file'));
-      final file2 = fs.file(join(path2, 'file'));
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
+      final file = fs.file(fs.path.join(path, 'file'));
+      final file2 = fs.file(fs.path.join(path2, 'file'));
       await file.create(recursive: true);
       final dir = fs.directory(path);
       final dir2 = await dir.rename(path2) as Directory;
@@ -258,9 +251,9 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_different_folder_parent_not_created', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
-      final path3 = join(path2, 'sub');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
+      final path3 = fs.path.join(path2, 'sub');
       final dir = fs.directory(path);
       await dir.create();
 
@@ -275,9 +268,9 @@ void defineTests(FileSystemTestContext ctx) {
     test('rename_different_folder', () async {
       final _dir = await ctx.prepare();
 
-      final path = join(_dir.path, 'dir');
-      final path2 = join(_dir.path, 'dir2');
-      final path3 = join(path2, 'sub');
+      final path = fs.path.join(_dir.path, 'dir');
+      final path2 = fs.path.join(_dir.path, 'dir2');
+      final path3 = fs.path.join(path2, 'sub');
       final dir = fs.directory(path);
       final dir2 = fs.directory(path2);
       final dir3 = fs.directory(path3);
@@ -292,9 +285,10 @@ void defineTests(FileSystemTestContext ctx) {
     test('delete_recursive', () async {
       final dir = await ctx.prepare();
 
-      final subDir = fs.directory(join(dir.path, 'sub'));
-      final subSubDir = fs.directory(join(subDir.path, 'subsub'));
-      final subSubSubDir = fs.directory(join(subSubDir.path, 'subsubsub'));
+      final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
+      final subSubDir = fs.directory(fs.path.join(subDir.path, 'subsub'));
+      final subSubSubDir =
+          fs.directory(fs.path.join(subSubDir.path, 'subsubsub'));
 
       expect(
           await (await subSubSubDir.create(recursive: true)).exists(), isTrue);
@@ -335,7 +329,7 @@ void defineTests(FileSystemTestContext ctx) {
       return -1;
     }
 
-    FileSystemEntity getInList(
+    FileSystemEntity? getInList(
         List<FileSystemEntity> list, FileSystemEntity entity) {
       for (var i = 0; i < list.length; i++) {
         if (list[i].path == entity.path) {

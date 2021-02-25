@@ -2,7 +2,6 @@ library fs_shim.test.utils_entity_tests;
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/entity.dart';
-import 'package:path/path.dart';
 
 import 'test_common.dart';
 
@@ -10,7 +9,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -32,9 +31,9 @@ void defineTests(FileSystemTestContext ctx) {
       final link = childLink(top, 'child');
       final file = childFile(top, 'child');
       final directory = childDirectory(top, 'child');
-      expect(basename(link.path), 'child');
-      expect(basename(file.path), 'child');
-      expect(basename(directory.path), 'child');
+      expect(fs.path.basename(link.path), 'child');
+      expect(fs.path.basename(file.path), 'child');
+      expect(fs.path.basename(directory.path), 'child');
       expect(link.parent.path, top.path);
       expect(file.parent.path, top.path);
       expect(directory.parent.path, top.path);

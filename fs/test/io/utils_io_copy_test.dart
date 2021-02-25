@@ -103,8 +103,8 @@ void main() {
 
     test('top_source_node', () {
       // just check the export
-      final topSourceNode = TopSourceNode(null);
-      expect(topSourceNode, isNotNull);
+      // ignore: unnecessary_statements
+      TopSourceNode;
     });
 
     test('delete', () async {
