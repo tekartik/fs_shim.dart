@@ -123,5 +123,5 @@ class FileSystemExceptionImpl implements fs.FileSystemException {
 
   @override
   String toString() =>
-      "${status == null ? '' : '[${status}] '}${ioFileSystemException.toString()}";
+      "${status == null ? '' : '[$status] '}${ioFileSystemException.toString()}";
 }

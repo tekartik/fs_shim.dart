@@ -1,12 +1,12 @@
 name: tekartik_fs_io
 description: Fs for dart io
-version: 0.3.0
+version: 0.4.0
 publish_to: none
 #homepage: https://www.example.com
 #author: alex <email@example.com>
 
 environment:
-  sdk: '>=2.4.0-dev <3.0.0'
+  sdk: '>=2.12.0-0 <3.0.0'
 
 dependencies:
   path: '>=1.6.1'
@@ -21,7 +21,7 @@ dev_dependencies:
     git:
       url: git://github.com/tekartik/fs_shim.dart
       path: fs_test
-      ref: dart2
+      ref: null_safety
     version: '>=0.1.0'
   build_test: '>=0.10.2'
   process_run: '>=0.10.0+1'
@@ -29,7 +29,7 @@ dev_dependencies:
     git:
       url: git://github.com/tekartik/platform.dart
       path: platform_io
-      ref: dart2
+      ref: null_safety
     version: '>=0.2.0'
 
 dependency_overrides:

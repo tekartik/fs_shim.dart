@@ -101,7 +101,7 @@ class DirectoryNode extends FileSystemEntityNode implements Directory {
         //  controller.add(new LinkImpl.io(data));
       } else {
         controller.addError(
-            UnsupportedError('type ${data} ${data.runtimeType} not supported'));
+            UnsupportedError('type $data ${data.runtimeType} not supported'));
       }
     }, onError: (e) {
       // Important here to wrap the error

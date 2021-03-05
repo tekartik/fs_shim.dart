@@ -780,7 +780,7 @@ class IdbFileSystem extends Object
   StreamSink<List<int>> openWrite(String path,
       {fs.FileMode mode = fs.FileMode.write}) {
     if (mode == fs.FileMode.read) {
-      throw ArgumentError("Invalid file mode '${mode}' for this operation");
+      throw ArgumentError("Invalid file mode '$mode' for this operation");
     }
     path = idbMakePathAbsolute(path);
 

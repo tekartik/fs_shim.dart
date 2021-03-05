@@ -147,7 +147,7 @@ class FileSystemExceptionNode implements fs.FileSystemException {
   String get path => ioFileSystemException.path;
 
   @override
-  String toString() => "${status == null ? '' : '[${status}] '}${message}";
+  String toString() => "${status == null ? '' : '[$status] '}$message";
 }
 
 OSErrorNode osErrorFromMessage(String message) {
