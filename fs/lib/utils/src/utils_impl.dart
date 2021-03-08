@@ -538,13 +538,13 @@ class TopCopy extends Object
 
 mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
   @override
-  TopEntity? get src => _src;
+  TopEntity get src => _src;
 
   CopyOptions? _options;
 
   @override
   CopyOptions? get options => _options;
-  TopEntity? _src;
+  late TopEntity _src;
 
   @override
   TopEntity? get dst => _dst;
@@ -553,9 +553,7 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
   TopEntity? _dst;
 
   void _init(
-      {required TopEntity? src,
-      TopEntity? dst,
-      required CopyOptions? options}) {
+      {required TopEntity src, TopEntity? dst, required CopyOptions? options}) {
     _src = src;
     _dst = dst;
     _id = ++ActionNodeMixin._staticId;
@@ -578,7 +576,7 @@ const utilsCurrentFolderPart = '';
 class TopSourceNode extends Object
     with SourceNodeMixin, TopNodeMixin
     implements CopyNode {
-  TopSourceNode(TopEntity? src, {CopyOptions? options}) {
+  TopSourceNode(TopEntity src, {CopyOptions? options}) {
     _init(src: src, options: options);
   }
 

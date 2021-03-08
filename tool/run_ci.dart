@@ -10,10 +10,10 @@ Future main() async {
     for (var dir in [
       // '.',
       'fs',
-      // 'fs_browser',  // temp nnbd disabled
-      // 'fs_io', // temp nnbd disabled
+      'fs_browser',
+      'fs_io',
       // 'fs_node',
-      // 'fs_test', // temp nnbd disabled
+      'fs_test',
     ]) {
       // concurrent test are not supported
       await packageRunCi(dir, noTest: true);

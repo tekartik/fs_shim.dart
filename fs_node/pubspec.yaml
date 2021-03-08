@@ -42,10 +42,10 @@ dev_dependencies:
   process_run: '>=0.10.0+1'
 
 dependency_overrides:
-  fs_shim:
-    path: ../fs
-  tekartik_fs_test:
-    path: ../fs_test
+  # fs_shim:
+  #  path: ../fs
+  # tekartik_fs_test:
+  #  path: ../fs_test
 
 # node_io:
 #   git:

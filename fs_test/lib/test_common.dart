@@ -29,7 +29,7 @@ export 'src/import_common.dart';
 
 // FileSystem context
 abstract class FileSystemTestContext {
-  PlatformContext get platform;
+  PlatformContext? get platform;
 
   // The file system used
   FileSystem get fs;
@@ -62,7 +62,7 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   MemoryFileSystemTestContext();
 
   @override
-  final PlatformContext platform = null;
+  final PlatformContext? platform = null;
   @override
   final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
 }
@@ -73,23 +73,23 @@ void devPrintJson(Map json) {
 
 String jsonPretty(dynamic json) {
   if (json is String) {
-    json = jsonDecode(json as String);
+    json = jsonDecode(json);
   }
   return const JsonEncoder.withIndent('  ').convert(json);
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform.io.isWindows);
+  return (isIo(ctx) && ctx.platform!.io!.isWindows);
 }
 
 bool isIoMac(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform.io.isMac);
+  return (isIo(ctx) && ctx.platform!.io!.isMac);
 }
 
 bool isIo(FileSystemTestContext ctx) {
-  return ctx?.platform?.io != null;
+  return ctx.platform?.io != null;
 }
 
 bool isNode(FileSystemTestContext ctx) {
-  return ctx?.platform?.node != null;
+  return ctx.platform?.node != null;
 }

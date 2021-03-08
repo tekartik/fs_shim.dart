@@ -19,7 +19,7 @@ class FileSystemTestContextIo extends FileSystemTestContext {
   final PlatformContext platform = platformContextIo;
   @override
   final FileSystemIo fs = FileSystemIo();
-  String outTopPath;
+  late String outTopPath;
 
   @override
   String get outPath => join(outTopPath, super.outPath);
