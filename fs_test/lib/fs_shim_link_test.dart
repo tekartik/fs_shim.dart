@@ -4,7 +4,6 @@
 library fs_shim.test.fs_shim_link_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart' as p;
 
 import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
@@ -124,7 +123,7 @@ void defineTests(FileSystemTestContext ctx) {
           if (isIoWindows(ctx)) {
             // on io windows link were absolute
             // This did no happen when tested on 2019-09-05
-            expect(await link.target(), p.join(dir.path, target));
+            expect(await link.target(), fs.path.join(dir.path, target));
             rethrow;
           }
         }

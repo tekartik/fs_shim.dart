@@ -8,7 +8,6 @@ import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
-import 'package:path/path.dart';
 import 'package:tekartik_platform/context.dart';
 
 import 'src/import_common.dart';
@@ -17,7 +16,6 @@ export 'dart:async';
 export 'dart:convert';
 
 export 'package:dev_test/test.dart';
-
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -35,7 +33,7 @@ abstract class FileSystemTestContext {
   FileSystem get fs;
 
   // The path to use for testing
-  String get outPath => joinAll(testDescriptions);
+  String get outPath => fs.path.joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
     final dir = fs.directory(outPath);
