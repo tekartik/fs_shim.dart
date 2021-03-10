@@ -18,7 +18,7 @@ Future main() async {
       'fs',
       'fs_browser',
       'fs_test',
-      'fs_op',
+      'fs_io',
     ];
     // print('dartVersion: $dartVersion, oldListInt:${oldListInt}');
     print('packages: $packages');
