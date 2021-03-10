@@ -56,7 +56,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('parent', () {
-      // ignore: deprecated_member_use_from_same_package
+      // ignore: deprecated_member_use_from_same_package, deprecated_member_use
       if (!contextIsWindows) {
         // Windows view this differently
         final file = fs.file(fs.path.join(fs.path.separator, 'dummy'));
