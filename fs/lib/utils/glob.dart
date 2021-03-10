@@ -7,8 +7,8 @@ import 'package:path/path.dart';
 // Matcher for a single path portion
 //
 class _PartMatchRunner {
-  String glob;
-  String part;
+  String? glob;
+  late String part;
 
   int globIndex = 0;
   int partIndex = 0;
@@ -18,7 +18,7 @@ class _PartMatchRunner {
   bool matches() {
     // at the end?
     final partChr = partIndex == part.length ? null : part[partIndex];
-    final globChr = globIndex == glob.length ? null : glob[globIndex];
+    final globChr = globIndex == glob!.length ? null : glob![globIndex];
 
     bool _next() {
       globIndex++;
@@ -92,7 +92,7 @@ class _GlobMatchRunner {
   Glob glob;
   List<String> parts;
 
-  List<String> get globParts => glob._expressionParts;
+  List<String>? get globParts => glob._expressionParts;
 
   _GlobMatchRunner(this.glob, this.parts);
 
@@ -111,13 +111,13 @@ class _GlobMatchRunner {
   bool matchesFromCurrent() {
     // at the end?
     final partEnd = partIndex == parts.length;
-    final globEnd = globIndex == globParts.length;
+    final globEnd = globIndex == globParts!.length;
     if (globEnd) {
       return true;
     }
 
     final part = partEnd ? null : parts[partIndex];
-    final globPart = globParts[globIndex];
+    final globPart = globParts![globIndex];
 
     if (Glob.isGlobStar(globPart)) {
       var ok = false;
@@ -162,14 +162,16 @@ class _GlobMatchRunner {
   String toString() => "'$glob' $globIndex '$parts' $partIndex";
 }
 
-// only support / * ** and ?
+/// only support / * ** and ?
+///
+/// Convert everything to url internally
 class Glob {
   static bool isGlobStar(String globPart) => globPart == '**';
 
   // The ? matches 1 of any character in a single path portion
   // The * matches 0 or more of any character in a single path portion
   // ** If a "globstar" is alone in a path portion, then it matches zero or more directories and subdirectories searching for matches.
-  static bool matchPart(String globPart, String part) {
+  static bool matchPart(String? globPart, String? part) {
     if (part == null) {
       return globPart == null;
     }
@@ -180,9 +182,9 @@ class Glob {
   }
 
   String expression;
-  List<String> __expressionParts;
+  List<String>? __expressionParts;
 
-  List<String> get _expressionParts {
+  List<String>? get _expressionParts {
     __expressionParts ??= posix.split(expression);
 
     return __expressionParts;
@@ -194,8 +196,12 @@ class Glob {
 
   /// true if the name matches the pattern
   bool matches(String name) {
-    final runner = _GlobMatchRunner(this, splitParts(name));
-    return runner.matches();
+    try {
+      final runner = _GlobMatchRunner(this, contextPathSplit(posix, name));
+      return runner.matches();
+    } catch (_) {
+      return false;
+    }
   }
 
   bool matchesParts(List<String> parts) {

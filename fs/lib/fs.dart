@@ -10,7 +10,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 /// FileSystem eneity.
 abstract class FileSystemEntity {
@@ -148,7 +148,7 @@ abstract class FileStat {
   /// The type of the object (file, directory, or link).  If the call to
   /// stat() fails, the type of the returned object is NOT_FOUND.
   ///
-  FileSystemEntityType get type;
+  FileSystemEntityType? get type;
 
   ///
   /// The size of the file system object.
@@ -211,7 +211,7 @@ abstract class File extends FileSystemEntity {
   /// must be read to completion or the subscription on the stream must
   /// be cancelled.
   ///
-  Stream<Uint8List> openRead([int start, int end]);
+  Stream<Uint8List> openRead([int? start, int? end]);
 
   ///
   /// Write a list of bytes to a file.
@@ -227,7 +227,7 @@ abstract class File extends FileSystemEntity {
   /// If the argument [flush] is set to `true`, the data written will be
   /// flushed to the file system before the returned future completes.
   ///
-  Future<File> writeAsBytes(List<int> bytes,
+  Future<File> writeAsBytes(Uint8List bytes,
       {FileMode mode = FileMode.write, bool flush = false});
 
   ///
@@ -445,11 +445,6 @@ abstract class FileSystem {
   ///
   Directory directory(String path);
 
-  // Use [directory] instead
-  @deprecated
-  // ignore: public_member_api_docs
-  Directory newDirectory(String path);
-
   ///
   /// Creates a [File] object.
   ///
@@ -461,20 +456,10 @@ abstract class FileSystem {
   ///
   File file(String path);
 
-  // Use [file] instead
-  @deprecated
-  // ignore: public_member_api_docs
-  File newFile(String path);
-
   ///
-  // Creates a [Link] object.
+  /// Creates a [Link] object.
   ///
   Link link(String path);
-
-  // Use [link] instead
-  @deprecated
-  // ignore: public_member_api_docs
-  Link newLink(String path);
 
   ///
   /// Finds the type of file system object that a path points to. Returns
@@ -488,22 +473,22 @@ abstract class FileSystem {
   /// error or exception that may be put on the returned future is ArgumentError,
   /// caused by passing the wrong type of arguments to the function.
   ///
-  Future<FileSystemEntityType> type(String path, {bool followLinks = true});
+  Future<FileSystemEntityType> type(String? path, {bool followLinks = true});
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.FILE.
   ///
-  Future<bool> isFile(String path);
+  Future<bool> isFile(String? path);
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.DIRECTORY.
   ///
-  Future<bool> isDirectory(String path);
+  Future<bool> isDirectory(String? path);
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.Link.
   ///
-  Future<bool> isLink(String path);
+  Future<bool> isLink(String? path);
 
   /// fs_shim specific. Name of the file system.
   String get name; // io or idb
@@ -517,12 +502,12 @@ abstract class FileSystem {
   ///
   /// Get the path context for patch operation
   ///
-  Context get path;
+  p.Context get path;
 
   // User [path] instead
   @deprecated
   // ignore: public_member_api_docs
-  Context get pathContext;
+  p.Context get pathContext;
 }
 
 /// Generic OS error.
@@ -571,15 +556,15 @@ abstract class FileSystemException {
   ///
   /// Common status code
   ///
-  int get status;
+  int? get status;
 
   ///
   /// The file system path on which the error occurred. Can be `null`
   /// if the exception does not relate directly to a file system path.
   ///
-  String get path;
+  String? get path;
 
   /// The underlying OS error. Can be `null` if the exception is not
   /// raised due to an OS error.
-  OSError get osError;
+  OSError? get osError;
 }

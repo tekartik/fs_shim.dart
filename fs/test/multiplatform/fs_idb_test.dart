@@ -5,10 +5,9 @@ library fs_shim.test.multiplatform.fs_idb_test;
 
 import 'dart:async';
 
-import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
-import 'package:path/path.dart';
+import 'package:test/test.dart';
 
 import 'fs_test.dart' as _test;
 import 'test_common.dart';
@@ -20,9 +19,10 @@ void main() {
 void defineTests(IdbFileSystemTestContext ctx) {
   _test.defineTests(ctx);
   group('idb', () {
+    var fs = ctx.fs;
     test('version', () async {
       await ctx.prepare();
-      final db = ctx.fs.db;
+      final db = ctx.fs.db!;
       //TODOexpect(db.version, 2);
       expect(List.from(db.objectStoreNames)..sort(), ['file', 'tree']);
     });
@@ -42,13 +42,13 @@ void defineTests(IdbFileSystemTestContext ctx) {
 
     test('create_delete_file', () async {
       final dir = await ctx.prepare();
-      final db = ctx.fs.db;
+      final db = ctx.fs.db!;
 
       // check the tree size before creating and after creating then deleting
       final treeStoreSize = await getTreeStoreSize(db);
       final fileStoreSize = await getFileStoreSize(db);
 
-      File file = ctx.fs.file(join(dir.path, 'file'));
+      File file = ctx.fs.file(fs.path.join(dir.path, 'file'));
       await file.create();
 
       expect(await getTreeStoreSize(db), treeStoreSize + 1);
@@ -62,13 +62,13 @@ void defineTests(IdbFileSystemTestContext ctx) {
 
     test('write_delete_file', () async {
       final dir = await ctx.prepare();
-      final db = ctx.fs.db;
+      final db = ctx.fs.db!;
 
       // check the tree size before creating and after creating then deleting
       final treeStoreSize = await getTreeStoreSize(db);
       final fileStoreSize = await getFileStoreSize(db);
 
-      File file = ctx.fs.file(join(dir.path, 'file'));
+      File file = ctx.fs.file(fs.path.join(dir.path, 'file'));
 
       // Write dummy file
       await file.writeAsString('test', flush: true);

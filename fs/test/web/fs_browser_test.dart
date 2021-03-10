@@ -6,12 +6,11 @@ library fs_shim.fs_browser_test;
 
 import 'dart:async';
 
-import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_browser.dart';
-import 'package:path/path.dart';
+import 'package:test/test.dart';
 
 import '../multiplatform/fs_idb_format_test.dart';
 import '../multiplatform/fs_idb_format_v1_test.dart';
@@ -19,7 +18,7 @@ import '../multiplatform/fs_idb_test.dart';
 import '../multiplatform/platform.dart';
 import '../test_common.dart';
 
-FileSystem newFileSystemIdbBrowser([String name]) =>
+FileSystem newFileSystemIdbBrowser([String? name]) =>
     newFileSystemIdb(idbFactoryBrowser, name);
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
@@ -32,8 +31,8 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
 
   @override
   Future<Directory> prepare() {
-    fs =
-        newFileSystemIdbBrowser(join(super.outPath, 'lfs.db')) as IdbFileSystem;
+    fs = newFileSystemIdbBrowser(fs.path.join(super.outPath, 'lfs.db'))
+        as IdbFileSystem;
     return super.prepare();
   }
 }

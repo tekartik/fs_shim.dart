@@ -11,12 +11,11 @@ import 'io_file_system_exception.dart';
 export 'dart:async';
 export 'dart:convert';
 
-io.FileMode fileWriteMode(fs.FileMode fsFileMode) {
-  fsFileMode ??= fs.FileMode.write;
-  return unwrapIofileModeImpl(fsFileMode);
+io.FileMode unwrapFileMode(fs.FileMode fsFileMode) {
+  return unwrapIoFileModeImpl(fsFileMode);
 }
 
-io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
+io.FileMode unwrapIoFileModeImpl(fs.FileMode fsFileMode) {
   switch (fsFileMode) {
     case fs.FileMode.write:
       return io.FileMode.write;
@@ -25,11 +24,11 @@ io.FileMode unwrapIofileModeImpl(fs.FileMode fsFileMode) {
     case fs.FileMode.append:
       return io.FileMode.append;
     default:
-      throw null;
+      throw 'invalid FileMode($fsFileMode)';
   }
 }
 
-fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
+fs.FileMode wrapIoFileModeImpl(io.FileMode ioFileMode) {
   switch (ioFileMode) {
     case io.FileMode.write:
       return fs.FileMode.write;
@@ -38,11 +37,11 @@ fs.FileMode wrapIofileModeImpl(io.FileMode ioFileMode) {
     case io.FileMode.append:
       return fs.FileMode.append;
     default:
-      throw null;
+      throw 'invalid io FileMode($ioFileMode)';
   }
 }
 
-dynamic ioWrapError(e) {
+Object ioWrapError(Object e) {
   if (e is io.FileSystemException) {
     return FileSystemExceptionImpl.io(e);
   }
@@ -104,7 +103,7 @@ class IoWriteFileSink implements StreamSink<List<int>> {
   Future close() => ioWrap(ioSink.close());
 
   @override
-  void addError(errorEvent, [StackTrace stackTrace]) {
+  void addError(errorEvent, [StackTrace? stackTrace]) {
     ioSink.addError(errorEvent, stackTrace);
   }
 
@@ -120,7 +119,7 @@ class IoReadFileStreamCtrl {
     _ctlr = StreamController();
     ioStream.listen((Uint8List data) {
       _ctlr.add(data);
-    }, onError: (error, StackTrace stackTrace) {
+    }, onError: (Object error, StackTrace stackTrace) {
       _ctlr.addError(ioWrapError(error));
     }, onDone: () {
       _ctlr.close();
@@ -128,7 +127,7 @@ class IoReadFileStreamCtrl {
   }
 
   Stream<Uint8List> ioStream;
-  StreamController<Uint8List> _ctlr;
+  late StreamController<Uint8List> _ctlr;
 
   Stream<Uint8List> get stream => _ctlr.stream;
 }

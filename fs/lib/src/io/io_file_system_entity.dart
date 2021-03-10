@@ -11,7 +11,7 @@ import 'io_file_stat.dart';
 import 'io_fs.dart';
 
 abstract class FileSystemEntityImpl implements FileSystemEntity {
-  io.FileSystemEntity ioFileSystemEntity;
+  io.FileSystemEntity? ioFileSystemEntity;
 
   FileSystemEntity _me(_) => this;
 
@@ -19,26 +19,26 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   FileSystemIo get fs => fileSystemIo as FileSystemIo;
 
   @override
-  String get path => ioFileSystemEntity.path;
+  String get path => ioFileSystemEntity!.path;
 
   @override
   String toString() => ioFileSystemEntity.toString();
 
   @override
-  DirectoryImpl get parent => DirectoryImpl.io(ioFileSystemEntity.parent);
+  DirectoryImpl get parent => DirectoryImpl.io(ioFileSystemEntity!.parent);
 
   @override
-  Future<bool> exists() => ioWrap(ioFileSystemEntity.exists());
+  Future<bool> exists() => ioWrap(ioFileSystemEntity!.exists());
 
   @override
   Future<FileSystemEntity> delete({bool recursive = false}) //
       =>
-      ioWrap(ioFileSystemEntity.delete(recursive: recursive)).then(_me);
+      ioWrap(ioFileSystemEntity!.delete(recursive: recursive)).then(_me);
 
   @override
-  bool get isAbsolute => ioFileSystemEntity.isAbsolute;
+  bool get isAbsolute => ioFileSystemEntity!.isAbsolute;
 
   @override
-  Future<FileStat> stat() => ioWrap(ioFileSystemEntity.stat())
+  Future<FileStat> stat() => ioWrap(ioFileSystemEntity!.stat())
       .then((io.FileStat stat) => FileStatImpl.io(stat));
 }

@@ -1,17 +1,25 @@
 import 'dart:async';
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/src/common/import.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
-import 'package:path/path.dart';
 
 import 'idb_fs.dart';
 
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file';
 const String nameKey = 'name';
+
+/// That's life to deal with existing
+///
+/// For file: 'pn': '1/file.txt'
+/// For root: 'pn': '/'
+///
+/// So basically the id of the parent separated with the file name. Unique access
 const String parentNameKey = 'pn'; // indexed - this is actually the full name
 const String parentNameIndexName = parentNameKey;
 
+/// Indexed, id of the parent record
 const String parentKey = 'parent'; // indexed
 const String parentIndexName = parentKey;
 const String typeKey = 'type';
@@ -20,7 +28,8 @@ const String sizeKey = 'size';
 const String targetKey = 'target'; // Link only
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
-  return segments.isNotEmpty && segments.first.startsWith(separator);
+  return segments.isNotEmpty &&
+      segments.first.startsWith(idbPathContext.separator);
 }
 
 bool segmentsAreRelative(Iterable<String> segments) =>
@@ -30,7 +39,7 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
   if (segmentsAreAbsolute(target)) {
     return target;
   }
-  final targetSegments = List<String>.from(getParentSegments(origin.segments));
+  final targetSegments = List<String>.from(getParentSegments(origin.segments)!);
   targetSegments.addAll(target);
   return targetSegments;
 }
@@ -42,8 +51,8 @@ class IdbFileSystemStorage {
 
   IdbFileSystemStorage(this.idbFactory, this.dbPath);
 
-  idb.Database db;
-  Completer _readyCompleter;
+  idb.Database? db;
+  Completer? _readyCompleter;
 
   Future get ready async {
     if (_readyCompleter == null) {
@@ -77,23 +86,24 @@ class IdbFileSystemStorage {
         print(e);
         print('#### db format change - reload');
       });
-      _readyCompleter.complete();
+      _readyCompleter!.complete();
     }
-    return _readyCompleter.future;
+    return _readyCompleter!.future;
   }
 
-  Future<Node> txnGetChildNode(idb.ObjectStore treeStore, idb.Index index,
-      Node parent, String name, bool followLastLink) {
+  /// For the given [parent] find the child named [name]
+  Future<Node?> txnGetChildNode(idb.ObjectStore treeStore, idb.Index index,
+      Node? parent, String name, bool followLastLink) {
     final parentName = getParentName(parent, name);
 
-    FutureOr<Node> _nodeFromKey(dynamic id) {
+    FutureOr<Node?> _nodeFromKey(dynamic id) {
       if (id == null) {
         return null;
       }
 
-      FutureOr<Node> _nodeFromMap(dynamic map) {
+      FutureOr<Node?> _nodeFromMap(dynamic map) {
         final entity = Node.fromMap(
-            parent, (map as Map)?.cast<String, dynamic>(), id as int);
+            parent, (map as Map).cast<String, Object?>(), id as int);
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
         }
@@ -106,9 +116,9 @@ class IdbFileSystemStorage {
     return index.getKey(parentName).then(_nodeFromKey);
   }
 
-  Future<Node> getChildNode(Node parent, String name, bool followLink) async {
+  Future<Node?> getChildNode(Node? parent, String name, bool followLink) async {
     await ready;
-    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final txn = db!.transaction(treeStoreName, idb.idbModeReadWrite);
     final store = txn.objectStore(treeStoreName);
     final index = store.index(parentNameIndexName);
 
@@ -119,17 +129,17 @@ class IdbFileSystemStorage {
     return entity;
   }
 
-  Future<Node> txnResolveLinkNode(idb.ObjectStore treeStore, Node link) {
+  Future<Node?> txnResolveLinkNode(idb.ObjectStore treeStore, Node link) {
     // convert to absolute
-    final targetSegments = getAbsoluteSegments(link, link.targetSegments);
+    final targetSegments = getAbsoluteSegments(link, link.targetSegments!);
     return txnGetNode(treeStore, targetSegments, true);
   }
 
   // Return a matching result
-  Future<Node> txnGetNode(
+  Future<Node?> txnGetNode(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
     //idb.idbDevPrint('#XX');
-    Future<Node> __get(List<String> segments) {
+    Future<Node?> __get(List<String> segments) {
       return txnSearch(store, segments, followLastLink)
           .then((NodeSearchResult result) {
         final entity = result.match;
@@ -152,9 +162,9 @@ class IdbFileSystemStorage {
     return __get(segments);
   }
 
-  Future<Node> getNode(List<String> segments, bool followLastLink) async {
+  Future<Node?> getNode(List<String> segments, bool followLastLink) async {
     await ready;
-    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final txn = db!.transaction(treeStoreName, idb.idbModeReadWrite);
     final store = txn.objectStore(treeStoreName);
 
     final entity = await txnGetNode(store, segments, followLastLink);
@@ -163,13 +173,13 @@ class IdbFileSystemStorage {
     return entity;
   }
 
-  // follow link only for last one
+  /// Search in the tree
+  /// follow link only for last one
   Future<NodeSearchResult> txnSearch(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
     final result = NodeSearchResult()..segments = segments;
     final index = store.index(parentNameIndexName);
-    Node parent;
-    Node entity;
+    Node? parent;
 
     var i = 0;
 
@@ -183,9 +193,10 @@ class IdbFileSystemStorage {
       // try to lookup without following links for last segment
       if (isLastSegment()) {
         return txnGetChildNode(store, index, parent, segment, followLastLink)
-            .then((Node nodeEntity) {
-          entity = nodeEntity;
-          if (entity != null) {
+            .then((Node? nodeEntity) {
+          if (nodeEntity != null) {
+            var entity = nodeEntity;
+
             result.segments = entity.segments;
             if (entity.isLink) {
               result.targetSegments = entity.targetSegments;
@@ -197,9 +208,9 @@ class IdbFileSystemStorage {
         });
       }
       return txnGetChildNode(store, index, parent, segment, true)
-          .then((Node nodeEntity) {
-        entity = nodeEntity;
-        if (entity != null) {
+          .then((Node? nodeEntity) {
+        if (nodeEntity != null) {
+          var entity = nodeEntity;
           // Change segments if changing parent
           if (entity.parent != parent) {
             //print('### ${segment}');
@@ -212,7 +223,6 @@ class IdbFileSystemStorage {
             return _next();
           }
         }
-        return null;
       });
     }
 
@@ -236,7 +246,7 @@ class IdbFileSystemStorage {
   Future<NodeSearchResult> searchNode(
       List<String> segments, bool followLastLink) async {
     await ready;
-    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final txn = db!.transaction(treeStoreName, idb.idbModeReadWrite);
     final store = txn.objectStore(treeStoreName);
 
     final result = await txnSearch(store, segments, followLastLink);
@@ -245,7 +255,7 @@ class IdbFileSystemStorage {
   }
 
   Future<Node> txnAddNode(idb.ObjectStore store, Node entity) {
-    //print('adding ${entity}');
+    // devPrint('adding ${entity}');
     return store.add(entity.toMap()).then((dynamic id) {
       entity.id = id as int;
       return entity;
@@ -254,7 +264,7 @@ class IdbFileSystemStorage {
 
   Future<Node> addNode(Node entity) async {
     await ready;
-    final txn = db.transaction(treeStoreName, idb.idbModeReadWrite);
+    final txn = db!.transaction(treeStoreName, idb.idbModeReadWrite);
     final store = txn.objectStore(treeStoreName);
 
     await txnAddNode(store, entity);
@@ -270,7 +280,7 @@ List<fs.FileSystemEntityType> _allTypes = [
   fs.FileSystemEntityType.link
 ];
 
-fs.FileSystemEntityType typeFromString(String typeString) {
+fs.FileSystemEntityType typeFromString(String? typeString) {
   for (final type in _allTypes) {
     if (type.toString() == typeString) {
       return type;
@@ -279,10 +289,11 @@ fs.FileSystemEntityType typeFromString(String typeString) {
   return fs.FileSystemEntityType.notFound;
 }
 
+/// Tree entity
 class Node {
-  int id;
-  Node parent;
-  int _depth;
+  int? id;
+  Node? parent;
+  int? _depth;
   String name;
   fs.FileSystemEntityType type;
 
@@ -291,19 +302,19 @@ class Node {
   bool get isDir => type == fs.FileSystemEntityType.directory;
 
   bool get isFile => type == fs.FileSystemEntityType.file;
-  int size;
-  DateTime modified;
-  List<String> targetSegments; // for Links only
+  int? size;
+  DateTime? modified;
+  List<String>? targetSegments; // for Links only
 
-  Node.file(Node parent, String name, {DateTime modified})
+  Node.file(Node parent, String name, {DateTime? modified})
       : this.node(fs.FileSystemEntityType.file, parent, name,
             modified: modified);
 
-  Node.directory(Node parent, String name, {DateTime modified})
+  Node.directory(Node? parent, String name, {DateTime? modified})
       : this(parent, name, fs.FileSystemEntityType.directory, modified, 0);
 
-  Node.link(Node parent, String name,
-      {List<String> targetSegments, DateTime modified})
+  Node.link(Node? parent, String name,
+      {List<String>? targetSegments, DateTime? modified})
       : this.node(fs.FileSystemEntityType.link, parent, name,
             modified: modified, targetSegments: targetSegments);
 
@@ -311,34 +322,36 @@ class Node {
       {this.targetSegments, this.id, this.modified, this.size});
 
   Node(this.parent, this.name, this.type, this.modified, this.size, [this.id]) {
-    _depth = parent == null ? 1 : parent._depth + 1;
+    _depth = parent == null ? 1 : parent!._depth! + 1;
   }
 
-  factory Node.fromMap(Node parent, Map<String, dynamic> map, int id) {
-    final parentId = map[parentKey] as int;
+  factory Node.fromMap(Node? parent, Map<String, Object?> map, int id) {
+    final parentId = map[parentKey] as int?;
+    // For root: map: {name: /, type: DIRECTORY, modified: 2021-02-21T14:42:55.508406, size: 0, pn: /}
+    // devPrint('$parentId ${parent?.id} fromMap: $map');
     if (parentId != null || parent != null) {
-      assert(parent.id == parentId);
+      assert(parent?.id == parentId, '$parentId != ${parent?.id}');
     }
     final name = map[nameKey] as String;
-    final modifiedString = map[modifiedKey] as String;
-    DateTime modified;
+    final modifiedString = map[modifiedKey] as String?;
+    DateTime? modified;
     if (modifiedString != null) {
       modified = DateTime.parse(modifiedString);
     }
-    final size = map[sizeKey] as int;
-    final type = typeFromString(map[typeKey] as String);
+    final size = map[sizeKey] as int?;
+    final type = typeFromString(map[typeKey] as String?);
 
     return Node(parent, name, type, modified, size, id)
-      ..targetSegments = (map[targetKey] as List)?.cast<String>();
+      ..targetSegments = (map[targetKey] as List?)?.cast<String>();
   }
 
-  Map<String, dynamic> toMap() {
-    final map = <String, dynamic>{nameKey: name, typeKey: type.toString()};
+  Map<String, Object?> toMap() {
+    final map = <String, Object?>{nameKey: name, typeKey: type.toString()};
     if (parent != null) {
-      map[parentKey] = parent.id;
+      map[parentKey] = parent!.id;
     }
     if (modified != null) {
-      map[modifiedKey] = modified.toIso8601String();
+      map[modifiedKey] = modified!.toIso8601String();
     }
     if (size != null) {
       map[sizeKey] = size;
@@ -351,15 +364,19 @@ class Node {
   }
 
   // Slow!
-  String get path => joinAll(segments);
+  String get path => idbPathContext.joinAll(segments);
 
   List<String> get segments {
     final segments = <String>[];
     var entity = this;
     do {
       segments.insert(0, entity.name);
-      entity = entity.parent;
-    } while (entity != null);
+      var parent = entity.parent;
+      if (parent == null) {
+        break;
+      }
+      entity = entity.parent!;
+    } while (true);
     return segments;
   }
 
@@ -370,42 +387,42 @@ class Node {
 
   @override
   bool operator ==(o) {
-    return o.id == id;
+    return o is Node && o.id == id;
   }
 
   @override
-  int get hashCode => id;
+  int get hashCode => id!;
 }
 
 class NodeSearchResult {
-  List<String> segments;
-  Node highest;
-  List<String> targetSegments; // if the result is a link
-  int get depth => highest != null ? highest._depth : 0;
+  List<String>? segments;
+  Node? highest;
+  List<String>? targetSegments; // if the result is a link
+  int? get depth => highest != null ? highest!._depth : 0;
 
-  int get depthDiff => segments.length - depth;
+  int get depthDiff => segments!.length - depth!;
 
   // To force match
-  bool _matches;
+  bool? _matches;
 
-  bool get matches {
+  bool? get matches {
     if (_matches != null) {
       return _matches;
     }
     return highest != null && depthDiff == 0;
   }
 
-  Node get match => matches ? highest : null;
+  Node? get match => matches! ? highest : null;
 
-  Iterable<String> get remainingSegments =>
-      segments.getRange(depth, segments.length);
+  Iterable<String?> get remainingSegments =>
+      segments!.getRange(depth!, segments!.length);
 
-  String get path => joinAll(segments);
+  String get path => idbPathContext.joinAll(segments as Iterable<String>);
 
   NodeSearchResult get parent {
-    assert(!matches);
+    assert(!matches!);
     return NodeSearchResult()
-      ..segments = getParentSegments(segments)
+      ..segments = getParentSegments(segments!)
       ..highest = highest;
   }
 
@@ -421,16 +438,16 @@ List<String> getSegments(String path) {
   return segments;
 }
 
-List<String> getParentSegments(List<String> segments) {
+List<String>? getParentSegments(List<String> segments) {
   if (segments.isEmpty) {
     return null;
   }
   return segments.sublist(0, segments.length - 1);
 }
 
-String getParentName(Node parent, String name) {
+String getParentName(Node? parent, String? name) {
   if (parent == null) {
-    return idbPathContext.join(idbPathContext.separator, separator, name);
+    return idbPathContext.join(idbPathContext.separator, name);
   } else {
     return idbPathContext.join(parent.id.toString(), name);
   }

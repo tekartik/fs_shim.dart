@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.0.1
+
+* Idb file system now always uses `/` separator even on idb io windows (never used).
+
+## 2.0.0
+
+* `nnbd` supports, breaking change.
+
 ## 1.0.2+3
 
 * Fix executable flag when copying on io

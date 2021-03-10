@@ -2,44 +2,37 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
+import 'package:path/path.dart' as p;
+import 'bytes_utils.dart';
 
 class FileSystemNone implements FileSystem {
   @override
-  Directory directory(String path) => throw UnsupportedError('fs.directory');
+  Directory directory(String? path) => throw UnsupportedError('fs.directory');
 
   @override
-  File file(String path) => throw UnsupportedError('fs.file');
+  File file(String? path) => throw UnsupportedError('fs.file');
 
   @override
-  Future<bool> isDirectory(String path) =>
+  Future<bool> isDirectory(String? path) =>
       throw UnsupportedError('fs.isDirectory');
 
   @override
-  Future<bool> isFile(String path) => throw UnsupportedError('fs.isFile');
+  Future<bool> isFile(String? path) => throw UnsupportedError('fs.isFile');
 
   @override
-  Future<bool> isLink(String path) => throw UnsupportedError('fs.isLink');
+  Future<bool> isLink(String? path) => throw UnsupportedError('fs.isLink');
 
   @override
-  Link link(String path) => throw UnsupportedError('fs.link');
+  Link link(String? path) => throw UnsupportedError('fs.link');
 
   @override
   String get name => throw UnsupportedError('fs.name');
 
   @override
-  Directory newDirectory(String path) => directory(path);
+  p.Context get pathContext => path;
 
   @override
-  File newFile(String path) => file(path);
-
-  @override
-  Link newLink(String path) => link(path);
-
-  @override
-  Context get pathContext => path;
-
-  @override
-  Context get path => throw UnsupportedError('fs.path');
+  p.Context get path => throw UnsupportedError('fs.path');
 
   @override
   bool get supportsFileLink => throw UnsupportedError('fs.supportsFileLink');
@@ -48,7 +41,7 @@ class FileSystemNone implements FileSystem {
   bool get supportsLink => throw UnsupportedError('fs.supportsLink');
 
   @override
-  Future<FileSystemEntityType> type(String path, {bool followLinks = true}) =>
+  Future<FileSystemEntityType> type(String? path, {bool followLinks = true}) =>
       throw UnsupportedError('fs.type');
 }
 
@@ -64,11 +57,11 @@ abstract class FileNone implements File {
       throw UnsupportedError('file.create');
 
   @override
-  Stream<Uint8List> openRead([int start, int end]) =>
+  Stream<Uint8List> openRead([int? start, int? end]) =>
       throw UnsupportedError('file.openRead');
 
   @override
-  StreamSink<List<int>> openWrite(
+  StreamSink<Uint8List> openWrite(
           {FileMode mode = FileMode.write, Encoding encoding = utf8}) =>
       throw UnsupportedError('file.openWrite');
 
@@ -82,7 +75,7 @@ abstract class FileNone implements File {
   }
 
   @override
-  Future<File> writeAsBytes(List<int> bytes,
+  Future<File> writeAsBytes(Uint8List bytes,
           {FileMode mode = FileMode.write, bool flush = false}) =>
       throw UnsupportedError('file.writeAsBytes');
 
@@ -91,7 +84,7 @@ abstract class FileNone implements File {
       {FileMode mode = FileMode.write,
       Encoding encoding = utf8,
       bool flush = false}) async {
-    return await writeAsBytes(encoding.encode(contents),
+    return await writeAsBytes(asUint8List(encoding.encode(contents)),
         mode: mode, flush: flush);
   }
 }

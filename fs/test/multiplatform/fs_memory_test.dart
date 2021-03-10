@@ -3,7 +3,7 @@
 
 library tekartik_fs_test.fs_memory_test;
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
 
 import 'fs_test.dart';
@@ -45,6 +45,19 @@ void main() {
           expect(e, isNot(const TypeMatcher<TestFailure>()));
         }
       });
+    });
+
+    test('new', () async {
+      var fs = newFileSystemMemory();
+      await fs.file('test').writeAsString('test');
+      expect(await fs.file('test').readAsString(), 'test');
+      fs = newFileSystemMemory();
+      try {
+        await fs.file('test').readAsString();
+        fail('should fail');
+      } catch (e) {
+        expect(e, isNot(const TypeMatcher<TestFailure>()));
+      }
     });
   });
 }

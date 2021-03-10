@@ -4,7 +4,6 @@
 library fs_shim.test.fs_shim_file_stat_test;
 
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart';
 
 import 'test_common.dart';
 
@@ -29,7 +28,7 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-FileSystemTestContext _ctx;
+late FileSystemTestContext _ctx;
 
 FileSystem get fs => _ctx.fs;
 
@@ -40,7 +39,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('stat', () async {
       final top = await ctx.prepare();
 
-      final file = fs.file(join(top.path, 'file'));
+      final file = fs.file(fs.path.join(top.path, 'file'));
 
       await file.writeAsString('test', flush: true);
       final stat = await file.stat();

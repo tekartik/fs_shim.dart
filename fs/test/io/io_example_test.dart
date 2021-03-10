@@ -70,7 +70,7 @@ void main() {
             .create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {
-        final osError = e.osError;
+        final osError = e.osError!;
         expect(osError.errorCode, isNotNull);
       }
 

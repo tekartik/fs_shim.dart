@@ -2,7 +2,7 @@
 import 'dart:io';
 import 'dart:io' as io;
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs_io.dart' show unwrapIoDirectory;
 import 'package:fs_shim/utils/copy.dart' show TopSourceNode;
 import 'package:fs_shim/utils/io/copy.dart';
@@ -103,8 +103,8 @@ void main() {
 
     test('top_source_node', () {
       // just check the export
-      final topSourceNode = TopSourceNode(null);
-      expect(topSourceNode, isNotNull);
+      // ignore: unnecessary_statements
+      TopSourceNode;
     });
 
     test('delete', () async {

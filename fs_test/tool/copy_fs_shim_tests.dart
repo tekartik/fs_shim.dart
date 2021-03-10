@@ -6,7 +6,7 @@ Future main() async {
   var src = '../fs/test';
   var dst = 'lib';
 
-  Future copy(String file, {bool rootDir}) async {
+  Future copy(String file, {bool? rootDir}) async {
     var dstFile =
         (rootDir ?? false) ? join(dst, file) : join(dst, basename(file));
     await Directory(dirname(dstFile)).create(recursive: true);
@@ -51,7 +51,6 @@ Future main() async {
     'multiplatform/fs_shim_test.dart',
     'multiplatform/utils_copy_test.dart',
     'multiplatform/utils_entity_test.dart',
-    'multiplatform/utils_part_test.dart',
     'multiplatform/utils_path_test.dart',
     'multiplatform/utils_read_write_test.dart',
     'multiplatform/utils_test.dart',

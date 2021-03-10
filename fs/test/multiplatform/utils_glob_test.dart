@@ -1,6 +1,7 @@
 library fs_shim.test.utils_glob_test;
 
 import 'package:fs_shim/utils/glob.dart';
+import 'package:path/path.dart' as p;
 
 import 'test_common.dart';
 
@@ -8,11 +9,11 @@ void main() {
   group('glob', () {
     void checkMatch(String expression, String name, Matcher matcher) {
       final glob = Glob(expression);
-      expect(glob.matches(contextPath(name)), matcher,
+      expect(glob.matches(toContextPath(p.url, name)), matcher,
           reason: "'$glob' '$name'");
     }
 
-    void checkPart(String expression, String name, Matcher matcher) {
+    void checkPart(String? expression, String? name, Matcher matcher) {
       expect(Glob.matchPart(expression, name), matcher,
           reason: "'$expression' '$name'");
     }
@@ -81,7 +82,11 @@ void main() {
     });
 
     test('glob_star', () {
-      checkMatch('**', '', isTrue);
+      var glob = Glob('**');
+      expect(glob.matches(''), isFalse);
+      try {
+        checkMatch('**', '', isTrue);
+      } on ArgumentError catch (_) {}
       checkMatch('**/a', 'a', isTrue);
       checkMatch('**/a', 'b/a', isTrue);
       checkMatch('**/a', 'c/b/a', isTrue);

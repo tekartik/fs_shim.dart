@@ -9,11 +9,11 @@ import 'package:path/path.dart';
 
 FileSystem fs = fileSystemIdb;
 
-PreElement outElement;
+PreElement? outElement;
 
 void print(msg) {
-  outElement ??= querySelector('#output') as PreElement;
-  outElement.text += '$msg\n';
+  outElement = (outElement ?? querySelector('#output') as PreElement);
+  outElement!.text = '${outElement!.text}$msg\n';
 }
 
 Future main() async {

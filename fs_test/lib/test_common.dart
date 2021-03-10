@@ -8,7 +8,6 @@ import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
-import 'package:path/path.dart';
 import 'package:tekartik_platform/context.dart';
 
 import 'src/import_common.dart';
@@ -17,7 +16,6 @@ export 'dart:async';
 export 'dart:convert';
 
 export 'package:dev_test/test.dart';
-
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -29,13 +27,13 @@ export 'src/import_common.dart';
 
 // FileSystem context
 abstract class FileSystemTestContext {
-  PlatformContext get platform;
+  PlatformContext? get platform;
 
   // The file system used
   FileSystem get fs;
 
   // The path to use for testing
-  String get outPath => joinAll(testDescriptions);
+  String get outPath => fs.path.joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
     final dir = fs.directory(outPath);
@@ -62,7 +60,7 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   MemoryFileSystemTestContext();
 
   @override
-  final PlatformContext platform = null;
+  final PlatformContext? platform = null;
   @override
   final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
 }
@@ -73,23 +71,23 @@ void devPrintJson(Map json) {
 
 String jsonPretty(dynamic json) {
   if (json is String) {
-    json = jsonDecode(json as String);
+    json = jsonDecode(json);
   }
   return const JsonEncoder.withIndent('  ').convert(json);
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform.io.isWindows);
+  return (isIo(ctx) && ctx.platform!.io!.isWindows);
 }
 
 bool isIoMac(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform.io.isMac);
+  return (isIo(ctx) && ctx.platform!.io!.isMac);
 }
 
 bool isIo(FileSystemTestContext ctx) {
-  return ctx?.platform?.io != null;
+  return ctx.platform?.io != null;
 }
 
 bool isNode(FileSystemTestContext ctx) {
-  return ctx?.platform?.node != null;
+  return ctx.platform?.node != null;
 }

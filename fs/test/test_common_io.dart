@@ -4,12 +4,12 @@ library fs_shim.test.test_common_io;
 import 'dart:io';
 
 import 'package:fs_shim/src/io/io_file_system.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as p;
 
 import 'multiplatform/platform.dart';
 import 'test_common.dart';
 
-export 'package:dev_test/test.dart';
+export 'package:test/test.dart';
 
 final IoFileSystemTestContext ioFileSystemTestContext =
     IoFileSystemTestContext();
@@ -21,16 +21,16 @@ class IoFileSystemTestContext extends FileSystemTestContext {
     ..isIoWindows = Platform.isWindows;
   @override
   final FileSystemIo fs = FileSystemIo();
-  String outTopPath;
+  String? outTopPath;
 
   IoFileSystemTestContext() {
     outTopPath = testOutTopPath;
   }
 
   @override
-  String get outPath => join(outTopPath, super.outPath);
+  String get outPath => fs.path.join(outTopPath!, super.outPath);
 }
 
-String get testOutTopPath => join('.dart_tool', 'fs_shim', 'test');
+String get testOutTopPath => p.join('.dart_tool', 'fs_shim', 'test');
 
-String get testOutPath => join(testOutTopPath, joinAll(testDescriptions));
+String get testOutPath => p.join(testOutTopPath, p.joinAll(testDescriptions));

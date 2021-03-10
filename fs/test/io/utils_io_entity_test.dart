@@ -3,7 +3,7 @@ library fs_shim.test.utils_entity_tests;
 
 import 'dart:io';
 
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/utils/io/entity.dart';
 import 'package:path/path.dart';
 

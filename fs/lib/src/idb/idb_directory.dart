@@ -4,7 +4,7 @@ import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
 class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
-  IdbDirectory(IdbFileSystem fs, String path) : super(fs, path);
+  IdbDirectory(IdbFileSystem fs, String? path) : super(fs, path);
 
   IdbDirectory _me(_) => this;
 

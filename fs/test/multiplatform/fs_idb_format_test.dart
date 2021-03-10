@@ -6,7 +6,7 @@ library fs_shim.test.multiplatform.fs_idb_format_test;
 import 'dart:typed_data';
 
 //import 'package:test/test.dart';
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
@@ -278,7 +278,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
         .writeAsString('test2');
     await fs
         .file(fs.path.join('dir1', 'sub2', 'nested1', 'file3.bin'))
-        .writeAsBytes([1, 2, 3]);
+        .writeAsBytes(Uint8List.fromList([1, 2, 3]));
 
     await fsCheckComplex1(fs);
     fs.close();

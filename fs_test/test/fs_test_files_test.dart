@@ -35,7 +35,6 @@ void main() {
         'fs_test.dart',
         'utils_copy_test.dart',
         'utils_entity_test.dart',
-        'utils_part_test.dart',
         'utils_path_test.dart',
         'utils_read_write_test.dart',
         'utils_test.dart',
