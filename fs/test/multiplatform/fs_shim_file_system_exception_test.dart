@@ -20,7 +20,7 @@ final bool _doPrintErr = false;
 
 void _printErr(e) {
   if (_doPrintErr) {
-    print('${e} ${[e.runtimeType]}');
+    print('$e ${[e.runtimeType]}');
   }
 }
 

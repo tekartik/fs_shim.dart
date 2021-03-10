@@ -21,7 +21,7 @@ final bool _doPrintErr = false;
 
 void _printErr(e) {
   if (_doPrintErr) {
-    print('${e} ${[e.runtimeType]}');
+    print('$e ${[e.runtimeType]}');
   }
 }
 
@@ -33,14 +33,7 @@ void defineTests(FileSystemTestContext ctx) {
   test('supportsLink', () {
     expect(fs.supportsLink, _linkSupported);
   });
-  test('supportsFileLink', () {
-    // currently only windows io does not
-    if (isIoWindows(ctx)) {
-      expect(fs.supportsFileLink, isFalse);
-    } else {
-      expect(fs.supportsFileLink, isTrue);
-    }
-  });
+
   if (_linkSupported) {
     group('link', () {
       test('new', () {

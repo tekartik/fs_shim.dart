@@ -20,7 +20,7 @@ class IdbError implements fs.OSError {
 
   @override
   String toString() {
-    return '(OS Error: ${message}, errno = ${errorCode})';
+    return '(OS Error: $message, errno = $errorCode)';
   }
 }
 
@@ -62,6 +62,6 @@ class IdbFileSystemException implements fs.FileSystemException {
 
   @override
   String toString() {
-    return "${status == null ? '' : '[${status}] '}FileSystemException: ${message}, path = '${path}' ${osError}";
+    return "${status == null ? '' : '[$status] '}FileSystemException: $message, path = '$path' $osError";
   }
 }

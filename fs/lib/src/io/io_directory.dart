@@ -67,7 +67,7 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
                 controller.add(LinkImpl.io(data));
               } else {
                 controller.addError(UnsupportedError(
-                    'type ${data} ${data.runtimeType} not supported'));
+                    'type $data ${data.runtimeType} not supported'));
               }
             }, onError: (e) {
               // Important here to wrap the error

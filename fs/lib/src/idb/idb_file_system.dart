@@ -796,7 +796,7 @@ class IdbFileSystem extends Object
     mode ??= fs.FileMode.write;
 
     if (mode == fs.FileMode.read) {
-      throw ArgumentError("Invalid file mode '${mode}' for this operation");
+      throw ArgumentError("Invalid file mode '$mode' for this operation");
     }
     path = idbMakePathAbsolute(path);
 
