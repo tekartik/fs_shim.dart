@@ -56,8 +56,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('parent', () {
-      // ignore: deprecated_member_use_from_same_package
-      if (!contextIsWindows) {
+      if (!isIoWindows(ctx)) {
         // Windows view this differently
         final file = fs.file(fs.path.join(fs.path.separator, 'dummy'));
         expect(file.isAbsolute, isTrue);
