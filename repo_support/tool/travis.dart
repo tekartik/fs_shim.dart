@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:path/path.dart';
 import 'package:process_run/shell.dart';
 import 'package:pub_semver/pub_semver.dart';
+
+import 'run_ci.dart';
 
 Future main() async {
   var nnbdEnabled = dartVersion > Version(2, 12, 0, pre: '0');
@@ -13,14 +16,15 @@ Future main() async {
 
     var packages = [
       'fs',
-      // 'fs_browser', // temp nnbd disabled
-      // 'fs_node',
-      // 'fs_test', // temp nnbd disabled
+      'fs_browser',
+      'fs_test',
+      'fs_op',
     ];
     // print('dartVersion: $dartVersion, oldListInt:${oldListInt}');
     print('packages: $packages');
     for (var dir in packages) {
-      shell = shell.pushd(dir);
+      var path = join(topDir, dir);
+      shell = shell.pushd(path);
       await shell.run('''
     
     pub get
