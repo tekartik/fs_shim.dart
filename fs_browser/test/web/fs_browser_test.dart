@@ -1,5 +1,5 @@
 @TestOn('browser')
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:tekartik_fs_browser/fs_browser.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
