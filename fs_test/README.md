@@ -2,6 +2,18 @@
 
 fs_shim test helper for setting up test context
 
+## Setup
+
+In `pubspec.yaml`:
+
+```yaml
+  tekartik_fs_test:
+    git:
+      url: git://github.com/tekartik/fs_shim.dart
+      path: fs_test
+      ref: null_safety
+    version: '>=0.1.0'
+```
 ## Usage
 
 ### any context (io, browser)

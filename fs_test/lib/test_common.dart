@@ -4,7 +4,8 @@ library fs_shim.test.test_common;
 // basically same as the io runner but with extra output
 import 'dart:convert';
 
-import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs_io.dart' hide Directory;
+import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
@@ -15,7 +16,7 @@ import 'src/import_common.dart';
 export 'dart:async';
 export 'dart:convert';
 
-export 'package:dev_test/test.dart';
+export 'package:test/test.dart';
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -32,11 +33,18 @@ abstract class FileSystemTestContext {
   // The file system used
   FileSystem get fs;
 
+  static int _id = 0;
+  Directory _prepareNewDirectory() =>
+      fs.directory(fs.path.joinAll(['out', '${++_id}']));
   // The path to use for testing
-  String get outPath => fs.path.joinAll(testDescriptions);
+  String? _outPath;
+  //@deprecated
+  //String get outPath => _outPath ??= _prepareNewDirectory().path;
+  // String get outPath => fs.path.joinAll(testDescriptions);
 
   Future<Directory> prepare() async {
-    final dir = fs.directory(outPath);
+    _outPath ??= _prepareNewDirectory().path;
+    final dir = fs.directory(_outPath!);
     try {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {

@@ -5,7 +5,7 @@ import 'package:tekartik_fs_test/test_common.dart';
 import 'package:tekartik_platform/context.dart';
 import 'package:tekartik_platform_io/context_io.dart';
 
-export 'package:dev_test/test.dart';
+export 'package:test/test.dart';
 
 final FileSystemTestContextIo fileSystemTestContextIo =
     FileSystemTestContextIo();
@@ -21,10 +21,13 @@ class FileSystemTestContextIo extends FileSystemTestContext {
   final FileSystemIo fs = FileSystemIo();
   late String outTopPath;
 
-  @override
-  String get outPath => join(outTopPath, super.outPath);
+  // @override
+  // @deprecated
+  // String get outPath => join(outTopPath, super.outPath);
 }
 
 String get testOutTopPath => join('.dart_tool', 'fs_shim', 'test_out');
 
-String get testOutPath => join(testOutTopPath, joinAll(testDescriptions));
+@deprecated
+String get testOutPath => join(testOutTopPath, joinAll(['out']));
+//String get testOutPath => join(testOutTopPath, joinAll(testDescriptions));

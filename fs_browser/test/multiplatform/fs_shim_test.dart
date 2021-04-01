@@ -1,4 +1,4 @@
-import 'package:dev_test/test.dart';
+import 'package:test/test.dart';
 import 'package:fs_shim/fs_shim.dart';
 
 void main() {
