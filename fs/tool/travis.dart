@@ -1,9 +1,15 @@
+import 'dart:io';
+
 import 'package:process_run/shell.dart';
+import 'package:dev_test/package.dart';
 
 Future main() async {
   var shell = Shell();
 
-  await shell.run('''
+  await packageRunCi('.');
+  exit(0);
+  // ignore: dead_code
+  await shell.run(''' 
 # Analyze code
 dart analyze --fatal-warnings --fatal-infos .
 dart format -o none --set-exit-if-changed .
