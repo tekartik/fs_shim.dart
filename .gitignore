@@ -19,6 +19,9 @@ doc/api/
 # VS code
 .vscode
 
+# output test files
+out/
+
 # prevent dartfmt formatting
 fs_node/build
 
