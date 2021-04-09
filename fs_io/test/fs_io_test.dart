@@ -1,4 +1,5 @@
 @TestOn('vm')
+import 'package:path/path.dart';
 import 'package:tekartik_fs_io/fs_io.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
@@ -12,7 +13,9 @@ class FileSystemTestContextIo extends FileSystemTestContext {
 
   @override
   FileSystem fs = fileSystem; // Needed for initialization (supportsLink)
-  FileSystemTestContextIo();
+  FileSystemTestContextIo() {
+    basePath = join('.dart_tool', 'tekartik_fs_io', 'test');
+  }
 }
 
 FileSystemTestContextIo fileSystemTestContextIo = FileSystemTestContextIo();
