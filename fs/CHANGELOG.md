@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.1+1
+## 2.0.1+2
 
 * Idb file system now always uses `/` separator even on idb io windows (never used).
 
