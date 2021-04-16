@@ -401,7 +401,6 @@ void defineTests(FileSystemTestContext ctx) {
 
       // Running
       test('ChildCopy_run', () async {
-        // fsCopyDebug = true;
         final top = await ctx.prepare();
         final src = childDirectory(top, 'src');
         final dst = childDirectory(top, 'dst');
@@ -522,28 +521,30 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('copy_link_dir', () async {
-        final top = await ctx.prepare();
-        final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
-        final srcLink = fs.link(fs.path.join(top.path, 'link'));
-        final dstDir = fs.directory(fs.path.join(top.path, 'dir2'));
+        if (fs.supportsLink) {
+          final top = await ctx.prepare();
+          final srcDir = fs.directory(fs.path.join(top.path, 'dir'));
+          final srcLink = fs.link(fs.path.join(top.path, 'link'));
+          final dstDir = fs.directory(fs.path.join(top.path, 'dir2'));
 
-        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
-
-        await srcLink.create(srcDir.path);
-
-        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
-
-        await srcDir.create();
-
-        if (isIoWindows(ctx)) {
           expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
-          expect(await dstDir.exists(), isFalse);
-        } else {
-          expect(await copyFileSystemEntityImpl(srcLink, dstDir), 1);
-          expect(await dstDir.exists(), isTrue);
-        }
 
-        expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
+          await srcLink.create(srcDir.path);
+
+          expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
+
+          await srcDir.create();
+
+          if (isIoWindows(ctx)) {
+            expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
+            expect(await dstDir.exists(), isFalse);
+          } else {
+            expect(await copyFileSystemEntityImpl(srcLink, dstDir), 1);
+            expect(await dstDir.exists(), isTrue);
+          }
+
+          expect(await copyFileSystemEntityImpl(srcLink, dstDir), 0);
+        }
       });
 
       test('copy_link_file', () async {

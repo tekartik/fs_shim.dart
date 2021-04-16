@@ -396,6 +396,16 @@ void defineTests(FileSystemTestContext ctx) {
       expect(content, 'es'.codeUnits);
     });
 
+    test('simple_write_no_create', () async {
+      final _dir = await ctx.prepare();
+      final file = fs.file(fs.path.join(_dir.path, 'file'));
+      var sink = file.openWrite(mode: FileMode.write);
+      sink.add('test'.codeUnits);
+      await sink.close();
+
+      expect(await file.readAsString(), 'test');
+    });
+
     test('read_not_found', () async {
       final _dir = await ctx.prepare();
       final file = fs.file(fs.path.join(_dir.path, 'file'));
