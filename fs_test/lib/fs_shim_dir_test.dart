@@ -75,7 +75,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       final dir = fs.directory(fs.path.join(_dir.path, 'dir'));
       var stat = await dir.stat();
-      //print(stat);
+      print(stat);
       expect(stat.type, FileSystemEntityType.notFound);
       expect(stat.size, -1);
       expectNotFoundDateTime(stat.modified);

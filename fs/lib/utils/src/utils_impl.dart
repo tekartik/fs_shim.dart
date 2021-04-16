@@ -290,20 +290,37 @@ Future<int> copyFileSystemEntityImpl(FileSystemEntity src, FileSystemEntity dst,
 
 /// Copy the file content
 Future<int> copyFileContent(File src, File dst) async {
-  var inStream = src.openRead();
-  var outSink = dst.openWrite();
   try {
-    await inStream.cast<List<int>>().pipe(outSink);
+    await src.copy(dst.path);
   } catch (_) {
     final parent = dst.parent;
     if (!await parent.exists()) {
       await parent.create(recursive: true);
     }
+    await src.copy(dst.path);
+  }
+  /*
+  var inStream = src.openRead();
+  devPrint('openWrite1');
+  var outSink = dst.openWrite();
+  devPrint('openWrite2');
+  try {
+    await inStream.cast<List<int>>().pipe(outSink);
+    devPrint('openWrite3');
+  } catch (_) {
+    devPrint('openWrite4');
+    final parent = dst.parent;
+    devPrint('openWrite5');
+    if (!await parent.exists()) {
+      await parent.create(recursive: true);
+    }
+    devPrint('openWrite6');
     outSink = dst.openWrite();
     inStream = src.openRead();
     await inStream.cast<List<int>>().pipe(outSink);
   }
   // Copy mode for unix executables
+   */
   return 1;
 }
 
@@ -558,6 +575,10 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
     _dst = dst;
     _id = ++ActionNodeMixin._staticId;
     _options = options ?? recursiveLinkOrCopyNewerOptions;
+    if (fsCopyDebug) {
+      print('src: $src');
+      print('dst: $dst');
+    }
   }
 
   Future<List<CopyNodeOperation>> _runTree() async {
