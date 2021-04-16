@@ -26,25 +26,23 @@ export 'package:fs_shim/utils/read_write.dart';
 
 export 'src/import_common.dart';
 
-// FileSystem context
+/// FileSystem test context
 abstract class FileSystemTestContext {
   PlatformContext? get platform;
 
   // The file system used
   FileSystem get fs;
 
+  /// Base path
+  String? basePath;
+
   static int _id = 0;
-  Directory _prepareNewDirectory() =>
-      fs.directory(fs.path.joinAll(['out', '${++_id}']));
-  // The path to use for testing
-  String? _outPath;
-  //@deprecated
-  //String get outPath => _outPath ??= _prepareNewDirectory().path;
-  // String get outPath => fs.path.joinAll(testDescriptions);
+  Directory _prepareNewDirectory() => fs.directory(fs.path
+      .joinAll(<String>[if (basePath != null) basePath!, 'out', '${++_id}']));
 
   Future<Directory> prepare() async {
-    _outPath ??= _prepareNewDirectory().path;
-    final dir = fs.directory(_outPath!);
+    var outPath = _prepareNewDirectory().path;
+    final dir = fs.directory(outPath);
     try {
       await dir.delete(recursive: true);
     } on FileSystemException catch (e) {
