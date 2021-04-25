@@ -1,11 +1,14 @@
 @TestOn('browser')
-import 'package:test/test.dart';
+library fs_shim_browser.fs_browser_test;
+
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:tekartik_fs_browser/fs_browser.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 import 'package:tekartik_platform/context.dart';
 import 'package:tekartik_platform_browser/context_browser.dart';
+
+import 'package:test/test.dart';
 
 class FileSystemTestContextIdbBrowser extends IdbFileSystemTestContext {
   @override

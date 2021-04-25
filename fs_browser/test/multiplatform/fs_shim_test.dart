@@ -1,5 +1,5 @@
-import 'package:test/test.dart';
 import 'package:fs_shim/fs_shim.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('import', () {
