@@ -2,13 +2,13 @@
 import 'dart:io';
 import 'dart:io' as io;
 
-import 'package:test/test.dart';
 import 'package:fs_shim/fs_io.dart' show unwrapIoDirectory;
 import 'package:fs_shim/utils/copy.dart' show TopSourceNode;
 import 'package:fs_shim/utils/io/copy.dart';
 import 'package:fs_shim/utils/io/entity.dart';
 import 'package:fs_shim/utils/io/read_write.dart';
 import 'package:path/path.dart';
+import 'package:test/test.dart';
 
 import '../test_common_io.dart' show ioFileSystemTestContext;
 

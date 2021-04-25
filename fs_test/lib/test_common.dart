@@ -4,25 +4,25 @@ library fs_shim.test.test_common;
 // basically same as the io runner but with extra output
 import 'dart:convert';
 
-import 'package:fs_shim/fs_io.dart' hide Directory;
-import 'package:test/test.dart';
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_io.dart' hide Directory;
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:tekartik_platform/context.dart';
+import 'package:test/test.dart';
 
 import 'src/import_common.dart';
 
 export 'dart:async';
 export 'dart:convert';
 
-export 'package:test/test.dart';
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
 export 'package:fs_shim/utils/part.dart';
 export 'package:fs_shim/utils/path.dart';
 export 'package:fs_shim/utils/read_write.dart';
+export 'package:test/test.dart';
 
 export 'src/import_common.dart';
 
@@ -37,6 +37,7 @@ abstract class FileSystemTestContext {
   String? basePath;
 
   static int _id = 0;
+
   Directory _prepareNewDirectory() => fs.directory(fs.path
       .joinAll(<String>[if (basePath != null) basePath!, 'out', '${++_id}']));
 
