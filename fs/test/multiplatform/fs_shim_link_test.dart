@@ -3,6 +3,7 @@
 
 library fs_shim.test.fs_shim_link_test;
 
+// ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 import 'package:path/path.dart' as p;
 

@@ -3,6 +3,7 @@
 
 library fs_shim.test.fs_shim_dir_test;
 
+// ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 
 import 'fs_shim_file_stat_test.dart';
