@@ -1,6 +1,6 @@
 library fs_shim.utils.io.read_write;
 
-import 'dart:async';
+
 import 'dart:io';
 
 import 'package:fs_shim/fs_io.dart' as fs;

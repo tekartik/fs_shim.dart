@@ -1,8 +1,5 @@
 library fs_shim.utils.read_write;
 
-import 'dart:async';
-
-import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
 
 // Does not fail

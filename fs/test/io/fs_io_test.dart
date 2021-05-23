@@ -8,7 +8,6 @@ import 'dart:io' as io;
 
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
-import 'package:test/test.dart';
 
 import '../multiplatform/fs_test.dart';
 import '../test_common.dart';

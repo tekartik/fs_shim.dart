@@ -1,6 +1,6 @@
 library fs_shim.src.io.io_file;
 
-import 'dart:async';
+
 import 'dart:io' as io;
 import 'dart:typed_data';
 

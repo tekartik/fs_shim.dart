@@ -3,8 +3,6 @@
 
 library fs_shim.test.fs_shim_sanity_test;
 
-import 'package:fs_shim/fs.dart';
-
 import 'test_common.dart';
 //import 'package:path/path.dart' as p;
 

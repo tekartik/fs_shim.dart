@@ -1,7 +1,6 @@
 library fs_shim.test.utils_entity_tests;
 
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/utils/entity.dart';
 
 import 'test_common.dart';
 

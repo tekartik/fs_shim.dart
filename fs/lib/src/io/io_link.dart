@@ -1,6 +1,5 @@
 library fs_shim.src.io.io_link;
 
-import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:fs_shim/fs_io.dart';

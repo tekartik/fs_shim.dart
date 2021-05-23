@@ -2,10 +2,9 @@ library fs_shim.test.test_common;
 
 // ignore_for_file: deprecated_member_use
 // basically same as the io runner but with extra output
-import 'dart:async';
+
 import 'dart:convert';
 
-import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:test/test.dart';

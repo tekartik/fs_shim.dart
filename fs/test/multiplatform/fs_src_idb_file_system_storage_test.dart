@@ -3,12 +3,9 @@
 
 library fs_shim.fs_src_idb_test;
 
-import 'dart:async';
-
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb_client_memory.dart';
-import 'package:test/test.dart';
 
 import 'test_common.dart';
 

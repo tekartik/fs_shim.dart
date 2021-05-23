@@ -1,7 +1,5 @@
 library fs_shim.test.utils_path_tests;
 
-import 'package:fs_shim/fs.dart';
-
 import 'test_common.dart';
 
 void main() {

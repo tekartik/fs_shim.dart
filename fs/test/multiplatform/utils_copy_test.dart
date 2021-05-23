@@ -1,7 +1,6 @@
 library fs_shim.test.utils_copy_tests;
 
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/utils/copy.dart';
 import 'package:fs_shim/utils/src/utils_impl.dart'
     show copyFileSystemEntityImpl;
 

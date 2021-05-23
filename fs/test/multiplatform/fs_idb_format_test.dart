@@ -12,9 +12,6 @@ import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 
-//import 'package:test/test.dart';
-import 'package:test/test.dart';
-
 import 'test_common.dart';
 
 //import 'test_common.dart';
