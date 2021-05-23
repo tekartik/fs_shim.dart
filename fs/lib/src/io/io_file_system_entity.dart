@@ -1,6 +1,5 @@
 library fs_shim.src.io.io_file_system_entity;
 
-
 import 'dart:io' as io;
 
 import 'package:fs_shim/fs_io.dart';
