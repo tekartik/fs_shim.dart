@@ -3,6 +3,9 @@
 
 library fs_shim.test.fs_shim_file_stat_test;
 
+// ignore_for_file: unnecessary_import
+import 'package:fs_shim/fs.dart';
+
 import 'test_common.dart';
 
 var allowNullNotFoundDate = false;

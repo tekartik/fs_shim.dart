@@ -1,5 +1,7 @@
 library fs_shim.test.utils_copy_tests;
 
+// ignore_for_file: unnecessary_import
+import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/src/utils_impl.dart'
     show copyFileSystemEntityImpl;
 
