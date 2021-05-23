@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:core' hide print;
 import 'dart:core' as core;
 import 'dart:html' hide FileSystem, File;

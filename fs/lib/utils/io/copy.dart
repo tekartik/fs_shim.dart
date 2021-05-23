@@ -1,11 +1,8 @@
-import 'dart:async';
 import 'dart:io';
 
 import 'package:fs_shim/fs_io.dart' as fs_io;
 import 'package:fs_shim/utils/copy.dart';
 import 'package:fs_shim/utils/copy.dart' as fs;
-
-import 'copy.dart' show CopyOptions;
 
 export 'package:fs_shim/utils/copy.dart'
     show CopyOptions, recursiveLinkOrCopyNewerOptions;

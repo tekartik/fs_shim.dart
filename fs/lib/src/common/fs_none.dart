@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:path/path.dart' as p;
 import 'bytes_utils.dart';

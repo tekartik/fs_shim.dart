@@ -1,7 +1,7 @@
 library fs_shim.test.utils_entity_tests;
 
+// ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/utils/entity.dart';
 
 import 'test_common.dart';
 

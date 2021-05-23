@@ -3,11 +3,8 @@
 
 library fs_shim.test.multiplatform.fs_idb_test;
 
-import 'dart:async';
-
 import 'package:fs_shim/fs.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
-import 'package:test/test.dart';
 
 import 'fs_test.dart' as _test;
 import 'test_common.dart';

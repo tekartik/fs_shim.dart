@@ -1,6 +1,5 @@
 library fs_shim.fs_io;
 
-import 'dart:async';
 import 'dart:io' as io;
 
 import 'fs.dart' as fs show File, Directory, Link, FileSystemEntity;
@@ -16,7 +15,6 @@ import 'src/io/fs_io.dart';
 import 'src/io/io_directory.dart';
 import 'src/io/io_file.dart';
 import 'src/io/io_file_stat.dart';
-import 'src/io/io_file_system.dart';
 import 'src/io/io_file_system_exception.dart';
 import 'src/io/io_fs.dart';
 import 'src/io/io_link.dart';

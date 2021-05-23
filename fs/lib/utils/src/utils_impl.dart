@@ -1,12 +1,8 @@
 library fs_shim.utils.src.utils_impl;
 
-import 'dart:async';
-
-import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/utils/copy.dart';
-import 'package:fs_shim/utils/glob.dart';
 import 'package:path/path.dart' as _path;
 //import 'package:logging/logging.dart' as log;
 

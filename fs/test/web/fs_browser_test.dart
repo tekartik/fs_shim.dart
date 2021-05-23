@@ -4,13 +4,9 @@
 
 library fs_shim.fs_browser_test;
 
-import 'dart:async';
-
-import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_browser.dart';
-import 'package:test/test.dart';
 
 import '../multiplatform/fs_idb_format_test.dart';
 import '../multiplatform/fs_idb_format_v1_test.dart';

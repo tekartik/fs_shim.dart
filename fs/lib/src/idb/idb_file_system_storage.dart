@@ -1,7 +1,4 @@
-import 'dart:async';
-
 import 'package:fs_shim/fs.dart' as fs;
-import 'package:fs_shim/src/common/import.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'idb_fs.dart';

@@ -1,6 +1,7 @@
 library fs_shim.src.memory_sink;
 
 import 'dart:async';
+
 //import 'dart:convert';
 
 class MemorySink implements StreamSink<List<int>> {

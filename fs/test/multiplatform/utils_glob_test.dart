@@ -1,6 +1,5 @@
 library fs_shim.test.utils_glob_test;
 
-import 'package:fs_shim/utils/glob.dart';
 import 'package:path/path.dart' as p;
 
 import 'test_common.dart';

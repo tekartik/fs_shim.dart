@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 

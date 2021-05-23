@@ -8,8 +8,6 @@ import 'package:tekartik_fs_test/test_common.dart';
 import 'package:tekartik_platform/context.dart';
 import 'package:tekartik_platform_browser/context_browser.dart';
 
-import 'package:test/test.dart';
-
 class FileSystemTestContextIdbBrowser extends IdbFileSystemTestContext {
   @override
   final PlatformContext platform = platformContextBrowser;
