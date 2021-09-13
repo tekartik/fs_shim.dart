@@ -84,6 +84,7 @@ abstract class FileMixin implements File {
   }
 }
 
+/// File stat mode mixin.
 mixin FileStatModeMixin implements FileStat {
   @override
   int get mode => FileStat.modeNotSupported;
@@ -91,5 +92,6 @@ mixin FileStatModeMixin implements FileStat {
 
 /// Special set meta support
 abstract class FileExecutableSupport implements File {
+  /// Set executable permission on a file.
   Future<void> setExecutablePermission(bool enable);
 }

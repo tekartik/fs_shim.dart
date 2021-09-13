@@ -162,15 +162,18 @@ class _GlobMatchRunner {
   String toString() => "'$glob' $globIndex '$parts' $partIndex";
 }
 
+/// Glob matching search.
 /// only support / * ** and ?
 ///
 /// Convert everything to url internally
 class Glob {
+  /// Glob star (**) matches everything and subdirs
   static bool isGlobStar(String globPart) => globPart == '**';
 
-  // The ? matches 1 of any character in a single path portion
-  // The * matches 0 or more of any character in a single path portion
-  // ** If a "globstar" is alone in a path portion, then it matches zero or more directories and subdirectories searching for matches.
+  /// Check single part.
+  /// * The ? matches 1 of any character in a single path portion
+  /// * The * matches 0 or more of any character in a single path portion
+  /// * If a "globstar" is alone in a path portion, then it matches zero or more directories and subdirectories searching for matches.
   static bool matchPart(String? globPart, String? part) {
     if (part == null) {
       return globPart == null;
@@ -181,6 +184,7 @@ class Glob {
     return runner.matches();
   }
 
+  /// Global expression.
   String expression;
   List<String>? __expressionParts;
 
@@ -190,6 +194,7 @@ class Glob {
     return __expressionParts;
   }
 
+  /// Global expression.
   Glob(this.expression) {
     __expressionParts = posix.split(expression);
   }
@@ -204,6 +209,7 @@ class Glob {
     }
   }
 
+  /// True if it matches a path defined by parts.
   bool matchesParts(List<String> parts) {
     final runner = _GlobMatchRunner(this, parts);
     return runner.matches();
@@ -212,6 +218,7 @@ class Glob {
   @override
   String toString() => '$_expressionParts';
 
+  /// True if the expression matches a dir (ends with '/').
   bool get isDir => expression.endsWith(posix.separator);
 
   @override

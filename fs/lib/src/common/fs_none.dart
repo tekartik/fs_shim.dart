@@ -1,7 +1,10 @@
+// ignore_for_file: public_member_api_docs
+
 import 'dart:typed_data';
 
 import 'package:fs_shim/src/common/import.dart';
 import 'package:path/path.dart' as p;
+
 import 'bytes_utils.dart';
 
 class FileSystemNone implements FileSystem {

@@ -37,7 +37,7 @@ linter:
     - package_api_docs
     - prefer_const_constructors
     - prefer_single_quotes
-    # - public_member_api_docs
+    - public_member_api_docs
     - sort_child_properties_last
     - test_types_in_equals
     - throw_in_finally
