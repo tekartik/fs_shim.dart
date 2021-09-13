@@ -3,7 +3,7 @@ library fs_shim.utils.path;
 import 'package:path/path.dart';
 
 /// deprecated See [toPosixPath]
-@deprecated
+@Deprecated('Use toPosixPath()')
 String posixPath(String anyPath) => toPosixPath(anyPath);
 
 /// To posix path.

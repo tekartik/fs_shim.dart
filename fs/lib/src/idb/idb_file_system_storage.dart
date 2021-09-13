@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:idb_shim/idb_client.dart' as idb;
 
@@ -383,8 +385,8 @@ class Node {
   String toString() => toMap().toString();
 
   @override
-  bool operator ==(o) {
-    return o is Node && o.id == id;
+  bool operator ==(Object other) {
+    return other is Node && other.id == id;
   }
 
   @override

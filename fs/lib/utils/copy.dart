@@ -23,7 +23,7 @@ export 'src/utils_impl.dart'
         // should deprecate
         topEntityPath;
 
-/// Main entry point
+/// Copy a directory
 ///
 /// returns dst directory
 ///
@@ -31,6 +31,7 @@ Future<Directory> copyDirectory(Directory src, Directory? dst,
         {CopyOptions? options}) =>
     _impl.copyDirectory(src, dst, options: options);
 
+/// Copy a file.
 Future<File> copyFile(File src, File dst, {CopyOptions? options}) =>
     _impl.copyFile(src, dst, options: options);
 
@@ -42,8 +43,8 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
     _impl.copyDirectoryListFiles(src, options: options);
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
-// Copy a file or a directory
-@deprecated
+/// Copy a file or a directory
+@Deprecated('User copyDirectory or copyFile')
 Future<FileSystemEntity> copyFileSystemEntity(
     FileSystemEntity src, FileSystemEntity dst,
     {CopyOptions? options}) {
@@ -63,8 +64,13 @@ class CopyOptions extends Object
         OptionsFollowLinksMixin,
         OptionsIncludeMixin {
   //final bool delete; // delete destination first
+  /// Check size and copy if newer.
   bool checkSizeAndModifiedDate;
+
+  /// Try to link file first.
   bool tryToLinkFile;
+
+  /// Try to link dir first (not supported)
   bool tryToLinkDir; // not supported yet
 
   /// Copy options.
@@ -96,13 +102,17 @@ class CopyOptions extends Object
     ..include = include;
 }
 
+/// Only copy if date is new.
 CopyOptions get copyNewerOptions => CopyOptions(checkSizeAndModifiedDate: true);
 
+/// Only link (or copy if not possible) new files.
 CopyOptions get recursiveLinkOrCopyNewerOptions => CopyOptions(
     recursive: true, checkSizeAndModifiedDate: true, tryToLinkFile: true);
 
+/// Default clone tries to link first.
 CopyOptions get defaultCloneOptions => CopyOptions(tryToLinkFile: true);
 
+/// Default copy is recursive.
 CopyOptions get defaultCopyOptions => CopyOptions()..recursive = true;
 
 /// Delete a directory recursively.
@@ -116,11 +126,13 @@ Future deleteFile(File file, {DeleteOptions? options}) =>
 /// Create options.
 class CreateOptions extends Object
     with OptionsDeleteMixin, OptionsRecursiveMixin {
+  /// Clone the options.
   CreateOptions get clone => CreateOptions()
     ..delete = delete
     ..recursive = recursive;
 }
 
+/// Default recursive create options.
 final CreateOptions defaultRecursiveCreateOptions = CreateOptions()
   ..recursive = true;
 

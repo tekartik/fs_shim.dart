@@ -10,7 +10,7 @@ import 'package:path/path.dart' as _path;
 ///
 /// First part is context dependent so this should onl be used in a file
 /// system io context on windows.
-@deprecated
+@Deprecated('No longer exported')
 List<String> splitParts(String anyPath) => _parts(anyPath);
 
 List<String> _parts(String anyPath) {

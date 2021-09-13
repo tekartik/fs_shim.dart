@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 library fs_shim.src.io.io_file_system;
 
 import 'dart:io' as io;
@@ -45,8 +47,8 @@ class IoFileSystemImpl extends Object
   int get hashCode => name.hashCode;
 
   @override
-  bool operator ==(o) {
-    return o is IoFileSystemImpl;
+  bool operator ==(Object other) {
+    return other is IoFileSystemImpl;
   }
 
   @override

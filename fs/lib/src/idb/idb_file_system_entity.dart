@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs.dart' show FileSystemEntityType, FileStat;
 import 'package:path/path.dart' as path_pkg;

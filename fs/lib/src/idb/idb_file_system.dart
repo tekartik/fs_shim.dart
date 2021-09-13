@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
@@ -205,9 +206,9 @@ class IdbFileSystem extends Object
       : _storage = IdbFileSystemStorage(factory, path ?? dbPath);
 
   @override
-  bool operator ==(o) {
-    if (o is IdbFileSystem) {
-      return o._storage == _storage;
+  bool operator ==(Object other) {
+    if (other is IdbFileSystem) {
+      return other._storage == _storage;
     }
     return false;
   }

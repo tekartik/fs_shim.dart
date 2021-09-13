@@ -28,6 +28,6 @@ class FileSystemTestContextIo extends FileSystemTestContext {
 
 String get testOutTopPath => join('.dart_tool', 'fs_shim', 'test_out');
 
-@deprecated
+@Deprecated('No longer used')
 String get testOutPath => join(testOutTopPath, joinAll(['out']));
 //String get testOutPath => join(testOutTopPath, joinAll(testDescriptions));

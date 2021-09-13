@@ -31,6 +31,7 @@ Future deleteFile(File file, {DeleteOptions? options}) async {
 Future deleteDirectory(Directory dir, {DeleteOptions? options}) =>
     fs.deleteDirectory(fs_io.wrapIoDirectory(dir), options: options);
 
+/// Copy a list of files in a directory.
 Future<List<File>> copyDirectoryListFiles(Directory src,
     {CopyOptions? options}) async {
   final ioFiles = <File>[];

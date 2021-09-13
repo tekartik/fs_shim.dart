@@ -1,3 +1,5 @@
+// ignore_for_file: public_member_api_docs
+
 library fs_shim.utils.src.utils_impl;
 
 import 'package:fs_shim/src/common/fs_mixin.dart';
@@ -27,6 +29,7 @@ set fsShimUtilsDebug(bool debug) => _fsUtilsDebug = debug;
 */
 bool _fsCopyDebug = false;
 
+/// Set debug flag for copy (dev only)
 bool get fsCopyDebug => _fsCopyDebug;
 
 ///
@@ -38,11 +41,12 @@ bool get fsCopyDebug => _fsCopyDebug;
 ///
 /// for debugging only
 ///
-@deprecated
+@Deprecated('Dev only')
 set fsCopyDebug(bool debug) => _fsCopyDebug = debug;
 
 bool _fsDeleteDebug = false;
 
+/// Set debug flag for delete (dev only)
 bool get fsDeleteDebug => _fsDeleteDebug;
 
 ///
@@ -54,7 +58,7 @@ bool get fsDeleteDebug => _fsDeleteDebug;
 ///
 /// for debugging only
 ///
-@deprecated
+@Deprecated('Dev only')
 set fsDeleteDebug(bool debug) => _fsDeleteDebug = debug;
 
 // should not be exported
