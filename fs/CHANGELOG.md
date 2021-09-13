@@ -1,5 +1,6 @@
-# Changelog
+## 2.0.2
 
+* dart 2.14 lints
 ## 2.0.1+2
 
 * Idb file system now always uses `/` separator even on idb io windows (never used).
