@@ -104,7 +104,7 @@ class FileMode {
 
   /// The mode for opening a file only for reading.
   static const read = FileMode._internal(0);
-  @deprecated
+  @Deprecated('Use read')
   // ignore: constant_identifier_names, public_member_api_docs
   static const READ = read;
 
@@ -112,14 +112,14 @@ class FileMode {
   /// overwritten if it already exists. The file is created if it does not
   /// already exist.
   static const write = FileMode._internal(1);
-  @deprecated
+  @Deprecated('Use write')
   // ignore: constant_identifier_names, public_member_api_docs
   static const WRITE = write;
 
   /// The mode for opening a file for reading and writing to the
   /// end of it. The file is created if it does not already exist.
   static const append = FileMode._internal(2);
-  @deprecated
+  @Deprecated('Use append')
   // ignore: constant_identifier_names, public_member_api_docs
   static const APPEND = append;
 
@@ -407,25 +407,25 @@ class FileSystemEntityType {
 
   /// File type.
   static const file = FileSystemEntityType._internal(0);
-  @deprecated
+  @Deprecated('Use file')
   // ignore: constant_identifier_names, public_member_api_docs
   static const FILE = file;
 
   /// Directory type.
   static const directory = FileSystemEntityType._internal(1);
-  @deprecated
+  @Deprecated('Use directory')
   // ignore: constant_identifier_names, public_member_api_docs
   static const DIRECTORY = directory;
 
   /// Link type.
   static const link = FileSystemEntityType._internal(2);
-  @deprecated
+  @Deprecated('Use link')
   // ignore: constant_identifier_names, public_member_api_docs
   static const LINK = link;
 
   /// Not found.
   static const notFound = FileSystemEntityType._internal(3);
-  @deprecated
+  @Deprecated('Use notFound')
   // ignore: constant_identifier_names, public_member_api_docs
   static const NOT_FOUND = notFound;
 
@@ -505,7 +505,7 @@ abstract class FileSystem {
   p.Context get path;
 
   // User [path] instead
-  @deprecated
+  @Deprecated('Use path')
   // ignore: public_member_api_docs
   p.Context get pathContext;
 }

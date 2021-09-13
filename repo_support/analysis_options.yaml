@@ -1,2 +1,21 @@
 # tekartik analysis_options extension to pedantic
-include: package:pedantic/analysis_options.yaml
+include: package:lints/recommended.yaml
+
+linter:
+  rules:
+    - always_declare_return_types
+    - avoid_dynamic_calls
+    - avoid_slow_async_io
+    - cancel_subscriptions
+    - directives_ordering
+    - no_adjacent_strings_in_list
+    - omit_local_variable_types
+    - package_api_docs
+    - prefer_single_quotes
+    - sort_child_properties_last
+    - test_types_in_equals
+    - throw_in_finally
+    - unawaited_futures
+    - unnecessary_null_aware_assignments
+    - unnecessary_statements
+    - unsafe_html

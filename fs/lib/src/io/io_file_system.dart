@@ -45,8 +45,8 @@ class IoFileSystemImpl extends Object
   int get hashCode => name.hashCode;
 
   @override
-  bool operator ==(o) {
-    return o is IoFileSystemImpl;
+  bool operator ==(Object other) {
+    return other is IoFileSystemImpl;
   }
 
   @override

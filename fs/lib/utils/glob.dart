@@ -218,9 +218,9 @@ class Glob {
   int get hashCode => expression.hashCode;
 
   @override
-  bool operator ==(o) {
-    if (o is Glob) {
-      return o.expression == expression;
+  bool operator ==(Object other) {
+    if (other is Glob) {
+      return other.expression == expression;
     }
     return false;
   }

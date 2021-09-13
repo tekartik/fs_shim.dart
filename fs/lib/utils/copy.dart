@@ -43,7 +43,7 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
 // Copy a file or a directory
-@deprecated
+@Deprecated('User copyDirectory or copyFile')
 Future<FileSystemEntity> copyFileSystemEntity(
     FileSystemEntity src, FileSystemEntity dst,
     {CopyOptions? options}) {

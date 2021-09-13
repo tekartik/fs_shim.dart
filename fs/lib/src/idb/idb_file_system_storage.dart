@@ -383,8 +383,8 @@ class Node {
   String toString() => toMap().toString();
 
   @override
-  bool operator ==(o) {
-    return o is Node && o.id == id;
+  bool operator ==(Object other) {
+    return other is Node && other.id == id;
   }
 
   @override
