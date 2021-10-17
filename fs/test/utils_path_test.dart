@@ -20,7 +20,10 @@ void main() {
     });
     test('posixPath', () {
       expect(toPosixPath('/'), '/');
+
       expect(toPosixPath('a'), 'a');
+      expect(toPosixPath('a/'), 'a');
+      expect(toPosixPath('a\\'), 'a');
       expect(toPosixPath('\\'), '/');
       expect(toPosixPath('/a'), '/a');
       expect(toPosixPath('\\a'), '/a');
@@ -28,23 +31,24 @@ void main() {
       expect(toPosixPath('a\\b'), 'a/b');
       expect(toPosixPath('\\a/b'), '/a/b');
       expect(toPosixPath('/a\\b'), '/a/b');
+      expect(toPosixPath('C:\\'), '/C:');
+      expect(toPosixPath('C:\\a'), '/C:/a');
     });
     test('urlPath', () {
+      // same as toPosixPath...
       expect(toUrlPath('/'), '/');
       expect(toUrlPath('a'), 'a');
       expect(toUrlPath('\\'), '/');
-      expect(toUrlPath('/a'), '/a');
-      expect(toUrlPath('\\a'), '/a');
-      expect(toUrlPath('a/b'), 'a/b');
-      expect(toUrlPath('a\\b'), 'a/b');
-      expect(toUrlPath('\\a/b'), '/a/b');
-      expect(toUrlPath('/a\\b'), '/a/b');
     });
-    test('urlPath', () {
+    test('toWindowsPath', () {
+      expect(toWindowsPath('/C:/'), 'C:');
+      expect(toWindowsPath('/C:/a'), 'C:\\a');
       expect(toWindowsPath('C:\\'), 'C:\\');
       expect(toWindowsPath('C:\\a/b'), 'C:\\a\\b');
       expect(toWindowsPath('/'), '\\');
       expect(toWindowsPath('a'), 'a');
+      expect(toWindowsPath('a/'), 'a');
+      expect(toWindowsPath('a\\'), 'a');
       expect(toWindowsPath('\\'), '\\');
       expect(toWindowsPath('/a'), '\\a');
       expect(toWindowsPath('\\a'), '\\a');

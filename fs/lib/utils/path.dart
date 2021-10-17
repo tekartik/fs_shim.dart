@@ -10,18 +10,46 @@ String posixPath(String anyPath) => toPosixPath(anyPath);
 ///
 /// \a\b => /a/b
 /// /a\b => /a/b
-String toPosixPath(String anyPath) => toContextPath(posix, anyPath);
+/// C:\ => /C:/
+String toPosixPath(String anyPath) {
+  var context = posix;
+  var parts = contextPathSplit(context, anyPath);
+  // Handle C:\
+  if (parts.isNotEmpty) {
+    var rootPart = parts[0];
+
+    if (rootPart.endsWith(':')) {
+      parts = ['/', ...parts];
+    } else if (rootPart.endsWith(':\\')) {
+      parts = [
+        '/',
+        rootPart.substring(0, rootPart.length - 1),
+        ...parts.sublist(1)
+      ];
+    }
+  }
+  return context.joinAll(parts);
+}
 
 /// To url path (same result than posix)
 ///
 /// \a\b => /a/b
-String toUrlPath(String anyPath) => toContextPath(url, anyPath);
+String toUrlPath(String anyPath) => toPosixPath(anyPath);
 
 /// To windows path (same result than posix)
 ///
 /// /a/b => \a\b
 /// \a/b => \a\b
-String toWindowsPath(String anyPath) => toContextPath(windows, anyPath);
+/// /c:/ => C:\
+String toWindowsPath(String anyPath) {
+  var context = windows;
+  var parts = contextPathSplit(context, anyPath);
+  // Handle C:\xxx
+  if (parts.length > 1 && parts[1].endsWith(':')) {
+    parts = parts.sublist(1);
+  }
+  return context.joinAll(parts);
+}
 
 /// Is part separator (posix/windows/url...
 bool isPathPartSeparator(String part) =>
@@ -42,6 +70,11 @@ List<String> contextPathSplit(Context context, String path) {
   if (isPathPartSeparator(rootPart) && context.separator != rootPart) {
     parts[0] = context.separator;
   }
+  // Handle /C:/ parsing
+  if (parts.length > 1 && parts[1].endsWith(':')) {
+    parts = parts.sublist(1);
+  }
+
   return parts;
 }
 
