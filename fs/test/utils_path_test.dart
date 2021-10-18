@@ -66,6 +66,11 @@ void main() {
       expect(toContextPath(posix, '/C:/a'), '/C:/a');
       expect(toContextPath(windows, 'C:\\a'), 'C:\\a');
       expect(toContextPath(posix, 'C:\\a'), '/C:/a');
+
+      var windowsContext = Context(style: Style.windows);
+      expect(toContextPath(windowsContext, 'C:\\a'), 'C:\\a');
+      var posixContext = Context(style: Style.posix);
+      expect(toContextPath(posixContext, 'C:\\a'), '/C:/a');
     });
     // Kept for quick experiment
     group('raw_exp', () {
