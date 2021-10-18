@@ -80,8 +80,11 @@ List<String> contextPathSplit(Context context, String path) {
 
 /// Convert any path in the context mode, dealing with separators.
 String toContextPath(Context context, String anyPath) {
-  final parts = contextPathSplit(context, anyPath);
-  return context.joinAll(parts);
+  if (context == windows) {
+    return toWindowsPath(anyPath);
+  } else {
+    return toPosixPath(anyPath);
+  }
 }
 
 /// Deprecated see [toContextPath]

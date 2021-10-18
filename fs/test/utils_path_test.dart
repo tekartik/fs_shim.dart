@@ -18,7 +18,7 @@ void main() {
       expect(contextPathSplit(url, '\\'), ['/']);
       expect(contextPathSplit(url, '\\a/b\\c/d'), ['/', 'a', 'b', 'c', 'd']);
     });
-    test('posixPath', () {
+    test('toPosixPath', () {
       expect(toPosixPath('/'), '/');
 
       expect(toPosixPath('a'), 'a');
@@ -56,6 +56,16 @@ void main() {
       expect(toWindowsPath('a\\b'), 'a\\b');
       expect(toWindowsPath('\\a/b'), '\\a\\b');
       expect(toWindowsPath('/a\\b'), '\\a\\b');
+    });
+    test('toContextPath', () {
+      expect(toContextPath(windows, '/C:/'), 'C:');
+      expect(toContextPath(posix, '/C:/'), '/C:');
+      expect(toContextPath(windows, 'C:\\'), 'C:\\');
+      expect(toContextPath(posix, 'C:\\'), '/C:');
+      expect(toContextPath(windows, '/C:/a'), 'C:\\a');
+      expect(toContextPath(posix, '/C:/a'), '/C:/a');
+      expect(toContextPath(windows, 'C:\\a'), 'C:\\a');
+      expect(toContextPath(posix, 'C:\\a'), '/C:/a');
     });
     // Kept for quick experiment
     group('raw_exp', () {

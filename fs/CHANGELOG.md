@@ -1,4 +1,4 @@
-## 2.0.2+1
+## 2.0.2+2
 
 * dart 2.14 lints
 * fix toPosixPath to handle proper conversion of windows drive letter
