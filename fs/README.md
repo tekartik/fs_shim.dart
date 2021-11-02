@@ -177,7 +177,7 @@ Stable
 Bleeding age
 
     fs_shim:
-        git: git://github.com/tekartik/fs_shim.dart
+        git: https://github.com/tekartik/fs_shim.dart
 
 ## Features and bugs
 
