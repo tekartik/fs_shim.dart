@@ -146,7 +146,7 @@ pubspec.yaml:
 dependency:
   tekartik_fs_node:
     git:
-      url: git://github.com/tekartik/fs_shim.dart
+      url: https://github.com/tekartik/fs_shim.dart
       path: fs_node
 ```
 
@@ -178,7 +178,7 @@ Bleeding age
 
     fs_shim:
       git: 
-        url: git://github.com/tekartik/fs_shim.dart
+        url: https://github.com/tekartik/fs_shim.dart
           path: fs
 
 ### Testing with dartdevc

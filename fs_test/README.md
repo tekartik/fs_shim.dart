@@ -9,9 +9,9 @@ In `pubspec.yaml`:
 ```yaml
   tekartik_fs_test:
     git:
-      url: git://github.com/tekartik/fs_shim.dart
+      url: https://github.com/tekartik/fs_shim.dart
       path: fs_test
-      ref: null_safety
+      ref: dart2_3
     version: '>=0.1.0'
 ```
 ## Usage

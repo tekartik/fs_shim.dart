@@ -18,9 +18,12 @@ void main() {
       expect(contextPathSplit(url, '\\'), ['/']);
       expect(contextPathSplit(url, '\\a/b\\c/d'), ['/', 'a', 'b', 'c', 'd']);
     });
-    test('posixPath', () {
+    test('toPosixPath', () {
       expect(toPosixPath('/'), '/');
+
       expect(toPosixPath('a'), 'a');
+      expect(toPosixPath('a/'), 'a');
+      expect(toPosixPath('a\\'), 'a');
       expect(toPosixPath('\\'), '/');
       expect(toPosixPath('/a'), '/a');
       expect(toPosixPath('\\a'), '/a');
@@ -28,23 +31,24 @@ void main() {
       expect(toPosixPath('a\\b'), 'a/b');
       expect(toPosixPath('\\a/b'), '/a/b');
       expect(toPosixPath('/a\\b'), '/a/b');
+      expect(toPosixPath('C:\\'), '/C:');
+      expect(toPosixPath('C:\\a'), '/C:/a');
     });
     test('urlPath', () {
+      // same as toPosixPath...
       expect(toUrlPath('/'), '/');
       expect(toUrlPath('a'), 'a');
       expect(toUrlPath('\\'), '/');
-      expect(toUrlPath('/a'), '/a');
-      expect(toUrlPath('\\a'), '/a');
-      expect(toUrlPath('a/b'), 'a/b');
-      expect(toUrlPath('a\\b'), 'a/b');
-      expect(toUrlPath('\\a/b'), '/a/b');
-      expect(toUrlPath('/a\\b'), '/a/b');
     });
-    test('urlPath', () {
+    test('toWindowsPath', () {
+      expect(toWindowsPath('/C:/'), 'C:');
+      expect(toWindowsPath('/C:/a'), 'C:\\a');
       expect(toWindowsPath('C:\\'), 'C:\\');
       expect(toWindowsPath('C:\\a/b'), 'C:\\a\\b');
       expect(toWindowsPath('/'), '\\');
       expect(toWindowsPath('a'), 'a');
+      expect(toWindowsPath('a/'), 'a');
+      expect(toWindowsPath('a\\'), 'a');
       expect(toWindowsPath('\\'), '\\');
       expect(toWindowsPath('/a'), '\\a');
       expect(toWindowsPath('\\a'), '\\a');
@@ -52,6 +56,21 @@ void main() {
       expect(toWindowsPath('a\\b'), 'a\\b');
       expect(toWindowsPath('\\a/b'), '\\a\\b');
       expect(toWindowsPath('/a\\b'), '\\a\\b');
+    });
+    test('toContextPath', () {
+      expect(toContextPath(windows, '/C:/'), 'C:');
+      expect(toContextPath(posix, '/C:/'), '/C:');
+      expect(toContextPath(windows, 'C:\\'), 'C:\\');
+      expect(toContextPath(posix, 'C:\\'), '/C:');
+      expect(toContextPath(windows, '/C:/a'), 'C:\\a');
+      expect(toContextPath(posix, '/C:/a'), '/C:/a');
+      expect(toContextPath(windows, 'C:\\a'), 'C:\\a');
+      expect(toContextPath(posix, 'C:\\a'), '/C:/a');
+
+      var windowsContext = Context(style: Style.windows);
+      expect(toContextPath(windowsContext, 'C:\\a'), 'C:\\a');
+      var posixContext = Context(style: Style.posix);
+      expect(toContextPath(posixContext, 'C:\\a'), '/C:/a');
     });
     // Kept for quick experiment
     group('raw_exp', () {

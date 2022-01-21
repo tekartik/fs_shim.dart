@@ -13,13 +13,13 @@ dependencies:
   path: '>=1.6.1'
   tekartik_platform:
     git:
-      url: git://github.com/tekartik/platform.dart
+      url: https://github.com/tekartik/platform.dart
       path: platform
-      ref: null_safety
+      ref: dart2_3
   tekartik_common_utils:
     git:
-      url: git://github.com/tekartik/common_utils.dart
-      ref: null_safety
+      url: https://github.com/tekartik/common_utils.dart
+      ref: dart2_3
     version: '>=0.10.7'
   test: ">=1.2.0"
   dev_test: '>=0.13.1+1'
@@ -31,9 +31,9 @@ dev_dependencies:
   process_run: '>=0.10.3'
   tekartik_platform_io:
     git:
-      url: git://github.com/tekartik/platform.dart
+      url: https://github.com/tekartik/platform.dart
       path: platform_io
-      ref: null_safety
+      ref: dart2_3
   build_web_compilers: '>=0.4.0'
 
 dependency_overrides:
