@@ -198,11 +198,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       try {
         await dir.rename(path2);
-        if (!isIoWindows(ctx)) {
-          fail('should fail');
-        }
+        fail('should fail');
       } on FileSystemException catch (e) {
-        expect(isIoWindows(ctx), isFalse);
         // [39] FileSystemException: Rename failed, path = '/idb_io/dir/rename_over_existing_not_empty/dir' (OS Error: Directory not empty, errno = 39)
         //expect(e.status, FileSystemException.statusNotEmpty);
         // travis returns 17!
