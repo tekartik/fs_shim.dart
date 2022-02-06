@@ -172,13 +172,13 @@ void defineTests(FileSystemTestContext ctx) {
       // Starting 2.16, this fails on windows only
       try {
         await dir.rename(path2);
-        if (!isIoWindows(ctx)) {
+        if (isIoWindows(ctx)) {
           fail('should fail');
         }
         expect(await dir.exists(), isFalse);
         expect(await dir2.exists(), isTrue);
       } on FileSystemException catch (e) {
-        expect(isIoWindows(ctx), isFalse);
+        expect(isIoWindows(ctx), isTrue);
         //   [17] FileSystemException: Rename failed, path = 'D:\a\fs_shim.dart\fs_shim.dart\fs\.dart_tool\fs_shim\test\test12\dir' (OS Error: Cannot create a file when that file already exists.
         expect(e.status == FileSystemException.statusAlreadyExists, isTrue,
             reason: e.toString());
