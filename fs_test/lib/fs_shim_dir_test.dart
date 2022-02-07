@@ -169,9 +169,20 @@ void defineTests(FileSystemTestContext ctx) {
       await dir.create();
       await dir2.create();
 
-      await dir.rename(path2);
-      expect(await dir.exists(), isFalse);
-      expect(await dir2.exists(), isTrue);
+      // Starting 2.16, this fails on windows only
+      try {
+        await dir.rename(path2);
+        if (isIoWindows(ctx)) {
+          fail('should fail');
+        }
+        expect(await dir.exists(), isFalse);
+        expect(await dir2.exists(), isTrue);
+      } on FileSystemException catch (e) {
+        expect(isIoWindows(ctx), isTrue);
+        //   [17] FileSystemException: Rename failed, path = 'D:\a\fs_shim.dart\fs_shim.dart\fs\.dart_tool\fs_shim\test\test12\dir' (OS Error: Cannot create a file when that file already exists.
+        expect(e.status == FileSystemException.statusAlreadyExists, isTrue,
+            reason: e.toString());
+      }
     });
 
     // This fails on windows
@@ -187,11 +198,8 @@ void defineTests(FileSystemTestContext ctx) {
 
       try {
         await dir.rename(path2);
-        if (!isIoWindows(ctx)) {
-          fail('should fail');
-        }
+        fail('should fail');
       } on FileSystemException catch (e) {
-        expect(isIoWindows(ctx), isFalse);
         // [39] FileSystemException: Rename failed, path = '/idb_io/dir/rename_over_existing_not_empty/dir' (OS Error: Directory not empty, errno = 39)
         //expect(e.status, FileSystemException.statusNotEmpty);
         // travis returns 17!
