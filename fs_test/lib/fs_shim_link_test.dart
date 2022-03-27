@@ -29,12 +29,12 @@ void _printErr(e) {
 void defineTests(FileSystemTestContext ctx) {
   _ctx = ctx;
 
-  final _linkSupported = fs.supportsLink;
+  final linkSupported = fs.supportsLink;
 
   test('supportsLink', () {
-    expect(fs.supportsLink, _linkSupported);
+    expect(fs.supportsLink, linkSupported);
   });
-  if (_linkSupported) {
+  if (linkSupported) {
     group('link', () {
       test('new', () {
         var link = fs.link('dummy');
@@ -193,7 +193,7 @@ void defineTests(FileSystemTestContext ctx) {
         }
       });
 
-      test('create_dir', () async {
+      test('createdirectory', () async {
         final top = await ctx.prepare();
 
         final target = fs.path.join(top.path, 'target');
@@ -224,7 +224,7 @@ void defineTests(FileSystemTestContext ctx) {
           _printErr(e);
 
           if (isIoWindows(ctx)) {
-            // [5] FileSystemException: Cannot create link to target 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir\other_target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir\link' (OS Error: Access is denied. errno = 5) [FileSystemExceptionImpl]
+            // [5] FileSystemException: Cannot create link to target 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\createdirectory\other_target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\createdirectory\link' (OS Error: Access is denied. errno = 5) [FileSystemExceptionImpl]
             expect(e.status, FileSystemException.statusAccessError);
           } else {
             // [17] FileSystemException: Cannot create link to target '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_file/link' (OS Error: File exists, errno = 17) [FileSystemException]
@@ -233,7 +233,7 @@ void defineTests(FileSystemTestContext ctx) {
         }
       });
 
-      test('create_link_dir', () async {
+      test('create_linkdirectory', () async {
         final top = await ctx.prepare();
 
         final dir = fs.directory(fs.path.join(top.path, 'dir'));
@@ -253,7 +253,7 @@ void defineTests(FileSystemTestContext ctx) {
               expect(e.status, FileSystemException.statusNotFound);
             } catch (te) {
               if (isIoWindows(ctx)) {
-                // [17] FileSystemException: Creation failed, path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_link_dir\link' (OS Error: Cannot create a file when that file already exists.
+                // [17] FileSystemException: Creation failed, path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_linkdirectory\link' (OS Error: Cannot create a file when that file already exists.
                 //, errno = 183) [FileSystemExceptionImpl]
                 expect(e.status, FileSystemException.statusAlreadyExists);
               } else {
@@ -326,10 +326,10 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('rename', () async {
-        final _dir = await ctx.prepare();
+        final directory = await ctx.prepare();
 
-        final path = fs.path.join(_dir.path, 'link');
-        final path2 = fs.path.join(_dir.path, 'link2');
+        final path = fs.path.join(directory.path, 'link');
+        final path2 = fs.path.join(directory.path, 'link2');
         final link = fs.link(path);
         await link.create('target');
         final link2 = await link.rename(path2);
@@ -340,10 +340,10 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('rename_not_found', () async {
-        final _dir = await ctx.prepare();
+        final directory = await ctx.prepare();
 
-        final path = fs.path.join(_dir.path, 'link');
-        final path2 = fs.path.join(_dir.path, 'link2');
+        final path = fs.path.join(directory.path, 'link');
+        final path2 = fs.path.join(directory.path, 'link2');
         final file = fs.link(path);
         try {
           await file.rename(path2);
@@ -365,10 +365,11 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('file_follow_links', () async {
         if (fs.supportsFileLink) {
-          final _dir = await ctx.prepare();
-          final file = fs.file(fs.path.join(_dir.path, 'file'));
-          final link =
-              await fs.link(fs.path.join(_dir.path, 'link')).create(file.path);
+          final directory = await ctx.prepare();
+          final file = fs.file(fs.path.join(directory.path, 'file'));
+          final link = await fs
+              .link(fs.path.join(directory.path, 'link'))
+              .create(file.path);
 
           expect(await fs.type(link.path, followLinks: false),
               FileSystemEntityType.link);
@@ -418,16 +419,17 @@ void defineTests(FileSystemTestContext ctx) {
       test('link_read_string', () async {
         if (fs.supportsFileLink) {
           final text = 'test';
-          final _dir = await ctx.prepare();
-          var filePath = fs.path.join(_dir.path, 'file');
+          final directory = await ctx.prepare();
+          var filePath = fs.path.join(directory.path, 'file');
           var file = fs.file(filePath);
           await file.writeAsString(text, flush: true);
           // check content
           expect(await file.readAsString(), text);
 
           // create a link to the file
-          final link =
-              await fs.link(fs.path.join(_dir.path, 'link')).create(filePath);
+          final link = await fs
+              .link(fs.path.join(directory.path, 'link'))
+              .create(filePath);
           expect(await fs.isLink(link.path), isTrue);
 
           // check again content
@@ -442,13 +444,14 @@ void defineTests(FileSystemTestContext ctx) {
       test('link_write_string', () async {
         if (fs.supportsFileLink) {
           final text = 'test';
-          final _dir = await ctx.prepare();
-          var filePath = fs.path.join(_dir.path, 'file');
+          final directory = await ctx.prepare();
+          var filePath = fs.path.join(directory.path, 'file');
           final file = fs.file(filePath);
 
           // create a link to the file
-          final link =
-              await fs.link(fs.path.join(_dir.path, 'link')).create(filePath);
+          final link = await fs
+              .link(fs.path.join(directory.path, 'link'))
+              .create(filePath);
 
           expect(await fs.isLink(link.path), isTrue);
 
@@ -558,13 +561,14 @@ void defineTests(FileSystemTestContext ctx) {
       test('link_append_string', () async {
         if (fs.supportsFileLink) {
           final text = 'test';
-          final _dir = await ctx.prepare();
-          var filePath = fs.path.join(_dir.path, 'file');
+          final directory = await ctx.prepare();
+          var filePath = fs.path.join(directory.path, 'file');
           final file = fs.file(filePath);
 
           // create a link to the file
-          final link =
-              await fs.link(fs.path.join(_dir.path, 'link')).create(filePath);
+          final link = await fs
+              .link(fs.path.join(directory.path, 'link'))
+              .create(filePath);
 
           expect(await fs.isLink(link.path), isTrue);
 
@@ -590,9 +594,9 @@ void defineTests(FileSystemTestContext ctx) {
 
       test('file_stat', () async {
         if (fs.supportsFileLink) {
-          final _dir = await ctx.prepare();
+          final directory = await ctx.prepare();
 
-          var link = fs.link(fs.path.join(_dir.path, 'link'));
+          var link = fs.link(fs.path.join(directory.path, 'link'));
           var stat = await link.stat();
           expect(stat.type, FileSystemEntityType.notFound);
           expect(stat.size, -1);
@@ -604,7 +608,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(stat.size, -1);
           expectNotFoundDateTime(stat.modified);
 
-          final file = fs.file(fs.path.join(_dir.path, 'file'));
+          final file = fs.file(fs.path.join(directory.path, 'file'));
 
           await file.writeAsString('test', flush: true);
           stat = await link.stat();
@@ -613,7 +617,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(stat.modified, isNotNull);
 
           // rename
-          link = await link.rename(fs.path.join(_dir.path, 'link2'));
+          link = await link.rename(fs.path.join(directory.path, 'link2'));
           stat = await link.stat();
           expect(stat.type, FileSystemEntityType.file);
           expect(stat.size, 4);
@@ -663,10 +667,10 @@ void defineTests(FileSystemTestContext ctx) {
       });
 
       test('rename_over_existing_different_type', () async {
-        final _dir = await ctx.prepare();
+        final directory = await ctx.prepare();
 
-        final path = fs.path.join(_dir.path, 'dir');
-        final path2 = fs.path.join(_dir.path, 'link');
+        final path = fs.path.join(directory.path, 'dir');
+        final path2 = fs.path.join(directory.path, 'link');
         final dir = fs.directory(path);
         final link = fs.link(path2);
         await dir.create();
@@ -685,7 +689,7 @@ void defineTests(FileSystemTestContext ctx) {
         }
       });
 
-      test('create_dir_or_file', () async {
+      test('createdirectory_or_file', () async {
         final top = await ctx.prepare();
 
         final path = fs.path.join(top.path, 'dir_or_file');
@@ -701,15 +705,15 @@ void defineTests(FileSystemTestContext ctx) {
           _printErr(e);
           try {
             if (isIoWindows(ctx)) {
-              // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant.      , errno = 183)
+              // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\createdirectory_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\createdirectory_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant.      , errno = 183)
               expect(e.status, FileSystemException.statusAlreadyExists);
             } else {
-              // [17] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: File exists, errno = 17)
+              // [17] FileSystemException: Creation failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: File exists, errno = 17)
               expect(e.status, FileSystemException.statusAlreadyExists);
             }
           } catch (te) {
             if (isIoWindows(ctx)) {
-              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir_or_file\dir_or_file' (OS Error: Access is denied.
+              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\createdirectory_or_file\dir_or_file' (OS Error: Access is denied.
               //, errno = 5) [FileSystemExceptionImpl]
               expect(e.status, FileSystemException.statusAccessError);
             } else {
@@ -731,17 +735,17 @@ void defineTests(FileSystemTestContext ctx) {
           // Invalid argument for link
 
           if (isIoWindows(ctx)) {
-            // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
+            // FileSystemException: Cannot delete link, path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\createdirectory_or_file\dir_or_file' (OS Error: Le fichier ou rÃ©pertoire nâ€™est pas un point dâ€™analyse., errno = 4390)
             try {
               expect(e.status, FileSystemException.statusInvalidArgument);
             } catch (te) {
-              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir_or_file\dir_or_file' (OS Error: Access is denied.
+              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\createdirectory_or_file\dir_or_file' (OS Error: Access is denied.
               //, errno = 5) [FileSystemExceptionImpl]
               expect(e.status, FileSystemException.statusAccessError);
             }
           } else {
-            // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
-            // [20] FileSystemException: Deletion failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+            // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
+            // [20] FileSystemException: Deletion failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
             expect(e.status, FileSystemException.statusIsADirectory);
             /*
             if (isIo(ctx)) {
@@ -765,16 +769,16 @@ void defineTests(FileSystemTestContext ctx) {
           _printErr(e);
           if (isIoWindows(ctx)) {
             try {
-              // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\create_dir_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant., errno = 183)
+              // [17] FileSystemException: Cannot create link to target '\??\C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\createdirectory_or_file\target', path = 'C:\devx\git\github.com\tekartik\fs_shim.dart\test_out\io\link\createdirectory_or_file\dir_or_file' (OS Error: Impossible de crÃ©er un fichier dÃ©jÃ  existant., errno = 183)
               expect(e.status, FileSystemException.statusAlreadyExists);
             } catch (te) {
-              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\create_dir_or_file\dir_or_file' (OS Error: Access is denied.
+              // [5] FileSystemException: Cannot create link to target 'target', path = 'C:\opt\devx\git\github.com\tekartik\fs_shim.dart\fs\.dart_tool\fs_shim\test\io\link\createdirectory_or_file\dir_or_file' (OS Error: Access is denied.
               //, errno = 5) [FileSystemExceptionImpl]
               expect(e.status, FileSystemException.statusAccessError);
             }
           } else {
-            // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
-            // [21] FileSystemException: Creation failed, path = '/file/create_dir_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+            // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
+            // [21] FileSystemException: Creation failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
             expect(e.status, FileSystemException.statusAlreadyExists);
           }
         }
@@ -955,7 +959,7 @@ void defineTests(FileSystemTestContext ctx) {
           }
         });
 
-        test('list_dir_link_recursive', () async {
+        test('listdirectory_link_recursive', () async {
           if (fs.supportsLink) {
             List<FileSystemEntity> list;
             final top = await ctx.prepare();

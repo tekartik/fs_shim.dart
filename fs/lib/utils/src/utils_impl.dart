@@ -5,7 +5,7 @@ library fs_shim.utils.src.utils_impl;
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/utils/copy.dart';
-import 'package:path/path.dart' as _path;
+import 'package:path/path.dart' as p;
 //import 'package:logging/logging.dart' as log;
 
 /*
@@ -482,7 +482,7 @@ class CopyEntity extends Object
   //CopyEntity.main(this.fs, String top) : _top = top;
   CopyEntity(this.parent, String relative) {
     //relative = _path.relative(relative, from: parent.path);
-    basename = _path.basename(relative);
+    basename = p.basename(relative);
     _parts = List.from(parent.parts!);
     if (relative != utilsCurrentFolderPart) {
       _parts!.addAll(contextPathSplit(fs.path, relative));

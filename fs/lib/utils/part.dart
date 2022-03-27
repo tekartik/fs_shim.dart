@@ -1,6 +1,6 @@
 library fs_shim.utils.part;
 
-import 'package:path/path.dart' as _path;
+import 'package:path/path.dart' as p;
 
 ///
 /// Get the parts from any style (linux/windows)
@@ -14,6 +14,6 @@ import 'package:path/path.dart' as _path;
 List<String> splitParts(String anyPath) => _parts(anyPath);
 
 List<String> _parts(String anyPath) {
-  final parts = _path.windows.split(anyPath);
+  final parts = p.windows.split(anyPath);
   return parts;
 }
