@@ -3,7 +3,7 @@ library fs_shim.utils.copy;
 import 'package:fs_shim/src/common/import.dart';
 
 import 'src/utils_impl.dart';
-import 'src/utils_impl.dart' as _impl;
+import 'src/utils_impl.dart' as utils_impl;
 
 export 'src/utils_impl.dart'
     show
@@ -29,18 +29,18 @@ export 'src/utils_impl.dart'
 ///
 Future<Directory> copyDirectory(Directory src, Directory? dst,
         {CopyOptions? options}) =>
-    _impl.copyDirectory(src, dst, options: options);
+    utils_impl.copyDirectory(src, dst, options: options);
 
 /// Copy a file.
 Future<File> copyFile(File src, File dst, {CopyOptions? options}) =>
-    _impl.copyFile(src, dst, options: options);
+    utils_impl.copyFile(src, dst, options: options);
 
 ///
 /// List the files to be copied
 ///
 Future<List<File>> copyDirectoryListFiles(Directory src,
         {CopyOptions? options}) =>
-    _impl.copyDirectoryListFiles(src, options: options);
+    utils_impl.copyDirectoryListFiles(src, options: options);
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
 /// Copy a file or a directory
@@ -49,7 +49,7 @@ Future<FileSystemEntity> copyFileSystemEntity(
     FileSystemEntity src, FileSystemEntity dst,
     {CopyOptions? options}) {
   options ??= CopyOptions(); // old behavior will change!
-  return _impl.copyFileSystemEntity(src, dst, options: options);
+  return utils_impl.copyFileSystemEntity(src, dst, options: options);
 }
 
 /// Copy options.
@@ -117,11 +117,11 @@ CopyOptions get defaultCopyOptions => CopyOptions()..recursive = true;
 
 /// Delete a directory recursively.
 Future deleteDirectory(Directory dir, {DeleteOptions? options}) =>
-    _impl.deleteDirectory(dir, options: options);
+    utils_impl.deleteDirectory(dir, options: options);
 
 /// Delete a file recursively.
 Future deleteFile(File file, {DeleteOptions? options}) =>
-    _impl.deleteFile(file, options: options);
+    utils_impl.deleteFile(file, options: options);
 
 /// Create options.
 class CreateOptions extends Object
@@ -141,11 +141,11 @@ final CreateOptions defaultCreateOptions = defaultRecursiveCreateOptions;
 
 /// Create a directory recursively
 Future<Directory> createDirectory(Directory dir, {CreateOptions? options}) =>
-    _impl.createDirectory(dir, options: options);
+    utils_impl.createDirectory(dir, options: options);
 
 /// Create a directory recursively
 Future<File> createFile(File file, {CreateOptions? options}) =>
-    _impl.createFile(file, options: options);
+    utils_impl.createFile(file, options: options);
 
 /// Delete options.
 class DeleteOptions extends Object

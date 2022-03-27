@@ -24,20 +24,21 @@ analyzer:
 
 linter:
   rules:
-    - always_declare_return_types
-    - avoid_dynamic_calls
-    - avoid_slow_async_io
-    - cancel_subscriptions
-    - directives_ordering
-    - no_adjacent_strings_in_list
-    - omit_local_variable_types
-    - package_api_docs
-    - prefer_const_constructors
-    - prefer_single_quotes
-    - sort_child_properties_last
-    - test_types_in_equals
-    - throw_in_finally
-    - unawaited_futures
-    - unnecessary_null_aware_assignments
-    - unnecessary_statements
-    - unsafe_html
+    always_declare_return_types: true
+    avoid_dynamic_calls: true
+    avoid_slow_async_io: true
+    cancel_subscriptions: true
+    directives_ordering: true
+    no_adjacent_strings_in_list: true
+    omit_local_variable_types: true
+    package_api_docs: true
+    prefer_const_constructors: true
+    prefer_single_quotes: true
+    sort_child_properties_last: true
+    test_types_in_equals: true
+    throw_in_finally: true
+    unawaited_futures: true
+    unnecessary_null_aware_assignments: true
+    unnecessary_statements: true
+    unsafe_html: true
+    depend_on_referenced_packages: false

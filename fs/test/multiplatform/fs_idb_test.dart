@@ -6,7 +6,7 @@ library fs_shim.test.multiplatform.fs_idb_test;
 import 'package:fs_shim/fs.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
-import 'fs_test.dart' as _test;
+import 'fs_test.dart' as fs_test;
 import 'test_common.dart';
 
 void main() {
@@ -14,7 +14,7 @@ void main() {
 }
 
 void defineTests(IdbFileSystemTestContext ctx) {
-  _test.defineTests(ctx);
+  fs_test.defineTests(ctx);
   group('idb', () {
     var fs = ctx.fs;
     test('version', () async {

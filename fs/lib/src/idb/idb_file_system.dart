@@ -363,8 +363,8 @@ class IdbFileSystem extends Object
         // find parent dir
         return _storage
             .txnGetNode(store, getParentSegments(fileSegments)!, true)
-            .then((Node? _parent) {
-          return _addFileWithSegments(_parent, fileSegments);
+            .then((Node? parent) {
+          return _addFileWithSegments(parent, fileSegments);
         });
       } else
       // check depth
@@ -676,7 +676,7 @@ class IdbFileSystem extends Object
     final segments = getSegments(path);
     final newSegments = getSegments(newPath);
 
-    final _modified = DateTime.now();
+    final modified = DateTime.now();
 
     final txn = _db!
         .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
@@ -708,7 +708,7 @@ class IdbFileSystem extends Object
 
         final newParent = newResult.highest; // highest is the parent at depth 1
         newEntity = Node(newParent, newSegments.last,
-            fs.FileSystemEntityType.file, _modified, 0);
+            fs.FileSystemEntityType.file, modified, 0);
         // add file
         newEntity.id = await store.add(newEntity.toMap()) as int;
       }
