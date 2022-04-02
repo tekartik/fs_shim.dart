@@ -89,7 +89,14 @@ String toContextPath(Context context, String anyPath) {
 
 /// Deprecated see [toContextPath]
 @Deprecated('Sing 2021-02-15')
-String contextPath(String anyPath) => toContextPath(context, anyPath);
+String contextPath(String anyPath) => toNativePath(anyPath);
+
+/// Convert any path to the current context mode (typically io), dealing with separators.
+///
+/// typically called with a posix style
+///
+/// on windows: dir/sub will give dir\sub
+String toNativePath(String anyPath) => toContextPath(context, anyPath);
 
 /// Check if on windows io
 @Deprecated('Since 2021-02-15 only reliable for windows io')
