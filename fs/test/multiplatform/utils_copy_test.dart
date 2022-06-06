@@ -261,14 +261,14 @@ void defineTests(FileSystemTestContext ctx) {
         late Directory src;
         Directory? dst;
 
-        Future _prepare() async {
+        Future prepare() async {
           top = await ctx.prepare();
           src = childDirectory(top, 'src');
           dst = childDirectory(top, 'dst');
         }
 
         test('copy_exclude_file', () async {
-          await _prepare();
+          await prepare();
           await writeString(childFile(src, 'file1'), 'test');
           await writeString(childFile(src, 'file2'), 'test');
           final options = CopyOptions(recursive: true, exclude: ['file1']);
@@ -282,7 +282,7 @@ void defineTests(FileSystemTestContext ctx) {
         });
 
         test('copy_exclude_dir', () async {
-          await _prepare();
+          await prepare();
           await writeString(childFile(src, 'file1'), 'test');
           await writeString(childFile(src, 'file2'), 'test');
           await copyDirectory(src, dst,
@@ -297,14 +297,14 @@ void defineTests(FileSystemTestContext ctx) {
         late Directory src;
         Directory? dst;
 
-        Future _prepare() async {
+        Future prepare() async {
           top = await ctx.prepare();
           src = childDirectory(top, 'src');
           dst = childDirectory(top, 'dst');
         }
 
         test('copy_include_file', () async {
-          await _prepare();
+          await prepare();
           await writeString(childFile(src, 'file1'), 'test');
           await writeString(childFile(src, 'file2'), 'test');
           var options = CopyOptions(recursive: true, include: ['file1']);
@@ -318,7 +318,7 @@ void defineTests(FileSystemTestContext ctx) {
         });
 
         test('copy_include_dir', () async {
-          await _prepare();
+          await prepare();
           final dir1 = childDirectory(src, 'dir1');
           await writeString(childFile(dir1, 'file1'), 'test');
           await writeString(childFile(src, 'file2'), 'test');
@@ -443,14 +443,14 @@ void defineTests(FileSystemTestContext ctx) {
       late Directory src;
       late Directory dst;
 
-      Future _prepare() async {
+      Future prepare() async {
         top = await ctx.prepare();
         src = childDirectory(top, 'src');
         dst = childDirectory(top, 'dst');
       }
 
       test('exclude', () async {
-        await _prepare();
+        await prepare();
         await writeString(childFile(src, 'file1'), 'test');
         await writeString(childFile(src, 'file2'), 'test');
         final copy = TopCopy(fsTopEntity(src), fsTopEntity(dst),

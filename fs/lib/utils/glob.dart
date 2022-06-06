@@ -20,7 +20,7 @@ class _PartMatchRunner {
     final partChr = partIndex == part.length ? null : part[partIndex];
     final globChr = globIndex == glob!.length ? null : glob![globIndex];
 
-    bool _next() {
+    bool next() {
       globIndex++;
       partIndex++;
       final ok = matches();
@@ -35,29 +35,29 @@ class _PartMatchRunner {
       if (partChr == null) {
         return true;
       }
-      return _next();
+      return next();
     } else if (globChr == '?') {
       // must match a char
       if (partChr == null) {
         return false;
       }
       // any char
-      return _next();
+      return next();
     } else if (globChr == '*') {
       // any number char
       // try with zero
       partIndex--;
-      var matches = _next();
+      var matches = next();
       partIndex++;
 
       if (!matches && partChr != null) {
         // try with one matching
-        matches = _next();
+        matches = next();
 
         // try with skipping
         if (!matches) {
           globIndex--;
-          matches = _next();
+          matches = next();
           globIndex++;
         }
       }

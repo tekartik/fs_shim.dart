@@ -95,12 +95,12 @@ class IdbFileSystemStorage {
       Node? parent, String name, bool followLastLink) {
     final parentName = getParentName(parent, name);
 
-    FutureOr<Node?> _nodeFromKey(dynamic id) {
+    FutureOr<Node?> nodeFromKey(dynamic id) {
       if (id == null) {
         return null;
       }
 
-      FutureOr<Node?> _nodeFromMap(dynamic map) {
+      FutureOr<Node?> nodeFromMap(dynamic map) {
         final entity = Node.fromMap(
             parent, (map as Map).cast<String, Object?>(), id as int);
         if (followLastLink && entity.isLink) {
@@ -109,10 +109,10 @@ class IdbFileSystemStorage {
         return entity;
       }
 
-      return index.get(parentName).then(_nodeFromMap);
+      return index.get(parentName).then(nodeFromMap);
     }
 
-    return index.getKey(parentName).then(_nodeFromKey);
+    return index.getKey(parentName).then(nodeFromKey);
   }
 
   Future<Node?> getChildNode(Node? parent, String name, bool followLink) async {
@@ -138,7 +138,7 @@ class IdbFileSystemStorage {
   Future<Node?> txnGetNode(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
     //idb.idbDevPrint('#XX');
-    Future<Node?> __get(List<String> segments) {
+    Future<Node?> nodeFromSegments(List<String> segments) {
       return txnSearch(store, segments, followLastLink)
           .then((NodeSearchResult result) {
         final entity = result.match;
@@ -158,7 +158,7 @@ class IdbFileSystemStorage {
       });
     }
 
-    return __get(segments);
+    return nodeFromSegments(segments);
   }
 
   Future<Node?> getNode(List<String> segments, bool followLastLink) async {
@@ -186,7 +186,7 @@ class IdbFileSystemStorage {
       return (i == segments.length - 1);
     }
 
-    Future _next() {
+    Future next() {
       final segment = segments[i];
 
       // try to lookup without following links for last segment
@@ -219,13 +219,13 @@ class IdbFileSystemStorage {
           // last ?
           if (i++ < segments.length - 1) {
             parent = entity;
-            return _next();
+            return next();
           }
         }
       });
     }
 
-    return _next().then((_) {
+    return next().then((_) {
       return result;
     });
     /*

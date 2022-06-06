@@ -299,7 +299,7 @@ class IdbFileSystem extends Object
 
   Future<Node> _txnCreateFile(idb.ObjectStore store, List<String> segments,
       {bool recursive = false}) {
-    FutureOr<Node> _nodeFromSearchResult(NodeSearchResult result) {
+    FutureOr<Node> nodeFromSearchResult(NodeSearchResult result) {
       var entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.file) {
@@ -336,7 +336,7 @@ class IdbFileSystem extends Object
       }
       // regular directory case
 
-      Future<Node> _addFileWithSegments(Node? parent, List<String> segments) {
+      Future<Node> addFileWithSegments(Node? parent, List<String> segments) {
         //TODO check ok to throw exception here
         if (parent == null) {
           throw idbNotFoundException(result.path, 'Creation failed');
@@ -354,8 +354,8 @@ class IdbFileSystem extends Object
         });
       }
 
-      Future<Node> _addFile(Node? parent) =>
-          _addFileWithSegments(parent, segments);
+      Future<Node> addFile(Node? parent) =>
+          addFileWithSegments(parent, segments);
 
       // Handle when the last was a dir to it
       if (result.depthDiff == 1 && result.targetSegments != null) {
@@ -364,29 +364,29 @@ class IdbFileSystem extends Object
         return _storage
             .txnGetNode(store, getParentSegments(fileSegments)!, true)
             .then((Node? parent) {
-          return _addFileWithSegments(parent, fileSegments);
+          return addFileWithSegments(parent, fileSegments);
         });
       } else
       // check depth
       if (result.parent.remainingSegments.isNotEmpty) {
         // Create parent dir
         return _createDirectory(store, result.parent).then((Node parent) {
-          return _addFile(parent);
+          return addFile(parent);
         });
       } else {
-        return _addFile(result.highest);
+        return addFile(result.highest);
       }
     }
 
     // Try to find the file if it exists
-    return txnSearch(store, segments, false).then(_nodeFromSearchResult);
+    return txnSearch(store, segments, false).then(nodeFromSearchResult);
   }
 
   Future<Node> _createLink(
       idb.ObjectStore store, List<String> segments, String target,
       {bool recursive = false}) {
     // Try to find the file if it exists
-    Future<Node> _nodeFromSearchResult(NodeSearchResult result) {
+    Future<Node> nodeFromSearchResult(NodeSearchResult result) {
       var entity = result.match;
       if (entity != null) {
         throw idbAlreadyExistsException(result.path, 'Already exists');
@@ -406,7 +406,7 @@ class IdbFileSystem extends Object
         throw idbNotFoundException(result.path, 'Creation failed');
       }
 
-      Future<Node> _addLink(Node? parent) {
+      Future<Node> addLink(Node? parent) {
         // create it!
         entity = Node.link(parent, segments.last,
             modified: DateTime.now(),
@@ -418,14 +418,14 @@ class IdbFileSystem extends Object
       // check depth
       if (result.parent.remainingSegments.isNotEmpty) {
         return _createDirectory(store, result.parent).then((Node parent) {
-          return _addLink(parent);
+          return addLink(parent);
         });
       } else {
-        return _addLink(result.highest);
+        return addLink(result.highest);
       }
     }
 
-    return txnSearch(store, segments, false).then(_nodeFromSearchResult);
+    return txnSearch(store, segments, false).then(nodeFromSearchResult);
   }
 
   Future createFile(String path, {bool recursive = false}) async {
@@ -466,7 +466,7 @@ class IdbFileSystem extends Object
 
     var store = txn.objectStore(treeStoreName);
 
-    Future _delete() {
+    Future delete() {
       return store.delete(entity.id!).then((_) {
         // For file delete content as well
         if (entity.type == fs.FileSystemEntityType.file) {
@@ -510,10 +510,10 @@ class IdbFileSystem extends Object
         }
         return Future.wait(futures);
       }).then((_) {
-        return _delete();
+        return delete();
       });
     } else {
-      return _delete();
+      return delete();
     }
   }
 
@@ -599,7 +599,7 @@ class IdbFileSystem extends Object
 
         Node? newParent;
 
-        Future _changeParent() {
+        Future changeParent() {
           // change _parent
           entity.parent = newParent;
 
@@ -622,12 +622,12 @@ class IdbFileSystem extends Object
               }).then((_) {
                 // delete existing
                 return store.delete(newEntity.id!).then((_) {
-                  return _changeParent();
+                  return changeParent();
                 });
               });
             } else {
               return _deleteEntity(txn, newEntity).then((_) {
-                return _changeParent();
+                return changeParent();
               });
             }
           } else {
@@ -645,7 +645,7 @@ class IdbFileSystem extends Object
           newParent = newResult.highest; // highest is the parent at depth 1
         }
 
-        return _changeParent();
+        return changeParent();
       }).whenComplete(() async {
         await txn.completed;
       });
@@ -757,7 +757,7 @@ class IdbFileSystem extends Object
 
     final remainings = List<String>.from(result.remainingSegments);
     var i = 0;
-    Future _next() {
+    Future next() {
       final segment = remainings[i];
       final parent = entity;
       // create it!
@@ -766,13 +766,13 @@ class IdbFileSystem extends Object
       return store.add(entity!.toMap()).then((dynamic id) {
         entity!.id = id as int;
         if (i++ < remainings.length - 1) {
-          return _next();
+          return next();
         }
         return null;
       });
     }
 
-    return _next().then((_) {
+    return next().then((_) {
       return entity!;
     });
   }
@@ -849,7 +849,7 @@ class IdbFileSystem extends Object
         if (entity == null) {
           ctlr.addError(idbNotFoundException(path, 'List failed'));
         } else {
-          Future _list(String path, Node entity) {
+          Future list(String path, Node entity) {
             return index
                 .openCursor(key: entity.id, autoAdvance: true)
                 .listen((idb.CursorWithValue cwv) {
@@ -864,7 +864,7 @@ class IdbFileSystem extends Object
                 final dir = IdbDirectory(this, relativePath);
                 ctlr.add(dir);
                 if (recursive == true) {
-                  recursives.add(_list(relativePath, childNode));
+                  recursives.add(list(relativePath, childNode));
                 }
               } else if (childNode.isFile) {
                 ctlr.add(IdbFile(this, relativePath));
@@ -884,7 +884,7 @@ class IdbFileSystem extends Object
 
                         // recursive?
                         if (entity.isDir && recursive == true) {
-                          recursives.add(_list(relativePath, entity));
+                          recursives.add(list(relativePath, entity));
                         }
                       } else {
                         ctlr.add(link);
@@ -900,7 +900,7 @@ class IdbFileSystem extends Object
             }).asFuture();
           }
 
-          return _list(path, entity);
+          return list(path, entity);
         }
         return null;
       }).whenComplete(() async {
