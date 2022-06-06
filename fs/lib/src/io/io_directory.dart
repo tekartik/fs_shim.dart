@@ -49,7 +49,7 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
       {bool recursive = false, bool followLinks = true}) {
     var ioStream = ioDir!.list(recursive: recursive, followLinks: followLinks);
 
-    StreamSubscription<FileSystemEntity> _transformer(
+    StreamSubscription<FileSystemEntity> transformer(
         Stream<io.FileSystemEntity> input, bool cancelOnError) {
       late StreamController<FileSystemEntity> controller;
       //StreamSubscription<io.FileSystemEntity> subscription;
@@ -78,7 +78,7 @@ class DirectoryImpl extends FileSystemEntityImpl implements Directory {
 
     // as Stream<io.FileSystemEntity, FileSystemEntity>;
     return ioStream.transform(
-        StreamTransformer<io.FileSystemEntity, FileSystemEntity>(_transformer));
+        StreamTransformer<io.FileSystemEntity, FileSystemEntity>(transformer));
   }
 
   @override
