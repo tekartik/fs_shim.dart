@@ -31,7 +31,6 @@ linter:
     - avoid_unused_constructor_parameters
     - cancel_subscriptions
     - directives_ordering
-    - invariant_booleans
     - no_adjacent_strings_in_list
     - omit_local_variable_types
     - package_api_docs
