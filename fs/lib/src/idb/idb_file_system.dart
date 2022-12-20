@@ -195,15 +195,17 @@ class IdbFileSystem extends Object
   @override
   String get name => 'idb';
 
-  final IdbFileSystemStorage _storage;
+  late final IdbFileSystemStorage _storage;
 
   idb.Database? get _db => _storage.db;
 
   idb.Database? get db => _db;
   static const dbPath = 'lfs.db';
 
-  IdbFileSystem(idb.IdbFactory factory, [String? path])
-      : _storage = IdbFileSystemStorage(factory, path ?? dbPath);
+  IdbFileSystem(idb.IdbFactory factory, String? path, {int? pageSize}) {
+    _storage =
+        IdbFileSystemStorage(factory, path ?? dbPath, pageSize: pageSize);
+  }
 
   @override
   bool operator ==(Object other) {
@@ -719,27 +721,13 @@ class IdbFileSystem extends Object
       // get original
       final data = await store.getObject(entity.id!) as List?;
       if (data != null) {
-        await _txnSetFileData(txn, newEntity, asUint8List(data));
+        await _storage.txnSetFileDataV1(txn, newEntity, asUint8List(data));
       } else {
         await store.delete(newEntity.id!);
       }
     } finally {
       await txn.completed;
     }
-  }
-
-  /// Set the content of a file and update meta.
-  Future<void> _txnSetFileData(
-      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
-    // devPrint('_txnSetFileData all ${bytes.length}');
-    // Content store
-    var fileStore = txn.objectStore(fileStoreName);
-    await fileStore.put(bytes, treeEntity.id);
-
-    // update size
-    treeEntity.size = bytes.length;
-    var treeStore = txn.objectStore(treeStoreName);
-    await treeStore.put(treeEntity.toMap(), treeEntity.id);
   }
 
   FutureOr<Node?> txnGetWithParent(idb.ObjectStore treeStore, idb.Index index,

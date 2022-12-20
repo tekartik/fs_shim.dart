@@ -15,9 +15,9 @@ void main() {
         expect(node.toMap(), {
           'name': '/',
           'type': 'dir',
-          'v': 2,
+          'v': 0,
           'pn': '/',
-          'modified': node.modified!.toUtc().toIso8601String()
+          'modified': node.modified!.toIso8601String()
         });
 
         node = Node.fromMap(null, {'name': '/', 'type': 'dir'}, 1);
@@ -31,9 +31,9 @@ void main() {
         expect(node.toMap(), {
           'name': '/',
           'type': 'dir',
-          'v': 2,
+          //'v': 2,
           'pn': '/',
-          'modified': modified.toUtc().toIso8601String()
+          'modified': modified.toIso8601String()
         });
       });
     });

@@ -3,9 +3,14 @@
 
 library fs_shim.fs_src_idb_test;
 
+import 'dart:typed_data';
+
+import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_client_memory.dart';
+import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'test_common.dart';
 
@@ -133,5 +138,91 @@ void main() {
       final top = Node.directory(null, p.separator)..id = 1;
       expect(getParentName(top, 'test'), '1/test');
     });
+    group('ready', () {
+      late IdbFileSystemStorage storage;
+      setUp(() async {
+        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage');
+        await storage.ready;
+      });
+
+      test('writeDataV1', () async {
+        var db = storage.db!;
+        expect(await getFileEntries(db), []);
+        var txn = getWriteAllTransaction(db);
+        await storage.txnSetFileDataV1(
+            txn,
+            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+            Uint8List.fromList([1, 2, 3]));
+        expect(await getFileEntries(db), [
+          {
+            'key': 1,
+            'value': [1, 2, 3]
+          }
+        ]);
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
+          }
+        ]);
+        expect(await getPageEntries(db), []);
+      });
+
+      test('writeDataV2', () async {
+        var db = storage.db!;
+        expect(await getFileEntries(db), []);
+        var txn = getWriteAllTransaction(db);
+        await storage.txnSetFileDataV2(
+            txn,
+            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+            Uint8List.fromList([1, 2, 3]));
+        expect(await getFileEntries(db), [
+          {
+            'key': 1,
+            'value': [1, 2, 3]
+          }
+        ]);
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
+          }
+        ]);
+        expect(await getPageEntries(db), [
+          {
+            'key': 1,
+            'value': {'file': 1, 'index': 0, 'part': 1}
+          }
+        ]);
+      });
+    });
   });
+}
+
+Transaction getWriteAllTransaction(Database db) => db.transactionList(
+    [treeStoreName, fileStoreName, pageStoreName], idbModeReadWrite);
+
+Future<List<Map>> getEntriesFromCursor(Stream<CursorWithValue> cwv) async {
+  var list = await cursorToList(cwv);
+  return list.map((row) => {'key': row.key, 'value': row.value}).toList();
+}
+
+Future<List<Map>> getTreeEntries(Database db) async {
+  var txn = db.transaction(treeStoreName, idbModeReadOnly);
+  var treeObjectStore = txn.objectStore(treeStoreName);
+  return await getEntriesFromCursor(
+      treeObjectStore.openCursor(autoAdvance: true));
+}
+
+Future<List<Map>> getPageEntries(Database db) async {
+  var txn = db.transaction(pageStoreName, idbModeReadOnly);
+  var store = txn.objectStore(pageStoreName);
+  return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
+}
+
+Future<List<Map>> getFileEntries(Database db) async {
+  var txn = db.transaction(fileStoreName, idbModeReadOnly);
+  var fileObjectStore = txn.objectStore(fileStoreName);
+  return await getEntriesFromCursor(
+      fileObjectStore.openCursor(autoAdvance: true));
 }

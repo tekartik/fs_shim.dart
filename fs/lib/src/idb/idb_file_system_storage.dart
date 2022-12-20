@@ -1,6 +1,10 @@
 // ignore_for_file: public_member_api_docs
 
+import 'dart:math';
+import 'dart:typed_data';
+
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/src/web/fs_web_impl.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'idb_fs.dart';
@@ -10,6 +14,7 @@ const int _metaVersion = _metaVersion2;
 
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file';
+const String pageStoreName = 'page';
 const String nameKey = 'name';
 
 /// That's life to deal with existing
@@ -29,6 +34,17 @@ const String modifiedKey = 'modified';
 const String sizeKey = 'size';
 const String metaVersionKey = 'v'; // Versioning in the tree nodes
 const String targetKey = 'target'; // Link only
+
+/// Page
+/// <id (generated>:
+/// file: <treeId> (id in tree)
+/// index: <partIndex>
+/// part: <partId> (id in file)
+
+const String indexKey = 'index';
+const String fileKey = 'file'; // id in tree
+const String partKey = 'part'; // id in tree
+const String pagePartIndexName = '${pageStoreName}_$partKey';
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
   return segments.isNotEmpty &&
@@ -51,8 +67,11 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
 class IdbFileSystemStorage {
   idb.IdbFactory idbFactory;
   String dbPath;
+  int? pageSize;
 
-  IdbFileSystemStorage(this.idbFactory, this.dbPath);
+  IdbFileSystemStorage(this.idbFactory, this.dbPath, {this.pageSize}) {
+    assert(pageSize != 0);
+  }
 
   idb.Database? db;
   Completer? _readyCompleter;
@@ -62,7 +81,7 @@ class IdbFileSystemStorage {
       _readyCompleter = Completer();
 
       // version 4: add file store
-      db = await idbFactory.open(dbPath, version: 6,
+      db = await idbFactory.open(dbPath, version: 7,
           onUpgradeNeeded: (idb.VersionChangeEvent e) {
         final db = e.database;
         idb.ObjectStore store;
@@ -85,6 +104,13 @@ class IdbFileSystemStorage {
 
           store = db.createObjectStore(fileStoreName);
         }
+        if (e.oldVersion < 7) {
+          //var store = db.get
+          store = db.createObjectStore(pageStoreName,
+              autoIncrement: true, keyPath: partKey);
+          store.createIndex(pagePartIndexName, [fileKey, indexKey],
+              unique: false); // <id_parent>/<name>
+        }
       }, onBlocked: (e) {
         print(e);
         print('#### db format change - reload');
@@ -92,6 +118,84 @@ class IdbFileSystemStorage {
       _readyCompleter!.complete();
     }
     return _readyCompleter!.future;
+  }
+
+  /// Set the content of a file and update meta.
+  Future<Node> txnSetFileDataV1(
+      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
+    // devPrint('_txnSetFileData all ${bytes.length}');
+    // Content store
+    var fileStore = txn.objectStore(fileStoreName);
+    await fileStore.put(bytes, treeEntity.id);
+
+    // update size
+    treeEntity.size = bytes.length;
+    var treeStore = txn.objectStore(treeStoreName);
+    await treeStore.put(treeEntity.toMap(), treeEntity.id);
+    return treeEntity;
+  }
+
+  /// Set the content of a file and update meta.
+  Future<Node> txnSetFileDataV2(
+      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
+    var index = 0;
+    var fileId = treeEntity.id;
+    var pageSize = this.pageSize ?? defaultPageSize;
+
+    var pageStore = txn.objectStore(pageStoreName);
+    var fileStore = txn.objectStore(fileStoreName);
+    var pageIndex = pageStore.index(pagePartIndexName);
+    var existingDone = false;
+    var newDone = false;
+    var offset = 0;
+    while ((!existingDone) && (!newDone)) {
+      Map? existing;
+      Uint8List? newPart;
+      int? partId;
+      if (!existingDone) {
+        existing = (await pageIndex.get([fileId, index])) as Map?;
+        if (existing == null) {
+          existingDone = true;
+        } else {
+          partId = existing[partKey] as int;
+        }
+      }
+
+      if (!newDone) {
+        if (offset < bytes.length) {
+          if (existingDone) {
+            partId = (await pageStore.add({fileKey: fileId, indexKey: index}))
+                as int;
+          }
+          var size = min(defaultPageSize, bytes.length - offset);
+          newPart = bytes.sublist(offset, offset + size);
+        } else {
+          newDone = true;
+        }
+      }
+
+      if (partId != null) {
+        if (newPart != null) {
+          await fileStore.put(newPart, partId);
+        } else {
+          await fileStore.delete(partId);
+        }
+      }
+      index++;
+    }
+
+    // Keep existing super fast
+
+    if (bytes.length < pageSize) {}
+    // devPrint('_txnSetFileData all ${bytes.length}');
+    // Content store
+    await fileStore.put(bytes, treeEntity.id);
+
+    // update size
+    treeEntity.size = bytes.length;
+    var treeStore = txn.objectStore(treeStoreName);
+    await treeStore.put(treeEntity.toMap(), treeEntity.id);
+    return treeEntity;
   }
 
   /// For the given [parent] find the child named [name]
@@ -339,24 +443,34 @@ class Node {
   bool get isFile => type == fs.FileSystemEntityType.file;
   int? size;
   DateTime? modified;
+  // Existing meta version
+  int? metaVersion;
   List<String>? targetSegments; // for Links only
 
   Node.file(Node parent, String name, {DateTime? modified})
       : this.node(fs.FileSystemEntityType.file, parent, name,
-            modified: modified);
+            modified: modified, metaVersion: _metaVersion);
 
   Node.directory(Node? parent, String name, {DateTime? modified})
-      : this(parent, name, fs.FileSystemEntityType.directory, modified, 0);
+      : this(parent, name, fs.FileSystemEntityType.directory, modified, 0,
+            metaVersion: _metaVersion);
 
   Node.link(Node? parent, String name,
       {List<String>? targetSegments, DateTime? modified})
       : this.node(fs.FileSystemEntityType.link, parent, name,
-            modified: modified, targetSegments: targetSegments);
+            modified: modified,
+            targetSegments: targetSegments,
+            metaVersion: _metaVersion);
 
   Node.node(this.type, this.parent, this.name,
-      {this.targetSegments, this.id, this.modified, this.size});
+      {this.targetSegments,
+      this.id,
+      this.modified,
+      this.size,
+      this.metaVersion});
 
-  Node(this.parent, this.name, this.type, this.modified, this.size, [this.id]) {
+  Node(this.parent, this.name, this.type, this.modified, this.size,
+      {this.id, this.metaVersion}) {
     _depth = parent == null ? 1 : parent!._depth! + 1;
   }
 
@@ -376,7 +490,7 @@ class Node {
     final size = map[sizeKey] as int?;
 
     // Handle v1 data
-    final metaVersion = (map[metaVersionKey] as int?) ?? 0;
+    var metaVersion = (map[metaVersionKey] as int?) ?? 0;
     fs.FileSystemEntityType? type;
     var typeRawString = map[typeKey] as String?;
 
@@ -388,7 +502,8 @@ class Node {
       type = typeFromString(typeRawString);
     }
 
-    return Node(parent, name, type, modified, size, id)
+    return Node(parent, name, type, modified, size,
+        id: id, metaVersion: metaVersion)
       ..targetSegments = (map[targetKey] as List?)?.cast<String>();
   }
 
@@ -397,13 +512,17 @@ class Node {
       nameKey: name,
       typeKey: typeToString(type),
       // v2 format
-      metaVersionKey: _metaVersion
+      if ((metaVersion ?? 0) >= _metaVersion2) metaVersionKey: metaVersion
     };
     if (parent != null) {
       map[parentKey] = parent!.id;
     }
     if (modified != null) {
-      map[modifiedKey] = modified!.toUtc().toIso8601String();
+      if ((metaVersion ?? 0) >= _metaVersion2) {
+        map[modifiedKey] = modified!.toUtc().toIso8601String();
+      } else {
+        map[modifiedKey] = modified!.toIso8601String();
+      }
     }
     if (size != null) {
       map[sizeKey] = size;
