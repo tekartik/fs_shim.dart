@@ -38,6 +38,7 @@ class App {
       'fs_shim_sanity_test.dart',
       'fs_test.dart',
       'fs_shim_test.dart',
+      'fs_shim_random_access_file_test.dart',
       'utils_copy_test.dart',
       'utils_entity_test.dart',
       'utils_path_test.dart',

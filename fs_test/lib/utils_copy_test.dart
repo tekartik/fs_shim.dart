@@ -22,13 +22,17 @@ void defineTests(FileSystemTestContext ctx) {
       // ignore: unnecessary_statements
       TopCopy;
       TopCopy? topCopy;
+      // ignore: dead_code
       topCopy?.options;
+      // ignore: dead_code
       topCopy?.dst;
+      // ignore: dead_code
       topCopy?.src;
+      // ignore: dead_code
       topCopy?.id;
-      // ignore: unnecessary_statements
+      // ignore: unnecessary_statements, dead_code
       topCopy?.run;
-      // ignore: unnecessary_statements
+      // ignore: unnecessary_statements, dead_code
       topCopy?.runChild;
     });
     group('copy_options', () {

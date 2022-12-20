@@ -16,6 +16,15 @@ import '../test_common_io.dart';
 void main() {
   FileSystem fs = ioFileSystemTestContext.fs;
   group('io', () {
+    test('supportRandomAccess', () {
+      expect(fs.supportsRandomAccess, true);
+    });
+    test('supportsLink', () {
+      expect(fs.supportsLink, true);
+    });
+    test('supportsFileLink', () {
+      expect(fs.supportsFileLink, !io.Platform.isWindows);
+    });
     test('windows', () {
       expect(isIoWindows(ioFileSystemTestContext), io.Platform.isWindows);
     });

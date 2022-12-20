@@ -378,7 +378,7 @@ abstract class EntityNode {
   String toString() => '$sub';
 }
 
-abstract class EntityNodeFsMixin implements EntityNode {
+mixin EntityNodeFsMixin implements EntityNode {
   @override
   Directory asDirectory() => fs.directory(path);
 
@@ -402,7 +402,7 @@ abstract class EntityNodeFsMixin implements EntityNode {
       fs.type(path, followLinks: followLinks);
 }
 
-abstract class EntityChildMixin implements EntityNode {
+mixin EntityChildMixin implements EntityNode {
   @override
   CopyEntity child(String basename) => CopyEntity(this, basename);
 }
@@ -415,7 +415,7 @@ abstract class EntityPartsMixin implements EntityNode {
 }
 */
 
-abstract class EntityPathMixin implements EntityNode {
+mixin EntityPathMixin implements EntityNode {
   String? _path;
 
   @override
@@ -502,17 +502,17 @@ abstract class CopyNode {
   CopyOptions? get options;
 }
 
-abstract class ActionNodeMixin {
+mixin ActionNodeMixin {
   static int _staticId = 0;
 }
 
-abstract class SourceNodeMixin implements CopyNode {
+mixin SourceNodeMixin implements CopyNode {
   int? _id;
 
   int? get id => _id;
 }
 
-abstract class CopyNodeMixin implements CopyNode {
+mixin CopyNodeMixin implements CopyNode {
   int? _id;
 
   int? get id => _id;
@@ -899,7 +899,7 @@ mixin NodeExcludeMixin {
   }
 }
 
-abstract class NodeIncludeMixin {
+mixin NodeIncludeMixin {
   OptionsIncludeMixin? get includeOptions;
 
   String? get srcSub;

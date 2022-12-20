@@ -12,6 +12,9 @@ import 'dart:typed_data';
 
 import 'package:path/path.dart' as p;
 
+import 'fs.dart';
+export 'src/random_access_file.dart' show RandomAccessFile;
+
 /// FileSystem eneity.
 abstract class FileSystemEntity {
   ///
@@ -212,6 +215,26 @@ abstract class File extends FileSystemEntity {
   /// be cancelled.
   ///
   Stream<Uint8List> openRead([int? start, int? end]);
+
+  /// Opens the file for random access operations.
+  ///
+  /// Returns a `Future<RandomAccessFile>` that completes with the opened
+  /// random access file. [RandomAccessFile]s must be closed using the
+  /// [RandomAccessFile.close] method.
+  ///
+  /// Files can be opened in three modes:
+  ///
+  /// * [FileMode.read]: open the file for reading.
+  ///
+  /// * [FileMode.write]: open the file for both reading and writing and
+  /// truncate the file to length zero. If the file does not exist the
+  /// file is created.
+  ///
+  /// * [FileMode.append]: same as [FileMode.write] except that the file is
+  /// not truncated.
+  ///
+  /// Throws a [FileSystemException] if the operation fails.
+  Future<RandomAccessFile> open({FileMode mode = FileMode.read});
 
   ///
   /// Write a list of bytes to a file.
@@ -498,6 +521,9 @@ abstract class FileSystem {
 
   /// Returns true if file links are supported.
   bool get supportsFileLink; // windows does not support file link
+
+  /// Returns true if it supports random access (open)
+  bool get supportsRandomAccess;
 
   ///
   /// Get the path context for patch operation

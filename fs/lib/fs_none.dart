@@ -1,2 +1,1 @@
-export 'src/common/fs_none.dart'
-    show FileNone, FileSystemEntityNone, FileSystemNone, DirectoryNone;
+export 'src/common/fs_none.dart' show FileSystemEntityMixin, DirectoryNone;
