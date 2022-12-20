@@ -11,7 +11,12 @@ import 'test_common.dart';
 void main() {
   group('memory', () {
     defineTests(memoryFileSystemTestContext);
-
+    group('fs', () {
+      var fs = memoryFileSystemTestContext.fs;
+      test('supportRandomAccess', () {
+        expect(fs.supportsRandomAccess, false);
+      });
+    });
     group('top', () {
       test('writeAsString', () async {
         // direct file write, no preparation

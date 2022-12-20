@@ -3,13 +3,14 @@
 library fs_shim.fs_none_test;
 
 import 'package:fs_shim/fs_none.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:test/test.dart';
 
-class MyFileSystem extends Object with FileSystemNone {}
+class MyFileSystem extends Object with FileSystemMixin {}
 
-class MyFile extends MyFileSystemEntity with FileNone {}
+class MyFile extends MyFileSystemEntity with FileMixin {}
 
-abstract class MyFileSystemEntity extends Object with FileSystemEntityNone {}
+abstract class MyFileSystemEntity extends Object with FileSystemEntityMixin {}
 
 class MyDirectory extends MyFileSystemEntity with DirectoryNone {}
 

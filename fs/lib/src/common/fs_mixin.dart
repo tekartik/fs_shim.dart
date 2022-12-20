@@ -6,12 +6,10 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
+import 'package:path/path.dart' as p;
 
 /// FileSystem mixin
-abstract class FileSystemMixin implements FileSystem {
-  @override
-  Future<FileSystemEntityType> type(String? path, {bool followLinks = true});
-
+mixin FileSystemMixin implements FileSystem {
   Future<bool> _isType(String? path, FileSystemEntityType fseType,
       {bool followLinks = true}) async {
     return (await type(path, followLinks: followLinks)) == fseType;
@@ -31,16 +29,74 @@ abstract class FileSystemMixin implements FileSystem {
   @override
   Future<bool> isLink(String? path) =>
       _isType(path, FileSystemEntityType.link, followLinks: false);
+
+  @override
+  Future<FileSystemEntityType> type(String? path, {bool followLinks = true}) =>
+      throw UnsupportedError('fs.type');
+
+  @override
+  bool get supportsFileLink => throw UnsupportedError('fs.supportsFileLink');
+
+  @override
+  bool get supportsLink => throw UnsupportedError('fs.supportsLink');
+
+  /// Default implementation
+  @override
+  bool get supportsRandomAccess => false;
+
+  @override
+  Directory directory(String? path) => throw UnsupportedError('fs.directory');
+
+  @override
+  File file(String? path) => throw UnsupportedError('fs.file');
+
+  @override
+  Link link(String? path) => throw UnsupportedError('fs.link');
+
+  @override
+  String get name => throw UnsupportedError('fs.name');
+
+  @override
+  p.Context get pathContext => path;
+
+  @override
+  p.Context get path => throw UnsupportedError('fs.path');
 }
 
 /// File mixin
-abstract class FileMixin implements File {
+mixin FileMixin implements File {
   @override
-  StreamSink<List<int>> openWrite(
-      {FileMode mode = FileMode.write, Encoding encoding = utf8});
+  File get absolute => throw UnsupportedError('file.absolute');
 
   @override
-  Stream<Uint8List> openRead([int? start, int? end]);
+  Future<File> copy(String newPath) => throw UnsupportedError('file.copy');
+
+  @override
+  Future<File> create({bool recursive = false}) =>
+      throw UnsupportedError('file.create');
+
+  @override
+  Stream<Uint8List> openRead([int? start, int? end]) =>
+      throw UnsupportedError('file.openRead');
+
+  @override
+  StreamSink<List<int>> openWrite(
+          {FileMode mode = FileMode.write, Encoding encoding = utf8}) =>
+      throw UnsupportedError('file.openWrite');
+
+  @override
+  Future<File> writeAsBytes(Uint8List bytes,
+          {FileMode mode = FileMode.write, bool flush = false}) async =>
+      await doWriteAsBytes(bytes, mode: mode, flush: flush);
+
+  @override
+  Future<File> writeAsString(String contents,
+      {FileMode mode = FileMode.write,
+      Encoding encoding = utf8,
+      bool flush = false}) async {
+    return await writeAsBytes(asUint8List(encoding.encode(contents)),
+        mode: mode, flush: flush);
+  }
 
   @override
   String get path;
@@ -81,6 +137,11 @@ abstract class FileMixin implements File {
   Future<String> readAsString({Encoding encoding = utf8}) async {
     var content = await readAsBytes();
     return _tryDecode(content, encoding);
+  }
+
+  @override
+  Future<RandomAccessFile> open({FileMode mode = FileMode.read}) {
+    throw UnsupportedError('File.open not supported in this file system');
   }
 }
 

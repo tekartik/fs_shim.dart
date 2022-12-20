@@ -8,8 +8,10 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_io.dart';
 import 'package:fs_shim/src/common/compat.dart';
-import 'package:fs_shim/src/common/fs_mixin.dart' show FileExecutableSupport;
+import 'package:fs_shim/src/common/fs_mixin.dart'
+    show FileExecutableSupport, FileMixin;
 import 'package:fs_shim/src/common/import.dart' show isDebug;
+import 'package:fs_shim/src/io/io_random_access_file.dart';
 
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
@@ -21,6 +23,7 @@ Future<T> _wrapFutureFile<T>(Future<T> future) => ioWrap(future);
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
 class FileImpl extends FileSystemEntityImpl
+    with FileMixin
     implements File, FileExecutableSupport {
   io.File? get ioFile => ioFileSystemEntity as io.File?;
 
@@ -44,6 +47,14 @@ class FileImpl extends FileSystemEntityImpl
     final sink = IoWriteFileSink(
         ioFile!.openWrite(mode: unwrapFileMode(mode), encoding: encoding));
     return sink;
+  }
+
+  @override
+  Future<fs.RandomAccessFile> open({fs.FileMode mode = FileMode.read}) {
+    return ioWrapCall(() async {
+      var ioRandomAccessFile = await ioFile!.open(mode: unwrapFileMode(mode));
+      return IoRandomAccessFile(ioRandomAccessFile);
+    });
   }
 
   FileImpl _me(_) => this;

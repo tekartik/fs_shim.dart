@@ -59,6 +59,24 @@ Future<T> ioWrap<T>(Future<T> future) async {
   }
 }
 
+Future<T> ioWrapCall<T>(Future<T> Function() action) async {
+  try {
+    return await action();
+  } on io.FileSystemException catch (e) {
+    //io.stderr.writeln(st);
+    throw ioWrapError(e);
+  }
+}
+
+T ioWrapCallSync<T>(T Function() action) {
+  try {
+    return action();
+  } on io.FileSystemException catch (e) {
+    //io.stderr.writeln(st);
+    throw ioWrapError(e);
+  }
+}
+
 fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
     io.FileSystemEntityType type) {
   switch (type) {
@@ -91,7 +109,7 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
   }
 }
 
-class IoWriteFileSink implements StreamSink<List<int>> {
+class IoWriteFileSink implements StreamSink<Uint8List> {
   io.IOSink ioSink;
 
   IoWriteFileSink(this.ioSink);

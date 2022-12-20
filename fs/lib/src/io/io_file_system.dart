@@ -68,6 +68,9 @@ class IoFileSystemImpl extends Object
   @override
   Future<bool> isDirectory(String? path) =>
       Future.value(io.FileSystemEntity.isDirectorySync(path!));
+
+  @override
+  bool get supportsRandomAccess => true;
 }
 
 /// File system
