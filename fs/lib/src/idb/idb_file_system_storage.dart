@@ -5,6 +5,9 @@ import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'idb_fs.dart';
 
+const int _metaVersion2 = 2;
+const int _metaVersion = _metaVersion2;
+
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file';
 const String nameKey = 'name';
@@ -24,6 +27,7 @@ const String parentIndexName = parentKey;
 const String typeKey = 'type';
 const String modifiedKey = 'modified';
 const String sizeKey = 'size';
+const String metaVersionKey = 'v'; // Versioning in the tree nodes
 const String targetKey = 'target'; // Link only
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
@@ -273,20 +277,52 @@ class IdbFileSystemStorage {
   }
 }
 
-List<fs.FileSystemEntityType> _allTypes = [
-  fs.FileSystemEntityType.file,
-  fs.FileSystemEntityType.directory,
-  fs.FileSystemEntityType.link
-];
+String? typeToString(fs.FileSystemEntityType type) {
+  switch (type) {
+    case fs.FileSystemEntityType.file:
+      return _typeFile;
+    case fs.FileSystemEntityType.directory:
+      return _typeDirectory;
+    case fs.FileSystemEntityType.link:
+      return _typeLink;
+    case fs.FileSystemEntityType.notFound:
+      // null
+      break;
+  }
+  return null;
+}
 
 fs.FileSystemEntityType typeFromString(String? typeString) {
-  for (final type in _allTypes) {
-    if (type.toString() == typeString) {
-      return type;
-    }
+  switch (typeString) {
+    case _typeFile:
+      return fs.FileSystemEntityType.file;
+    case _typeDirectory:
+      return fs.FileSystemEntityType.directory;
+    case _typeLink:
+      return fs.FileSystemEntityType.link;
   }
   return fs.FileSystemEntityType.notFound;
 }
+
+fs.FileSystemEntityType typeFromStringCompat(String? typeString) {
+  switch (typeString) {
+    case _typeCompatFile:
+      return fs.FileSystemEntityType.file;
+    case _typeCompatDirectory:
+      return fs.FileSystemEntityType.directory;
+    case _typeCompatLink:
+      return fs.FileSystemEntityType.link;
+  }
+  return fs.FileSystemEntityType.notFound;
+}
+
+const _typeCompatDirectory = 'DIRECTORY';
+const _typeCompatFile = 'FILE';
+const _typeCompatLink = 'LINK';
+
+const _typeDirectory = 'dir';
+const _typeFile = 'file';
+const _typeLink = 'link';
 
 /// Tree entity
 class Node {
@@ -338,19 +374,36 @@ class Node {
       modified = DateTime.parse(modifiedString);
     }
     final size = map[sizeKey] as int?;
-    final type = typeFromString(map[typeKey] as String?);
+
+    // Handle v1 data
+    final metaVersion = (map[metaVersionKey] as int?) ?? 0;
+    fs.FileSystemEntityType? type;
+    var typeRawString = map[typeKey] as String?;
+
+    // Handle pre version 'DIRECTORY', 'FILE', 'LINK'
+    if (metaVersion < _metaVersion2) {
+      type = typeFromStringCompat(typeRawString);
+    } else {
+      // New format 'dir', 'file', 'link'
+      type = typeFromString(typeRawString);
+    }
 
     return Node(parent, name, type, modified, size, id)
       ..targetSegments = (map[targetKey] as List?)?.cast<String>();
   }
 
   Map<String, Object?> toMap() {
-    final map = <String, Object?>{nameKey: name, typeKey: type.toString()};
+    final map = <String, Object?>{
+      nameKey: name,
+      typeKey: typeToString(type),
+      // v2 format
+      metaVersionKey: _metaVersion
+    };
     if (parent != null) {
       map[parentKey] = parent!.id;
     }
     if (modified != null) {
-      map[modifiedKey] = modified!.toIso8601String();
+      map[modifiedKey] = modified!.toUtc().toIso8601String();
     }
     if (size != null) {
       map[sizeKey] = size;

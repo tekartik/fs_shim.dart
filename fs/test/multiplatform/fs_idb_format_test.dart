@@ -12,6 +12,7 @@ import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 
+import 'fs_idb_format_v1_test.dart';
 import 'test_common.dart';
 
 //import 'test_common.dart';
@@ -21,9 +22,17 @@ void main() {
 }
 
 void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
+  Future<List<Map>> getTreeEntries(Database db) async {
+    var txn = db.transaction(['tree'], idbModeReadOnly);
+    var treeObjectStore = txn.objectStore('tree');
+    var list =
+        await cursorToList(treeObjectStore.openCursor(autoAdvance: true));
+    return list.map((row) => {'key': row.key, 'value': row.value}).toList();
+  }
+
   group('idb_format', () {
-    test('v1_format absolute test file', () async {
-      var dbName = 'v1_format_absolute_text_file.db';
+    test('absolute text file', () async {
+      var dbName = 'absolute_text_file.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName);
       var filePath = '${fs.path.separator}file.txt';
@@ -40,29 +49,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
       var treeObjectStore = txn.objectStore('tree');
       var list =
           await cursorToList(treeObjectStore.openCursor(autoAdvance: true));
-      expect(list.map((row) => {'key': row.key, 'value': row.value}), [
-        {
-          'key': 1,
-          'value': {
-            'name': fs.path.separator,
-            'type': 'DIRECTORY',
-            'modified': dirStat.modified.toIso8601String(),
-            'size': 0,
-            'pn': fs.path.separator,
-          }
-        },
-        {
-          'key': 2,
-          'value': {
-            'name': 'file.txt',
-            'type': 'FILE',
-            'parent': 1,
-            'modified': fileStat.modified.toIso8601String(),
-            'size': 4,
-            'pn': fs.path.join('1', 'file.txt')
-          }
-        }
-      ]);
+
       var fileObjectStore = txn.objectStore('file');
       list = await cursorToList(fileObjectStore.openCursor(autoAdvance: true));
       expect(list.map((row) => {'key': row.key, 'value': row.value}), [
@@ -105,16 +92,18 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
             'values': [
               {
                 'name': fs.path.separator,
-                'type': 'DIRECTORY',
-                'modified': dirStat.modified.toIso8601String(),
+                'type': 'dir',
+                'v': 2,
+                'modified': dirStat.modified.toUtc().toIso8601String(),
                 'size': 0,
                 'pn': fs.path.separator
               },
               {
                 'name': 'file.txt',
-                'type': 'FILE',
+                'type': 'file',
                 'parent': 1,
-                'modified': fileStat.modified.toIso8601String(),
+                'v': 2,
+                'modified': fileStat.modified.toUtc().toIso8601String(),
                 'size': 4,
                 'pn': fs.path.join('1', 'file.txt'),
               }
@@ -122,9 +111,99 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           }
         ]
       };
+      expect(await getTreeEntries(db), [
+        {
+          'key': 1,
+          'value': {
+            'name': fs.path.separator,
+            'type': 'dir',
+            'v': 2,
+            'modified': dirStat.modified.toIso8601String(),
+            'size': 0,
+            'pn': fs.path.separator,
+          }
+        },
+        {
+          'key': 2,
+          'value': {
+            'name': 'file.txt',
+            'type': 'file',
+            'v': 2,
+            'parent': 1,
+            'modified': fileStat.modified.toIso8601String(),
+            'size': 4,
+            'pn': fs.path.join('1', 'file.txt')
+          }
+        }
+      ]);
       // devPrint(jsonPretty(exportMap));
       expect(await sdbExportDatabase(db), exportMap);
       db.close();
+    });
+    test('v_current_format', () async {
+      var dbName = 'import_v_current.sdb';
+      // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
+      await idbFactory.deleteDatabase(dbName);
+      var db =
+          await sdbImportDatabase(exportMapOneFileCurrent, idbFactory, dbName);
+      expect(await sdbExportDatabase(db), exportMapOneFileCurrent);
+      db.close();
+
+      var fs = IdbFileSystem(idbFactory, dbName);
+      var filePath = 'file.txt';
+
+      var file = fs.file(filePath);
+      expect(await file.readAsString(), 'test');
+
+      fs.close();
+    });
+    test('v1_import_current_format', () async {
+      var dbName = 'import_v1_current.sdb';
+      // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
+      await idbFactory.deleteDatabase(dbName);
+      var db = await sdbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
+      // Untouch not changed
+      expect(await sdbExportDatabase(db), exportMapOneFileV1);
+      db.close();
+
+      var fs = IdbFileSystem(idbFactory, dbName);
+      var filePath = 'file.txt';
+
+      var file = fs.file(filePath);
+      expect(await file.readAsString(), 'test');
+      // Force update
+      await file.writeAsString('test2');
+      await file.writeAsString('test');
+      expect(await file.readAsString(), 'test');
+      var modified = (await file.stat()).modified;
+
+      //expect(await sdbExportDatabase(db), exportMapOneFileCurrent);
+      expect(await getTreeEntries(db), [
+        {
+          'key': 1,
+          'value': {
+            'name': fs.path.separator,
+            'type': 'DIRECTORY',
+            'modified': '2020-10-31T23:27:05.073',
+            'size': 0,
+            'pn': fs.path.separator,
+          }
+        },
+        {
+          'key': 2,
+          'value': {
+            'name': 'file.txt',
+            'type': 'file',
+            'v': 2,
+            'parent': 1,
+            'modified': modified.toUtc().toIso8601String(),
+            'size': 4,
+            'pn': fs.path.join('1', 'file.txt')
+          }
+        }
+      ]);
+
+      fs.close();
     });
     test(
       'v1_format',
@@ -159,7 +238,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
             'key': 1,
             'value': {
               'name': fs.path.separator,
-              'type': 'DIRECTORY',
+              'type': 'dir',
+              'v': 2,
               'modified': dirStat.modified.toIso8601String(),
               'size': 0,
               'pn': fs.path.separator,
@@ -169,7 +249,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
             'key': 2,
             'value': {
               'name': 'file.txt',
-              'type': 'FILE',
+              'type': 'file',
+              'v': 2,
               'parent': 1,
               'modified': fileStat.modified.toIso8601String(),
               'size': 4,
@@ -220,17 +301,19 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
               'values': [
                 {
                   'name': fs.path.separator,
-                  'type': 'DIRECTORY',
+                  'type': 'dir',
                   'modified': dirStat.modified.toIso8601String(),
                   'size': 0,
+                  'v': 2,
                   'pn': fs.path.separator
                 },
                 {
                   'name': 'file.txt',
-                  'type': 'FILE',
+                  'type': 'file',
                   'parent': 1,
                   'modified': fileStat.modified.toIso8601String(),
                   'size': 4,
+                  'v': 2,
                   'pn': fs.path.join('1', 'file.txt'),
                 }
               ]
@@ -309,3 +392,5 @@ Future<void> fsCheckComplex1(FileSystem fs) async {
       await fs.file(fs.path.join('dir1', 'sub1', 'file1.text')).readAsBytes(),
       [116, 101, 115, 116, 49]);
 }
+
+var exportMapOneFileCurrent = exportMapOneFileV2;
