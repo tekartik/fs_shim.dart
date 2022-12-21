@@ -15,9 +15,16 @@ import 'package:idb_shim/utils/idb_utils.dart';
 import 'test_common.dart';
 
 void main() {
+  defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
+}
+
+void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   var p = idbPathContext;
+  var index = 0;
   Future<IdbFileSystemStorage> newStorage() async {
-    final storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage');
+    final storage =
+        IdbFileSystemStorage(ctx.fs.idbFactory, 'idb_storage_${++index}');
+    await storage.delete();
     await storage.ready;
     return storage;
   }
@@ -169,7 +176,6 @@ void main() {
             'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
           }
         ]);
-        expect(await getPageEntries(db), []);
       });
 
       test('writeDataV2', () async {
@@ -195,17 +201,16 @@ void main() {
             }
           }
         ]);
-        expect(await getPageEntries(db), [
-          {
-            'key': 1,
-            'value': {'file': 1, 'index': 0}
-          }
-        ]);
+
         var partEntries = await getPartEntries(db);
         expect(partEntries, [
           {
             'key': 1,
-            'value': [1, 2, 3]
+            'value': {
+              'index': 0,
+              'file': 1,
+              'content': [1, 2, 3]
+            }
           }
         ]);
         //expect(partEntries[0]['value'], isA<Uint8List>());
@@ -215,8 +220,7 @@ void main() {
 }
 
 Transaction getWriteAllTransaction(Database db) => db.transactionList(
-    [treeStoreName, fileStoreName, partStoreName, pageStoreName],
-    idbModeReadWrite);
+    [treeStoreName, fileStoreName, partStoreName], idbModeReadWrite);
 
 Future<List<Map>> getEntriesFromCursor(Stream<CursorWithValue> cwv) async {
   var list = await cursorToList(cwv);
@@ -233,12 +237,6 @@ Future<List<Map>> getTreeEntries(Database db) async {
 Future<List<Map>> getPartEntries(Database db) async {
   var txn = db.transaction(partStoreName, idbModeReadOnly);
   var store = txn.objectStore(partStoreName);
-  return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
-}
-
-Future<List<Map>> getPageEntries(Database db) async {
-  var txn = db.transaction(pageStoreName, idbModeReadOnly);
-  var store = txn.objectStore(pageStoreName);
   return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
 }
 

@@ -6,6 +6,7 @@ library fs_shim.test.multiplatform.fs_idb_test;
 import 'package:fs_shim/fs.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
+import 'fs_src_idb_file_system_storage_test.dart';
 import 'fs_test.dart' as fs_test;
 import 'test_common.dart';
 
@@ -15,14 +16,14 @@ void main() {
 
 void defineTests(IdbFileSystemTestContext ctx) {
   fs_test.defineTests(ctx);
+  defineIdbFileSystemStorageTests(ctx);
   group('idb', () {
     var fs = ctx.fs;
     test('version', () async {
       await ctx.prepare();
       final db = ctx.fs.db!;
       //TODOexpect(db.version, 2);
-      expect(List.from(db.objectStoreNames)..sort(),
-          ['file', 'page', 'part', 'tree']);
+      expect(List.from(db.objectStoreNames)..sort(), ['file', 'part', 'tree']);
     });
 
     Future<int> getStoreSize(idb.Database db, String storeName) async {

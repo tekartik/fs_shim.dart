@@ -102,27 +102,39 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
   });
 }
 
+var mainStoreExportV2 = {
+  'name': '_main',
+  'keys': ['store_file', 'store_part', 'store_tree', 'stores', 'version'],
+  'values': [
+    {'name': 'file'},
+    {
+      'name': 'part',
+      'autoIncrement': true,
+      'indecies': [
+        {
+          'name': 'part_index',
+          'keyPath': ['file', 'index'],
+          'unique': true
+        }
+      ]
+    },
+    {
+      'name': 'tree',
+      'autoIncrement': true,
+      'indecies': [
+        {'name': 'parent', 'keyPath': 'parent'},
+        {'name': 'pn', 'keyPath': 'pn', 'unique': true}
+      ]
+    },
+    ['file', 'part', 'tree'],
+    7
+  ]
+};
 var exportMapOneFileV2 = {
   'sembast_export': 1,
   'version': 1,
   'stores': [
-    {
-      'name': '_main',
-      'keys': ['store_file', 'store_tree', 'stores', 'version'],
-      'values': [
-        {'name': 'file'},
-        {
-          'name': 'tree',
-          'autoIncrement': true,
-          'indecies': [
-            {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
-        },
-        ['file', 'tree'],
-        6
-      ]
-    },
+    mainStoreExportV2,
     {
       'name': 'file',
       'keys': [2],

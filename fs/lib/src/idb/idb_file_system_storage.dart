@@ -4,18 +4,15 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/bytes_utils.dart';
+import 'package:fs_shim/src/common/import.dart'; // ignore: unnecessary_import
 import 'package:fs_shim/src/web/fs_web_impl.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'idb_fs.dart';
 
-// const int _metaVersion2 = 2;
-// const int _metaVersion = _metaVersion2;
-
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file'; // Whole file content
-const String pageStoreName = 'page'; // Page file definition
 const String partStoreName = 'part'; // Page based file content
 const String nameKey = 'name';
 
@@ -41,12 +38,23 @@ const String targetKey = 'target'; // Link only
 /// part (generated>:
 /// file: <treeId> (id in tree)
 /// index: <partIndex>
+/// content: <blob>
 
 const String indexKey = 'index'; // part index
 const String fileKey = 'file'; // id in tree
-//const String partKey = 'part'; // part id in part store
-// The file key and index in the content
-const String pageFilePartIndexName = '${partStoreName}_$indexKey';
+const String contentKey = 'content'; // content in part
+
+const String partFilePartIndexName = '${partStoreName}_$indexKey';
+
+List toFilePartIndexKey(int fileId, int index) => [fileId, index];
+
+List _filePartIndexKeyAsList(Object key) => (key as List);
+
+int filePartIndexKeyFileId(Object key) =>
+    _filePartIndexKeyAsList(key)[0] as int;
+
+int filePartIndexKeyPartIndex(Object key) =>
+    _filePartIndexKeyAsList(key)[1] as int;
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
   return segments.isNotEmpty &&
@@ -101,10 +109,6 @@ class IdbFileSystemStorage {
           if (storeNames.contains(partStoreName)) {
             db.deleteObjectStore(partStoreName);
           }
-          if (storeNames.contains(pageStoreName)) {
-            db.deleteObjectStore(pageStoreName);
-          }
-
           store = db.createObjectStore(treeStoreName, autoIncrement: true);
           store.createIndex(parentNameIndexName, parentNameKey,
               unique: true); // <id_parent>/<name>
@@ -113,10 +117,9 @@ class IdbFileSystemStorage {
           store = db.createObjectStore(fileStoreName);
         }
         if (e.oldVersion < 7) {
-          store = db.createObjectStore(pageStoreName, autoIncrement: true);
-          store.createIndex(pageFilePartIndexName, [fileKey, indexKey],
-              unique: false);
-          store = db.createObjectStore(partStoreName);
+          store = db.createObjectStore(partStoreName, autoIncrement: true);
+          store.createIndex(partFilePartIndexName, [fileKey, indexKey],
+              unique: true);
         }
       }, onBlocked: (e) {
         print(e);
@@ -143,20 +146,33 @@ class IdbFileSystemStorage {
     return treeEntity;
   }
 
+  int _pageCountFromSize(int size) =>
+      pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize!)) + 1);
+
   /// Set the content of a file and update meta. return the updated node
   Future<Node> txnSetFileDataV2(
       idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
     var fileId = treeEntity.id!;
     var pageSize = this.pageSize ?? defaultPageSize;
-
+    var partCount = _pageCountFromSize(bytes.length);
     // Ignore existing
     var partStore = txn.objectStore(partStoreName);
-    var pageStore = txn.objectStore(pageStoreName);
-    var pageIndex = pageStore.index(pageFilePartIndexName);
-    var stream = pageIndex.openKeyCursor(
-        range: idb.KeyRange.bound([fileId, 0], [fileId + 1, 0], true, false),
+    var partIndex = partStore.index(partFilePartIndexName);
+    var stream = partIndex.openKeyCursor(
+        range: idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
+            toFilePartIndexKey(fileId + 1, 0), true, false),
         autoAdvance: true);
-    var rows = await keyCursorToList(stream);
+    final list = <KeyCursorRow>[];
+    await stream.listen((idb.Cursor cursor) {
+      var partFileIndex = filePartIndexKeyPartIndex(cursor.key);
+      if (partFileIndex >= partCount) {
+        // devPrint('delete part ${cursor.key}');
+        cursor.delete();
+      } else {
+        list.add(KeyCursorRow(cursor.key, cursor.primaryKey));
+      }
+    }).asFuture();
+    var rows = list;
     var rowByPageIndex = rows.asMap().map(
         (index, row) => MapEntry((rows[index].key as List)[1] as int, row));
 
@@ -167,16 +183,17 @@ class IdbFileSystemStorage {
       // read and remove
       var existing = rowByPageIndex.remove(i);
       late int partId;
+      var partEntry = {indexKey: i, fileKey: fileId, contentKey: chunk};
       if (existing != null) {
         partId = existing.primaryKey as int;
+        await partStore.put(partEntry, partId);
       } else {
-        partId = (await pageStore.add({indexKey: i, fileKey: fileId})) as int;
+        partId = (await partStore.add(partEntry)) as int;
       }
-      await partStore.put(chunk, partId);
     }
 
+    /// Safety delete remaining if any, but this should be empty
     for (var existing in rowByPageIndex.values) {
-      await pageStore.delete(existing.primaryKey as int);
       await partStore.delete(existing.primaryKey as int);
     }
 
@@ -368,6 +385,11 @@ class IdbFileSystemStorage {
 
     await txn.completed;
     return entity;
+  }
+
+  /// Delete the associated storage.
+  Future<void> delete() async {
+    await idbFactory.deleteDatabase(dbPath);
   }
 }
 

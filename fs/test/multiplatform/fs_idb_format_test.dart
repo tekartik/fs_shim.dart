@@ -13,6 +13,7 @@ import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'fs_idb_format_v1_test.dart';
+import 'fs_src_idb_file_system_storage_test.dart';
 import 'test_common.dart';
 
 //import 'test_common.dart';
@@ -22,14 +23,6 @@ void main() {
 }
 
 void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
-  Future<List<Map>> getTreeEntries(Database db) async {
-    var txn = db.transaction(['tree'], idbModeReadOnly);
-    var treeObjectStore = txn.objectStore('tree');
-    var list =
-        await cursorToList(treeObjectStore.openCursor(autoAdvance: true));
-    return list.map((row) => {'key': row.key, 'value': row.value}).toList();
-  }
-
   group('idb_format', () {
     test('absolute text file', () async {
       var dbName = 'absolute_text_file.db';
@@ -44,7 +37,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
       fs.close();
 
       var db = await idbFactory.open(dbName);
-      expect(db.objectStoreNames.toSet(), {'file', 'page', 'part', 'tree'});
+      expect(db.objectStoreNames.toSet(), {'file', 'part', 'tree'});
       var txn = db.transaction(['file', 'tree'], idbModeReadOnly);
       var treeObjectStore = txn.objectStore('tree');
       var list =
@@ -58,45 +51,12 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'value': Uint8List.fromList([116, 101, 115, 116])
         }
       ]);
+
       var exportMap = {
         'sembast_export': 1,
         'version': 1,
         'stores': [
-          {
-            'name': '_main',
-            'keys': [
-              'store_file',
-              'store_page',
-              'store_part',
-              'store_tree',
-              'stores',
-              'version'
-            ],
-            'values': [
-              {'name': 'file'},
-              {
-                'name': 'page',
-                'autoIncrement': true,
-                'indecies': [
-                  {
-                    'name': 'part_index',
-                    'keyPath': ['file', 'index']
-                  }
-                ]
-              },
-              {'name': 'part'},
-              {
-                'name': 'tree',
-                'autoIncrement': true,
-                'indecies': [
-                  {'name': 'parent', 'keyPath': 'parent'},
-                  {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-                ]
-              },
-              ['file', 'page', 'part', 'tree'],
-              7
-            ]
-          },
+          mainStoreExportV2,
           {
             'name': 'file',
             'keys': [2],
@@ -191,8 +151,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
       expect(await file.readAsString(), 'test');
       var modified = (await file.stat()).modified;
 
-      //expect(await sdbExportDatabase(db), exportMapOneFileCurrent);
-      expect(await getTreeEntries(db), [
+      expect(await getTreeEntries(fs.db!), [
         {
           'key': 1,
           'value': {
@@ -282,41 +241,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            {
-              'name': '_main',
-              'keys': [
-                'store_file',
-                'store_page',
-                'store_part',
-                'store_tree',
-                'stores',
-                'version'
-              ],
-              'values': [
-                {'name': 'file'},
-                {
-                  'name': 'page',
-                  'autoIncrement': true,
-                  'indecies': [
-                    {
-                      'name': 'part_index',
-                      'keyPath': ['file', 'index']
-                    }
-                  ]
-                },
-                {'name': 'part'},
-                {
-                  'name': 'tree',
-                  'autoIncrement': true,
-                  'indecies': [
-                    {'name': 'parent', 'keyPath': 'parent'},
-                    {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-                  ]
-                },
-                ['file', 'page', 'part', 'tree'],
-                7
-              ]
-            },
+            mainStoreExportV2,
             {
               'name': 'file',
               'keys': [2],
@@ -393,7 +318,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
 
     var db = await idbFactory.open(dbName);
     var exportMap = await sdbExportDatabase(db);
-    // devPrint(jsonPretty(exportMap)); print for copying/pasting for import
+    //devPrint(jsonPretty(exportMap)); //print for copying/pasting for import
     db.close();
 
     db = await sdbImportDatabase(exportMap, idbFactory, dbNameImported);

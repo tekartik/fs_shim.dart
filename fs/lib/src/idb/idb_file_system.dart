@@ -911,7 +911,7 @@ class IdbFileSystem extends Object
 
   /// Get IdbFactory, used in tests only
   @visibleForTesting
-  idb.IdbFactory? get idbFactory {
-    return _db?.factory;
+  idb.IdbFactory get idbFactory {
+    return _storage.idbFactory;
   }
 }
