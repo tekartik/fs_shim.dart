@@ -8,14 +8,23 @@ void main() {
     group('Node', () {
       test('fromMap/toMap', () {
         var dateTextCompat = '2022-12-20T00:00:00.000';
-        var node = Node.fromMap(null,
-            {'name': '/', 'type': 'DIRECTORY', 'modified': dateTextCompat}, 1);
+        var node = Node.fromMap(
+            null,
+            {
+              'name': '/',
+              'type': 'DIRECTORY',
+              'modified': dateTextCompat,
+              'ps': 1024
+            },
+            1);
         expect(node.type, FileSystemEntityType.directory);
         expect(node.modified, DateTime.tryParse(dateTextCompat));
+        expect(node.pageSize, 1024);
         expect(node.toMap(), {
           'name': '/',
           'type': 'dir',
           'pn': '/',
+          'ps': 1024,
           'modified': node.modified!.toUtc().toIso8601String()
         });
 

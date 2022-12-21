@@ -34,7 +34,7 @@ const String parentIndexName = parentKey;
 const String typeKey = 'type';
 const String modifiedKey = 'modified';
 const String sizeKey = 'size';
-const String metaVersionKey = 'v'; // Versioning in the tree nodes
+const String pageSizeKey = 'ps'; // page size (in page, if null, means in file)
 const String targetKey = 'target'; // Link only
 
 /// Page
@@ -137,6 +137,7 @@ class IdbFileSystemStorage {
 
     // update size
     treeEntity.size = bytes.length;
+
     var treeStore = txn.objectStore(treeStoreName);
     await treeStore.put(treeEntity.toMap(), treeEntity.id);
     return treeEntity;
@@ -475,6 +476,7 @@ class Node {
       modified = DateTime.parse(modifiedString);
     }
     final size = map[sizeKey] as int?;
+    final pageSize = map[pageSizeKey] as int?;
 
     fs.FileSystemEntityType? type;
     var typeRawString = map[typeKey] as String?;
@@ -485,7 +487,7 @@ class Node {
       type = typeFromStringCompat(typeRawString);
     }
 
-    return Node(parent, name, type, modified, size, id: id)
+    return Node(parent, name, type, modified, size, id: id, pageSize: pageSize)
       ..targetSegments = (map[targetKey] as List?)?.cast<String>();
   }
 
@@ -493,6 +495,7 @@ class Node {
     final map = <String, Object?>{
       nameKey: name,
       typeKey: typeToString(type),
+      if (pageSize != null) pageSizeKey: pageSize
     };
     if (parent != null) {
       map[parentKey] = parent!.id;

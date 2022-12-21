@@ -141,7 +141,8 @@ void main() {
     group('ready', () {
       late IdbFileSystemStorage storage;
       setUp(() async {
-        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage');
+        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
+            pageSize: 1024);
         await storage.ready;
       });
 
@@ -149,11 +150,11 @@ void main() {
         var db = storage.db!;
         expect(await getFileEntries(db), []);
         var txn = getWriteAllTransaction(db);
-        await storage.txnSetFileDataV1(
+        var node = await storage.txnSetFileDataV1(
             txn,
             Node.node(FileSystemEntityType.file, null, 'test', id: 1),
             Uint8List.fromList([1, 2, 3]));
-
+        expect(node.pageSize, null);
         var fileEntries = await getFileEntries(db);
         expect(fileEntries, [
           {
@@ -175,15 +176,23 @@ void main() {
         var db = storage.db!;
         expect(await getFileEntries(db), []);
         var txn = getWriteAllTransaction(db);
-        await storage.txnSetFileDataV2(
+        var node = await storage.txnSetFileDataV2(
             txn,
             Node.node(FileSystemEntityType.file, null, 'test', id: 1),
             Uint8List.fromList([1, 2, 3]));
+        expect(node.pageSize, isNotNull);
+        expect(node.pageSize, storage.pageSize);
         expect(await getFileEntries(db), []);
         expect(await getTreeEntries(db), [
           {
             'key': 1,
-            'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
+            'value': {
+              'name': 'test',
+              'type': 'file',
+              'size': 3,
+              'ps': 1024,
+              'pn': '/test'
+            }
           }
         ]);
         expect(await getPageEntries(db), [
