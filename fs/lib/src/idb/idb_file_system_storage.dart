@@ -1,20 +1,22 @@
 // ignore_for_file: public_member_api_docs
 
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/web/fs_web_impl.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
+import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'idb_fs.dart';
 
-const int _metaVersion2 = 2;
-const int _metaVersion = _metaVersion2;
+// const int _metaVersion2 = 2;
+// const int _metaVersion = _metaVersion2;
 
 const String treeStoreName = 'tree';
-const String fileStoreName = 'file';
-const String pageStoreName = 'page';
+const String fileStoreName = 'file'; // Whole file content
+const String pageStoreName = 'page'; // Page file definition
+const String partStoreName = 'part'; // Page based file content
 const String nameKey = 'name';
 
 /// That's life to deal with existing
@@ -36,15 +38,15 @@ const String metaVersionKey = 'v'; // Versioning in the tree nodes
 const String targetKey = 'target'; // Link only
 
 /// Page
-/// <id (generated>:
+/// part (generated>:
 /// file: <treeId> (id in tree)
 /// index: <partIndex>
-/// part: <partId> (id in file)
 
-const String indexKey = 'index';
+const String indexKey = 'index'; // part index
 const String fileKey = 'file'; // id in tree
-const String partKey = 'part'; // id in tree
-const String pagePartIndexName = '${pageStoreName}_$partKey';
+//const String partKey = 'part'; // part id in part store
+// The file key and index in the content
+const String pageFilePartIndexName = '${partStoreName}_$indexKey';
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
   return segments.isNotEmpty &&
@@ -96,6 +98,12 @@ class IdbFileSystemStorage {
           if (storeNames.contains(fileStoreName)) {
             db.deleteObjectStore(fileStoreName);
           }
+          if (storeNames.contains(partStoreName)) {
+            db.deleteObjectStore(partStoreName);
+          }
+          if (storeNames.contains(pageStoreName)) {
+            db.deleteObjectStore(pageStoreName);
+          }
 
           store = db.createObjectStore(treeStoreName, autoIncrement: true);
           store.createIndex(parentNameIndexName, parentNameKey,
@@ -105,11 +113,10 @@ class IdbFileSystemStorage {
           store = db.createObjectStore(fileStoreName);
         }
         if (e.oldVersion < 7) {
-          //var store = db.get
-          store = db.createObjectStore(pageStoreName,
-              autoIncrement: true, keyPath: partKey);
-          store.createIndex(pagePartIndexName, [fileKey, indexKey],
-              unique: false); // <id_parent>/<name>
+          store = db.createObjectStore(pageStoreName, autoIncrement: true);
+          store.createIndex(pageFilePartIndexName, [fileKey, indexKey],
+              unique: false);
+          store = db.createObjectStore(partStoreName);
         }
       }, onBlocked: (e) {
         print(e);
@@ -135,64 +142,46 @@ class IdbFileSystemStorage {
     return treeEntity;
   }
 
-  /// Set the content of a file and update meta.
+  /// Set the content of a file and update meta. return the updated node
   Future<Node> txnSetFileDataV2(
       idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
-    var index = 0;
-    var fileId = treeEntity.id;
+    var fileId = treeEntity.id!;
     var pageSize = this.pageSize ?? defaultPageSize;
 
+    // Ignore existing
+    var partStore = txn.objectStore(partStoreName);
     var pageStore = txn.objectStore(pageStoreName);
-    var fileStore = txn.objectStore(fileStoreName);
-    var pageIndex = pageStore.index(pagePartIndexName);
-    var existingDone = false;
-    var newDone = false;
-    var offset = 0;
-    while ((!existingDone) && (!newDone)) {
-      Map? existing;
-      Uint8List? newPart;
-      int? partId;
-      if (!existingDone) {
-        existing = (await pageIndex.get([fileId, index])) as Map?;
-        if (existing == null) {
-          existingDone = true;
-        } else {
-          partId = existing[partKey] as int;
-        }
-      }
+    var pageIndex = pageStore.index(pageFilePartIndexName);
+    var stream = pageIndex.openKeyCursor(
+        range: idb.KeyRange.bound([fileId, 0], [fileId + 1, 0], true, false),
+        autoAdvance: true);
+    var rows = await keyCursorToList(stream);
+    var rowByPageIndex = rows.asMap().map(
+        (index, row) => MapEntry((rows[index].key as List)[1] as int, row));
 
-      if (!newDone) {
-        if (offset < bytes.length) {
-          if (existingDone) {
-            partId = (await pageStore.add({fileKey: fileId, indexKey: index}))
-                as int;
-          }
-          var size = min(defaultPageSize, bytes.length - offset);
-          newPart = bytes.sublist(offset, offset + size);
-        } else {
-          newDone = true;
-        }
+    // Write the new ones
+    var chunks = uint8ListChunk(bytes, pageSize);
+    for (var i = 0; i < chunks.length; i++) {
+      var chunk = chunks[i];
+      // read and remove
+      var existing = rowByPageIndex.remove(i);
+      late int partId;
+      if (existing != null) {
+        partId = existing.primaryKey as int;
+      } else {
+        partId = (await pageStore.add({indexKey: i, fileKey: fileId})) as int;
       }
-
-      if (partId != null) {
-        if (newPart != null) {
-          await fileStore.put(newPart, partId);
-        } else {
-          await fileStore.delete(partId);
-        }
-      }
-      index++;
+      await partStore.put(chunk, partId);
     }
 
-    // Keep existing super fast
-
-    if (bytes.length < pageSize) {}
-    // devPrint('_txnSetFileData all ${bytes.length}');
-    // Content store
-    await fileStore.put(bytes, treeEntity.id);
+    for (var existing in rowByPageIndex.values) {
+      await pageStore.delete(existing.primaryKey as int);
+      await partStore.delete(existing.primaryKey as int);
+    }
 
     // update size
     treeEntity.size = bytes.length;
+    treeEntity.pageSize = pageSize;
     var treeStore = txn.objectStore(treeStoreName);
     await treeStore.put(treeEntity.toMap(), treeEntity.id);
     return treeEntity;
@@ -443,34 +432,32 @@ class Node {
   bool get isFile => type == fs.FileSystemEntityType.file;
   int? size;
   DateTime? modified;
-  // Existing meta version
-  int? metaVersion;
+  int? pageSize; // Page size if any
   List<String>? targetSegments; // for Links only
 
-  Node.file(Node parent, String name, {DateTime? modified})
+  Node.file(Node parent, String name, {DateTime? modified, int? pageSize})
       : this.node(fs.FileSystemEntityType.file, parent, name,
-            modified: modified, metaVersion: _metaVersion);
+            modified: modified, pageSize: pageSize);
 
   Node.directory(Node? parent, String name, {DateTime? modified})
-      : this(parent, name, fs.FileSystemEntityType.directory, modified, 0,
-            metaVersion: _metaVersion);
+      : this(
+          parent,
+          name,
+          fs.FileSystemEntityType.directory,
+          modified,
+          0,
+        );
 
   Node.link(Node? parent, String name,
       {List<String>? targetSegments, DateTime? modified})
       : this.node(fs.FileSystemEntityType.link, parent, name,
-            modified: modified,
-            targetSegments: targetSegments,
-            metaVersion: _metaVersion);
+            modified: modified, targetSegments: targetSegments);
 
   Node.node(this.type, this.parent, this.name,
-      {this.targetSegments,
-      this.id,
-      this.modified,
-      this.size,
-      this.metaVersion});
+      {this.targetSegments, this.id, this.modified, this.size, this.pageSize});
 
   Node(this.parent, this.name, this.type, this.modified, this.size,
-      {this.id, this.metaVersion}) {
+      {this.id, this.pageSize}) {
     _depth = parent == null ? 1 : parent!._depth! + 1;
   }
 
@@ -489,21 +476,16 @@ class Node {
     }
     final size = map[sizeKey] as int?;
 
-    // Handle v1 data
-    var metaVersion = (map[metaVersionKey] as int?) ?? 0;
     fs.FileSystemEntityType? type;
     var typeRawString = map[typeKey] as String?;
 
-    // Handle pre version 'DIRECTORY', 'FILE', 'LINK'
-    if (metaVersion < _metaVersion2) {
+    // New format 'dir', 'file', 'link'
+    type = typeFromString(typeRawString);
+    if (type == fs.FileSystemEntityType.notFound) {
       type = typeFromStringCompat(typeRawString);
-    } else {
-      // New format 'dir', 'file', 'link'
-      type = typeFromString(typeRawString);
     }
 
-    return Node(parent, name, type, modified, size,
-        id: id, metaVersion: metaVersion)
+    return Node(parent, name, type, modified, size, id: id)
       ..targetSegments = (map[targetKey] as List?)?.cast<String>();
   }
 
@@ -511,18 +493,12 @@ class Node {
     final map = <String, Object?>{
       nameKey: name,
       typeKey: typeToString(type),
-      // v2 format
-      if ((metaVersion ?? 0) >= _metaVersion2) metaVersionKey: metaVersion
     };
     if (parent != null) {
       map[parentKey] = parent!.id;
     }
     if (modified != null) {
-      if ((metaVersion ?? 0) >= _metaVersion2) {
-        map[modifiedKey] = modified!.toUtc().toIso8601String();
-      } else {
-        map[modifiedKey] = modified!.toIso8601String();
-      }
+      map[modifiedKey] = modified!.toUtc().toIso8601String();
     }
     if (size != null) {
       map[sizeKey] = size;

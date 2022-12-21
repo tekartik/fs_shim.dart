@@ -44,7 +44,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
       fs.close();
 
       var db = await idbFactory.open(dbName);
-      expect(db.objectStoreNames.toSet(), {'file', 'tree'});
+      expect(db.objectStoreNames.toSet(), {'file', 'page', 'part', 'tree'});
       var txn = db.transaction(['file', 'tree'], idbModeReadOnly);
       var treeObjectStore = txn.objectStore('tree');
       var list =
@@ -64,9 +64,27 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
         'stores': [
           {
             'name': '_main',
-            'keys': ['store_file', 'store_tree', 'stores', 'version'],
+            'keys': [
+              'store_file',
+              'store_page',
+              'store_part',
+              'store_tree',
+              'stores',
+              'version'
+            ],
             'values': [
               {'name': 'file'},
+              {
+                'name': 'page',
+                'autoIncrement': true,
+                'indecies': [
+                  {
+                    'name': 'part_index',
+                    'keyPath': ['file', 'index']
+                  }
+                ]
+              },
+              {'name': 'part'},
               {
                 'name': 'tree',
                 'autoIncrement': true,
@@ -75,8 +93,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
                   {'name': 'pn', 'keyPath': 'pn', 'unique': true}
                 ]
               },
-              ['file', 'tree'],
-              6
+              ['file', 'page', 'part', 'tree'],
+              7
             ]
           },
           {
@@ -93,7 +111,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
               {
                 'name': fs.path.separator,
                 'type': 'dir',
-                'v': 2,
                 'modified': dirStat.modified.toUtc().toIso8601String(),
                 'size': 0,
                 'pn': fs.path.separator
@@ -102,7 +119,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
                 'name': 'file.txt',
                 'type': 'file',
                 'parent': 1,
-                'v': 2,
                 'modified': fileStat.modified.toUtc().toIso8601String(),
                 'size': 4,
                 'pn': fs.path.join('1', 'file.txt'),
@@ -117,7 +133,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'value': {
             'name': fs.path.separator,
             'type': 'dir',
-            'v': 2,
             'modified': dirStat.modified.toIso8601String(),
             'size': 0,
             'pn': fs.path.separator,
@@ -128,7 +143,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'value': {
             'name': 'file.txt',
             'type': 'file',
-            'v': 2,
             'parent': 1,
             'modified': fileStat.modified.toIso8601String(),
             'size': 4,
@@ -194,7 +208,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'value': {
             'name': 'file.txt',
             'type': 'file',
-            'v': 2,
             'parent': 1,
             'modified': modified.toUtc().toIso8601String(),
             'size': 4,
@@ -228,7 +241,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
         fs.close();
 
         var db = await idbFactory.open(dbName);
-        expect(db.objectStoreNames.toSet(), {'file', 'tree'});
+        //expect(db.objectStoreNames.toSet(), {'file', 'tree'});
         var txn = db.transaction(['file', 'tree'], idbModeReadOnly);
         var treeObjectStore = txn.objectStore('tree');
         var list =
@@ -239,7 +252,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
             'value': {
               'name': fs.path.separator,
               'type': 'dir',
-              'v': 2,
               'modified': dirStat.modified.toIso8601String(),
               'size': 0,
               'pn': fs.path.separator,
@@ -250,7 +262,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
             'value': {
               'name': 'file.txt',
               'type': 'file',
-              'v': 2,
               'parent': 1,
               'modified': fileStat.modified.toIso8601String(),
               'size': 4,
@@ -273,9 +284,27 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'stores': [
             {
               'name': '_main',
-              'keys': ['store_file', 'store_tree', 'stores', 'version'],
+              'keys': [
+                'store_file',
+                'store_page',
+                'store_part',
+                'store_tree',
+                'stores',
+                'version'
+              ],
               'values': [
                 {'name': 'file'},
+                {
+                  'name': 'page',
+                  'autoIncrement': true,
+                  'indecies': [
+                    {
+                      'name': 'part_index',
+                      'keyPath': ['file', 'index']
+                    }
+                  ]
+                },
+                {'name': 'part'},
                 {
                   'name': 'tree',
                   'autoIncrement': true,
@@ -284,8 +313,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
                     {'name': 'pn', 'keyPath': 'pn', 'unique': true}
                   ]
                 },
-                ['file', 'tree'],
-                6
+                ['file', 'page', 'part', 'tree'],
+                7
               ]
             },
             {
@@ -304,7 +333,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
                   'type': 'dir',
                   'modified': dirStat.modified.toIso8601String(),
                   'size': 0,
-                  'v': 2,
                   'pn': fs.path.separator
                 },
                 {
@@ -313,7 +341,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
                   'parent': 1,
                   'modified': fileStat.modified.toIso8601String(),
                   'size': 4,
-                  'v': 2,
                   'pn': fs.path.join('1', 'file.txt'),
                 }
               ]

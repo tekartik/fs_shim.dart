@@ -148,7 +148,6 @@ var exportMapOneFileV2 = {
           'modified': '2020-10-31T23:27:05.075',
           'size': 4,
           'pn': '1/file.txt',
-          'v': 2
         }
       ]
     }

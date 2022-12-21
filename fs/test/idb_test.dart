@@ -15,25 +15,21 @@ void main() {
         expect(node.toMap(), {
           'name': '/',
           'type': 'dir',
-          'v': 0,
           'pn': '/',
-          'modified': node.modified!.toIso8601String()
+          'modified': node.modified!.toUtc().toIso8601String()
         });
 
         node = Node.fromMap(null, {'name': '/', 'type': 'dir'}, 1);
-        expect(node.type, FileSystemEntityType.notFound);
-        node = Node.fromMap(null, {'name': '/', 'type': 'dir', 'v': 2}, 1);
         expect(node.type, FileSystemEntityType.directory);
-        expect(node.toMap(), {'name': '/', 'type': 'dir', 'v': 2, 'pn': '/'});
+        expect(node.toMap(), {'name': '/', 'type': 'dir', 'pn': '/'});
 
         var modified = DateTime(2022, 12, 20);
         node = Node(null, '/', FileSystemEntityType.directory, modified, null);
         expect(node.toMap(), {
           'name': '/',
           'type': 'dir',
-          //'v': 2,
           'pn': '/',
-          'modified': modified.toIso8601String()
+          'modified': modified.toUtc().toIso8601String()
         });
       });
     });
