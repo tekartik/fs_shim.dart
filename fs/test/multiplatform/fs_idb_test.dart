@@ -22,7 +22,8 @@ void defineTests(IdbFileSystemTestContext ctx) {
     test('version', () async {
       await ctx.prepare();
       final db = ctx.fs.db!;
-      //TODOexpect(db.version, 2);
+      expect(db.version, 7);
+      // If this fails, delete .dart_tool/fs_shim/test folder
       expect(List.from(db.objectStoreNames)..sort(), ['file', 'part', 'tree']);
     });
 

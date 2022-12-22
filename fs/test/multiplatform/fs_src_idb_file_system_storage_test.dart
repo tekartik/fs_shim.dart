@@ -6,6 +6,7 @@ library fs_shim.fs_src_idb_test;
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb.dart';
@@ -22,8 +23,9 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   var p = idbPathContext;
   var index = 0;
   Future<IdbFileSystemStorage> newStorage() async {
-    final storage =
-        IdbFileSystemStorage(ctx.fs.idbFactory, 'idb_storage_${++index}');
+    final storage = IdbFileSystemStorage(
+        ctx.fs.idbFactory, 'idb_storage_${++index}',
+        options: FileSystemIdbOptions(pageSize: 0));
     await storage.delete();
     await storage.ready;
     return storage;
@@ -149,7 +151,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       late IdbFileSystemStorage storage;
       setUp(() async {
         storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
-            pageSize: 1024);
+            options: FileSystemIdbOptions(pageSize: 1024));
         await storage.ready;
       });
 
@@ -161,7 +163,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             txn,
             Node.node(FileSystemEntityType.file, null, 'test', id: 1),
             Uint8List.fromList([1, 2, 3]));
-        expect(node.pageSize, null);
+        expect(node.pageSize, 0);
         var fileEntries = await getFileEntries(db);
         expect(fileEntries, [
           {
@@ -210,6 +212,60 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
               'index': 0,
               'file': 1,
               'content': [1, 2, 3]
+            }
+          }
+        ]);
+        //expect(partEntries[0]['value'], isA<Uint8List>());
+      });
+    });
+    group('ready pageSize 2', () {
+      late IdbFileSystemStorage storage;
+      setUp(() async {
+        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
+            options: FileSystemIdbOptions(pageSize: 2));
+        await storage.ready;
+      });
+
+      test('writeDataV2', () async {
+        var db = storage.db!;
+        expect(await getFileEntries(db), []);
+        var txn = getWriteAllTransaction(db);
+        var node = await storage.txnSetFileDataV2(
+            txn,
+            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+            Uint8List.fromList([1, 2, 3]));
+        expect(node.pageSize, isNotNull);
+        expect(node.pageSize, storage.pageSize);
+        expect(await getFileEntries(db), []);
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {
+              'name': 'test',
+              'type': 'file',
+              'size': 3,
+              'ps': 2,
+              'pn': '/test'
+            }
+          }
+        ]);
+
+        var partEntries = await getPartEntries(db);
+        expect(partEntries, [
+          {
+            'key': 1,
+            'value': {
+              'index': 0,
+              'file': 1,
+              'content': [1, 2]
+            }
+          },
+          {
+            'key': 2,
+            'value': {
+              'index': 1,
+              'file': 1,
+              'content': [3]
             }
           }
         ]);

@@ -2,6 +2,7 @@
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
@@ -15,7 +16,6 @@ import 'idb_file_stat.dart';
 import 'idb_file_system_entity.dart';
 import 'idb_file_system_exception.dart';
 import 'idb_file_system_storage.dart';
-import 'idb_fs.dart';
 import 'idb_link.dart';
 
 /// Settle on using url way for idb files, (even on Windows).
@@ -185,6 +185,53 @@ String idbMakePathAbsolute(String path) {
 
 IdbFileSystemStorage fsStorage(IdbFileSystem fs) => fs._storage;
 
+/// Delegate mixin
+mixin IdbFileSystemDelegateMixin implements fs.FileSystem {
+  fs.FileSystem get delegate;
+
+  @override
+  fs.Directory directory(String path) => delegate.directory(path);
+
+  @override
+  fs.File file(String path) => delegate.file(path);
+
+  @override
+  Future<bool> isDirectory(String? path) => delegate.isDirectory(path);
+
+  @override
+  Future<bool> isFile(String? path) => delegate.isFile(path);
+
+  @override
+  Future<bool> isLink(String? path) => delegate.isLink(path);
+
+  @override
+  fs.Link link(String path) => delegate.link(path);
+
+  @override
+  String get name => delegate.name;
+
+  @override
+  p.Context get path => delegate.path;
+
+  @override
+  // ignore: deprecated_member_use_from_same_package
+  p.Context get pathContext => delegate.pathContext;
+
+  @override
+  bool get supportsFileLink => delegate.supportsFileLink;
+
+  @override
+  bool get supportsLink => delegate.supportsLink;
+
+  @override
+  bool get supportsRandomAccess => delegate.supportsRandomAccess;
+
+  @override
+  Future<fs.FileSystemEntityType> type(String? path,
+          {bool followLinks = true}) =>
+      delegate.type(path, followLinks: followLinks);
+}
+
 ///
 /// File system implement on idb_shim
 ///
@@ -202,9 +249,19 @@ class IdbFileSystem extends Object
   idb.Database? get db => _db;
   static const dbPath = 'lfs.db';
 
-  IdbFileSystem(idb.IdbFactory factory, String? path, {int? pageSize}) {
-    _storage =
-        IdbFileSystemStorage(factory, path ?? dbPath, pageSize: pageSize);
+  IdbFileSystem._(this._storage);
+
+  IdbFileSystem(idb.IdbFactory factory, String? path,
+      {FileSystemIdbOptions? options, IdbFileSystemStorage? storage}) {
+    // legacy page size = 0
+    options = FileSystemIdbOptions(pageSize: 0);
+    _storage = storage ??
+        IdbFileSystemStorage(factory, path ?? dbPath, options: options);
+  }
+
+  IdbFileSystem withOptionsImpl({required FileSystemIdbOptions options}) {
+    var storage = _storage.withOptions(options: options);
+    return IdbFileSystem._(storage);
   }
 
   @override
@@ -272,7 +329,6 @@ class IdbFileSystem extends Object
     try {
       // Try to find the file if it exists
       final result = await txnSearch(store, segments, false);
-
       var entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.directory) {

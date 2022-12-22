@@ -3,13 +3,16 @@
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/import.dart'; // ignore: unnecessary_import
-import 'package:fs_shim/src/web/fs_web_impl.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'idb_fs.dart';
+
+/// Default page size
+const defaultPageSize = 16 * 1024;
 
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file'; // Whole file content
@@ -73,15 +76,31 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
   return targetSegments;
 }
 
+/// We use the same database
+class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
+  final IdbFileSystemStorage delegate;
+  @override
+  idb.Database? get db => delegate.db;
+  @override
+  Future get ready => delegate.ready;
+
+  IdbFileSystemStorageWithDelegate(
+      {required this.delegate, required FileSystemIdbOptions options})
+      : super(delegate.idbFactory, delegate.dbPath, options: options);
+}
+
 // not exported
 class IdbFileSystemStorage {
   idb.IdbFactory idbFactory;
   String dbPath;
-  int? pageSize;
+  FileSystemIdbOptions options;
+  int get pageSize => options.pageSize ?? 0;
 
-  IdbFileSystemStorage(this.idbFactory, this.dbPath, {this.pageSize}) {
-    assert(pageSize != 0);
-  }
+  IdbFileSystemStorage(this.idbFactory, this.dbPath, {required this.options});
+
+  /// Use for derived options
+  IdbFileSystemStorage withOptions({required FileSystemIdbOptions options}) =>
+      IdbFileSystemStorageWithDelegate(delegate: this, options: options);
 
   idb.Database? db;
   Completer? _readyCompleter;
@@ -139,21 +158,19 @@ class IdbFileSystemStorage {
     await fileStore.put(bytes, treeEntity.id);
 
     // update size
-    treeEntity.size = bytes.length;
-
     var treeStore = txn.objectStore(treeStoreName);
-    await treeStore.put(treeEntity.toMap(), treeEntity.id);
-    return treeEntity;
+    var newTreeEntity = treeEntity.clone(pageSize: 0, size: bytes.length);
+    await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
+    return newTreeEntity;
   }
 
   int _pageCountFromSize(int size) =>
-      pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize!)) + 1);
+      pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
 
   /// Set the content of a file and update meta. return the updated node
   Future<Node> txnSetFileDataV2(
       idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
     var fileId = treeEntity.id!;
-    var pageSize = this.pageSize ?? defaultPageSize;
     var partCount = _pageCountFromSize(bytes.length);
     // Ignore existing
     var partStore = txn.objectStore(partStoreName);
@@ -198,11 +215,12 @@ class IdbFileSystemStorage {
     }
 
     // update size
-    treeEntity.size = bytes.length;
-    treeEntity.pageSize = pageSize;
+    var newTreeEntity =
+        treeEntity.clone(pageSize: pageSize, size: bytes.length);
+
     var treeStore = txn.objectStore(treeStoreName);
-    await treeStore.put(treeEntity.toMap(), treeEntity.id);
-    return treeEntity;
+    await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
+    return newTreeEntity;
   }
 
   /// For the given [parent] find the child named [name]
@@ -498,7 +516,7 @@ class Node {
       modified = DateTime.parse(modifiedString);
     }
     final size = map[sizeKey] as int?;
-    final pageSize = map[pageSizeKey] as int?;
+    final pageSize = (map[pageSizeKey] as int?) ?? 0;
 
     fs.FileSystemEntityType? type;
     var typeRawString = map[typeKey] as String?;
@@ -517,7 +535,8 @@ class Node {
     final map = <String, Object?>{
       nameKey: name,
       typeKey: typeToString(type),
-      if (pageSize != null) pageSizeKey: pageSize
+      // omit the page size if 0
+      if ((pageSize ?? 0) != 0) pageSizeKey: pageSize
     };
     if (parent != null) {
       map[parentKey] = parent!.id;
@@ -564,6 +583,13 @@ class Node {
 
   @override
   int get hashCode => id!;
+
+  Node clone({int? pageSize, int? size}) => Node.node(type, parent, name,
+      pageSize: pageSize ?? this.pageSize,
+      id: id,
+      modified: modified,
+      size: size ?? this.size,
+      targetSegments: targetSegments);
 }
 
 class NodeSearchResult {

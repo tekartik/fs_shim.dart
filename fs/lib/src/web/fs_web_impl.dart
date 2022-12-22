@@ -1,17 +1,16 @@
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/fs_idb.dart';
-import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb_client_native.dart';
 
-/// The default browser file system on top of IndexedDB.
+/// The default browser file system on top of IndexedDB. Random access support is not optimized
 final FileSystem fileSystemWeb = newFileSystemIdb(idbFactoryNative);
 
-/// Default page size
-const defaultPageSize = 64 * 1024;
-var _fileSystemByPageSize = <int, FileSystem>{};
-
-/// FileSystem with pageSize (default being 16Kb).
-FileSystem getFileSystemWeb({int? pageSize}) {
-  pageSize ??= defaultPageSize;
-  return _fileSystemByPageSize[pageSize] ??=
-      IdbFileSystem(idbFactoryNative, null, pageSize: pageSize);
+/// FileSystem with options (if [options] is null, a default options with pageSize default being 16Kb).
+FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) {
+  options ??= FileSystemIdbOptions(pageSize: defaultPageSize);
+  if (options.pageSize == null) {
+    return fileSystemWeb;
+  }
+  return fileSystemWeb.withWebOptions(options: options);
 }

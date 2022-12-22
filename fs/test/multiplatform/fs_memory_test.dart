@@ -10,7 +10,14 @@ import 'test_common.dart';
 
 void main() {
   group('memory', () {
-    defineTests(memoryFileSystemTestContext);
+    group('pageSize: null', () {
+      defineTests(memoryFileSystemTestContext);
+    });
+
+    group('pageSize: other', () {
+      //defineTests(MemoryFileSystemTestContext());
+    }, skip: true);
+
     group('fs', () {
       var fs = memoryFileSystemTestContext.fs;
       test('supportRandomAccess', () {

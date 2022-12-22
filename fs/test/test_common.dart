@@ -5,6 +5,7 @@ library fs_shim.test.test_common;
 
 import 'dart:convert';
 
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:test/test.dart';
@@ -65,12 +66,19 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
     MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  final FileSystemIdbOptions? options;
   @override
   final PlatformContext? platform = null;
   @override
-  final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
+  late final IdbFileSystem fs = () {
+    var fs = newFileSystemMemory();
+    if (options != null) {
+      //  fs = fs.withWebOptions(options: options!);
+    }
+    return fs as IdbFileSystem;
+  }();
 
-  MemoryFileSystemTestContext();
+  MemoryFileSystemTestContext({this.options});
 }
 
 void devPrintJson(Map json) {
