@@ -12,9 +12,6 @@ import 'package:sembast/sembast_io.dart';
 
 import 'setup.dart';
 
-/// Special runtime trick to known whether we are in the javascript world
-const isRunningAsJavascript = identical(0, 0.0);
-
 var _index = 0;
 List<FileSystem> fsList = isRunningAsJavascript
     ? [
