@@ -22,7 +22,3 @@ dev_dependencies:
   build_web_compilers: '>=2.16.4'
   yaml: '>=3.0.0'
   pub_semver: '>=2.0.0'
-
-dependency_overrides:
-  idb_shim:
-    path: ../../../../github.com/tekartik/idb_shim.dart/idb_shim
