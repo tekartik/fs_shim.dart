@@ -271,6 +271,18 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         //expect(partEntries[0]['value'], isA<Uint8List>());
       });
     });
+    test('getSegments', () {
+      expect(getSegments('/'), ['/']);
+      expect(getSegments('/a'), ['/', 'a']);
+      expect(getSegments('/a/b'), ['/', 'a', 'b']);
+      expect(getSegments('/a/b/'), ['/', 'a', 'b']);
+      expect(getSegments('.'), ['/']);
+      expect(getSegments('./.'), ['/']);
+      expect(getSegments('././a'), ['/', 'a']);
+      expect(getSegments('/a/../b'), ['/', 'b']);
+      expect(getSegments('/a/b/../c'), ['/', 'a', 'c']);
+      expect(getSegments('/a/b/../../c'), ['/', 'c']);
+    });
   });
 }
 

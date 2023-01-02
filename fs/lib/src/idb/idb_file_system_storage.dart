@@ -664,9 +664,14 @@ class NodeSearchResult {
 }
 
 List<String> getSegments(String path) {
-  final segments = idbPathContext.split(path);
+  final segments =
+      List<String>.from(idbPathContext.split(idbPathContext.normalize(path)));
+  // devPrint('$path => $segments');
   if (!idbPathContext.isAbsolute(path)) {
     segments.insert(0, idbPathContext.separator);
+  }
+  if (segments.last == '.') {
+    segments.removeLast();
   }
   return segments;
 }

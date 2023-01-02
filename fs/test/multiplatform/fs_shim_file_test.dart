@@ -571,6 +571,18 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await file.readAsString(), '$text$text');
     });
 
+    test('relative_access', () async {
+      final text = 'test';
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'file');
+      var fileAltPath = fs.path.join(directory.path, '.', 'file');
+      final file = fs.file(filePath);
+      final fileAlt = fs.file(fileAltPath);
+
+      await file.writeAsString(text, flush: true);
+      expect(await fileAlt.readAsString(), text);
+    });
+
     test('big file', () async {
       var size = 8000000;
       try {
