@@ -6,7 +6,6 @@ library fs_shim.fs_src_idb_io_test;
 
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
-import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_io.dart';
 
 import '../multiplatform/fs_idb_format_test.dart';
@@ -16,36 +15,38 @@ import '../multiplatform/platform.dart';
 import '../test_common.dart';
 import '../test_common_io.dart';
 
-idb.IdbFactory get idbFactory => getIdbFactorySembastIo(testOutTopPath);
+final _idbFactory = getIdbFactorySembastIo(testOutTopPath);
 
-FileSystem newIdbIoFileSystem([String? name]) =>
-    newFileSystemIdb(getIdbFactorySembastIo(testOutTopPath), name);
+FileSystem newIdbIoFileSystem([String? name]) {
+  // IdbFactoryLogger.debugMaxLogCount = devWarning(256);
+  return newFileSystemIdb(
+      // devWarning(getIdbFactoryLogger(getIdbFactorySembastIo(testOutTopPath))),
+      getIdbFactorySembastIo(testOutTopPath),
+      name);
+}
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   @override
   final PlatformContext? platform = null;
+
   @override
-  IdbFileSystem fs = newIdbIoFileSystem() as IdbFileSystem;
+  late final IdbFileSystem fs = () {
+    var fs = newIdbIoFileSystem('test') as IdbFileSystem;
+    return fs;
+  }();
 
   IdbIoFileSystemTestContext();
-
-  @override
-  Future<Directory> prepare() {
-    fs = newIdbIoFileSystem(fs.path.join(super.outPath, 'fs.db'))
-        as IdbFileSystem;
-    return super.prepare();
-  }
 }
 
-IdbIoFileSystemTestContext idbIoFileSystemContext =
+IdbIoFileSystemTestContext _idbIoFileSystemContext =
     IdbIoFileSystemTestContext();
 
 void main() {
   group('idb_io', () {
     // All tests
-    fsIdbFormatGroup(idbFactory);
-    fsIdbFormatV1Group(idbFactory);
+    fsIdbFormatGroup(_idbFactory);
+    fsIdbFormatV1Group(_idbFactory);
 
-    defineTests(idbIoFileSystemContext);
+    defineTests(_idbIoFileSystemContext);
   });
 }

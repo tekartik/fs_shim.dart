@@ -12,10 +12,6 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 final bool _doPrintErr = false;
 
 void _printErr(e) {
@@ -25,7 +21,7 @@ void _printErr(e) {
 }
 
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
 
   group('file_system_exception_test', () {
     test('not_found', () async {

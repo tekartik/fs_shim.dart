@@ -18,6 +18,8 @@ import 'idb_file_system_exception.dart';
 import 'idb_file_system_storage.dart';
 import 'idb_link.dart';
 
+var debugShowLogs = false; // devWarning(true);
+
 /// Settle on using url way for idb files, (even on Windows).
 p.Context get idbPathContext => p.url;
 
@@ -51,6 +53,7 @@ class IdbReadStreamCtlr {
         // Try to find the file if it exists
         final segments = getSegments(path);
         final entity = await _fs._storage.txnGetNode(store, segments, true);
+
         if (entity == null) {
           _ctlr.addError(idbNotFoundException(path, 'Read failed'));
           return;
@@ -155,6 +158,9 @@ class IdbWriteStreamSink extends MemorySink {
 
       if (content.isEmpty) {
         if (exists) {
+          if (debugShowLogs) {
+            print('delete $entity');
+          }
           await fileStore.delete(entity.id!);
         }
       } else {
@@ -162,6 +168,9 @@ class IdbWriteStreamSink extends MemorySink {
         // New in 2020/11/1
         content = asUint8List(content);
 
+        if (debugShowLogs) {
+          print('put file ${entity.id} content size ${content.length}');
+        }
         await fileStore.put(content, entity.id);
       }
 
@@ -169,6 +178,9 @@ class IdbWriteStreamSink extends MemorySink {
       entity.size = content.length;
       entity.modified = DateTime.now();
 
+      if (debugShowLogs) {
+        print('put $entity');
+      }
       await treeStore.put(entity.toMap(), entity.id);
     } finally {
       await txn.completed;
@@ -342,10 +354,11 @@ class IdbFileSystem extends Object
           (recursive != true) &&
           (segments[0] == pathContext.separator)) {
         // Always create the root when needed
-      } else
-      // not recursive and too deep, cancel
-      if ((result.depthDiff > 1) && (recursive != true)) {
-        throw idbNotFoundException(path, 'Creation failed');
+      } else {
+        // not recursive and too deep, cancel
+        if ((result.depthDiff > 1) && (recursive != true)) {
+          throw idbNotFoundException(path, 'Creation failed');
+        }
       }
 
       // check depth
@@ -526,6 +539,9 @@ class IdbFileSystem extends Object
 
     Future delete() {
       return store.delete(entity.id!).then((_) {
+        if (debugShowLogs) {
+          print('Deleting $entity');
+        }
         // For file delete content as well
         if (entity.type == fs.FileSystemEntityType.file) {
           store = txn.objectStore(fileStoreName);
@@ -662,6 +678,9 @@ class IdbFileSystem extends Object
           entity.parent = newParent;
 
           entity.name = newSegments.last;
+          if (debugShowLogs) {
+            print('put $entity');
+          }
           return store.put(entity.toMap(), entity.id);
         }
 
@@ -808,6 +827,9 @@ class IdbFileSystem extends Object
       entity = Node(parent, segment, fs.FileSystemEntityType.directory,
           DateTime.now(), 0);
       return store.add(entity!.toMap()).then((dynamic id) {
+        if (debugShowLogs) {
+          print('_createDirectory(${entity!.segments}): $id $entity');
+        }
         entity!.id = id as int;
         if (i++ < remainings.length - 1) {
           return next();

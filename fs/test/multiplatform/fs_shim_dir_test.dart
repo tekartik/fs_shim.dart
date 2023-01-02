@@ -13,12 +13,8 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
 
   group('dir', () {
     test('new', () {
@@ -59,9 +55,11 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('create', () async {
+      // devPrint('prepare ${ctx.fs}');
       final dir = await ctx.prepare();
 
       final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
+      expect(await dir.exists(), isTrue);
       expect(await subDir.exists(), isFalse);
       expect(await fs.isDirectory(subDir.path), isFalse);
       expect(await (await subDir.create()).exists(), isTrue);

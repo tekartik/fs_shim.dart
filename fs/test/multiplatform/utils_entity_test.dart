@@ -1,20 +1,13 @@
 library fs_shim.test.utils_entity_tests;
 
-// ignore_for_file: unnecessary_import
-import 'package:fs_shim/fs.dart';
-
 import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
   group('entity', () {
     test('as', () async {
       if (fs.supportsLink) {

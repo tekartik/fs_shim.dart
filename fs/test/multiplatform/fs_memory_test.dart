@@ -10,13 +10,10 @@ import 'test_common.dart';
 
 void main() {
   group('memory', () {
-    group('pageSize: null', () {
-      defineTests(memoryFileSystemTestContext);
+    group('pageSize: null twice', () {
+      defineTests(MemoryFileSystemTestContext());
+      defineTests(MemoryFileSystemTestContext());
     });
-
-    group('pageSize: other', () {
-      //defineTests(MemoryFileSystemTestContext());
-    }, skip: true);
 
     group('fs', () {
       var fs = memoryFileSystemTestContext.fs;

@@ -21,16 +21,11 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
   final PlatformContext platform = PlatformContextBrowser();
   @override
-  IdbFileSystem fs = newFileSystemIdbBrowser()
-      as IdbFileSystem; // Needed for initialization (supportsLink)
-  IdbBrowserFileSystemTestContext();
-
-  @override
-  Future<Directory> prepare() {
-    fs = newFileSystemIdbBrowser(fs.path.join(super.outPath, 'lfs.db'))
-        as IdbFileSystem;
-    return super.prepare();
-  }
+  late IdbFileSystem fs = () {
+    var fs = newFileSystemIdbBrowser()
+        as IdbFileSystem; // Needed for initialization (supportsLink)
+    return fs;
+  }();
 }
 
 IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =

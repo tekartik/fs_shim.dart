@@ -4,7 +4,7 @@ version: 2.0.3
 homepage: https://github.com/tekartik/fs_shim.dart/tree/master/fs
 
 environment:
-  sdk: '>=2.14.0 <3.0.0'
+  sdk: '>=2.18.0 <3.0.0'
 
 dependencies:
   idb_shim: '>=2.1.1-2 <4.0.0'
@@ -23,3 +23,6 @@ dev_dependencies:
   yaml: '>=3.0.0'
   pub_semver: '>=2.0.0'
 
+dependency_overrides:
+  idb_shim:
+    path: ../../../../github.com/tekartik/idb_shim.dart/idb_shim

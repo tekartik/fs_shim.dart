@@ -1,6 +1,7 @@
 library fs_shim.fs_memory;
 
-import 'package:idb_shim/idb_client_memory.dart';
+import 'package:idb_shim/idb_client_sembast.dart';
+import 'package:sembast/sembast_memory.dart';
 
 import 'fs_idb.dart';
 
@@ -13,8 +14,12 @@ export 'fs.dart';
 FileSystem newMemoryFileSystem([String? name]) => newFileSystemMemory(name);
 
 /// Creates a new file system in memory.
-FileSystem newFileSystemMemory([String? name]) =>
-    newFileSystemIdb(newIdbFactoryMemory(), name);
+FileSystem newFileSystemMemory([String? name]) => newFileSystemIdb(
+    //newFileSystemIdb(idbFactory)
+    //newIdbFactoryMemory(),
+    IdbFactorySembast(newDatabaseFactoryMemory()),
+    // Logger in warning
+    name);
 
 FileSystem? _fileSystemMemory;
 

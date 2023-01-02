@@ -71,10 +71,14 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   final PlatformContext? platform = null;
   @override
   late final IdbFileSystem fs = () {
-    var fs = newFileSystemMemory();
-    if (options != null) {
-      //  fs = fs.withWebOptions(options: options!);
+    if (debugShowLogs) {
+      print('Creating file system $hashCode');
     }
+    // IdbFactoryLogger.debugMaxLogCount = devWarning(256);
+    var fs = newFileSystemMemory();
+    //  if (options != null) {
+    //  fs = fs.withWebOptions(options: options!);
+    // }
     return fs as IdbFileSystem;
   }();
 

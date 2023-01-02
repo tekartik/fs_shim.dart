@@ -13,13 +13,8 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
-
+  var fs = ctx.fs;
   int indexOf(List<FileSystemEntity> list, FileSystemEntity entity) {
     for (var i = 0; i < list.length; i++) {
       if (list[i].path == entity.path) {
