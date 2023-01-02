@@ -3,21 +3,14 @@
 
 library fs_shim.test.fs_shim_file_system_test;
 
-// ignore_for_file: unnecessary_import
-import 'package:fs_shim/fs.dart';
-
 import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
 
   group('file_system', () {
     test('equals', () {
