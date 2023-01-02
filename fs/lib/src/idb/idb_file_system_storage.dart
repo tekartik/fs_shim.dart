@@ -3,7 +3,7 @@
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
-import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/import.dart'; // ignore: unnecessary_import
 import 'package:idb_shim/idb_client.dart' as idb;
@@ -108,13 +108,13 @@ class IdbFileSystemStorage {
   Completer? _readyCompleter;
 
   Future get ready async {
-    if (debugShowLogs) {
+    if (debugIdbShowLogs) {
       print('ready? $hashCode');
     }
     if (_readyCompleter == null) {
       _readyCompleter = Completer();
 
-      if (debugShowLogs) {
+      if (debugIdbShowLogs) {
         print('opening $dbPath');
       }
       // version 4: add file store
@@ -163,7 +163,7 @@ class IdbFileSystemStorage {
     // devPrint('_txnSetFileData all ${bytes.length}');
     // Content store
     var fileStore = txn.objectStore(fileStoreName);
-    if (debugShowLogs) {
+    if (debugIdbShowLogs) {
       print('put file ${treeEntity.id} content size ${bytes.length}');
     }
     await fileStore.put(bytes, treeEntity.id);
@@ -171,7 +171,7 @@ class IdbFileSystemStorage {
     // update size
     var treeStore = txn.objectStore(treeStoreName);
     var newTreeEntity = treeEntity.clone(pageSize: 0, size: bytes.length);
-    if (debugShowLogs) {
+    if (debugIdbShowLogs) {
       print('put $newTreeEntity');
     }
     await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
@@ -217,7 +217,7 @@ class IdbFileSystemStorage {
       var partEntry = {indexKey: i, fileKey: fileId, contentKey: chunk};
       if (existing != null) {
         partId = existing.primaryKey as int;
-        if (debugShowLogs) {
+        if (debugIdbShowLogs) {
           print('put file $fileId/$i/$partId content size ${bytes.length}');
         }
         await partStore.put(partEntry, partId);
@@ -236,7 +236,7 @@ class IdbFileSystemStorage {
         treeEntity.clone(pageSize: pageSize, size: bytes.length);
 
     var treeStore = txn.objectStore(treeStoreName);
-    if (debugShowLogs) {
+    if (debugIdbShowLogs) {
       print('put $newTreeEntity');
     }
     await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
@@ -249,7 +249,7 @@ class IdbFileSystemStorage {
     final parentName = getParentName(parent, name);
 
     FutureOr<Node?> nodeFromKey(dynamic id) {
-      if (debugShowLogs) {
+      if (debugIdbShowLogs) {
         print('nodeFromKey($parentName): $id');
       }
       if (id == null) {
@@ -262,7 +262,7 @@ class IdbFileSystemStorage {
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
         }
-        if (debugShowLogs) {
+        if (debugIdbShowLogs) {
           print('nodeFromMap($parentName): $map');
         }
         return entity;
@@ -385,7 +385,7 @@ class IdbFileSystemStorage {
     }
 
     return next().then((_) {
-      if (debugShowLogs) {
+      if (debugIdbShowLogs) {
         print('txnSearch($segments): $result');
       }
       return result;
@@ -418,7 +418,7 @@ class IdbFileSystemStorage {
   Future<Node> txnAddNode(idb.ObjectStore store, Node entity) {
     // devPrint('adding ${entity}');
     return store.add(entity.toMap()).then((dynamic id) {
-      if (debugShowLogs) {
+      if (debugIdbShowLogs) {
         print('txnAddNode(${entity.segments}): $id');
       }
       entity.id = id as int;
@@ -439,7 +439,7 @@ class IdbFileSystemStorage {
 
   /// Delete the associated storage.
   Future<void> delete() async {
-    if (debugShowLogs) {
+    if (debugIdbShowLogs) {
       print('delete database $dbPath');
     }
     await idbFactory.deleteDatabase(dbPath);

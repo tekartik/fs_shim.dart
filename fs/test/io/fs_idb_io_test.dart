@@ -47,6 +47,6 @@ void main() {
     fsIdbFormatGroup(_idbFactory);
     fsIdbFormatV1Group(_idbFactory);
 
-    defineTests(_idbIoFileSystemContext);
+    defineIdbTests(_idbIoFileSystemContext);
   });
 }

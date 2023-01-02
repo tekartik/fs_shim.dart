@@ -3,6 +3,7 @@
 
 library tekartik_fs_test.fs_memory_test;
 
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 
 import 'fs_test.dart';
@@ -13,6 +14,12 @@ void main() {
     group('pageSize: null twice', () {
       defineTests(MemoryFileSystemTestContext());
       defineTests(MemoryFileSystemTestContext());
+      defineTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 2)));
+      defineTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 4)));
+      defineTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 1024)));
     });
 
     group('fs', () {

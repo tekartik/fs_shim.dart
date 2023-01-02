@@ -6,6 +6,16 @@ import 'package:idb_shim/idb.dart' as idb;
 import 'fs.dart';
 
 export 'fs.dart';
+export 'src/idb/idb_file_system.dart' show FileSystemIdbExt;
+
+/// Idb file system options.
+class FileSystemIdbOptions {
+  /// Default page size (null means no page).
+  final int? pageSize;
+
+  /// Idb file system options.
+  FileSystemIdbOptions({this.pageSize});
+}
 
 ///
 /// Idb implementation (base for memory and browser)

@@ -5,8 +5,7 @@ library fs_shim.fs_src_idb_test;
 
 import 'dart:typed_data';
 
-import 'package:fs_shim/fs.dart';
-import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb.dart';

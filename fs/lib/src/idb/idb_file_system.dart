@@ -2,7 +2,7 @@
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
-import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
@@ -18,9 +18,9 @@ import 'idb_file_system_exception.dart';
 import 'idb_file_system_storage.dart';
 import 'idb_link.dart';
 
-var debugShowLogs = false; // devWarning(true);
+var debugIdbShowLogs = false; // devWarning(true);
 
-/// Settle on using url way for idb files, (even on Windows).
+/// Settle on using the posix way for idb files, (even on Windows).
 p.Context get idbPathContext => p.url;
 
 List<String> _getPathSegments(String path) {
@@ -158,7 +158,7 @@ class IdbWriteStreamSink extends MemorySink {
 
       if (content.isEmpty) {
         if (exists) {
-          if (debugShowLogs) {
+          if (debugIdbShowLogs) {
             print('delete $entity');
           }
           await fileStore.delete(entity.id!);
@@ -168,7 +168,7 @@ class IdbWriteStreamSink extends MemorySink {
         // New in 2020/11/1
         content = asUint8List(content);
 
-        if (debugShowLogs) {
+        if (debugIdbShowLogs) {
           print('put file ${entity.id} content size ${content.length}');
         }
         await fileStore.put(content, entity.id);
@@ -178,7 +178,7 @@ class IdbWriteStreamSink extends MemorySink {
       entity.size = content.length;
       entity.modified = DateTime.now();
 
-      if (debugShowLogs) {
+      if (debugIdbShowLogs) {
         print('put $entity');
       }
       await treeStore.put(entity.toMap(), entity.id);
@@ -244,6 +244,9 @@ mixin IdbFileSystemDelegateMixin implements fs.FileSystem {
       delegate.type(path, followLinks: followLinks);
 }
 
+/// New internal name.
+typedef FileSystemIdb = IdbFileSystem;
+
 ///
 /// File system implement on idb_shim
 ///
@@ -256,6 +259,9 @@ class IdbFileSystem extends Object
 
   late final IdbFileSystemStorage _storage;
 
+  @visibleForTesting
+  String get storageDbPath => _storage.dbPath;
+
   idb.Database? get _db => _storage.db;
 
   idb.Database? get db => _db;
@@ -266,7 +272,7 @@ class IdbFileSystem extends Object
   IdbFileSystem(idb.IdbFactory factory, String? path,
       {FileSystemIdbOptions? options, IdbFileSystemStorage? storage}) {
     // legacy page size = 0
-    options = FileSystemIdbOptions(pageSize: 0);
+    options ??= FileSystemIdbOptions(pageSize: 0);
     _storage = storage ??
         IdbFileSystemStorage(factory, path ?? dbPath, options: options);
   }
@@ -285,7 +291,7 @@ class IdbFileSystem extends Object
   }
 
   @override
-  String toString() => 'Idb($db)';
+  String toString() => 'IdbFs($storageDbPath, $db)';
 
   @override
   int get hashCode => _storage.hashCode;
@@ -539,7 +545,7 @@ class IdbFileSystem extends Object
 
     Future delete() {
       return store.delete(entity.id!).then((_) {
-        if (debugShowLogs) {
+        if (debugIdbShowLogs) {
           print('Deleting $entity');
         }
         // For file delete content as well
@@ -678,7 +684,7 @@ class IdbFileSystem extends Object
           entity.parent = newParent;
 
           entity.name = newSegments.last;
-          if (debugShowLogs) {
+          if (debugIdbShowLogs) {
             print('put $entity');
           }
           return store.put(entity.toMap(), entity.id);
@@ -827,7 +833,7 @@ class IdbFileSystem extends Object
       entity = Node(parent, segment, fs.FileSystemEntityType.directory,
           DateTime.now(), 0);
       return store.add(entity!.toMap()).then((dynamic id) {
-        if (debugShowLogs) {
+        if (debugIdbShowLogs) {
           print('_createDirectory(${entity!.segments}): $id $entity');
         }
         entity!.id = id as int;
@@ -991,5 +997,13 @@ class IdbFileSystem extends Object
   @visibleForTesting
   idb.IdbFactory get idbFactory {
     return _storage.idbFactory;
+  }
+}
+
+/// Web specific extesion
+extension FileSystemIdbExt on FileSystem {
+  /// Use a specific pageSize
+  FileSystem withIdbOptions({required FileSystemIdbOptions options}) {
+    return (this as IdbFileSystem).withOptionsImpl(options: options);
   }
 }

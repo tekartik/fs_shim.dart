@@ -36,6 +36,6 @@ void main() {
     fsIdbFormatGroup(idbFactoryNative);
     fsIdbFormatV1Group(idbFactoryNative);
     // All tests
-    defineTests(idbBrowserFileSystemContext);
+    defineIdbTests(idbBrowserFileSystemContext);
   });
 }

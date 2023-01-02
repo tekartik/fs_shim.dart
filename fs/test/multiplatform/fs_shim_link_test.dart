@@ -992,6 +992,50 @@ void defineTests(FileSystemTestContext ctx) {
           }
         });
       });
+      test('example', () async {
+        // debugIdbShowLogs = devWarning(true);
+        final top = await ctx.prepare();
+
+        var p = fs.path;
+        var topPath = top.path;
+        // Create a top level directory
+        final dir = fs.directory(fs.path.join(topPath, 'dir'));
+
+        // delete its content
+        if (await dir.exists()) {
+          await dir.delete(recursive: true);
+        }
+        // Create it
+        // await dir.create(recursive: true);
+
+        // and a file in it
+        final file = fs.file(p.join(dir.path, 'file'));
+
+        // create a file
+        await file.create(recursive: true);
+        await file.writeAsString('Hello world!');
+
+        // read a file
+        // print('file: $file');
+        // print('content: ${await file.readAsString()}');
+
+        // use a file link if supported
+        if (fs.supportsFileLink) {
+          final link = fs.link(p.join(dir.path, 'link'));
+          await link.create(file.path);
+
+          // print('link: $link target ${await link.target()}');
+          // print('content: ${await fs.file(link.path).readAsString()}');
+        }
+
+        // list dir content
+        // print('Listing dir: $dir');
+        // ignore: unused_local_variable
+        for (var fse
+            in await dir.list(recursive: true, followLinks: true).toList()) {
+          // print('  found: $fse');
+        }
+      });
     });
   }
 }

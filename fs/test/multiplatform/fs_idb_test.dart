@@ -11,14 +11,22 @@ import 'fs_test.dart' as fs_test;
 import 'test_common.dart';
 
 void main() {
-  defineTests(memoryFileSystemTestContext);
+  defineIdbTests(memoryFileSystemTestContext);
 }
 
-void defineTests(IdbFileSystemTestContext ctx) {
+void defineIdbTests(IdbFileSystemTestContext ctx) {
   fs_test.defineTests(ctx);
   defineIdbFileSystemStorageTests(ctx);
   group('idb', () {
     var fs = ctx.fs;
+    var p = fs.path;
+    test('path', () {
+      expect(p.separator, '/');
+      expect(p.current, '.');
+      expect(p.absolute('/'), '/');
+      expect(p.absolute('.'), './.');
+    });
+
     test('version', () async {
       await ctx.prepare();
       final db = ctx.fs.db!;

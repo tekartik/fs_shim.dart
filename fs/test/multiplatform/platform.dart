@@ -14,6 +14,11 @@ class PlatformContextIo extends PlatformContext {
   ///
   bool isIoMacOS = false;
 
+  ///
+  /// true if Linuxm
+  ///
+  bool isIoLinux = false;
+
   @override
   bool get isIo => true;
 }

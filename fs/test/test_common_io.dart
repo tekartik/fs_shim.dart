@@ -18,7 +18,8 @@ class IoFileSystemTestContext extends FileSystemTestContext {
   @override
   final PlatformContext platform = PlatformContextIo()
     ..isIoMacOS = Platform.isMacOS
-    ..isIoWindows = Platform.isWindows;
+    ..isIoWindows = Platform.isWindows
+    ..isIoLinux = Platform.isLinux;
   @override
   final FileSystemIo fs = FileSystemIo();
   String? outTopPath;
