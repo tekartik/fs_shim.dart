@@ -14,6 +14,7 @@ import 'src/import_common.dart';
 export 'dart:async';
 export 'dart:convert';
 
+export 'package:fs_shim/src/idb/idb_fs.dart' show FileSystemIdb;
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';

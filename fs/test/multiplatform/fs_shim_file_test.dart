@@ -8,7 +8,6 @@ import 'dart:typed_data';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
-import 'package:fs_shim/src/idb/idb_fs.dart';
 
 import 'test_common.dart';
 
