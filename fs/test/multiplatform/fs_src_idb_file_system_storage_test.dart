@@ -24,7 +24,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   Future<IdbFileSystemStorage> newStorage() async {
     final storage = IdbFileSystemStorage(
         ctx.fs.idbFactory, 'idb_storage_${++index}',
-        options: FileSystemIdbOptions(pageSize: 0));
+        options: FileSystemIdbOptions(pageSize: ctx.fs.idbOptions.pageSize));
     await storage.delete();
     await storage.ready;
     return storage;
@@ -149,8 +149,12 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
     group('ready', () {
       late IdbFileSystemStorage storage;
       setUp(() async {
+        /*
         storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
             options: FileSystemIdbOptions(pageSize: 1024));
+
+         */
+        storage = await newStorage();
         await storage.ready;
       });
 
@@ -180,6 +184,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       });
 
       test('writeDataV2', () async {
+        // debugIdbShowLogs = devWarning(true);
         var db = storage.db!;
         expect(await getFileEntries(db), []);
         var txn = getWriteAllTransaction(db);
@@ -190,6 +195,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         expect(node.pageSize, isNotNull);
         expect(node.pageSize, storage.pageSize);
         expect(await getFileEntries(db), []);
+
         expect(await getTreeEntries(db), [
           {
             'key': 1,
@@ -197,23 +203,48 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
               'name': 'test',
               'type': 'file',
               'size': 3,
-              'ps': 1024,
+              if (ctx.fs.idbOptions.hasPageSize)
+                'ps': ctx.fs.idbOptions.pageSize,
               'pn': '/test'
             }
           }
         ]);
 
         var partEntries = await getPartEntries(db);
-        expect(partEntries, [
-          {
-            'key': 1,
-            'value': {
-              'index': 0,
-              'file': 1,
-              'content': [1, 2, 3]
+        var pageSize = storage.options.pageSize ?? 0;
+        // devPrint('pageSize: $pageSize');
+        if (pageSize == 0 || pageSize >= 3) {
+          expect(partEntries, [
+            {
+              'key': 1,
+              'value': {
+                'index': 0,
+                'file': 1,
+                'content': [1, 2, 3]
+              }
             }
-          }
-        ]);
+          ]);
+        } else {
+          // minimum is 2
+          expect(partEntries, [
+            {
+              'key': 1,
+              'value': {
+                'index': 0,
+                'file': 1,
+                'content': [1, 2]
+              }
+            },
+            {
+              'key': 2,
+              'value': {
+                'index': 1,
+                'file': 1,
+                'content': [3]
+              }
+            }
+          ]);
+        }
         //expect(partEntries[0]['value'], isA<Uint8List>());
       });
     });

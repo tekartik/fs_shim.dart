@@ -51,6 +51,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
           'value': Uint8List.fromList([116, 101, 115, 116])
         }
       ]);
+      expect(await getFileEntries(db), []);
 
       var exportMap = {
         'sembast_export': 1,

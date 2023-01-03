@@ -19,6 +19,7 @@ import 'idb_file_system_storage.dart';
 import 'idb_link.dart';
 
 var debugIdbShowLogs = false; // devWarning(true);
+var idbSupportsV2Format = false; // devWarning(true);
 
 /// Settle on using the posix way for idb files, (even on Windows).
 p.Context get idbPathContext => p.url;
@@ -1002,8 +1003,13 @@ class IdbFileSystem extends Object
 
 /// Web specific extesion
 extension FileSystemIdbExt on FileSystem {
+  FileSystemIdb get _idbFileSystem => this as FileSystemIdb;
+
   /// Use a specific pageSize
   FileSystem withIdbOptions({required FileSystemIdbOptions options}) {
-    return (this as IdbFileSystem).withOptionsImpl(options: options);
+    return _idbFileSystem.withOptionsImpl(options: options);
   }
+
+  /// Idb specific options.
+  FileSystemIdbOptions get idbOptions => _idbFileSystem._storage.options;
 }
