@@ -2,8 +2,11 @@
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
+import 'package:fs_shim/src/common/log_utils.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:meta/meta.dart';
@@ -15,10 +18,15 @@ import 'idb_file_stat.dart';
 import 'idb_file_system_entity.dart';
 import 'idb_file_system_exception.dart';
 import 'idb_file_system_storage.dart';
-import 'idb_fs.dart';
 import 'idb_link.dart';
 
-/// Settle on using url way for idb files, (even on Windows).
+var debugIdbShowLogs = false;
+// var debugIdbShowLogs = devWarning(true);
+
+var idbSupportsV2Format = false;
+// var idbSupportsV2Format = devWarning(true);
+
+/// Settle on using the posix way for idb files, (even on Windows).
 p.Context get idbPathContext => p.url;
 
 List<String> _getPathSegments(String path) {
@@ -36,6 +44,8 @@ class IdbReadStreamCtlr {
   String path;
   int? start;
   int? end;
+
+  IdbFileSystemStorage get storage => _fs._storage;
   late StreamController<Uint8List> _ctlr;
 
   IdbReadStreamCtlr(this._fs, this.path, this.start, this.end) {
@@ -43,14 +53,14 @@ class IdbReadStreamCtlr {
 
     // put data
     _fs._ready.then((_) async {
-      final txn = _fs._db!.transactionList(
-          [treeStoreName, fileStoreName], idb.idbModeReadWrite);
+      final txn = _fs._db!.readAllTransactionList();
       var store = txn.objectStore(treeStoreName);
 
       try {
         // Try to find the file if it exists
         final segments = getSegments(path);
         final entity = await _fs._storage.txnGetNode(store, segments, true);
+
         if (entity == null) {
           _ctlr.addError(idbNotFoundException(path, 'Read failed'));
           return;
@@ -60,15 +70,33 @@ class IdbReadStreamCtlr {
           return;
         }
 
+        var fileId = entity.id!;
+        Uint8List content;
+        if (entity.hasPageSize) {
+          content = await storage.txnGetFileDataV2(txn, fileId);
+        } else {
+          content = await storage.txnGetFileDataV1(txn, fileId);
+        }
+        if (isDebug) {
+          if (content.length != entity.fileSize) {
+            print(
+                'invalid content read ${content.length} bytes vs ${entity.fileSize} bytes expected');
+          }
+        }
+        // Safe guard for bad storage
+        if (entity.fileSize < content.length) {
+          content = content.sublist(0, entity.fileSize);
+        }
+
         // get existing content
         store = txn.objectStore(fileStoreName);
-        var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
-        if (content != null) {
+        //var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
+        if (content.isNotEmpty) {
           // All at once!
           if (start != null) {
             content = content.sublist(start!, end);
           }
-          _ctlr.add(asUint8List(content));
+          _ctlr.add(anyListAsUint8List(content));
         }
         await _ctlr.close();
       } finally {
@@ -80,24 +108,10 @@ class IdbReadStreamCtlr {
   Stream<Uint8List> get stream => _ctlr.stream;
 }
 
-Uint8List asUint8List(List? list) {
-  if (list is Uint8List) {
-    return list;
-  } else if (list is List<int>) {
-    return Uint8List.fromList(list);
-  }
-  return Uint8List.fromList(list!.cast<int>());
-}
-
-List<int> asIntList(List list) {
-  if (list is List<int>) {
-    return list;
-  }
-  return list.cast<int>();
-}
-
 class IdbWriteStreamSink extends MemorySink {
   final IdbFileSystem _fs;
+
+  IdbFileSystemStorage get storage => _fs._storage;
   String path;
   fs.FileMode mode;
 
@@ -109,8 +123,7 @@ class IdbWriteStreamSink extends MemorySink {
 
     await _fs._ready;
 
-    final txn = _fs._db!
-        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    final txn = _fs._db!.writeAllTransactionList();
     final treeStore = txn.objectStore(treeStoreName);
 
     try {
@@ -128,25 +141,25 @@ class IdbWriteStreamSink extends MemorySink {
       if (entity.type != fs.FileSystemEntityType.file) {
         throw idbIsADirectoryException(path, 'Write failed');
       }
+      var fileId = entity.id!;
+      var existingSize = entity.fileSize;
       // else {      throw new UnsupportedError('TODO');      }
 
       // get existing content
-      final fileStore = txn.objectStore(fileStoreName);
       List<int>? content;
-      var exists = false;
-      if (mode == fs.FileMode.write) {
+      if (mode == fs.FileMode.write || existingSize == 0) {
         // was created or existing
       } else {
-        content = (await fileStore.getObject(entity.id!) as List?)?.cast<int>();
-        if (content != null) {
-          // on idb the content is readonly, create a new done
-
-          // devWarning('was content = List.from(content);');
-          content = List.from(content);
-          //content = Uint8List.fromList(content);
-
-          exists = true;
+        // append! and not empty
+        if (entity.hasPageSize && idbSupportsV2Format) {
+          content = await storage.txnGetFileDataV2(txn, fileId);
+        } else {
+          content = await storage.txnGetFileDataV1(txn, fileId);
         }
+        // on idb the content is readonly, create a new one
+
+        // devWarning('was content = List.from(content);');
+        content = List.from(content);
       }
 
       content ??= <int>[];
@@ -154,22 +167,29 @@ class IdbWriteStreamSink extends MemorySink {
       content.addAll(this.content);
 
       if (content.isEmpty) {
-        if (exists) {
-          await fileStore.delete(entity.id!);
+        if (existingSize > 0) {
+          if (debugIdbShowLogs) {
+            print('delete $entity content');
+          }
+          if (entity.hasPageSize && idbSupportsV2Format) {
+            await storage.txnDeleteFileDataV2(txn, fileId);
+          } else {
+            await storage.txnDeleteFileDataV1(txn, fileId);
+          }
         }
       } else {
         // devPrint('wrilte all ${content.length}');
         // New in 2020/11/1
-        content = asUint8List(content);
+        var bytes = anyListAsUint8List(content);
 
-        await fileStore.put(content, entity.id);
+        entity.modified = DateTime.now();
+        entity.pageSize = idbSupportsV2Format ? storage.pageSize : 0;
+        if (entity.hasPageSize) {
+          await storage.txnSetFileDataV2(txn, entity, bytes);
+        } else {
+          await storage.txnSetFileDataV1(txn, entity, bytes);
+        }
       }
-
-      // update size and modified date
-      entity.size = content.length;
-      entity.modified = DateTime.now();
-
-      await treeStore.put(entity.toMap(), entity.id);
     } finally {
       await txn.completed;
     }
@@ -185,6 +205,56 @@ String idbMakePathAbsolute(String path) {
 
 IdbFileSystemStorage fsStorage(IdbFileSystem fs) => fs._storage;
 
+/// Delegate mixin
+mixin IdbFileSystemDelegateMixin implements fs.FileSystem {
+  fs.FileSystem get delegate;
+
+  @override
+  fs.Directory directory(String path) => delegate.directory(path);
+
+  @override
+  fs.File file(String path) => delegate.file(path);
+
+  @override
+  Future<bool> isDirectory(String? path) => delegate.isDirectory(path);
+
+  @override
+  Future<bool> isFile(String? path) => delegate.isFile(path);
+
+  @override
+  Future<bool> isLink(String? path) => delegate.isLink(path);
+
+  @override
+  fs.Link link(String path) => delegate.link(path);
+
+  @override
+  String get name => delegate.name;
+
+  @override
+  p.Context get path => delegate.path;
+
+  @override
+  // ignore: deprecated_member_use_from_same_package
+  p.Context get pathContext => delegate.pathContext;
+
+  @override
+  bool get supportsFileLink => delegate.supportsFileLink;
+
+  @override
+  bool get supportsLink => delegate.supportsLink;
+
+  @override
+  bool get supportsRandomAccess => delegate.supportsRandomAccess;
+
+  @override
+  Future<fs.FileSystemEntityType> type(String? path,
+          {bool followLinks = true}) =>
+      delegate.type(path, followLinks: followLinks);
+}
+
+/// New internal name.
+typedef FileSystemIdb = IdbFileSystem;
+
 ///
 /// File system implement on idb_shim
 ///
@@ -195,15 +265,30 @@ class IdbFileSystem extends Object
   @override
   String get name => 'idb';
 
-  final IdbFileSystemStorage _storage;
+  late final IdbFileSystemStorage _storage;
+
+  @visibleForTesting
+  String get storageDbPath => _storage.dbPath;
 
   idb.Database? get _db => _storage.db;
 
   idb.Database? get db => _db;
   static const dbPath = 'lfs.db';
 
-  IdbFileSystem(idb.IdbFactory factory, [String? path])
-      : _storage = IdbFileSystemStorage(factory, path ?? dbPath);
+  IdbFileSystem._(this._storage);
+
+  IdbFileSystem(idb.IdbFactory factory, String? path,
+      {FileSystemIdbOptions? options, IdbFileSystemStorage? storage}) {
+    // legacy page size = 0
+    options ??= FileSystemIdbOptions(pageSize: 0);
+    _storage = storage ??
+        IdbFileSystemStorage(factory, path ?? dbPath, options: options);
+  }
+
+  IdbFileSystem withOptionsImpl({required FileSystemIdbOptions options}) {
+    var storage = _storage.withOptions(options: options);
+    return IdbFileSystem._(storage);
+  }
 
   @override
   bool operator ==(Object other) {
@@ -214,7 +299,7 @@ class IdbFileSystem extends Object
   }
 
   @override
-  String toString() => 'Idb($db)';
+  String toString() => 'IdbFs($storageDbPath, $db)';
 
   @override
   int get hashCode => _storage.hashCode;
@@ -270,7 +355,6 @@ class IdbFileSystem extends Object
     try {
       // Try to find the file if it exists
       final result = await txnSearch(store, segments, false);
-
       var entity = result.match;
       if (entity != null) {
         if (entity.type == fs.FileSystemEntityType.directory) {
@@ -284,10 +368,11 @@ class IdbFileSystem extends Object
           (recursive != true) &&
           (segments[0] == pathContext.separator)) {
         // Always create the root when needed
-      } else
-      // not recursive and too deep, cancel
-      if ((result.depthDiff > 1) && (recursive != true)) {
-        throw idbNotFoundException(path, 'Creation failed');
+      } else {
+        // not recursive and too deep, cancel
+        if ((result.depthDiff > 1) && (recursive != true)) {
+          throw idbNotFoundException(path, 'Creation failed');
+        }
       }
 
       // check depth
@@ -468,6 +553,9 @@ class IdbFileSystem extends Object
 
     Future delete() {
       return store.delete(entity.id!).then((_) {
+        if (debugIdbShowLogs) {
+          print('Deleting $entity');
+        }
         // For file delete content as well
         if (entity.type == fs.FileSystemEntityType.file) {
           store = txn.objectStore(fileStoreName);
@@ -604,6 +692,9 @@ class IdbFileSystem extends Object
           entity.parent = newParent;
 
           entity.name = newSegments.last;
+          if (debugIdbShowLogs) {
+            print('change parent $entity');
+          }
           return store.put(entity.toMap(), entity.id);
         }
 
@@ -678,8 +769,7 @@ class IdbFileSystem extends Object
 
     final modified = DateTime.now();
 
-    final txn = _db!
-        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    final txn = _db!.writeAllTransactionList();
     try {
       var store = txn.objectStore(treeStoreName);
 
@@ -716,30 +806,24 @@ class IdbFileSystem extends Object
       // update content
       store = txn.objectStore(fileStoreName);
 
-      // get original
-      final data = await store.getObject(entity.id!) as List?;
-      if (data != null) {
-        await _txnSetFileData(txn, newEntity, asUint8List(data));
+      var srcFileId = entity.id!;
+      Uint8List data;
+      if (idbSupportsV2Format && entity.hasPageSize) {
+        data = await _storage.txnGetFileDataV2(txn, srcFileId);
       } else {
-        await store.delete(newEntity.id!);
+        data = await _storage.txnGetFileDataV1(txn, srcFileId);
+      }
+      // get original
+      if (idbSupportsV2Format && newEntity.hasPageSize) {
+        await _storage.txnSetFileDataV2(
+            txn, newEntity, anyListAsUint8List(data));
+      } else {
+        await _storage.txnSetFileDataV1(
+            txn, newEntity, anyListAsUint8List(data));
       }
     } finally {
       await txn.completed;
     }
-  }
-
-  /// Set the content of a file and update meta.
-  Future<void> _txnSetFileData(
-      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
-    // devPrint('_txnSetFileData all ${bytes.length}');
-    // Content store
-    var fileStore = txn.objectStore(fileStoreName);
-    await fileStore.put(bytes, treeEntity.id);
-
-    // update size
-    treeEntity.size = bytes.length;
-    var treeStore = txn.objectStore(treeStoreName);
-    await treeStore.put(treeEntity.toMap(), treeEntity.id);
   }
 
   FutureOr<Node?> txnGetWithParent(idb.ObjectStore treeStore, idb.Index index,
@@ -764,6 +848,10 @@ class IdbFileSystem extends Object
       entity = Node(parent, segment, fs.FileSystemEntityType.directory,
           DateTime.now(), 0);
       return store.add(entity!.toMap()).then((dynamic id) {
+        if (debugIdbShowLogs) {
+          print(
+              '_createDirectory(${logTruncateAny(entity!.segments)}): $id ${logTruncateAny(entity)}');
+        }
         entity!.id = id as int;
         if (i++ < remainings.length - 1) {
           return next();
@@ -923,7 +1011,20 @@ class IdbFileSystem extends Object
 
   /// Get IdbFactory, used in tests only
   @visibleForTesting
-  idb.IdbFactory? get idbFactory {
-    return _db?.factory;
+  idb.IdbFactory get idbFactory {
+    return _storage.idbFactory;
   }
+}
+
+/// Web specific extesion
+extension FileSystemIdbExt on FileSystem {
+  FileSystemIdb get _idbFileSystem => this as FileSystemIdb;
+
+  /// Use a specific pageSize
+  FileSystem withIdbOptions({required FileSystemIdbOptions options}) {
+    return _idbFileSystem.withOptionsImpl(options: options);
+  }
+
+  /// Idb specific options.
+  FileSystemIdbOptions get idbOptions => _idbFileSystem._storage.options;
 }

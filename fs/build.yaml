@@ -8,6 +8,7 @@ targets:
         generate_for:
         # - example/multiplatform/**_test.dart
           - example/browser/**.dart
+          - example/common/**.dart
           - test/web/**.dart
           - test/multiplatform/**.dart
       build_vm_compilers|entrypoint:

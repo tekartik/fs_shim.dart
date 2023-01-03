@@ -102,6 +102,69 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
   });
 }
 
+var mainStoreExportV2 = {
+  'name': '_main',
+  'keys': ['store_file', 'store_part', 'store_tree', 'stores', 'version'],
+  'values': [
+    {'name': 'file'},
+    {
+      'name': 'part',
+      'autoIncrement': true,
+      'indecies': [
+        {
+          'name': 'part_index',
+          'keyPath': ['file', 'index'],
+          'unique': true
+        }
+      ]
+    },
+    {
+      'name': 'tree',
+      'autoIncrement': true,
+      'indecies': [
+        {'name': 'parent', 'keyPath': 'parent'},
+        {'name': 'pn', 'keyPath': 'pn', 'unique': true}
+      ]
+    },
+    ['file', 'part', 'tree'],
+    7
+  ]
+};
+var exportMapOneFileV2 = {
+  'sembast_export': 1,
+  'version': 1,
+  'stores': [
+    mainStoreExportV2,
+    {
+      'name': 'file',
+      'keys': [2],
+      'values': [
+        {'@Blob': 'dGVzdA=='}
+      ]
+    },
+    {
+      'name': 'tree',
+      'keys': [1, 2],
+      'values': [
+        {
+          'name': '/',
+          'type': 'DIRECTORY',
+          'modified': '2020-10-31T23:27:05.073',
+          'size': 0,
+          'pn': '/'
+        },
+        {
+          'name': 'file.txt',
+          'type': 'file',
+          'parent': 1,
+          'modified': '2020-10-31T23:27:05.075',
+          'size': 4,
+          'pn': '1/file.txt',
+        }
+      ]
+    }
+  ]
+};
 var exportMapOneFileV1 = {
   'sembast_export': 1,
   'version': 1,

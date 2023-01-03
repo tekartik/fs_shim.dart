@@ -5,6 +5,7 @@ library fs_shim.test.test_common;
 
 import 'dart:convert';
 
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:test/test.dart';
@@ -16,6 +17,7 @@ export 'dart:convert';
 
 export 'package:fs_shim/src/common/import.dart'
     show devPrint, devWarning, isRunningAsJavascript;
+export 'package:fs_shim/src/idb/idb_fs.dart' show FileSystemIdb;
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -59,18 +61,32 @@ abstract class FileSystemTestContext {
 abstract class IdbFileSystemTestContext extends FileSystemTestContext {
   @override
   IdbFileSystem get fs;
+
+  @override
+  String toString() => 'IdbFsTestContext($fs)';
 }
 
 final MemoryFileSystemTestContext memoryFileSystemTestContext =
     MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  final FileSystemIdbOptions? options;
   @override
   final PlatformContext? platform = null;
   @override
-  final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
+  late final IdbFileSystem fs = () {
+    if (debugIdbShowLogs) {
+      print('Creating file system $hashCode');
+    }
+    // IdbFactoryLogger.debugMaxLogCount = devWarning(256);
+    var fs = newFileSystemMemory();
+    if (options != null) {
+      fs = fs.withIdbOptions(options: options!);
+    }
+    return fs as IdbFileSystem;
+  }();
 
-  MemoryFileSystemTestContext();
+  MemoryFileSystemTestContext({this.options});
 }
 
 void devPrintJson(Map json) {
@@ -83,6 +99,10 @@ bool isIoWindows(FileSystemTestContext ctx) {
 
 bool isIoMac(FileSystemTestContext ctx) {
   return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoMacOS == true;
+}
+
+bool isIoLinux(FileSystemTestContext ctx) {
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoLinux == true;
 }
 
 bool isIo(FileSystemTestContext ctx) {

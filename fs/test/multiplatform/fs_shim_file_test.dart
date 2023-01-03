@@ -7,16 +7,14 @@ import 'dart:typed_data';
 
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_idb.dart';
 
 import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
+  // devWarning(defineTests(      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2))));
 }
-
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
 
 final bool _doPrintErr = false;
 
@@ -27,7 +25,7 @@ void _printErr(e) {
 }
 
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
 
   group('file', () {
     test('new', () {
@@ -575,8 +573,34 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await file.readAsString(), '$text$text');
     });
 
+    test('relative_access', () async {
+      final text = 'test';
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'file');
+      var fileAltPath = fs.path.join(directory.path, '.', 'file');
+      final file = fs.file(filePath);
+      final fileAlt = fs.file(fileAltPath);
+
+      await file.writeAsString(text, flush: true);
+      expect(await fileAlt.readAsString(), text);
+    });
+
     test('big file', () async {
+      // debugIdbShowLogs = devWarning(true);
       var size = 8000000;
+
+      if (fs is FileSystemIdb) {
+        if (fs.idbOptions.hasPageSize) {
+          var pageSize = fs.idbOptions.pageSize!;
+          if (pageSize < 16000) {
+            size = 16000;
+          }
+          if (pageSize < 16) {
+            size = 150;
+          }
+        }
+      }
+
       try {
         // 8Mb
         var bytes = Uint8List(size);
@@ -588,12 +612,12 @@ void defineTests(FileSystemTestContext ctx) {
 
         var read = await file.readAsBytes();
         expect(read.length, bytes.length);
-      } catch (e) {
+      } catch (e, st) {
         print('ERROR writing $size byes files, allowed on CI');
+        print(st);
       }
-    }
-        // , solo: true, timeout: const Timeout(Duration(minutes: 5))
-        //
+    }, timeout: const Timeout(Duration(minutes: 2))
+        //, solo: true
         );
   });
 }

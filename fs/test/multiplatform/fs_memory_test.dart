@@ -3,14 +3,34 @@
 
 library tekartik_fs_test.fs_memory_test;
 
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 
+import 'fs_idb_test.dart';
 import 'fs_test.dart';
 import 'test_common.dart';
 
 void main() {
   group('memory', () {
-    defineTests(memoryFileSystemTestContext);
+    void defineAllIdbTests(IdbFileSystemTestContext ctx) {
+      group('options: ${ctx.fs.idbOptions} ', () {
+        defineIdbTests(ctx);
+        defineTests(ctx);
+      });
+    }
+
+    group('pageSize: null twice', () {
+      defineAllIdbTests(MemoryFileSystemTestContext());
+      defineAllIdbTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 16 * 1024)));
+      defineAllIdbTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 2)));
+      defineAllIdbTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 4)));
+      defineAllIdbTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 1024)));
+    });
+
     group('fs', () {
       var fs = memoryFileSystemTestContext.fs;
       test('supportRandomAccess', () {

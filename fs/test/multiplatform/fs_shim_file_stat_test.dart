@@ -29,12 +29,8 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
 
   group('file_stat', () {
     test('stat', () async {

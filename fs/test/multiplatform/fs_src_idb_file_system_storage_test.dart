@@ -3,16 +3,36 @@
 
 library fs_shim.fs_src_idb_test;
 
+import 'dart:typed_data';
+
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_client_memory.dart';
+import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'test_common.dart';
 
 void main() {
+  defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
+  defineIdbFileSystemStorageTests(
+      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2)));
+}
+
+var _index = 0;
+void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   var p = idbPathContext;
+
   Future<IdbFileSystemStorage> newStorage() async {
-    final storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage');
+    final storage = IdbFileSystemStorage(
+        ctx.fs.idbFactory, 'idb_storage_${++_index}',
+        options: FileSystemIdbOptions(pageSize: ctx.fs.idbOptions.pageSize));
+    try {
+      await storage.delete().timeout(const Duration(seconds: 5));
+    } catch (e) {
+      print('error $e');
+    }
     await storage.ready;
     return storage;
   }
@@ -24,6 +44,7 @@ void main() {
     });
 
     test('add_get_with_parent', () async {
+      // debugIdbShowLogs = devWarning(true);
       var storage = await newStorage();
       final entity = Node.directory(null, 'dir');
       await storage.addNode(entity);
@@ -133,5 +154,213 @@ void main() {
       final top = Node.directory(null, p.separator)..id = 1;
       expect(getParentName(top, 'test'), '1/test');
     });
+    group('ready', () {
+      late IdbFileSystemStorage storage;
+      Future<void> doSetUp() async {
+        storage = await newStorage();
+        await storage.ready;
+      }
+
+      test('writeDataV1', () async {
+        await doSetUp();
+        var db = storage.db!;
+
+        expect(await getFileEntries(db), []);
+        var txn = getWriteAllTransaction(db);
+        var node = await storage.txnSetFileDataV1(
+            txn,
+            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+            Uint8List.fromList([1, 2, 3]));
+        expect(node.pageSize, 0);
+        var fileEntries = await getFileEntries(db);
+        expect(fileEntries, [
+          {
+            'key': 1,
+            'value': [1, 2, 3]
+          }
+        ]);
+        // expect(fileEntries[0]['value'], isA<Uint8List>());
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
+          }
+        ]);
+      });
+
+      test('writeDataV2', () async {
+        // debugIdbShowLogs = devWarning(true);
+        await doSetUp();
+
+        var db = storage.db!;
+        expect(await getFileEntries(db), []);
+        var txn = getWriteAllTransaction(db);
+        var node = await storage.txnSetFileDataV2(
+            txn,
+            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+            Uint8List.fromList([1, 2, 3]));
+        expect(node.pageSize, isNotNull);
+        expect(node.pageSize, storage.pageSize);
+        expect(await getFileEntries(db), []);
+
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {
+              'name': 'test',
+              'type': 'file',
+              'size': 3,
+              if (ctx.fs.idbOptions.hasPageSize)
+                'ps': ctx.fs.idbOptions.pageSize,
+              'pn': '/test'
+            }
+          }
+        ]);
+
+        var partEntries = await getPartEntries(db);
+        var pageSize = storage.options.pageSize ?? 0;
+        // devPrint('pageSize: $pageSize');
+        if (pageSize == 0 || pageSize >= 3) {
+          expect(partEntries, [
+            {
+              'key': 1,
+              'value': {
+                'index': 0,
+                'file': 1,
+                'content': [1, 2, 3]
+              }
+            }
+          ]);
+        } else {
+          // minimum is 2
+          expect(partEntries, [
+            {
+              'key': 1,
+              'value': {
+                'index': 0,
+                'file': 1,
+                'content': [1, 2]
+              }
+            },
+            {
+              'key': 2,
+              'value': {
+                'index': 1,
+                'file': 1,
+                'content': [3]
+              }
+            }
+          ]);
+        }
+        //expect(partEntries[0]['value'], isA<Uint8List>());
+      });
+    });
+    group('ready pageSize 2', () {
+      late IdbFileSystemStorage storage;
+      setUp(() async {
+        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
+            options: FileSystemIdbOptions(pageSize: 2));
+        await storage.ready;
+      });
+
+      test('writeDataV2 page size 2', () async {
+        var db = storage.db!;
+        expect(await getFileEntries(db), []);
+        var txn = getWriteAllTransaction(db);
+        var node = await storage.txnSetFileDataV2(
+            txn,
+            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+            Uint8List.fromList([1, 2, 3]));
+        expect(node.pageSize, isNotNull);
+        expect(node.pageSize, storage.pageSize);
+        expect(await getFileEntries(db), []);
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {
+              'name': 'test',
+              'type': 'file',
+              'size': 3,
+              'ps': 2,
+              'pn': '/test'
+            }
+          }
+        ]);
+
+        var partEntries = await getPartEntries(db);
+        expect(partEntries, [
+          {
+            'key': 1,
+            'value': {
+              'index': 0,
+              'file': 1,
+              'content': [1, 2]
+            }
+          },
+          {
+            'key': 2,
+            'value': {
+              'index': 1,
+              'file': 1,
+              'content': [3]
+            }
+          }
+        ]);
+        //expect(partEntries[0]['value'], isA<Uint8List>());
+      });
+    });
+    test('getSegments', () {
+      expect(getSegments('/'), ['/']);
+      expect(getSegments('/a'), ['/', 'a']);
+      expect(getSegments('/a/b'), ['/', 'a', 'b']);
+      expect(getSegments('/a/b/'), ['/', 'a', 'b']);
+      expect(getSegments('.'), ['/']);
+      expect(getSegments('./.'), ['/']);
+      expect(getSegments('././a'), ['/', 'a']);
+      expect(getSegments('/a/../b'), ['/', 'b']);
+      expect(getSegments('/a/b/../c'), ['/', 'a', 'c']);
+      expect(getSegments('/a/b/../../c'), ['/', 'c']);
+    });
   });
+}
+
+Transaction getWriteAllTransaction(Database db) => db.transactionList(
+    [treeStoreName, fileStoreName, partStoreName], idbModeReadWrite);
+
+Future<List<Map>> getEntriesFromCursor(Stream<CursorWithValue> cwv) async {
+  var list = await cursorToList(cwv);
+  // devPrint('list $list');
+  return list.map((row) => {'key': row.key, 'value': row.value}).toList();
+}
+
+Future<List<Map>> getTreeEntries(Database db) async {
+  var txn = db.transaction(treeStoreName, idbModeReadOnly);
+  var treeObjectStore = txn.objectStore(treeStoreName);
+  try {
+    return await getEntriesFromCursor(
+        treeObjectStore.openCursor(autoAdvance: true));
+  } finally {
+    await txn.completed;
+  }
+}
+
+Future<List<Map>> getPartEntries(Database db) async {
+  var txn = db.transaction(partStoreName, idbModeReadOnly);
+  var store = txn.objectStore(partStoreName);
+  try {
+    return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
+  } finally {
+    await txn.completed;
+  }
+}
+
+Future<List<Map>> getFileEntries(Database db) async {
+  var txn = db.transaction(fileStoreName, idbModeReadOnly);
+  var fileObjectStore = txn.objectStore(fileStoreName);
+  try {
+    return await getEntriesFromCursor(
+        fileObjectStore.openCursor(autoAdvance: true));
+  } finally {
+    await txn.completed;
+  }
 }

@@ -27,6 +27,15 @@ void main() {
     });
     test('windows', () {
       expect(isIoWindows(ioFileSystemTestContext), io.Platform.isWindows);
+      if (isIoWindows(ioFileSystemTestContext)) {
+        //fs.path.rootPrefix(path)
+      }
+    });
+    test('linux', () {
+      expect(isIoLinux(ioFileSystemTestContext), io.Platform.isLinux);
+      if (isIoLinux(ioFileSystemTestContext)) {
+        expect(fs.path.rootPrefix(fs.path.absolute(fs.path.separator)), '/');
+      }
     });
     test('name', () {
       expect(fs.name, 'io');

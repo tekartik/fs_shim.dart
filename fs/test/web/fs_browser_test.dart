@@ -21,16 +21,29 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
   final PlatformContext platform = PlatformContextBrowser();
   @override
-  IdbFileSystem fs = newFileSystemIdbBrowser()
-      as IdbFileSystem; // Needed for initialization (supportsLink)
-  IdbBrowserFileSystemTestContext();
+  late IdbFileSystem fs = () {
+    var fs = newFileSystemIdbBrowser()
+        as IdbFileSystem; // Needed for initialization (supportsLink)
+    return fs;
+  }();
+}
+
+var _index = 0;
+
+class IdbBrowserFileSystemTestContextWithOptions
+    extends IdbBrowserFileSystemTestContext {
+  final FileSystemIdbOptions options;
 
   @override
-  Future<Directory> prepare() {
-    fs = newFileSystemIdbBrowser(fs.path.join(super.outPath, 'lfs.db'))
-        as IdbFileSystem;
-    return super.prepare();
-  }
+  IdbFileSystem get fs => _fs;
+  late final IdbFileSystem _fs = () {
+    var fs = newFileSystemIdbBrowser('db_options_${++_index}')
+            .withIdbOptions(options: options)
+        as IdbFileSystem; // Needed for initialization (supportsLink)
+    return fs;
+  }();
+
+  IdbBrowserFileSystemTestContextWithOptions({required this.options});
 }
 
 IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =
@@ -41,6 +54,10 @@ void main() {
     fsIdbFormatGroup(idbFactoryNative);
     fsIdbFormatV1Group(idbFactoryNative);
     // All tests
-    defineTests(idbBrowserFileSystemContext);
+    defineIdbTests(idbBrowserFileSystemContext);
+    defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
+        options: FileSystemIdbOptions(pageSize: 2)));
+    defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
+        options: FileSystemIdbOptions(pageSize: 16 * 1024)));
   });
 }

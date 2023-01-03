@@ -13,12 +13,8 @@ void main() {
   defineTests(memoryFileSystemTestContext);
 }
 
-late FileSystemTestContext _ctx;
-
-FileSystem get fs => _ctx.fs;
-
 void defineTests(FileSystemTestContext ctx) {
-  _ctx = ctx;
+  var fs = ctx.fs;
 
   group('dir', () {
     test('new', () {
@@ -59,9 +55,11 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('create', () async {
+      // devPrint('prepare ${ctx.fs}');
       final dir = await ctx.prepare();
 
       final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
+      expect(await dir.exists(), isTrue);
       expect(await subDir.exists(), isFalse);
       expect(await fs.isDirectory(subDir.path), isFalse);
       expect(await (await subDir.create()).exists(), isTrue);
@@ -388,6 +386,30 @@ void defineTests(FileSystemTestContext ctx) {
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
       }
+    });
+
+    test('size_limit', () async {
+      var sb = StringBuffer();
+      var index = 0;
+      // 3000 ok on linux io, 4000 no ok
+      while (sb.length < 512) {
+        if (sb.isNotEmpty) {
+          sb.write(fs.path.separator);
+        }
+        sb.write('${++index}');
+      }
+      var subDir = sb.toString();
+      final top = await ctx.prepare();
+      final dir = childDirectory(top, subDir);
+      expect(await dir.exists(), isFalse);
+      try {
+        await dir.create(recursive: false);
+        fail('should fail');
+      } catch (e) {
+        expect(e, isNot(isA<TestFailure>()));
+      }
+      await dir.create(recursive: true);
+      expect(await dir.exists(), isTrue);
     });
   });
 }
