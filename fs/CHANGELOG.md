@@ -1,3 +1,7 @@
+## 2.1.0-1
+
+* Starting RandomAccessFile support
+
 ## 2.0.3
 
 * add toNativePath is `utils/path.dart`
