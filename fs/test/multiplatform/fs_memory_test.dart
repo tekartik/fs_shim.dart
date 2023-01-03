@@ -21,7 +21,8 @@ void main() {
 
     group('pageSize: null twice', () {
       defineAllIdbTests(MemoryFileSystemTestContext());
-      defineAllIdbTests(MemoryFileSystemTestContext());
+      defineAllIdbTests(MemoryFileSystemTestContext(
+          options: FileSystemIdbOptions(pageSize: 16 * 1024)));
       defineAllIdbTests(MemoryFileSystemTestContext(
           options: FileSystemIdbOptions(pageSize: 2)));
       defineAllIdbTests(MemoryFileSystemTestContext(

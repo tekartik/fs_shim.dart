@@ -6,6 +6,7 @@ import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/import.dart'; // ignore: unnecessary_import
+import 'package:fs_shim/src/common/log_utils.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/utils/idb_utils.dart';
 
@@ -58,6 +59,12 @@ int filePartIndexKeyFileId(Object key) =>
 
 int filePartIndexKeyPartIndex(Object key) =>
     _filePartIndexKeyAsList(key)[1] as int;
+
+int filePartIndexCursorKeyPartIndex(idb.Cursor cursor) =>
+    _filePartIndexKeyAsList(cursor.key)[1] as int;
+
+Uint8List filePartIndexCursorPartContent(idb.CursorWithValue cursor) =>
+    anyAsUint8List((cursor.value as Map)[contentKey]);
 
 bool segmentsAreAbsolute(Iterable<String> segments) {
   return segments.isNotEmpty &&
@@ -157,6 +164,23 @@ class IdbFileSystemStorage {
     return _readyCompleter!.future;
   }
 
+  Future<Uint8List> txnGetFileDataV1(idb.Transaction txn, int fileId) async {
+    final fileStore = txn.objectStore(fileStoreName);
+    var content = await fileStore.getObject(fileId);
+    if (content is List) {
+      if (debugIdbShowLogs) {
+        print('read content v1 ${content.length} bytes');
+      }
+      return anyListAsUint8List(content);
+    }
+    return Uint8List(0);
+  }
+
+  Future<void> txnDeleteFileDataV1(idb.Transaction txn, int fileId) async {
+    final fileStore = txn.objectStore(fileStoreName);
+    await fileStore.delete(fileId);
+  }
+
   /// Set the content of a file and update meta.
   Future<Node> txnSetFileDataV1(
       idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
@@ -172,7 +196,7 @@ class IdbFileSystemStorage {
     var treeStore = txn.objectStore(treeStoreName);
     var newTreeEntity = treeEntity.clone(pageSize: 0, size: bytes.length);
     if (debugIdbShowLogs) {
-      print('put $newTreeEntity');
+      print('put clone ${logTruncateAny(newTreeEntity)}');
     }
     await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
     return newTreeEntity;
@@ -180,6 +204,48 @@ class IdbFileSystemStorage {
 
   int _pageCountFromSize(int size) =>
       pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
+
+  idb.KeyRange _allPartRange(int fileId) {
+    return idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
+        toFilePartIndexKey(fileId + 1, 0), false, true);
+  }
+
+  Future<Uint8List> txnGetFileDataV2(idb.Transaction txn, int fileId) async {
+    var partStore = txn.objectStore(partStoreName);
+    var partIndex = partStore.index(partFilePartIndexName);
+    var stream =
+        partIndex.openCursor(range: _allPartRange(fileId), autoAdvance: true);
+    var readIndex = -1;
+    var bytesList = <Uint8List>[];
+    await stream.listen((idb.CursorWithValue cursor) {
+      // devPrint('cursor ${cursor.key}');
+      var index = filePartIndexKeyPartIndex(cursor.key);
+      if (index != readIndex + 1) {
+        throw StateError(
+            'Invalid part index $index, ${readIndex + 1} expected');
+      }
+      readIndex = index;
+      var subContent = filePartIndexCursorPartContent(cursor);
+      // print('read subContent v2 ${readIndex}: ${subContent.length} bytes');
+      bytesList.add(subContent);
+    }).asFuture();
+    var content = bytesListToBytes(bytesList);
+    if (debugIdbShowLogs) {
+      // devPrint('content $content, $bytesList');
+      print('read content v2 ${content.length} bytes');
+    }
+    return content;
+  }
+
+  Future<void> txnDeleteFileDataV2(idb.Transaction txn, int fileId) async {
+    var partStore = txn.objectStore(partStoreName);
+    var partIndex = partStore.index(partFilePartIndexName);
+    var stream = partIndex.openKeyCursor(
+        range: _allPartRange(fileId), autoAdvance: true);
+    await stream.listen((idb.Cursor cursor) {
+      cursor.delete();
+    }).asFuture();
+  }
 
   /// Set the content of a file and update meta. return the updated node
   Future<Node> txnSetFileDataV2(
@@ -190,15 +256,14 @@ class IdbFileSystemStorage {
     var partStore = txn.objectStore(partStoreName);
     var partIndex = partStore.index(partFilePartIndexName);
     var stream = partIndex.openKeyCursor(
-        range: idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
-            toFilePartIndexKey(fileId + 1, 0), true, false),
-        autoAdvance: true);
+        range: _allPartRange(fileId), autoAdvance: true);
     final list = <KeyCursorRow>[];
+    final toDeleteKeys = <int>[];
     await stream.listen((idb.Cursor cursor) {
       var partFileIndex = filePartIndexKeyPartIndex(cursor.key);
       if (partFileIndex >= partCount) {
         // devPrint('delete part ${cursor.key}');
-        cursor.delete();
+        toDeleteKeys.add(cursor.primaryKey as int);
       } else {
         list.add(KeyCursorRow(cursor.key, cursor.primaryKey));
       }
@@ -218,17 +283,23 @@ class IdbFileSystemStorage {
       if (existing != null) {
         partId = existing.primaryKey as int;
         if (debugIdbShowLogs) {
-          print('put file $fileId/$i/$partId content size ${bytes.length}');
+          print('put part $fileId/$i/$partId content size ${chunk.length}');
         }
         await partStore.put(partEntry, partId);
       } else {
         partId = (await partStore.add(partEntry)) as int;
+        if (debugIdbShowLogs) {
+          print('added file $fileId/$i/$partId content size ${bytes.length}');
+        }
       }
     }
 
     /// Safety delete remaining if any, but this should be empty
     for (var existing in rowByPageIndex.values) {
       await partStore.delete(existing.primaryKey as int);
+    }
+    for (var existingKey in toDeleteKeys) {
+      await partStore.delete(existingKey);
     }
 
     // update size
@@ -237,7 +308,7 @@ class IdbFileSystemStorage {
 
     var treeStore = txn.objectStore(treeStoreName);
     if (debugIdbShowLogs) {
-      print('put $newTreeEntity');
+      print('put entity ${logTruncateAny(newTreeEntity)}');
     }
     await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
     return newTreeEntity;
@@ -442,7 +513,25 @@ class IdbFileSystemStorage {
     if (debugIdbShowLogs) {
       print('delete database $dbPath');
     }
-    await idbFactory.deleteDatabase(dbPath);
+    try {
+      if (isDebug) {
+        var dummyDbName = 'LMYPdr902inIeCi3Uk2m.db';
+        try {
+          await idbFactory.open(dummyDbName);
+        } catch (e) {
+          print('failed $e opening $dummyDbName');
+        }
+      }
+      await idbFactory.deleteDatabase(dbPath, onBlocked: (_) {
+        print('ignore blocking');
+      });
+      if (debugIdbShowLogs) {
+        print('database deleted $dbPath');
+      }
+    } catch (e) {
+      print('error deleting database $dbPath: $e');
+    }
+    _readyCompleter = null;
   }
 }
 
@@ -690,3 +779,30 @@ String getParentName(Node? parent, String? name) {
     return idbPathContext.join(parent.id.toString(), name);
   }
 }
+
+extension DatabaseIdbExt on idb.Database {
+  /// Helper to write on all stores
+  idb.Transaction writeAllTransactionList() => transactionList(
+      [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadWrite);
+
+  /// Helper to read on all stores
+  idb.Transaction readAllTransactionList() => transactionList(
+      [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadOnly);
+}
+
+extension NodeExt on Node {
+  /// True if it as page size options
+  bool get hasPageSize => (pageSize ?? 0) != 0;
+
+  /// Safe access
+  int get fileSize => size ?? 0;
+
+  /// Safe if hasPageSize
+  int get filePageSize => pageSize ?? 0;
+
+  /// Safe if hasPageSize
+  int get pageCount => pageCountFromSizeAndPageSize(fileSize, filePageSize);
+}
+
+int pageCountFromSizeAndPageSize(int size, int pageSize) =>
+    pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);

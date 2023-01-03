@@ -7,11 +7,14 @@ import 'dart:typed_data';
 
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_fs.dart';
 
 import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
+  // devWarning(defineTests(      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2))));
 }
 
 final bool _doPrintErr = false;
@@ -584,7 +587,21 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('big file', () async {
+      // debugIdbShowLogs = devWarning(true);
       var size = 8000000;
+
+      if (fs is FileSystemIdb) {
+        if (fs.idbOptions.hasPageSize) {
+          var pageSize = fs.idbOptions.pageSize!;
+          if (pageSize < 16000) {
+            size = 16000;
+          }
+          if (pageSize < 16) {
+            size = 150;
+          }
+        }
+      }
+
       try {
         // 8Mb
         var bytes = Uint8List(size);
@@ -596,12 +613,12 @@ void defineTests(FileSystemTestContext ctx) {
 
         var read = await file.readAsBytes();
         expect(read.length, bytes.length);
-      } catch (e) {
+      } catch (e, st) {
         print('ERROR writing $size byes files, allowed on CI');
+        print(st);
       }
-    }
-        // , solo: true, timeout: const Timeout(Duration(minutes: 5))
-        //
+    }, timeout: const Timeout(Duration(minutes: 2))
+        //, solo: true
         );
   });
 }

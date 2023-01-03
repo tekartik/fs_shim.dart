@@ -28,6 +28,24 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   }();
 }
 
+var _index = 0;
+
+class IdbBrowserFileSystemTestContextWithOptions
+    extends IdbBrowserFileSystemTestContext {
+  final FileSystemIdbOptions options;
+
+  @override
+  IdbFileSystem get fs => _fs;
+  late final IdbFileSystem _fs = () {
+    var fs = newFileSystemIdbBrowser('db_options_${++_index}')
+            .withIdbOptions(options: options)
+        as IdbFileSystem; // Needed for initialization (supportsLink)
+    return fs;
+  }();
+
+  IdbBrowserFileSystemTestContextWithOptions({required this.options});
+}
+
 IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =
     IdbBrowserFileSystemTestContext();
 
@@ -37,5 +55,9 @@ void main() {
     fsIdbFormatV1Group(idbFactoryNative);
     // All tests
     defineIdbTests(idbBrowserFileSystemContext);
+    defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
+        options: FileSystemIdbOptions(pageSize: 2)));
+    defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
+        options: FileSystemIdbOptions(pageSize: 16 * 1024)));
   });
 }

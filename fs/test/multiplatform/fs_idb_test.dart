@@ -3,7 +3,9 @@
 
 library fs_shim.test.multiplatform.fs_idb_test;
 
-import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'fs_src_idb_file_system_storage_test.dart';
@@ -12,6 +14,7 @@ import 'test_common.dart';
 
 void main() {
   defineIdbTests(memoryFileSystemTestContext);
+  // devWarning(defineIdbTests(MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2)));
 }
 
 void defineIdbTests(IdbFileSystemTestContext ctx) {
@@ -45,8 +48,12 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       return count;
     }
 
-    Future<int> getTreeStoreSize(idb.Database db) => getStoreSize(db, 'tree');
-    Future<int> getFileStoreSize(idb.Database db) => getStoreSize(db, 'file');
+    Future<int> getTreeStoreSize(idb.Database db) =>
+        getStoreSize(db, treeStoreName);
+    Future<int> getFileStoreSize(idb.Database db) =>
+        getStoreSize(db, fileStoreName);
+    Future<int> getPartStoreSize(idb.Database db) =>
+        getStoreSize(db, partStoreName);
 
     test('create_delete_file', () async {
       final dir = await ctx.prepare();
@@ -75,6 +82,7 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       // check the tree size before creating and after creating then deleting
       final treeStoreSize = await getTreeStoreSize(db);
       final fileStoreSize = await getFileStoreSize(db);
+      final partStoreSize = await getPartStoreSize(db);
 
       File file = ctx.fs.file(fs.path.join(dir.path, 'file'));
 
@@ -84,7 +92,16 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       await file.create();
 
       expect(await getTreeStoreSize(db), treeStoreSize + 1);
-      expect(await getFileStoreSize(db), fileStoreSize + 1);
+      if (!ctx.fs.idbOptions.hasPageSize || !idbSupportsV2Format) {
+        expect(await getFileStoreSize(db), fileStoreSize + 1);
+        expect(await getPartStoreSize(db), partStoreSize);
+      } else {
+        expect(await getFileStoreSize(db), fileStoreSize);
+        expect(
+            await getPartStoreSize(db),
+            partStoreSize +
+                pageCountFromSizeAndPageSize(4, ctx.fs.idbOptions.pageSize!));
+      }
 
       await file.delete();
 

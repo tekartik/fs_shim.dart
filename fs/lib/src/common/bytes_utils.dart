@@ -8,6 +8,22 @@ Uint8List asUint8List(List<int> bytes) {
   return Uint8List.fromList(bytes);
 }
 
+/// Convert any list to a byte array
+Uint8List anyListAsUint8List(List list) {
+  if (list is List<int>) {
+    return asUint8List(list);
+  }
+  return Uint8List.fromList(list.cast<int>());
+}
+
+/// Convert any object to a byte array
+Uint8List anyAsUint8List(Object? value) {
+  if (value is List) {
+    return anyListAsUint8List(value);
+  }
+  return Uint8List(0);
+}
+
 /// Convert a list of list of bytes to a buffer
 Uint8List bytesListToBytes(List<List<int>> bytesList) {
   return asUint8List(bytesList.expand((element) => element).toList());

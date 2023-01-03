@@ -5,7 +5,7 @@ library fs_shim.test.multiplatform.fs_idb_format_test;
 
 import 'dart:typed_data';
 
-import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_shim.dart';
@@ -20,14 +20,19 @@ import 'test_common.dart';
 
 void main() {
   fsIdbFormatGroup(idbFactoryMemory);
+  fsIdbFormatGroup(idbFactoryMemory,
+      options: FileSystemIdbOptions(pageSize: 2));
+  fsIdbFormatGroup(idbFactoryMemory,
+      options: FileSystemIdbOptions(pageSize: 1024));
 }
 
-void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
+void fsIdbFormatGroup(idb.IdbFactory idbFactory,
+    {FileSystemIdbOptions? options}) {
   group('idb_format', () {
     test('absolute text file', () async {
       var dbName = 'absolute_text_file.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory, dbName, options: options);
       var filePath = '${fs.path.separator}file.txt';
 
       var file = fs.file(filePath);
@@ -38,81 +43,198 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory) {
 
       var db = await idbFactory.open(dbName);
       expect(db.objectStoreNames.toSet(), {'file', 'part', 'tree'});
-      var txn = db.transaction(['file', 'tree'], idbModeReadOnly);
-      var treeObjectStore = txn.objectStore('tree');
-      var list =
-          await cursorToList(treeObjectStore.openCursor(autoAdvance: true));
 
-      var fileObjectStore = txn.objectStore('file');
-      list = await cursorToList(fileObjectStore.openCursor(autoAdvance: true));
-      expect(list.map((row) => {'key': row.key, 'value': row.value}), [
-        {
-          'key': 2,
-          'value': Uint8List.fromList([116, 101, 115, 116])
-        }
-      ]);
-      expect(await getFileEntries(db), []);
-
-      var exportMap = {
-        'sembast_export': 1,
-        'version': 1,
-        'stores': [
-          mainStoreExportV2,
+      if (!idbSupportsV2Format || !(options?.hasPageSize ?? false)) {
+        expect(await getFileEntries(db), [
           {
-            'name': 'file',
-            'keys': [2],
-            'values': [
-              {'@Blob': 'dGVzdA=='}
-            ]
+            'key': 2,
+            'value': [116, 101, 115, 116]
+          }
+        ]);
+
+        expect(await getPartEntries(db), []);
+
+        var exportMap = {
+          'sembast_export': 1,
+          'version': 1,
+          'stores': [
+            mainStoreExportV2,
+            {
+              'name': 'file',
+              'keys': [2],
+              'values': [
+                {'@Blob': 'dGVzdA=='}
+              ]
+            },
+            {
+              'name': 'tree',
+              'keys': [1, 2],
+              'values': [
+                {
+                  'name': fs.path.separator,
+                  'type': 'dir',
+                  'modified': dirStat.modified.toUtc().toIso8601String(),
+                  'size': 0,
+                  'pn': fs.path.separator
+                },
+                {
+                  'name': 'file.txt',
+                  'type': 'file',
+                  'parent': 1,
+                  'modified': fileStat.modified.toUtc().toIso8601String(),
+                  'size': 4,
+                  'pn': fs.path.join('1', 'file.txt'),
+                }
+              ]
+            }
+          ]
+        };
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {
+              'name': fs.path.separator,
+              'type': 'dir',
+              'modified': dirStat.modified.toIso8601String(),
+              'size': 0,
+              'pn': fs.path.separator,
+            }
           },
           {
-            'name': 'tree',
-            'keys': [1, 2],
-            'values': [
-              {
-                'name': fs.path.separator,
-                'type': 'dir',
-                'modified': dirStat.modified.toUtc().toIso8601String(),
-                'size': 0,
-                'pn': fs.path.separator
-              },
-              {
-                'name': 'file.txt',
-                'type': 'file',
-                'parent': 1,
-                'modified': fileStat.modified.toUtc().toIso8601String(),
-                'size': 4,
-                'pn': fs.path.join('1', 'file.txt'),
+            'key': 2,
+            'value': {
+              'name': 'file.txt',
+              'type': 'file',
+              'parent': 1,
+              'modified': fileStat.modified.toIso8601String(),
+              'size': 4,
+              'pn': fs.path.join('1', 'file.txt')
+            }
+          }
+        ]);
+
+        // devPrint(jsonPretty(exportMap));
+        expect(await sdbExportDatabase(db), exportMap);
+      } else {
+        expect(await getFileEntries(db), []);
+        if (options?.pageSize == 2) {
+          expect(await getPartEntries(db), [
+            {
+              'key': 1,
+              'value': {
+                'index': 0,
+                'file': 2,
+                'content': [116, 101]
               }
-            ]
-          }
-        ]
-      };
-      expect(await getTreeEntries(db), [
-        {
-          'key': 1,
-          'value': {
-            'name': fs.path.separator,
-            'type': 'dir',
-            'modified': dirStat.modified.toIso8601String(),
-            'size': 0,
-            'pn': fs.path.separator,
-          }
-        },
-        {
-          'key': 2,
-          'value': {
-            'name': 'file.txt',
-            'type': 'file',
-            'parent': 1,
-            'modified': fileStat.modified.toIso8601String(),
-            'size': 4,
-            'pn': fs.path.join('1', 'file.txt')
-          }
+            },
+            {
+              'key': 2,
+              'value': {
+                'index': 1,
+                'file': 2,
+                'content': [115, 116]
+              }
+            }
+          ]);
+        } else {
+          expect(await getPartEntries(db), [
+            {
+              'key': 1,
+              'value': {
+                'index': 0,
+                'file': 2,
+                'content': [116, 101, 115, 116]
+              }
+            }
+          ]);
         }
-      ]);
-      // devPrint(jsonPretty(exportMap));
-      expect(await sdbExportDatabase(db), exportMap);
+
+        var exportMap = {
+          'sembast_export': 1,
+          'version': 1,
+          'stores': [
+            mainStoreExportV2,
+            if (options?.pageSize == 2)
+              {
+                'name': 'part',
+                'keys': [1, 2],
+                'values': [
+                  {
+                    'index': 0,
+                    'file': 2,
+                    'content': {'@Blob': 'dGU='}
+                  },
+                  {
+                    'index': 1,
+                    'file': 2,
+                    'content': {'@Blob': 'c3Q='}
+                  }
+                ]
+              }
+            else
+              {
+                'name': 'part',
+                'keys': [1],
+                'values': [
+                  {
+                    'index': 0,
+                    'file': 2,
+                    'content': {'@Blob': 'dGVzdA=='}
+                  }
+                ]
+              },
+            {
+              'name': 'tree',
+              'keys': [1, 2],
+              'values': [
+                {
+                  'name': fs.path.separator,
+                  'type': 'dir',
+                  'modified': dirStat.modified.toUtc().toIso8601String(),
+                  'size': 0,
+                  'pn': fs.path.separator
+                },
+                {
+                  'name': 'file.txt',
+                  'type': 'file',
+                  'parent': 1,
+                  'modified': fileStat.modified.toUtc().toIso8601String(),
+                  'size': 4,
+                  if (options?.hasPageSize ?? false) 'ps': options?.pageSize,
+                  'pn': fs.path.join('1', 'file.txt'),
+                }
+              ]
+            }
+          ]
+        };
+        expect(await getTreeEntries(db), [
+          {
+            'key': 1,
+            'value': {
+              'name': fs.path.separator,
+              'type': 'dir',
+              'modified': dirStat.modified.toIso8601String(),
+              'size': 0,
+              'pn': fs.path.separator,
+            }
+          },
+          {
+            'key': 2,
+            'value': {
+              'name': 'file.txt',
+              'type': 'file',
+              'parent': 1,
+              'modified': fileStat.modified.toIso8601String(),
+              'size': 4,
+              if (options?.hasPageSize ?? false) 'ps': options?.pageSize,
+              'pn': fs.path.join('1', 'file.txt')
+            }
+          }
+        ]);
+
+        // devPrint(jsonPretty(exportMap));
+        expect(await sdbExportDatabase(db), exportMap);
+      }
       db.close();
     });
     test('v_current_format', () async {

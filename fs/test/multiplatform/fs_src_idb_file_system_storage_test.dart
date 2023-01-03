@@ -16,16 +16,23 @@ import 'test_common.dart';
 
 void main() {
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
+  defineIdbFileSystemStorageTests(
+      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2)));
 }
 
+var _index = 0;
 void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   var p = idbPathContext;
-  var index = 0;
+
   Future<IdbFileSystemStorage> newStorage() async {
     final storage = IdbFileSystemStorage(
-        ctx.fs.idbFactory, 'idb_storage_${++index}',
+        ctx.fs.idbFactory, 'idb_storage_${++_index}',
         options: FileSystemIdbOptions(pageSize: ctx.fs.idbOptions.pageSize));
-    await storage.delete();
+    try {
+      await storage.delete().timeout(const Duration(seconds: 5));
+    } catch (e) {
+      print('error $e');
+    }
     await storage.ready;
     return storage;
   }
@@ -37,6 +44,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
     });
 
     test('add_get_with_parent', () async {
+      // debugIdbShowLogs = devWarning(true);
       var storage = await newStorage();
       final entity = Node.directory(null, 'dir');
       await storage.addNode(entity);
@@ -148,18 +156,15 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
     });
     group('ready', () {
       late IdbFileSystemStorage storage;
-      setUp(() async {
-        /*
-        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
-            options: FileSystemIdbOptions(pageSize: 1024));
-
-         */
+      Future<void> doSetUp() async {
         storage = await newStorage();
         await storage.ready;
-      });
+      }
 
       test('writeDataV1', () async {
+        await doSetUp();
         var db = storage.db!;
+
         expect(await getFileEntries(db), []);
         var txn = getWriteAllTransaction(db);
         var node = await storage.txnSetFileDataV1(
@@ -185,6 +190,8 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
 
       test('writeDataV2', () async {
         // debugIdbShowLogs = devWarning(true);
+        await doSetUp();
+
         var db = storage.db!;
         expect(await getFileEntries(db), []);
         var txn = getWriteAllTransaction(db);
@@ -256,7 +263,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         await storage.ready;
       });
 
-      test('writeDataV2', () async {
+      test('writeDataV2 page size 2', () async {
         var db = storage.db!;
         expect(await getFileEntries(db), []);
         var txn = getWriteAllTransaction(db);
@@ -322,25 +329,38 @@ Transaction getWriteAllTransaction(Database db) => db.transactionList(
 
 Future<List<Map>> getEntriesFromCursor(Stream<CursorWithValue> cwv) async {
   var list = await cursorToList(cwv);
+  // devPrint('list $list');
   return list.map((row) => {'key': row.key, 'value': row.value}).toList();
 }
 
 Future<List<Map>> getTreeEntries(Database db) async {
   var txn = db.transaction(treeStoreName, idbModeReadOnly);
   var treeObjectStore = txn.objectStore(treeStoreName);
-  return await getEntriesFromCursor(
-      treeObjectStore.openCursor(autoAdvance: true));
+  try {
+    return await getEntriesFromCursor(
+        treeObjectStore.openCursor(autoAdvance: true));
+  } finally {
+    await txn.completed;
+  }
 }
 
 Future<List<Map>> getPartEntries(Database db) async {
   var txn = db.transaction(partStoreName, idbModeReadOnly);
   var store = txn.objectStore(partStoreName);
-  return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
+  try {
+    return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
+  } finally {
+    await txn.completed;
+  }
 }
 
 Future<List<Map>> getFileEntries(Database db) async {
   var txn = db.transaction(fileStoreName, idbModeReadOnly);
   var fileObjectStore = txn.objectStore(fileStoreName);
-  return await getEntriesFromCursor(
-      fileObjectStore.openCursor(autoAdvance: true));
+  try {
+    return await getEntriesFromCursor(
+        fileObjectStore.openCursor(autoAdvance: true));
+  } finally {
+    await txn.completed;
+  }
 }
