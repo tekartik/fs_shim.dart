@@ -8,16 +8,17 @@ import 'dart:convert';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:fs_shim/src/platform/platform.dart';
 import 'package:test/test.dart';
-
-import 'multiplatform/platform.dart';
 
 export 'dart:async';
 export 'dart:convert';
 
 export 'package:fs_shim/src/common/import.dart'
     show devPrint, devWarning, isRunningAsJavascript;
+export 'package:fs_shim/src/idb/idb_file_system.dart' show idbSupportsV2Format;
 export 'package:fs_shim/src/idb/idb_fs.dart' show FileSystemIdb;
+export 'package:fs_shim/src/platform/platform.dart';
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';

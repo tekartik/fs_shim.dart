@@ -86,8 +86,10 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
 /// We use the same database
 class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
   final IdbFileSystemStorage delegate;
+
   @override
   idb.Database? get db => delegate.db;
+
   @override
   Future get ready => delegate.ready;
 
@@ -101,6 +103,7 @@ class IdbFileSystemStorage {
   idb.IdbFactory idbFactory;
   String dbPath;
   FileSystemIdbOptions options;
+
   int get pageSize => options.pageSize ?? 0;
 
   IdbFileSystemStorage(this.idbFactory, this.dbPath, {required this.options}) {
@@ -242,9 +245,10 @@ class IdbFileSystemStorage {
     var partIndex = partStore.index(partFilePartIndexName);
     var stream = partIndex.openKeyCursor(
         range: _allPartRange(fileId), autoAdvance: true);
-    await stream.listen((idb.Cursor cursor) {
-      cursor.delete();
-    }).asFuture();
+    var keys = await keyCursorToPrimaryKeyList(stream);
+    for (var key in keys) {
+      await partStore.delete(key);
+    }
   }
 
   /// Set the content of a file and update meta. return the updated node
@@ -765,6 +769,10 @@ List<String> getSegments(String path) {
   return segments;
 }
 
+String segmentsToPath(List<String> segments) {
+  return idbPathContext.joinAll(segments);
+}
+
 List<String>? getParentSegments(List<String> segments) {
   if (segments.isEmpty) {
     return null;
@@ -788,9 +796,24 @@ extension DatabaseIdbExt on idb.Database {
   /// Helper to read on all stores
   idb.Transaction readAllTransactionList() => transactionList(
       [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadOnly);
+
+  /// Helper to read on all stores
+  idb.Transaction openNodeTreeTransaction(
+      {fs.FileMode mode = fs.FileMode.read}) {
+    if (mode == fs.FileMode.read) {
+      return transaction(treeStoreName, idb.idbModeReadOnly);
+    } else {
+      // in read/write mode we might have to write right away to convert the content
+      return transactionList(
+          [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadWrite);
+    }
+  }
 }
 
 extension NodeExt on Node {
+  /// Safe
+  int get fileId => id!;
+
   /// True if it as page size options
   bool get hasPageSize => (pageSize ?? 0) != 0;
 
@@ -806,3 +829,15 @@ extension NodeExt on Node {
 
 int pageCountFromSizeAndPageSize(int size, int pageSize) =>
     pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
+
+/// Convert an openKeyCursor stream to a list (must be auto-advance)
+Future<List<int>> keyCursorToPrimaryKeyList(Stream<idb.Cursor> stream) {
+  var completer = Completer<List<int>>.sync();
+  final list = <int>[];
+  stream.listen((idb.Cursor cursor) {
+    list.add(cursor.primaryKey as int);
+  }).onDone(() {
+    completer.complete(list);
+  });
+  return completer.future;
+}

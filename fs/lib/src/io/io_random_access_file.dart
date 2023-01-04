@@ -12,6 +12,8 @@ class IoRandomAccessFile with DefaultRandomAccessFileMixin {
   final io.RandomAccessFile ioRandomAccessFile;
 
   IoRandomAccessFile _me(_) => this;
+  static IoRandomAccessFile _wrap(io.RandomAccessFile ioRandomAccessFile) =>
+      IoRandomAccessFile(ioRandomAccessFile);
 
   /// Io RandomAccessFile implementation.
   IoRandomAccessFile(this.ioRandomAccessFile);
@@ -45,26 +47,26 @@ class IoRandomAccessFile with DefaultRandomAccessFileMixin {
 
   @override
   Future<RandomAccessFile> setPosition(int position) =>
-      ioWrapCall(() => ioRandomAccessFile.setPosition(position)).then(_me);
+      ioWrapCall(() => ioRandomAccessFile.setPosition(position)).then(_wrap);
 
   @override
   Future<RandomAccessFile> truncate(int length) =>
-      ioWrapCall(() => ioRandomAccessFile.truncate(length)).then(_me);
+      ioWrapCall(() => ioRandomAccessFile.truncate(length)).then(_wrap);
 
   @override
   Future<RandomAccessFile> writeByte(int value) =>
-      ioWrapCall(() => ioRandomAccessFile.writeByte(value)).then(_me);
+      ioWrapCall(() => ioRandomAccessFile.writeByte(value)).then(_wrap);
 
   @override
   Future<RandomAccessFile> writeFrom(List<int> buffer,
           [int start = 0, int? end]) =>
       ioWrapCall(() => ioRandomAccessFile.writeFrom(buffer, start, end))
-          .then(_me);
+          .then(_wrap);
 
   @override
   Future<RandomAccessFile> writeString(String string,
           {Encoding encoding = utf8}) =>
       ioWrapCall(
               () => ioRandomAccessFile.writeString(string, encoding: encoding))
-          .then(_me);
+          .then(_wrap);
 }

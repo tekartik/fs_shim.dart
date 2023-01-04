@@ -21,9 +21,9 @@ import 'test_common.dart';
 void main() {
   fsIdbFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory,
-      options: FileSystemIdbOptions(pageSize: 2));
+      options: const FileSystemIdbOptions(pageSize: 2));
   fsIdbFormatGroup(idbFactoryMemory,
-      options: FileSystemIdbOptions(pageSize: 1024));
+      options: const FileSystemIdbOptions(pageSize: 1024));
 }
 
 void fsIdbFormatGroup(idb.IdbFactory idbFactory,

@@ -1,8 +1,12 @@
+export 'platform_io.dart' if (dart.library.html) 'platform_web.dart';
+
 /// Common platform context
 class PlatformContext {
+  /// True on io (native fs)
   bool get isIo => false;
 }
 
+/// IO only
 class PlatformContextIo extends PlatformContext {
   ///
   /// true if windows operating system
@@ -23,4 +27,5 @@ class PlatformContextIo extends PlatformContext {
   bool get isIo => true;
 }
 
+/// Browser only
 class PlatformContextBrowser extends PlatformContext {}

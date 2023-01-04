@@ -16,11 +16,16 @@ import 'utils_test.dart' as utils_test;
 
 void main() {
   group('default', () {
-    defineTests(memoryFileSystemTestContext);
+    defineFsTests(memoryFileSystemTestContext);
   });
 }
 
+// To deprecate
 void defineTests(FileSystemTestContext ctx) {
+  defineFsTests(ctx);
+}
+
+void defineFsTests(FileSystemTestContext ctx) {
   dir_test.defineTests(ctx);
   file_test.defineTests(ctx);
   link_test.defineTests(ctx);

@@ -130,6 +130,19 @@ class FileMode {
 
   /// Mode
   int get mode => _mode;
+
+  @override
+  String toString() {
+    switch (this) {
+      case write:
+        return 'FileMode.write';
+      case read:
+        return 'FileMode.read';
+      case append:
+        return 'FileMode.append';
+    }
+    return 'FileMode($mode)';
+  }
 }
 
 ///

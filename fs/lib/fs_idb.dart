@@ -1,5 +1,6 @@
 library fs_shim.fs_idb;
 
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:fs_shim/src/idb/idb_fs.dart';
 import 'package:idb_shim/idb.dart' as idb;
 import 'package:meta/meta.dart';
@@ -15,10 +16,17 @@ class FileSystemIdbOptions {
   final int? pageSize;
 
   /// Idb file system options.
-  FileSystemIdbOptions({this.pageSize});
+  const FileSystemIdbOptions({this.pageSize});
 
   @override
   String toString() => 'pageSize: $pageSize';
+
+  /// noPage means not optimized for random access and file streaming
+  /// but optimized for full read and write.
+  static const noPage = FileSystemIdbOptions();
+
+  /// [pageDefault] means using 16Kb page.
+  static const pageDefault = FileSystemIdbOptions(pageSize: defaultPageSize);
 }
 
 /// Internal options helper.

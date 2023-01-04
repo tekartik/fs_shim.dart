@@ -22,19 +22,19 @@ void main() {
     group('pageSize: null twice', () {
       defineAllIdbTests(MemoryFileSystemTestContext());
       defineAllIdbTests(MemoryFileSystemTestContext(
-          options: FileSystemIdbOptions(pageSize: 16 * 1024)));
+          options: const FileSystemIdbOptions(pageSize: 16 * 1024)));
       defineAllIdbTests(MemoryFileSystemTestContext(
-          options: FileSystemIdbOptions(pageSize: 2)));
+          options: const FileSystemIdbOptions(pageSize: 2)));
       defineAllIdbTests(MemoryFileSystemTestContext(
-          options: FileSystemIdbOptions(pageSize: 4)));
+          options: const FileSystemIdbOptions(pageSize: 4)));
       defineAllIdbTests(MemoryFileSystemTestContext(
-          options: FileSystemIdbOptions(pageSize: 1024)));
+          options: const FileSystemIdbOptions(pageSize: 1024)));
     });
 
     group('fs', () {
       var fs = memoryFileSystemTestContext.fs;
       test('supportRandomAccess', () {
-        expect(fs.supportsRandomAccess, false);
+        expect(fs.supportsRandomAccess, true);
       });
     });
     group('top', () {
