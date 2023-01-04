@@ -9,7 +9,7 @@ environment:
   sdk: '>=2.18.0 <3.0.0'
 
 dependencies:
-  fs_shim: '>=2.0.1+1'
+  fs_shim: '>=2.1.0-2'
   path: '>=1.6.1'
   tekartik_common_utils:
     git:
