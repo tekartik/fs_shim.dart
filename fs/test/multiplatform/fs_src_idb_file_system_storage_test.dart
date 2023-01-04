@@ -186,10 +186,19 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
           }
         ]);
         // expect(fileEntries[0]['value'], isA<Uint8List>());
-        expect(await getTreeEntries(db), [
+        var treeEntries = await getTreeEntries(db);
+        var modified = (treeEntries[0]['value'] as Map)['modified'];
+
+        expect(treeEntries, [
           {
             'key': 1,
-            'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
+            'value': {
+              'name': 'test',
+              'type': 'file',
+              'size': 3,
+              'pn': '/test',
+              'modified': modified
+            }
           }
         ]);
         txn = getWriteAllTransaction(db);
@@ -210,7 +219,9 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         expect(node.pageSize, storage.pageSize);
         expect(await getFileEntries(db), []);
 
-        expect(await getTreeEntries(db), [
+        var treeEntries = await getTreeEntries(db);
+        var modified = (treeEntries[0]['value'] as Map)['modified'];
+        expect(treeEntries, [
           {
             'key': 1,
             'value': {
@@ -219,7 +230,8 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
               'size': 3,
               if (ctx.fs.idbOptions.hasPageSize)
                 'ps': ctx.fs.idbOptions.pageSize,
-              'pn': '/test'
+              'pn': '/test',
+              'modified': modified
             }
           }
         ]);
@@ -283,7 +295,9 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         expect(node.pageSize, isNotNull);
         expect(node.pageSize, storage.pageSize);
         expect(await getFileEntries(db), []);
-        expect(await getTreeEntries(db), [
+        var treeEntries = await getTreeEntries(db);
+        var modified = (treeEntries[0]['value'] as Map)['modified'];
+        expect(treeEntries, [
           {
             'key': 1,
             'value': {
@@ -291,7 +305,8 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
               'type': 'file',
               'size': 3,
               'ps': 2,
-              'pn': '/test'
+              'pn': '/test',
+              'modified': modified,
             }
           }
         ]);

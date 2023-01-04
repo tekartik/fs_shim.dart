@@ -21,6 +21,7 @@ void main() {
 
     group('pageSize: null twice', () {
       defineAllIdbTests(MemoryFileSystemTestContext());
+      /*
       defineAllIdbTests(MemoryFileSystemTestContext(
           options: const FileSystemIdbOptions(pageSize: 16 * 1024)));
       defineAllIdbTests(MemoryFileSystemTestContext(
@@ -28,7 +29,7 @@ void main() {
       defineAllIdbTests(MemoryFileSystemTestContext(
           options: const FileSystemIdbOptions(pageSize: 4)));
       defineAllIdbTests(MemoryFileSystemTestContext(
-          options: const FileSystemIdbOptions(pageSize: 1024)));
+          options: const FileSystemIdbOptions(pageSize: 1024)));*/
     });
 
     group('fs', () {

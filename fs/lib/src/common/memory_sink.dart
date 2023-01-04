@@ -2,7 +2,7 @@
 
 library fs_shim.src.memory_sink;
 
-import 'dart:async';
+import 'package:fs_shim/src/common/import.dart';
 
 /// Memory sink.
 class MemorySink implements StreamSink<List<int>> {

@@ -50,7 +50,7 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('truncate', () async {
       final directory = await ctx.prepare();
-      var filePath = fs.path.join(directory.path, 'truncatee');
+      var filePath = fs.path.join(directory.path, 'truncate');
       final file = fs.file(filePath);
       var randomAccessFile = await file.open(mode: FileMode.write);
       try {
@@ -97,6 +97,22 @@ void defineTests(FileSystemTestContext ctx) {
       } finally {
         await randomAccessFile.close();
       }
+    });
+
+    test('append', () async {
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'append');
+      final file = fs.file(filePath);
+      var randomAccessFile = await file.open(mode: FileMode.write);
+
+      await randomAccessFile.writeString('hello');
+      await randomAccessFile.close();
+
+      randomAccessFile = await file.open(mode: FileMode.append);
+      await randomAccessFile.writeString('world');
+      await randomAccessFile.close();
+
+      expect(await file.readAsString(), 'helloworld');
     });
     test('complex read/write', () async {
       final directory = await ctx.prepare();
