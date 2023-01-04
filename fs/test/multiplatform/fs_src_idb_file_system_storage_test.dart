@@ -15,6 +15,13 @@ import 'package:idb_shim/utils/idb_utils.dart';
 import 'test_common.dart';
 
 void main() {
+  test('getSegments', () {
+    expect(getSegments('/'), ['/']);
+    expect(getSegments('a'), ['/', 'a']);
+    expect(getSegments('/a'), ['/', 'a']);
+    expect(segmentsToPath(['/']), '/');
+    expect(segmentsToPath(['/', 'a']), '/a');
+  });
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
   defineIdbFileSystemStorageTests(
       MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2)));
@@ -156,13 +163,12 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
     });
     group('ready', () {
       late IdbFileSystemStorage storage;
-      Future<void> doSetUp() async {
+      setUp(() async {
         storage = await newStorage();
         await storage.ready;
-      }
+      });
 
       test('writeDataV1', () async {
-        await doSetUp();
         var db = storage.db!;
 
         expect(await getFileEntries(db), []);
@@ -186,11 +192,12 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             'value': {'name': 'test', 'type': 'file', 'size': 3, 'pn': '/test'}
           }
         ]);
+        txn = getWriteAllTransaction(db);
+        await storage.txnDeleteFileDataV1(txn, node.fileId);
       });
 
       test('writeDataV2', () async {
         // debugIdbShowLogs = devWarning(true);
-        await doSetUp();
 
         var db = storage.db!;
         expect(await getFileEntries(db), []);
@@ -253,6 +260,8 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
           ]);
         }
         //expect(partEntries[0]['value'], isA<Uint8List>());
+        txn = getWriteAllTransaction(db);
+        await storage.txnDeleteFileDataV2(txn, node.fileId);
       });
     });
     group('ready pageSize 2', () {

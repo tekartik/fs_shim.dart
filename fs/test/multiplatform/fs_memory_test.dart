@@ -34,7 +34,7 @@ void main() {
     group('fs', () {
       var fs = memoryFileSystemTestContext.fs;
       test('supportRandomAccess', () {
-        expect(fs.supportsRandomAccess, false);
+        expect(fs.supportsRandomAccess, true);
       });
     });
     group('top', () {

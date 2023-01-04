@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/fs_mixin.dart';
 
+import '../../fs.dart';
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
@@ -31,6 +32,10 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
   @override
   Stream<Uint8List> openRead([int? start, int? end]) =>
       _fs.openRead(path, start, end);
+
+  @override
+  Future<RandomAccessFile> open({FileMode mode = FileMode.read}) =>
+      _fs.open(this, mode: mode);
 
   @override
   Future<IdbFile> rename(String newPath) {
