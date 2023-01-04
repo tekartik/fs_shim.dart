@@ -23,8 +23,8 @@ void main() {
     expect(segmentsToPath(['/', 'a']), '/a');
   });
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
-  defineIdbFileSystemStorageTests(
-      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2)));
+  defineIdbFileSystemStorageTests(MemoryFileSystemTestContext(
+      options: const FileSystemIdbOptions(pageSize: 2)));
 }
 
 var _index = 0;
@@ -268,7 +268,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       late IdbFileSystemStorage storage;
       setUp(() async {
         storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
-            options: FileSystemIdbOptions(pageSize: 2));
+            options: const FileSystemIdbOptions(pageSize: 2));
         await storage.ready;
       });
 

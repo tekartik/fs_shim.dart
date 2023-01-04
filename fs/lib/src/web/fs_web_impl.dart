@@ -12,7 +12,7 @@ FileSystem newFileSystemWeb(
         .withIdbOptions(options: options ?? _defaultOptions);
 
 FileSystemIdbOptions get _defaultOptions =>
-    FileSystemIdbOptions(pageSize: defaultPageSize);
+    const FileSystemIdbOptions(pageSize: defaultPageSize);
 
 /// FileSystem with options (if [options] is null, a default options with pageSize default being 16Kb).
 FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) {

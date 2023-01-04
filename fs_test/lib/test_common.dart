@@ -4,9 +4,11 @@ library fs_shim.test.test_common;
 // basically same as the io runner but with extra output
 import 'dart:convert';
 
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
-import 'package:tekartik_platform/context.dart';
+import 'package:fs_shim/src/platform/platform.dart'
+    show PlatformContext, PlatformContextIo;
 import 'package:test/test.dart';
 
 import 'src/import_common.dart';
@@ -15,6 +17,14 @@ export 'dart:async';
 export 'dart:convert';
 
 export 'package:fs_shim/src/idb/idb_fs.dart' show FileSystemIdb;
+export 'package:fs_shim/src/platform/platform.dart'
+    show
+        PlatformContext,
+        PlatformContextBrowser,
+        PlatformContextIo,
+        platformContextBrowser,
+        platformContextIo;
+export 'package:fs_shim/src/platform/platform.dart';
 export 'package:fs_shim/utils/copy.dart';
 export 'package:fs_shim/utils/entity.dart';
 export 'package:fs_shim/utils/glob.dart';
@@ -54,9 +64,20 @@ abstract class FileSystemTestContext {
   }
 }
 
+typedef FileSystemTestContextIdb = IdbFileSystemTestContext;
+
 abstract class IdbFileSystemTestContext extends FileSystemTestContext {
   @override
-  IdbFileSystem get fs;
+  PlatformContext? platform;
+  @override
+  FileSystemIdb get fs;
+}
+
+abstract class FileSystemTestContextIdbWithOptions
+    extends IdbFileSystemTestContext {
+  final FileSystemIdbOptions options;
+
+  FileSystemTestContextIdbWithOptions({required this.options});
 }
 
 final MemoryFileSystemTestContext memoryFileSystemTestContext =
@@ -65,8 +86,6 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   MemoryFileSystemTestContext();
 
-  @override
-  final PlatformContext? platform = null;
   @override
   final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
 }
@@ -83,17 +102,17 @@ String jsonPretty(dynamic json) {
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform!.io!.isWindows);
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoWindows == true;
 }
 
 bool isIoMac(FileSystemTestContext ctx) {
-  return (isIo(ctx) && ctx.platform!.io!.isMac);
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoMacOS == true;
+}
+
+bool isIoLinux(FileSystemTestContext ctx) {
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoLinux == true;
 }
 
 bool isIo(FileSystemTestContext ctx) {
-  return ctx.platform?.io != null;
-}
-
-bool isNode(FileSystemTestContext ctx) {
-  return ctx.platform?.node != null;
+  return ctx.platform?.isIo == true;
 }

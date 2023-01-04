@@ -16,13 +16,14 @@ var _index = 0;
 List<FileSystem> fsList = isRunningAsJavascript
     ? [
         fileSystemWeb,
-        getFileSystemWeb(options: FileSystemIdbOptions(pageSize: 16 * 1024)),
+        getFileSystemWeb(
+            options: const FileSystemIdbOptions(pageSize: 16 * 1024)),
         newFileSystemWeb(
             name: 'lfs_options.db',
-            options: FileSystemIdbOptions(pageSize: 16 * 1024)),
+            options: const FileSystemIdbOptions(pageSize: 16 * 1024)),
         newFileSystemWeb(
             name: 'lfs_options_2.db',
-            options: FileSystemIdbOptions(pageSize: 2))
+            options: const FileSystemIdbOptions(pageSize: 2))
       ]
     : [
         fileSystemIo,
@@ -34,7 +35,8 @@ List<FileSystem> fsList = isRunningAsJavascript
                 databaseFactoryIo,
                 global_path.join(
                     '.dart_tool', 'fs_shim_example', 'idb_io_${++_index}')))
-            .withIdbOptions(options: FileSystemIdbOptions(pageSize: 16 * 1024))
+            .withIdbOptions(
+                options: const FileSystemIdbOptions(pageSize: 16 * 1024))
       ];
 
 Future main() async {

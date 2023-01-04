@@ -6,7 +6,6 @@ import 'dart:io';
 import 'package:fs_shim/src/io/io_file_system.dart';
 import 'package:path/path.dart' as p;
 
-import 'multiplatform/platform.dart';
 import 'test_common.dart';
 
 export 'package:test/test.dart';

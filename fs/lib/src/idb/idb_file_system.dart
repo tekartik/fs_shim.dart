@@ -239,7 +239,7 @@ class IdbFileSystem extends Object
   IdbFileSystem(idb.IdbFactory factory, String? path,
       {FileSystemIdbOptions? options, IdbFileSystemStorage? storage}) {
     // legacy page size = 0
-    options ??= FileSystemIdbOptions(pageSize: 0);
+    options ??= const FileSystemIdbOptions(pageSize: 0);
     _storage = storage ??
         IdbFileSystemStorage(factory, path ?? dbPath, options: options);
   }
