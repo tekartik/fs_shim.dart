@@ -8,6 +8,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/log_utils.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
+import 'package:fs_shim/src/idb/idb_file_write.dart';
 import 'package:fs_shim/src/idb/idb_random_access_file.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:meta/meta.dart';
@@ -15,6 +16,7 @@ import 'package:path/path.dart' as p;
 
 import 'idb_directory.dart';
 import 'idb_file.dart';
+import 'idb_file_read.dart';
 import 'idb_file_stat.dart';
 import 'idb_file_system_entity.dart';
 import 'idb_file_system_exception.dart';
@@ -55,35 +57,32 @@ class IdbReadStreamCtlr {
     // put data
     _fs._ready.then((_) async {
       final txn = _fs._db!.readAllTransactionList();
-      var store = txn.objectStore(treeStoreName);
+      var treeStore = txn.objectStore(treeStoreName);
 
       try {
         // Try to find the file if it exists
         final segments = getSegments(path);
-        final entity = await _fs._storage.txnGetNode(store, segments, true);
+        try {
+          final entity = await _fs.txnOpenNode(treeStore, segments,
+              mode: fs.FileMode.read);
 
-        if (entity == null) {
-          _ctlr.addError(idbNotFoundException(path, 'Read failed'));
-          return;
-        }
-        if (entity.type != fs.FileSystemEntityType.file) {
-          _ctlr.addError(idbIsADirectoryException(path, 'Read failed'));
-          return;
-        }
+          var content = await _fs.txnReadNodeFileContent(txn, entity);
 
-        var content = await _fs.txnReadNodeFileContent(txn, entity);
-
-        // get existing content
-        //store = txn.objectStore(fileStoreName);
-        //var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
-        if (content.isNotEmpty) {
-          // All at once!
-          if (start != null) {
-            content = content.sublist(start!, end);
+          // get existing content
+          //store = txn.objectStore(fileStoreName);
+          //var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
+          if (content.isNotEmpty) {
+            // All at once!
+            if (start != null) {
+              content = content.sublist(start!, end);
+            }
+            _ctlr.add(anyListAsUint8List(content));
           }
-          _ctlr.add(anyListAsUint8List(content));
+          await _ctlr.close();
+        } catch (e) {
+          _ctlr.addError(e);
+          return;
         }
-        await _ctlr.close();
       } finally {
         await txn.completed;
       }
@@ -97,10 +96,11 @@ class IdbWriteStreamSink extends MemorySink {
   final IdbFileSystem _fs;
 
   IdbFileSystemStorage get storage => _fs._storage;
-  String path;
+  final fs.File file;
+
   fs.FileMode mode;
 
-  IdbWriteStreamSink(this._fs, this.path, this.mode) : super();
+  IdbWriteStreamSink(this._fs, this.file, this.mode) : super();
 
   @override
   Future close() async {
@@ -108,47 +108,18 @@ class IdbWriteStreamSink extends MemorySink {
 
     await _fs._ready;
 
-    final txn = _fs._db!.writeAllTransactionList();
-    final treeStore = txn.objectStore(treeStoreName);
+    var txn = _fs._db!.writeAllTransactionList();
 
     try {
       // Try to find the file if it exists
-      final segments = getSegments(path);
-      var entity = await _fs.txnOpenNode(treeStore, segments, mode: mode);
 
-      var fileId = entity.fileId;
-      var existingSize = entity.fileSize;
+      var entity = await _fs.txnOpenNodeFile(txn, file, mode: mode);
+      await txn.completed;
 
-      // get existing content
-      var bytesBuilder = BytesBuilder();
-      if (mode == fs.FileMode.write || existingSize == 0) {
-        // was created or existing
-      } else {
-        bytesBuilder.add(await _fs.txnReadNodeFileContent(txn, entity));
-      }
-
-      bytesBuilder.add(this.content);
-      var content = bytesBuilder.toBytes();
-      if (content.isEmpty) {
-        if (existingSize > 0) {
-          if (debugIdbShowLogs) {
-            print('delete $entity content');
-          }
-          if (entity.hasPageSize && idbSupportsV2Format) {
-            await storage.txnDeleteFileDataV2(txn, fileId);
-          } else {
-            await storage.txnDeleteFileDataV1(txn, fileId);
-          }
-        }
-      } else {
-        // devPrint('wrilte all ${content.length}');
-        // New in 2020/11/1
-        var bytes = anyListAsUint8List(content);
-
-        entity.modified = DateTime.now();
-        entity.pageSize = idbSupportsV2Format ? storage.pageSize : 0;
-        await _fs.txnWriteNodeFileContent(txn, entity, bytes);
-      }
+      txn = _fs._db!.writeAllTransactionList();
+      var ctlr = TxnWriteStreamSinkIdb(_fs, txn, entity, mode);
+      ctlr.add(content);
+      await ctlr.close();
     } finally {
       await txn.completed;
     }
@@ -391,9 +362,11 @@ class IdbFileSystem extends Object
           throw idbNotADirectoryException(
               result.path, 'Creation failed - parent not a directory');
         }
-        // create it!
+
+        /// create the file.
         entity = Node(parent, segments.last, fs.FileSystemEntityType.file,
-            DateTime.now(), 0);
+            DateTime.now(), 0,
+            pageSize: idbOptions.expectedPageSize);
         //print('adding ${entity}');
         return store.add(entity!.toMap()).then((dynamic id) {
           entity!.id = id as int;
@@ -816,14 +789,13 @@ class IdbFileSystem extends Object
     });
   }
 
-  StreamSink<List<int>> openWrite(String path,
+  StreamSink<List<int>> openWrite(File file,
       {fs.FileMode mode = fs.FileMode.write}) {
     if (mode == fs.FileMode.read) {
       throw ArgumentError("Invalid file mode '$mode' for this operation");
     }
-    path = idbMakePathAbsolute(path);
 
-    final sink = IdbWriteStreamSink(this, path, mode);
+    final sink = IdbWriteStreamSink(this, file, mode);
 
     return sink;
   }
@@ -869,14 +841,49 @@ class IdbFileSystem extends Object
   }
 
 */
+
+  /// Open a node file content ready to use.
+  ///
+  /// in write mode, convert if needed
+  Future<Node> txnOpenNodeFile(idb.Transaction txn, File file,
+      {FileMode mode = FileMode.read}) async {
+    var treeStore = txn.objectStore(treeStoreName);
+    var segments = getSegments(idbMakePathAbsolute(file.path));
+    var node = await txnOpenNode(treeStore, segments, mode: mode);
+    // convert?
+    var expectedPageSize = idbOptions.expectedPageSize;
+    var nodePageSize = node.filePageSize;
+    if (nodePageSize != expectedPageSize) {
+      if (debugIdbShowLogs) {
+        print('Read pageSize $nodePageSize expected $expectedPageSize');
+      }
+
+      /// Only in write/append mode
+      if (mode != FileMode.read) {
+        var readCtrl =
+            TxnNodeDataReadStreamCtlr(this, txn, node, 0, node.fileSize);
+        var newNode = node.clone(pageSize: expectedPageSize);
+        var writeCtlr =
+            TxnWriteStreamSinkIdb(this, txn, newNode, fs.FileMode.write);
+        await writeCtlr.addStream(readCtrl.stream);
+        // Delete previous
+        await txnDeleteFileContent(txn, node);
+        await writeCtlr.close();
+
+        return newNode;
+      }
+    }
+    return node;
+  }
+
   Future<RandomAccessFile> open(File file,
       {FileMode mode = FileMode.read}) async {
     await _ready;
-    var segments = getSegments(file.path);
     final txn = storage.db!.openNodeTreeTransaction(mode: mode);
-    var treeStore = txn.objectStore(treeStoreName);
 
-    var node = await txnOpenNode(treeStore, segments, mode: mode);
+    var node = await txnOpenNodeFile(txn, file, mode: mode);
+
+    await txn.completed;
 
     final raf = RandomAccessFileIdb(mode: mode, file: file, fileEntity: node);
     return raf;
@@ -1049,6 +1056,15 @@ extension FileSystemInternalIdbExt on FileSystemIdb {
       return await storage.txnSetFileDataV2(txn, entity, bytes);
     } else {
       return await storage.txnSetFileDataV1(txn, entity, bytes);
+    }
+  }
+
+  Future<void> txnDeleteFileContent(idb.Transaction txn, Node entity) async {
+    var fileId = entity.fileId;
+    if (entity.hasPageSize && idbSupportsV2Format) {
+      await storage.txnDeleteFileDataV2(txn, fileId);
+    } else {
+      await storage.txnDeleteFileDataV1(txn, fileId);
     }
   }
 

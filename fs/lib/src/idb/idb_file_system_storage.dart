@@ -184,6 +184,26 @@ class IdbFileSystemStorage {
     await fileStore.delete(fileId);
   }
 
+  Future<Node> txnUpdateFileMetaSize(idb.Transaction txn, Node treeEntity,
+      {required int size}) async {
+    var treeStore = txn.objectStore(treeStoreName);
+    return await txnStoreUpdateFileMetaSize(treeStore, treeEntity, size: size);
+  }
+
+  Future<Node> txnStoreUpdateFileMetaSize(
+      idb.ObjectStore treeStore, Node treeEntity,
+      {required int size}) async {
+    var newTreeEntity = treeEntity.clone(
+        pageSize: treeEntity.pageSize,
+        size: size,
+        modified: DateTime.now().toUtc());
+    if (debugIdbShowLogs) {
+      print('put clone ${logTruncateAny(newTreeEntity)}');
+    }
+    await treeStore.put(newTreeEntity.toMap(), treeEntity.fileId);
+    return newTreeEntity;
+  }
+
   /// Set the content of a file and update meta.
   Future<Node> txnSetFileDataV1(
       idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
@@ -193,16 +213,11 @@ class IdbFileSystemStorage {
     if (debugIdbShowLogs) {
       print('put file ${treeEntity.id} content size ${bytes.length}');
     }
-    await fileStore.put(bytes, treeEntity.id);
 
-    // update size
-    var treeStore = txn.objectStore(treeStoreName);
-    var newTreeEntity = treeEntity.clone(pageSize: 0, size: bytes.length);
-    if (debugIdbShowLogs) {
-      print('put clone ${logTruncateAny(newTreeEntity)}');
-    }
-    await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
-    return newTreeEntity;
+    await fileStore.put(bytes, treeEntity.id);
+    treeEntity = treeEntity.clone(pageSize: 0);
+
+    return await txnUpdateFileMetaSize(txn, treeEntity, size: bytes.length);
   }
 
   int _pageCountFromSize(int size) =>
@@ -310,12 +325,8 @@ class IdbFileSystemStorage {
     var newTreeEntity =
         treeEntity.clone(pageSize: pageSize, size: bytes.length);
 
-    var treeStore = txn.objectStore(treeStoreName);
-    if (debugIdbShowLogs) {
-      print('put entity ${logTruncateAny(newTreeEntity)}');
-    }
-    await treeStore.put(newTreeEntity.toMap(), treeEntity.id);
-    return newTreeEntity;
+    return await txnUpdateFileMetaSize(txn, newTreeEntity,
+        size: newTreeEntity.fileSize);
   }
 
   /// For the given [parent] find the child named [name]
@@ -712,12 +723,13 @@ class Node {
   @override
   int get hashCode => id!;
 
-  Node clone({int? pageSize, int? size}) => Node.node(type, parent, name,
-      pageSize: pageSize ?? this.pageSize,
-      id: id,
-      modified: modified,
-      size: size ?? this.size,
-      targetSegments: targetSegments);
+  Node clone({int? pageSize, int? size, DateTime? modified}) =>
+      Node.node(type, parent, name,
+          pageSize: pageSize ?? this.pageSize,
+          id: id,
+          modified: modified ?? this.modified,
+          size: size ?? this.size,
+          targetSegments: targetSegments);
 }
 
 class NodeSearchResult {

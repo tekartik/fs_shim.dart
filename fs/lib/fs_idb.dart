@@ -31,9 +31,15 @@ class FileSystemIdbOptions {
 
 /// Internal options helper.
 @visibleForTesting
-extension FileSystemIdbOptionExt on FileSystemIdbOptions {
+extension FileSystemIdbOptionsExt on FileSystemIdbOptions {
   /// True if it as page size options
   bool get hasPageSize => (pageSize ?? 0) != 0;
+
+  /// 0 for none
+  int get filePageSize => pageSize ?? 0;
+
+  /// Expected page size when writing.
+  int get expectedPageSize => idbSupportsV2Format ? filePageSize : 0;
 }
 
 ///

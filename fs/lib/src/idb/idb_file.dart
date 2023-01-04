@@ -27,7 +27,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
   StreamSink<List<int>> openWrite(
           {fs.FileMode mode = fs.FileMode.write, Encoding encoding = utf8}) //
       =>
-      _fs.openWrite(path, mode: mode);
+      _fs.openWrite(this, mode: mode);
 
   @override
   Stream<Uint8List> openRead([int? start, int? end]) =>

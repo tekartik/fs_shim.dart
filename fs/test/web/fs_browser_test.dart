@@ -50,6 +50,8 @@ IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =
 
 void main() {
   group('idb_browser', () {
+    fsIdbMultiFormatGroup(idbFactoryNative);
+
     fsIdbFormatGroup(idbFactoryNative);
     fsIdbFormatV1Group(idbFactoryNative);
     // All tests

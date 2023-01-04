@@ -6,6 +6,7 @@ import 'package:fs_shim/src/common/fs_random_access_file_none.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:idb_shim/idb.dart' as idb;
 
 /// Io RandomAccessFile implementation.
 class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
@@ -23,12 +24,15 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
   /// Internal storage
   // IdbFileSystemStorage get _storage => _fs.storage;
 
-  /// initial position
-  var _position = 0;
+  /// initial position (0 or length for append), then updated
+  late int _position;
 
   /// Idb implementation
   RandomAccessFileIdb(
-      {required this.file, required this.fileEntity, required this.mode});
+      {required this.file, required this.fileEntity, required this.mode}) {
+    // set correct position in append mode
+    _position = mode == FileMode.append ? fileEntity.fileSize : 0;
+  }
 
   RandomAccessFileIdb get _me => this;
 
@@ -129,32 +133,38 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
   Future<RandomAccessFile> writeFrom(List<int> buffer,
       [int start = 0, int? end]) async {
     //devPrint('write($start to $end): ${logTruncateAny(buffer)}');
-    var txn = _fs.writeAllTransactionList();
-    var bytes = await _fs.txnReadNodeFileContent(txn, fileEntity);
-    var bytesBuilder = BytesBuilder();
-    if (_position > 0) {
-      if (bytes.length >= _position) {
-        bytesBuilder.add(bytes.sublist(0, _position));
-      } else {
-        bytesBuilder.add(bytes);
-        bytesBuilder.add(List.generate(_position - bytes.length, (index) => 0));
+    idb.Transaction? txn;
+    try {
+      txn = _fs.writeAllTransactionList();
+      var bytes = await _fs.txnReadNodeFileContent(txn, fileEntity);
+      var bytesBuilder = BytesBuilder();
+      if (_position > 0) {
+        if (bytes.length >= _position) {
+          bytesBuilder.add(bytes.sublist(0, _position));
+        } else {
+          bytesBuilder.add(bytes);
+          bytesBuilder
+              .add(List.generate(_position - bytes.length, (index) => 0));
+        }
       }
-    }
-    bytesBuilder.add(buffer.sublist(start, end));
-    _position = bytesBuilder.length;
-    if (_position < bytes.length) {
-      bytesBuilder.add(bytes.sublist(_position));
-    }
+      bytesBuilder.add(buffer.sublist(start, end));
+      _position = bytesBuilder.length;
+      if (_position < bytes.length) {
+        bytesBuilder.add(bytes.sublist(_position));
+      }
 
-    fileEntity = await _fs.txnWriteNodeFileContent(
-        txn, fileEntity, bytesBuilder.toBytes());
-    return _me;
+      fileEntity = await _fs.txnWriteNodeFileContent(
+          txn, fileEntity, bytesBuilder.toBytes());
+      return _me;
+    } finally {
+      await txn?.completed;
+    }
   }
 
   @override
   Future<RandomAccessFile> writeString(String string,
       {Encoding encoding = utf8}) async {
     var bytes = asUint8List(encoding.encode(string));
-    return await writeFrom(bytes, _position);
+    return await writeFrom(bytes);
   }
 }
