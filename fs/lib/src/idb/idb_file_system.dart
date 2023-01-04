@@ -96,10 +96,11 @@ class IdbWriteStreamSink extends MemorySink {
   final IdbFileSystem _fs;
 
   IdbFileSystemStorage get storage => _fs._storage;
-  String path;
+  final fs.File file;
+
   fs.FileMode mode;
 
-  IdbWriteStreamSink(this._fs, this.path, this.mode) : super();
+  IdbWriteStreamSink(this._fs, this.file, this.mode) : super();
 
   @override
   Future close() async {
@@ -107,43 +108,18 @@ class IdbWriteStreamSink extends MemorySink {
 
     await _fs._ready;
 
-    final txn = _fs._db!.writeAllTransactionList();
-    final treeStore = txn.objectStore(treeStoreName);
+    var txn = _fs._db!.writeAllTransactionList();
 
     try {
       // Try to find the file if it exists
-      final segments = getSegments(path);
-      var entity = await _fs.txnOpenNode(treeStore, segments, mode: mode);
 
-      var existingSize = entity.fileSize;
+      var entity = await _fs.txnOpenNodeFile(txn, file, mode: mode);
+      await txn.completed;
 
-      // get existing content
-      var bytesBuilder = BytesBuilder();
-      if (mode == fs.FileMode.write || existingSize == 0) {
-        // was created or existing
-      } else {
-        bytesBuilder.add(await _fs.txnReadNodeFileContent(txn, entity));
-      }
-
-      bytesBuilder.add(this.content);
-      var content = bytesBuilder.toBytes();
-      if (content.isEmpty) {
-        if (existingSize > 0) {
-          if (debugIdbShowLogs) {
-            print('delete $entity content');
-          }
-          await _fs.txnDeleteFileContent(txn, entity);
-          await storage.txnUpdateFileMetaSize(txn, entity, size: 0);
-        }
-      } else {
-        // devPrint('wrilte all ${content.length}');
-        // New in 2020/11/1
-        var bytes = anyListAsUint8List(content);
-
-        entity.modified = DateTime.now();
-        entity.pageSize = idbSupportsV2Format ? storage.pageSize : 0;
-        await _fs.txnWriteNodeFileContent(txn, entity, bytes);
-      }
+      txn = _fs._db!.writeAllTransactionList();
+      var ctlr = TxnWriteStreamSinkIdb(_fs, txn, entity, mode);
+      ctlr.add(content);
+      await ctlr.close();
     } finally {
       await txn.completed;
     }
@@ -813,14 +789,13 @@ class IdbFileSystem extends Object
     });
   }
 
-  StreamSink<List<int>> openWrite(String path,
+  StreamSink<List<int>> openWrite(File file,
       {fs.FileMode mode = fs.FileMode.write}) {
     if (mode == fs.FileMode.read) {
       throw ArgumentError("Invalid file mode '$mode' for this operation");
     }
-    path = idbMakePathAbsolute(path);
 
-    final sink = IdbWriteStreamSink(this, path, mode);
+    final sink = IdbWriteStreamSink(this, file, mode);
 
     return sink;
   }
@@ -873,7 +848,7 @@ class IdbFileSystem extends Object
   Future<Node> txnOpenNodeFile(idb.Transaction txn, File file,
       {FileMode mode = FileMode.read}) async {
     var treeStore = txn.objectStore(treeStoreName);
-    var segments = getSegments(file.path);
+    var segments = getSegments(idbMakePathAbsolute(file.path));
     var node = await txnOpenNode(treeStore, segments, mode: mode);
     // convert?
     var expectedPageSize = idbOptions.expectedPageSize;

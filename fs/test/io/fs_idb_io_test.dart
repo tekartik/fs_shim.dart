@@ -43,6 +43,7 @@ IdbIoFileSystemTestContext _idbIoFileSystemContext =
 void main() {
   group('idb_io', () {
     // All tests
+    fsIdbMultiFormatGroup(_idbFactory);
     fsIdbFormatGroup(_idbFactory);
     fsIdbFormatV1Group(_idbFactory);
 

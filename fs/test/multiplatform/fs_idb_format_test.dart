@@ -19,13 +19,263 @@ import 'test_common.dart';
 //import 'test_common.dart';
 
 void main() {
-  fsIdbFormatGroup(idbFactoryMemory);
+  fsIdbMultiFormatGroup(idbFactoryMemory);
   // if (devWarning(false)) {
+  fsIdbFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 2));
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 1024));
   // }
+}
+
+void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
+  group('multi format', () {
+    test('random access open no page, append pageSize 2 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'multi_format.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: FileSystemIdbOptions.noPage);
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write);
+      await raf.writeString('hello');
+      await raf.close();
+      fs.close();
+      var db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), []);
+      expect(await getFileEntries(db), [
+        {
+          'key': 2,
+          'value': [104, 101, 108, 108, 111]
+        }
+      ]);
+
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      file = fs.file('test.txt');
+      raf = await file.open(mode: FileMode.append);
+      await raf.close();
+      fs.close();
+      db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), [
+        {
+          'key': 1,
+          'value': {
+            'index': 0,
+            'file': 2,
+            'content': [104, 101]
+          }
+        },
+        {
+          'key': 2,
+          'value': {
+            'index': 1,
+            'file': 2,
+            'content': [108, 108]
+          }
+        },
+        {
+          'key': 3,
+          'value': {
+            'index': 2,
+            'file': 2,
+            'content': [111]
+          }
+        },
+      ]);
+
+      expect(await getFileEntries(db), []);
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      file = fs.file('test.txt');
+      raf = await file.open(mode: FileMode.append);
+      await raf.writeString('world');
+      await raf.close();
+      expect(await file.readAsString(), 'helloworld');
+      fs.close();
+      db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), [
+        {
+          'key': 1,
+          'value': {
+            'index': 0,
+            'file': 2,
+            'content': [104, 101]
+          }
+        },
+        {
+          'key': 2,
+          'value': {
+            'index': 1,
+            'file': 2,
+            'content': [108, 108]
+          }
+        },
+        {
+          'key': 3,
+          'value': {
+            'index': 2,
+            'file': 2,
+            'content': [111, 119]
+          }
+        },
+        {
+          'key': 4,
+          'value': {
+            'index': 3,
+            'file': 2,
+            'content': [111, 114]
+          }
+        },
+        {
+          'key': 5,
+          'value': {
+            'index': 4,
+            'file': 2,
+            'content': [108, 100]
+          }
+        }
+      ]);
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: FileSystemIdbOptions.noPage);
+      file = fs.file('test.txt');
+      raf = await file.open(mode: FileMode.append);
+      await raf.close();
+      expect(await file.readAsString(), 'helloworld');
+      fs.close();
+      db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), []);
+      expect(await getFileEntries(db), [
+        {
+          'key': 2,
+          'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100]
+        }
+      ]);
+    });
+    test('stream access open no page, append pageSize 2 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'multi_format_stream.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: FileSystemIdbOptions.noPage);
+      var file = fs.file('test.txt');
+      var raf = file.openWrite(mode: FileMode.write);
+      raf.add(utf8.encode('hello'));
+      await raf.close();
+      fs.close();
+      var db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), []);
+      expect(await getFileEntries(db), [
+        {
+          'key': 2,
+          'value': [104, 101, 108, 108, 111]
+        }
+      ]);
+
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      file = fs.file('test.txt');
+      raf = file.openWrite(mode: FileMode.append);
+      await raf.close();
+      fs.close();
+      db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), [
+        {
+          'key': 1,
+          'value': {
+            'index': 0,
+            'file': 2,
+            'content': [104, 101]
+          }
+        },
+        {
+          'key': 2,
+          'value': {
+            'index': 1,
+            'file': 2,
+            'content': [108, 108]
+          }
+        },
+        {
+          'key': 3,
+          'value': {
+            'index': 2,
+            'file': 2,
+            'content': [111]
+          }
+        },
+      ]);
+
+      expect(await getFileEntries(db), []);
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      file = fs.file('test.txt');
+      raf = file.openWrite(mode: FileMode.append);
+      raf.add(utf8.encode('world'));
+      await raf.close();
+      expect(await file.readAsString(), 'helloworld');
+      fs.close();
+      db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), [
+        {
+          'key': 1,
+          'value': {
+            'index': 0,
+            'file': 2,
+            'content': [104, 101]
+          }
+        },
+        {
+          'key': 2,
+          'value': {
+            'index': 1,
+            'file': 2,
+            'content': [108, 108]
+          }
+        },
+        {
+          'key': 3,
+          'value': {
+            'index': 2,
+            'file': 2,
+            'content': [111, 119]
+          }
+        },
+        {
+          'key': 4,
+          'value': {
+            'index': 3,
+            'file': 2,
+            'content': [111, 114]
+          }
+        },
+        {
+          'key': 5,
+          'value': {
+            'index': 4,
+            'file': 2,
+            'content': [108, 100]
+          }
+        }
+      ]);
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: FileSystemIdbOptions.noPage);
+      file = fs.file('test.txt');
+      raf = file.openWrite(mode: FileMode.append);
+      await raf.close();
+      expect(await file.readAsString(), 'helloworld');
+      fs.close();
+      db = await idbFactory.open(dbName);
+      expect(await getPartEntries(db), []);
+      expect(await getFileEntries(db), [
+        {
+          'key': 2,
+          'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100]
+        }
+      ]);
+    });
+  });
 }
 
 void fsIdbFormatGroup(idb.IdbFactory idbFactory,
@@ -453,128 +703,6 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
     fs = IdbFileSystem(idbFactory, dbNameImported);
     await fsCheckComplex1(fs);
     fs.close();
-  });
-  group('multi format', () {
-    test('open no page, append pageSize 2 bytes', () async {
-      // debugIdbShowLogs = devWarning(true);
-      var dbName = 'multi_format.db';
-      await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: FileSystemIdbOptions.noPage);
-      var file = fs.file('test.txt');
-      var raf = await file.open(mode: FileMode.write);
-      await raf.writeString('hello');
-      await raf.close();
-      fs.close();
-      var db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), []);
-      expect(await getFileEntries(db), [
-        {
-          'key': 2,
-          'value': [104, 101, 108, 108, 111]
-        }
-      ]);
-
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
-      file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
-      await raf.close();
-      fs.close();
-      db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), [
-        {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
-        },
-        {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
-        },
-        {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111]
-          }
-        },
-      ]);
-
-      expect(await getFileEntries(db), []);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
-      file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
-      await raf.writeString('world');
-      await raf.close();
-      fs.close();
-      db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), [
-        {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
-        },
-        {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
-        },
-        {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111, 119]
-          }
-        },
-        {
-          'key': 4,
-          'value': {
-            'index': 3,
-            'file': 2,
-            'content': [111, 114]
-          }
-        },
-        {
-          'key': 5,
-          'value': {
-            'index': 4,
-            'file': 2,
-            'content': [108, 100]
-          }
-        }
-      ]);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: FileSystemIdbOptions.noPage);
-      file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
-      await raf.close();
-      fs.close();
-      db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), []);
-      expect(await getFileEntries(db), [
-        {
-          'key': 2,
-          'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100]
-        }
-      ]);
-    });
   });
 }
 
