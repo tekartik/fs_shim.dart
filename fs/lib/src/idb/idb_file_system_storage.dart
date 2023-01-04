@@ -7,6 +7,7 @@ import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/import.dart'; // ignore: unnecessary_import
 import 'package:fs_shim/src/common/log_utils.dart';
+import 'package:fs_shim/src/idb/idb_file_system_exception.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/utils/idb_utils.dart';
 
@@ -327,6 +328,24 @@ class IdbFileSystemStorage {
 
     return await txnUpdateFileMetaSize(txn, newTreeEntity,
         size: newTreeEntity.fileSize);
+  }
+
+  Node nodeFromMap(Node parent, int id, dynamic map) {
+    final entity =
+        Node.fromMap(parent, (map as Map).cast<String, Object?>(), id);
+    if (debugIdbShowLogs) {
+      print('nodeFromMap($id, $map)');
+    }
+    return entity;
+  }
+
+  Future<Node> nodeFromNode(idb.ObjectStore treeStore, File file, Node node) {
+    return treeStore.getObject(node.fileId).then((value) {
+      if (value == null) {
+        throw idbNotFoundException(file.path, 'node ${node.id} not found');
+      }
+      return nodeFromMap(node.parent!, node.fileId, value as Map);
+    });
   }
 
   /// For the given [parent] find the child named [name]

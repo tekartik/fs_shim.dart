@@ -11,14 +11,17 @@ import 'idb_file_system_storage.dart';
 ///
 /// Must be read, right away/
 class TxnNodeDataReadStreamCtlr {
+  /// The opened file.
+  final File file;
+
   /// File entity.
-  final Node fileEntity;
+  Node fileEntity;
 
   /// Transaction.
   final idb.Transaction txn;
 
   /// File system.
-  final FileSystemIdb fs;
+  FileSystemIdb get fs => file.fs as FileSystemIdb;
 
   /// Start of read.
   int? start;
@@ -30,11 +33,14 @@ class TxnNodeDataReadStreamCtlr {
 
   /// Read in transaction controller.
   TxnNodeDataReadStreamCtlr(
-      this.fs, this.txn, this.fileEntity, this.start, this.end) {
+      this.file, this.txn, this.fileEntity, this.start, this.end) {
     _ctlr = StreamController(
         sync: true,
         onListen: () async {
-          var content = await fs.txnReadNodeFileContent(txn, fileEntity);
+          var result =
+              await fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+          fileEntity = result.entity;
+          var content = result.content;
 
           // get existing content
           //store = txn.objectStore(fileStoreName);

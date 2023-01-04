@@ -31,7 +31,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
 
   @override
   Stream<Uint8List> openRead([int? start, int? end]) =>
-      _fs.openRead(path, start, end);
+      _fs.openRead(this, start, end);
 
   @override
   Future<RandomAccessFile> open({FileMode mode = FileMode.read}) =>
@@ -44,7 +44,7 @@ class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
 
   @override
   Future<IdbFile> copy(String newPath) {
-    return _fs.copyFile(path, newPath).then((_) => IdbFile(_fs, newPath));
+    return _fs.copyFile(this, newPath).then((_) => IdbFile(_fs, newPath));
   }
 
   @override

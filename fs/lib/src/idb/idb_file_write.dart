@@ -12,8 +12,11 @@ import 'idb_file_system_storage.dart';
 
 /// Write in transaction controller.
 class TxnWriteStreamSinkIdb extends MemorySink {
+  /// The file.
+  final fs.File file;
+
   /// The file system.
-  final IdbFileSystem _fs;
+  FileSystemIdb get _fs => file.fs as FileSystemIdb;
 
   /// Transaction.
   final idb.Transaction txn;
@@ -28,7 +31,7 @@ class TxnWriteStreamSinkIdb extends MemorySink {
   fs.FileMode mode;
 
   /// Write sink in transaction.
-  TxnWriteStreamSinkIdb(this._fs, this.txn, this.fileEntity, this.mode)
+  TxnWriteStreamSinkIdb(this.file, this.txn, this.fileEntity, this.mode)
       : super();
 
   @override
@@ -44,7 +47,11 @@ class TxnWriteStreamSinkIdb extends MemorySink {
       if (mode == fs.FileMode.write || existingSize == 0) {
         // was created or existing
       } else {
-        bytesBuilder.add(await _fs.txnReadNodeFileContent(txn, entity));
+        var result =
+            await _fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+        entity = result.entity;
+        var bytes = result.content;
+        bytesBuilder.add(bytes);
       }
 
       bytesBuilder.add(this.content);

@@ -4,6 +4,8 @@
 library fs_shim.test.fs_shim_file_test;
 
 // ignore_for_file: unnecessary_import
+import 'dart:typed_data';
+
 import 'package:fs_shim/fs.dart';
 
 import 'test_common.dart';
@@ -113,6 +115,32 @@ void defineTests(FileSystemTestContext ctx) {
       await randomAccessFile.close();
 
       expect(await file.readAsString(), 'helloworld');
+    });
+
+    test('no flush', () async {
+      // debugIdbShowLogs = devWarning(true);
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'no_flush');
+      final file = fs.file(filePath);
+      var randomAccessFile = await file.open(mode: FileMode.write);
+      var rafRead = await file.open(mode: FileMode.read);
+      var buffer = Uint8List(5);
+      await randomAccessFile.writeString('hello');
+      expect(await rafRead.length(), 5);
+
+      unawaited(randomAccessFile.writeString('world'));
+      expect(await rafRead.readInto(buffer), 5);
+      expect(utf8.decode(buffer), 'hello');
+      await randomAccessFile.close();
+
+      /*
+      randomAccessFile = await file.open(mode: FileMode.append);
+      await randomAccessFile.writeString('world');
+      await randomAccessFile.close();
+
+      expect(await file.readAsString(), 'helloworld');
+
+       */
     });
     test('complex read/write', () async {
       final directory = await ctx.prepare();

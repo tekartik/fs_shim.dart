@@ -43,15 +43,15 @@ List<String> _getTargetSegments(String path) {
 }
 
 class IdbReadStreamCtlr {
-  final IdbFileSystem _fs;
-  String path;
+  FileSystemIdb get _fs => file.fs as FileSystemIdb;
+  final File file;
   int? start;
   int? end;
 
   IdbFileSystemStorage get storage => _fs._storage;
   late StreamController<Uint8List> _ctlr;
 
-  IdbReadStreamCtlr(this._fs, this.path, this.start, this.end) {
+  IdbReadStreamCtlr(this.file, this.start, this.end) {
     _ctlr = StreamController(sync: true);
 
     // put data
@@ -61,13 +61,14 @@ class IdbReadStreamCtlr {
 
       try {
         // Try to find the file if it exists
-        final segments = getSegments(path);
+        final segments = getSegments(idbMakePathAbsolute(file.path));
         try {
-          final entity = await _fs.txnOpenNode(treeStore, segments,
+          var entity = await _fs.txnOpenNode(treeStore, segments,
               mode: fs.FileMode.read);
 
-          var content = await _fs.txnReadNodeFileContent(txn, entity);
-
+          var result = await _fs.txnReadCheckNodeFileContent(txn, file, entity);
+          entity = result.entity;
+          var content = result.content;
           // get existing content
           //store = txn.objectStore(fileStoreName);
           //var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
@@ -115,9 +116,8 @@ class IdbWriteStreamSink extends MemorySink {
 
       var entity = await _fs.txnOpenNodeFile(txn, file, mode: mode);
       await txn.completed;
-
       txn = _fs._db!.writeAllTransactionList();
-      var ctlr = TxnWriteStreamSinkIdb(_fs, txn, entity, mode);
+      var ctlr = TxnWriteStreamSinkIdb(file, txn, entity, mode);
       ctlr.add(content);
       await ctlr.close();
     } finally {
@@ -697,9 +697,9 @@ class IdbFileSystem extends Object
     return await target;
   }
 
-  Future copyFile(String path, String newPath) async {
+  Future copyFile(File file, String newPath) async {
     await _ready;
-    final segments = getSegments(path);
+    final segments = getSegments(file.path);
     final newSegments = getSegments(newPath);
 
     final modified = DateTime.now();
@@ -713,27 +713,28 @@ class IdbFileSystem extends Object
       var newEntity = newResult.match;
 
       if (entity == null) {
-        throw throw idbNotFoundException(path, 'Copy failed');
+        throw throw idbNotFoundException(file.path, 'Copy failed');
       }
 
       if (newEntity != null) {
         // Same type ok
         if (newEntity.type != entity.type) {
           if (entity.type == fs.FileSystemEntityType.directory) {
-            throw idbNotADirectoryException(path, 'Copy failed');
+            throw idbNotADirectoryException(file.path, 'Copy failed');
           } else {
-            throw idbIsADirectoryException(path, 'Copy failed');
+            throw idbIsADirectoryException(file.path, 'Copy failed');
           }
         }
       } else {
         // check destination (parent folder must exists)
         if (newResult.depthDiff > 1) {
-          throw idbNotFoundException(path, 'Copy failed');
+          throw idbNotFoundException(file.path, 'Copy failed');
         }
 
         final newParent = newResult.highest; // highest is the parent at depth 1
         newEntity = Node(newParent, newSegments.last,
-            fs.FileSystemEntityType.file, modified, 0);
+            fs.FileSystemEntityType.file, modified, 0,
+            pageSize: idbOptions.expectedPageSize);
         // add file
         newEntity.id = await store.add(newEntity.toMap()) as int;
       }
@@ -741,10 +742,11 @@ class IdbFileSystem extends Object
       // update content
       store = txn.objectStore(fileStoreName);
 
-      var data = await txnReadNodeFileContent(txn, entity);
+      var result = await txnReadCheckNodeFileContent(txn, file, entity);
 
       // get original
-      await txnWriteNodeFileContent(txn, newEntity, anyListAsUint8List(data));
+      await txnWriteNodeFileContent(
+          txn, newEntity, anyListAsUint8List(result.content));
     } finally {
       await txn.completed;
     }
@@ -861,10 +863,10 @@ class IdbFileSystem extends Object
       /// Only in write/append mode
       if (mode != FileMode.read) {
         var readCtrl =
-            TxnNodeDataReadStreamCtlr(this, txn, node, 0, node.fileSize);
+            TxnNodeDataReadStreamCtlr(file, txn, node, 0, node.fileSize);
         var newNode = node.clone(pageSize: expectedPageSize);
         var writeCtlr =
-            TxnWriteStreamSinkIdb(this, txn, newNode, fs.FileMode.write);
+            TxnWriteStreamSinkIdb(file, txn, newNode, fs.FileMode.write);
         await writeCtlr.addStream(readCtrl.stream);
         // Delete previous
         await txnDeleteFileContent(txn, node);
@@ -889,9 +891,8 @@ class IdbFileSystem extends Object
     return raf;
   }
 
-  Stream<Uint8List> openRead(String path, int? start, int? end) {
-    path = idbMakePathAbsolute(path);
-    final ctlr = IdbReadStreamCtlr(this, path, start, end);
+  Stream<Uint8List> openRead(File file, int? start, int? end) {
+    final ctlr = IdbReadStreamCtlr(file, start, end);
     /*
     MemoryFileSystemEntityImpl fileImpl = getEntity(path);
     // if it exists we're fine
@@ -1068,16 +1069,10 @@ extension FileSystemInternalIdbExt on FileSystemIdb {
     }
   }
 
+  @Deprecated('Use txnReadAndNodeFileContent')
   Future<Uint8List> txnReadNodeFileContent(
       idb.Transaction txn, Node entity) async {
-    Uint8List content;
-
-    var fileId = entity.fileId;
-    if (entity.hasPageSize) {
-      content = await storage.txnGetFileDataV2(txn, fileId);
-    } else {
-      content = await storage.txnGetFileDataV1(txn, fileId);
-    }
+    var content = await txnRawReadNodeFileContent(txn, entity);
     if (isDebug) {
       if (content.length != entity.fileSize) {
         print(
@@ -1091,4 +1086,43 @@ extension FileSystemInternalIdbExt on FileSystemIdb {
 
     return content;
   }
+
+  Future<FileEntityContent> txnReadCheckNodeFileContent(
+      idb.Transaction txn, File file, Node entity) async {
+    var content = await txnRawReadNodeFileContent(txn, entity);
+
+    if (content.length != entity.fileSize) {
+      // read node again
+      entity = await storage.nodeFromNode(
+          txn.objectStore(treeStoreName), file, entity);
+      content = await txnRawReadNodeFileContent(txn, entity);
+    }
+
+    // Safe guard for bad storage
+    if (entity.fileSize < content.length) {
+      content = content.sublist(0, entity.fileSize);
+    }
+
+    return FileEntityContent(entity, content);
+  }
+
+  Future<Uint8List> txnRawReadNodeFileContent(
+      idb.Transaction txn, Node entity) async {
+    Uint8List content;
+
+    var fileId = entity.fileId;
+    if (entity.hasPageSize) {
+      content = await storage.txnGetFileDataV2(txn, fileId);
+    } else {
+      content = await storage.txnGetFileDataV1(txn, fileId);
+    }
+    return content;
+  }
+}
+
+class FileEntityContent {
+  final Node entity;
+  final Uint8List content;
+
+  FileEntityContent(this.entity, this.content);
 }

@@ -54,6 +54,9 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
 
   @override
   Future<int> length() async {
+    var txn = _fs.db!.transaction(treeStoreName, idb.idbModeReadOnly);
+    fileEntity = await _fs.storage
+        .nodeFromNode(txn.objectStore(treeStoreName), file, fileEntity);
     return fileEntity.fileSize;
   }
 
@@ -67,8 +70,9 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
   Future<Uint8List> read(int count) async {
     var txn = _fs.writeAllTransactionList();
     //devPrint('read(index $_position, $count bytes) $fileEntity');
-    var bytes = await _fs.txnReadNodeFileContent(txn, fileEntity);
-
+    var result = await _fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+    fileEntity = result.entity;
+    var bytes = result.content;
     var remaining = bytes.length - _position;
     if (remaining < 0 || count == 0) {
       return Uint8List(0);
@@ -88,7 +92,10 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
   @override
   Future<int> readInto(List<int> buffer, [int start = 0, int? end]) async {
     var txn = _fs.writeAllTransactionList();
-    var bytes = await _fs.txnReadNodeFileContent(txn, fileEntity);
+
+    var result = await _fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+    fileEntity = result.entity;
+    var bytes = result.content;
     var remaining = bytes.length - _position;
     if (remaining < 0) {
       return 0;
@@ -109,7 +116,10 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
   @override
   Future<RandomAccessFile> truncate(int length) async {
     var txn = _fs.writeAllTransactionList();
-    var bytes = await _fs.txnReadNodeFileContent(txn, fileEntity);
+    var result = await _fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+    fileEntity = result.entity;
+    var bytes = result.content;
+
     if (length != bytes.length) {
       if (length < bytes.length) {
         bytes = bytes.sublist(0, length);
@@ -136,7 +146,9 @@ class RandomAccessFileIdb with DefaultRandomAccessFileMixin {
     idb.Transaction? txn;
     try {
       txn = _fs.writeAllTransactionList();
-      var bytes = await _fs.txnReadNodeFileContent(txn, fileEntity);
+      var result = await _fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+      fileEntity = result.entity;
+      var bytes = result.content;
       var bytesBuilder = BytesBuilder();
       if (_position > 0) {
         if (bytes.length >= _position) {
