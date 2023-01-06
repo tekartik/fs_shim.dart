@@ -18,9 +18,13 @@ import 'idb_paging.dart';
 /// Default page size
 const defaultPageSize = 16 * 1024;
 
+/// Max part count, adapt your settings.
+const partCountMax = 16777216; // fit on 8 digits
+
 const String treeStoreName = 'tree';
 const String fileStoreName = 'file'; // Whole file content
-const String partStoreName = 'part'; // Page based file content
+const String partStoreName =
+    'part'; // Page based file content, key is $fileId/000000n
 const String nameKey = 'name';
 
 /// That's life to deal with existing
@@ -47,8 +51,10 @@ const String targetKey = 'target'; // Link only
 /// index: <partIndex>
 /// content: <blob>
 
-const String indexKey = 'index'; // part index
-const String fileKey = 'file'; // id in tree
+const partIndexKey = 'index'; // part index
+const partFileKey = 'file'; // part index
+const String indexKey = partIndexKey; // part index
+const String fileKey = partFileKey; // id in tree
 const String contentKey = 'content'; // content in part
 
 const String partFilePartIndexName = '${partStoreName}_$indexKey';
@@ -131,7 +137,9 @@ class IdbFileSystemStorage {
         print('opening $dbPath');
       }
       // version 4: add file store
-      db = await idbFactory.open(dbPath, version: 7,
+      // version 7: add part store v2
+      // version 8: add part store v3
+      db = await idbFactory.open(dbPath, version: 8,
           onUpgradeNeeded: (idb.VersionChangeEvent e) {
         final db = e.database;
         idb.ObjectStore store;
@@ -156,10 +164,13 @@ class IdbFileSystemStorage {
 
           store = db.createObjectStore(fileStoreName);
         }
-        if (e.oldVersion < 7) {
-          store = db.createObjectStore(partStoreName, autoIncrement: true);
-          store.createIndex(partFilePartIndexName, [fileKey, indexKey],
-              unique: true);
+        if (e.oldVersion == 7) {
+          // Sorry! it was in dev only though
+          db.deleteObjectStore(partStoreName);
+        }
+        if (e.oldVersion < 8) {
+          store = db.createObjectStore(partStoreName,
+              keyPath: [partFileKey, partIndexKey]);
         }
       }, onBlocked: (e) {
         print(e);
@@ -231,16 +242,10 @@ class IdbFileSystemStorage {
         toFilePartIndexKey(fileId + 1, 0), false, true);
   }
 
-  idb.KeyRange _updatePartRange(int fileId, List<StreamPartIdb> list) {
-    return idb.KeyRange.bound(toFilePartIndexKey(fileId, list.first.index),
-        toFilePartIndexKey(fileId, list.last.index + 1), false, true);
-  }
-
   Future<Uint8List> txnGetFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
-    var partIndex = partStore.index(partFilePartIndexName);
     var stream =
-        partIndex.openCursor(range: _allPartRange(fileId), autoAdvance: true);
+        partStore.openCursor(range: _allPartRange(fileId), autoAdvance: true);
     var readIndex = -1;
     var bytesList = <Uint8List>[];
     await stream.listen((idb.CursorWithValue cursor) {
@@ -265,8 +270,7 @@ class IdbFileSystemStorage {
 
   Future<void> txnDeleteFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
-    var partIndex = partStore.index(partFilePartIndexName);
-    var stream = partIndex.openKeyCursor(
+    var stream = partStore.openKeyCursor(
         range: _allPartRange(fileId), autoAdvance: true);
     var keys = await keyCursorToPrimaryKeyList(stream);
     for (var key in keys) {
@@ -276,34 +280,28 @@ class IdbFileSystemStorage {
 
   /// Read the content key
   Future<Uint8List> txnStoreGetPartContent(
-      idb.ObjectStore partStore, int partId) async {
-    var partMap = await partStore.getObject(partId);
+      idb.ObjectStore partStore, FilePartRef ref) async {
+    var partMap = await partStore.getObject(ref.toKey());
     if (partMap is Map) {
       return anyAsUint8List(partMap[contentKey]);
     } else {
-      throw StateError('Invalid existing content for partId $partId');
+      throw StateError('Invalid existing content for part $ref');
     }
   }
 
   /// Set or add a given part
-  Future<int> txnStoreSetPart(
-      idb.ObjectStore partStore, int fileId, int partIndex, Uint8List bytes,
-      {required int? partId}) async {
-    var partEntry = {indexKey: partIndex, fileKey: fileId, contentKey: bytes};
-    if (partId != null) {
-      if (debugIdbShowLogs) {
-        print(
-            'put part $fileId/$partIndex/$partId content size ${bytes.length}');
-      }
-      await partStore.put(partEntry, partId);
-    } else {
-      partId = (await partStore.add(partEntry)) as int;
-      if (debugIdbShowLogs) {
-        print(
-            'added file $fileId/$partIndex/$partId content size ${bytes.length}');
-      }
+  Future<void> txnStoreSetPart(
+      idb.ObjectStore partStore, FilePartRef ref, Uint8List bytes) async {
+    var partEntry = {
+      indexKey: ref.index,
+      fileKey: ref.fileId,
+      contentKey: bytes
+    };
+
+    if (debugIdbShowLogs) {
+      print('put part $ref size ${bytes.length}');
     }
-    return partId;
+    await partStore.put(partEntry);
   }
 
   /// Set the content of a file and update meta. return the updated node
@@ -311,6 +309,7 @@ class IdbFileSystemStorage {
       idb.Transaction txn, Node treeEntity, List<StreamPartIdb> parts) async {
     var fileId = treeEntity.id!;
     var partStore = txn.objectStore(partStoreName);
+    /*
     var partIndex = partStore.index(partFilePartIndexName);
     var range = _updatePartRange(fileId, parts);
     var stream = partIndex.openKeyCursor(range: range, autoAdvance: true);
@@ -319,6 +318,7 @@ class IdbFileSystemStorage {
       var partFileIndex = filePartIndexKeyPartIndex(cursor.key);
       map[partFileIndex] = KeyCursorRow(cursor.key, cursor.primaryKey);
     }).asFuture();
+     */
 
     /// Calculate the new file size based on the max position
     var posMax = treeEntity.fileSize;
@@ -329,19 +329,15 @@ class IdbFileSystemStorage {
       var start = part.start;
 
       Uint8List bytes;
-      var kcr = map[part.index];
+      //var kcr = map[part.index];
       // devPrint('index ${part.index}: $kcr');
-      var pk = kcr?.primaryKey as int?;
+      var pk = FilePartRef(fileId, part.index);
 
       if (start == 0 && atEnd) {
         // Write full
         bytes = part.bytes;
       } else {
-        // Read existing
-        if (kcr == null) {
-          throw StateError('Missing part index $partIndex for $fileId');
-        }
-        var existingBytes = await txnStoreGetPartContent(partStore, pk!);
+        var existingBytes = await txnStoreGetPartContent(partStore, pk);
         var end = part.end ?? (start + part.bytes.length);
 
         var bytesBuilder = BytesBuilder();
@@ -354,7 +350,7 @@ class IdbFileSystemStorage {
         }
         bytes = bytesBuilder.toBytes();
       }
-      await txnStoreSetPart(partStore, fileId, part.index, bytes, partId: pk);
+      await txnStoreSetPart(partStore, pk, bytes);
       var lastPos = (part.index * pageSize) + bytes.length;
       posMax = max(lastPos, posMax);
     }
@@ -399,16 +395,15 @@ class IdbFileSystemStorage {
     var partCount = _pageCountFromSize(bytes.length);
     // Ignore existing
     var partStore = txn.objectStore(partStoreName);
-    var partIndex = partStore.index(partFilePartIndexName);
-    var stream = partIndex.openKeyCursor(
+    var stream = partStore.openKeyCursor(
         range: _allPartRange(fileId), autoAdvance: true);
     final list = <KeyCursorRow>[];
-    final toDeleteKeys = <int>[];
+    final toDeleteKeys = <List>[];
     await stream.listen((idb.Cursor cursor) {
       var partFileIndex = filePartIndexKeyPartIndex(cursor.key);
       if (partFileIndex >= partCount) {
         // devPrint('delete part ${cursor.key}');
-        toDeleteKeys.add(cursor.primaryKey as int);
+        toDeleteKeys.add(cursor.primaryKey as List);
       } else {
         list.add(KeyCursorRow(cursor.key, cursor.primaryKey));
       }
@@ -420,11 +415,11 @@ class IdbFileSystemStorage {
     // Write the new ones
     var chunks = uint8ListChunk(bytes, pageSize);
     for (var i = 0; i < chunks.length; i++) {
+      var ref = FilePartRef(fileId, i);
       var chunk = chunks[i];
       // read and remove
-      var existing = rowByPageIndex.remove(i);
-      var partId = existing?.primaryKey as int?;
-      await txnStoreSetPart(partStore, fileId, i, chunk, partId: partId);
+      rowByPageIndex.remove(i);
+      await txnStoreSetPart(partStore, ref, chunk);
     }
 
     /// Safety delete remaining if any, but this should be empty
@@ -976,11 +971,11 @@ extension NodeExt on Node {
 }
 
 /// Convert an openKeyCursor stream to a list (must be auto-advance)
-Future<List<int>> keyCursorToPrimaryKeyList(Stream<idb.Cursor> stream) {
-  var completer = Completer<List<int>>.sync();
-  final list = <int>[];
+Future<List<List>> keyCursorToPrimaryKeyList(Stream<idb.Cursor> stream) {
+  var completer = Completer<List<List>>.sync();
+  final list = <List>[];
   stream.listen((idb.Cursor cursor) {
-    list.add(cursor.primaryKey as int);
+    list.add(cursor.primaryKey as List);
   }).onDone(() {
     completer.complete(list);
   });

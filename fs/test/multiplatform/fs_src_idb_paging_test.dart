@@ -73,4 +73,37 @@ void main() {
       [4]
     ]);
   });
+  var oneTeraByte = 1024 * 1024 * 1024 * 1024;
+  var sixtyFourPageSize = 64 * 1024;
+  var pageCount = oneTeraByte ~/ sixtyFourPageSize;
+
+  test('finding padding', () {
+    expect(pageCount.toString(), hasLength(8)); // Our padding
+    expect(pageCount, 16777216);
+    expect(FilePartRef(1, pageCount).toKey(), [1, 16777216]);
+  });
+  void testRoundTrip(FilePartRef ref) {
+    expect(ref, FilePartRef.fromKey(ref.toKey()));
+  }
+
+  test('FilePartRef', () {
+    var maxSafeInteger = 9007199254740991;
+    var filePartRef = FilePartRef(maxSafeInteger, maxSafeInteger);
+    expect(filePartRef.toKey(), [9007199254740991, 9007199254740991]);
+    filePartRef = FilePartRef(1, 1);
+    testRoundTrip(filePartRef);
+    expect(filePartRef.toKey(), [1, 00000001]);
+    filePartRef = FilePartRef(-1, -1);
+    testRoundTrip(filePartRef);
+    expect(filePartRef.toKey(), [-1, -00000001]);
+    if (!isRunningAsJavascript) {
+      // const int intMaxValue = 9223372036854775807;
+      var intMaxValue = double.maxFinite.toInt();
+      filePartRef = FilePartRef(intMaxValue, intMaxValue);
+      expect(filePartRef.toKey(), [9223372036854775807, 9223372036854775807]);
+      filePartRef = FilePartRef(intMaxValue + 1, intMaxValue + 1);
+      expect(filePartRef.toKey(),
+          [-9223372036854775808, -9223372036854775808]); // !!
+    }
+  });
 }

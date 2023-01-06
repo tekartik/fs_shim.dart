@@ -14,6 +14,7 @@ import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'fs_idb_format_v1_test.dart';
+import 'fs_idb_format_v3_test.dart';
 import 'fs_src_idb_file_system_storage_test.dart';
 import 'test_common.dart';
 
@@ -25,10 +26,9 @@ void main() {
   fsIdbFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 2));
-
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 1024));
-  // }
+  //}
 }
 
 void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
@@ -62,28 +62,19 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111]
         },
       ]);
 
@@ -99,44 +90,29 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111, 119]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111, 119]
         },
         {
-          'key': 4,
-          'value': {
-            'index': 3,
-            'file': 2,
-            'content': [111, 114]
-          }
+          'index': 3,
+          'file': 2,
+          'content': [111, 114]
         },
         {
-          'key': 5,
-          'value': {
-            'index': 4,
-            'file': 2,
-            'content': [108, 100]
-          }
+          'index': 4,
+          'file': 2,
+          'content': [108, 100]
         }
       ]);
       fs = IdbFileSystem(idbFactory, dbName,
@@ -184,28 +160,19 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111]
         },
       ]);
 
@@ -221,44 +188,29 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111, 119]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111, 119]
         },
         {
-          'key': 4,
-          'value': {
-            'index': 3,
-            'file': 2,
-            'content': [111, 114]
-          }
+          'index': 3,
+          'file': 2,
+          'content': [111, 114]
         },
         {
-          'key': 5,
-          'value': {
-            'index': 4,
-            'file': 2,
-            'content': [108, 100]
-          }
+          'index': 4,
+          'file': 2,
+          'content': [108, 100]
         }
       ]);
       fs = IdbFileSystem(idbFactory, dbName,
@@ -333,7 +285,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            mainStoreExportV2,
+            mainStoreExportV3,
             {
               'name': 'file',
               'keys': [2],
@@ -395,31 +347,22 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
         if (options?.pageSize == 2) {
           expect(await getPartEntries(db), [
             {
-              'key': 1,
-              'value': {
-                'index': 0,
-                'file': 2,
-                'content': [116, 101]
-              }
+              'index': 0,
+              'file': 2,
+              'content': [116, 101]
             },
             {
-              'key': 2,
-              'value': {
-                'index': 1,
-                'file': 2,
-                'content': [115, 116]
-              }
+              'index': 1,
+              'file': 2,
+              'content': [115, 116]
             }
           ]);
         } else {
           expect(await getPartEntries(db), [
             {
-              'key': 1,
-              'value': {
-                'index': 0,
-                'file': 2,
-                'content': [116, 101, 115, 116]
-              }
+              'index': 0,
+              'file': 2,
+              'content': [116, 101, 115, 116]
             }
           ]);
         }
@@ -428,11 +371,14 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            mainStoreExportV2,
+            mainStoreExportV3,
             if (options?.pageSize == 2)
               {
                 'name': 'part',
-                'keys': [1, 2],
+                'keys': [
+                  [2, 0],
+                  [2, 1]
+                ],
                 'values': [
                   {
                     'index': 0,
@@ -449,7 +395,9 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
             else
               {
                 'name': 'part',
-                'keys': [1],
+                'keys': [
+                  [2, 0]
+                ],
                 'values': [
                   {
                     'index': 0,
@@ -639,7 +587,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            mainStoreExportV2,
+            mainStoreExportV3,
             {
               'name': 'file',
               'keys': [2],

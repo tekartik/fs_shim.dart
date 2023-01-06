@@ -34,7 +34,7 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
     test('version', () async {
       await ctx.prepare();
       final db = ctx.fs.db!;
-      expect(db.version, 7);
+      expect(db.version, 8);
       // If this fails, delete .dart_tool/fs_shim/test folder
       expect(List.from(db.objectStoreNames)..sort(), ['file', 'part', 'tree']);
     });

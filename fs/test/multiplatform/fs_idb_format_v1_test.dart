@@ -11,6 +11,7 @@ import 'package:test/test.dart';
 
 import '../test_common.dart';
 import 'fs_idb_format_test.dart';
+import 'fs_idb_format_v2_test.dart';
 
 void main() {
   fsIdbFormatV1Group(idbFactoryMemoryFs);
@@ -102,34 +103,6 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
   });
 }
 
-var mainStoreExportV2 = {
-  'name': '_main',
-  'keys': ['store_file', 'store_part', 'store_tree', 'stores', 'version'],
-  'values': [
-    {'name': 'file'},
-    {
-      'name': 'part',
-      'autoIncrement': true,
-      'indecies': [
-        {
-          'name': 'part_index',
-          'keyPath': ['file', 'index'],
-          'unique': true
-        }
-      ]
-    },
-    {
-      'name': 'tree',
-      'autoIncrement': true,
-      'indecies': [
-        {'name': 'parent', 'keyPath': 'parent'},
-        {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-      ]
-    },
-    ['file', 'part', 'tree'],
-    7
-  ]
-};
 var exportMapOneFileV2 = {
   'sembast_export': 1,
   'version': 1,

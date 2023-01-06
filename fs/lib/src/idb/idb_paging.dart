@@ -81,3 +81,37 @@ class StreamPartHelper {
 /// Page count from size and page size.
 int pageCountFromSizeAndPageSize(int size, int pageSize) =>
     pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
+
+/// Paging reference
+class FilePartRef {
+  final int fileId;
+  final int index;
+
+  FilePartRef(this.fileId, this.index);
+  List<int> toKey() => [fileId, index];
+
+  factory FilePartRef.fromKey(Object key) {
+    var parts = key as List;
+    return FilePartRef(parts[0] as int, parts[1] as int);
+  }
+
+  @override
+  int get hashCode => fileId + index;
+
+  @override
+  bool operator ==(Object other) {
+    if (other is FilePartRef) {
+      if (other.fileId != fileId) {
+        return false;
+      }
+      if (other.index != index) {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  String toString() => toKey().toString();
+}
