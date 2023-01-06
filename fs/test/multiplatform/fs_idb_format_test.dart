@@ -7,6 +7,7 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:fs_shim/src/idb/idb_file_write.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
@@ -19,11 +20,12 @@ import 'test_common.dart';
 //import 'test_common.dart';
 
 void main() {
-  fsIdbMultiFormatGroup(idbFactoryMemory);
   // if (devWarning(false)) {
+  fsIdbMultiFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 2));
+
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 1024));
   // }
@@ -275,6 +277,26 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         }
       ]);
     });
+    test('sink access 1 byte', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'sink_access.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      var file = fs.file('test.txt');
+      var raf = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      var bytes = utf8.encode('hello');
+      raf.add(bytes.sublist(0, 1));
+      await raf.flushPending();
+
+      var db = fs.db!;
+      expect(await file.readAsString(), '');
+      expect(await getPartEntries(db), []);
+
+      raf.add(bytes.sublist(1, 2));
+      await raf.flushPending();
+      expect(await file.readAsString(), 'he');
+    });
   });
 }
 
@@ -282,6 +304,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
     {FileSystemIdbOptions? options}) {
   group('idb_format', () {
     test('absolute text file', () async {
+      // debugIdbShowLogs = devWarning(true);
       var dbName = 'absolute_text_file.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName, options: options);

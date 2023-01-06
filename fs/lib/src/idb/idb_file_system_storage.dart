@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
@@ -12,6 +13,7 @@ import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'idb_fs.dart';
+import 'idb_paging.dart';
 
 /// Default page size
 const defaultPageSize = 16 * 1024;
@@ -229,6 +231,11 @@ class IdbFileSystemStorage {
         toFilePartIndexKey(fileId + 1, 0), false, true);
   }
 
+  idb.KeyRange _updatePartRange(int fileId, List<StreamPartIdb> list) {
+    return idb.KeyRange.bound(toFilePartIndexKey(fileId, list.first.index),
+        toFilePartIndexKey(fileId, list.last.index + 1), false, true);
+  }
+
   Future<Uint8List> txnGetFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
     var partIndex = partStore.index(partFilePartIndexName);
@@ -267,6 +274,124 @@ class IdbFileSystemStorage {
     }
   }
 
+  /// Read the content key
+  Future<Uint8List> txnStoreGetPartContent(
+      idb.ObjectStore partStore, int partId) async {
+    var partMap = await partStore.getObject(partId);
+    if (partMap is Map) {
+      return anyAsUint8List(partMap[contentKey]);
+    } else {
+      throw StateError('Invalid existing content for partId $partId');
+    }
+  }
+
+  /// Set or add a given part
+  Future<int> txnStoreSetPart(
+      idb.ObjectStore partStore, int fileId, int partIndex, Uint8List bytes,
+      {required int? partId}) async {
+    var partEntry = {indexKey: partIndex, fileKey: fileId, contentKey: bytes};
+    if (partId != null) {
+      if (debugIdbShowLogs) {
+        print(
+            'put part $fileId/$partIndex/$partId content size ${bytes.length}');
+      }
+      await partStore.put(partEntry, partId);
+    } else {
+      partId = (await partStore.add(partEntry)) as int;
+      if (debugIdbShowLogs) {
+        print(
+            'added file $fileId/$partIndex/$partId content size ${bytes.length}');
+      }
+    }
+    return partId;
+  }
+
+  /// Set the content of a file and update meta. return the updated node
+  Future<Node> txnUpdateStreamedFileDataV2(
+      idb.Transaction txn, Node treeEntity, List<StreamPartIdb> parts) async {
+    var fileId = treeEntity.id!;
+    var partStore = txn.objectStore(partStoreName);
+    var partIndex = partStore.index(partFilePartIndexName);
+    var range = _updatePartRange(fileId, parts);
+    var stream = partIndex.openKeyCursor(range: range, autoAdvance: true);
+    final map = <int, KeyCursorRow>{};
+    await stream.listen((idb.Cursor cursor) {
+      var partFileIndex = filePartIndexKeyPartIndex(cursor.key);
+      map[partFileIndex] = KeyCursorRow(cursor.key, cursor.primaryKey);
+    }).asFuture();
+
+    /// Calculate the new file size based on the max position
+    var posMax = treeEntity.fileSize;
+
+    for (var part in parts) {
+      var atEnd = part.end == null;
+
+      var start = part.start;
+
+      Uint8List bytes;
+      var kcr = map[part.index];
+      // devPrint('index ${part.index}: $kcr');
+      var pk = kcr?.primaryKey as int?;
+
+      if (start == 0 && atEnd) {
+        // Write full
+        bytes = part.bytes;
+      } else {
+        // Read existing
+        if (kcr == null) {
+          throw StateError('Missing part index $partIndex for $fileId');
+        }
+        var existingBytes = await txnStoreGetPartContent(partStore, pk!);
+        var end = part.end ?? pageSize;
+
+        var bytesBuilder = BytesBuilder();
+        if (start > 0) {
+          bytesBuilder.add(existingBytes.sublist(0, start));
+        }
+        bytesBuilder.add(part.bytes.sublist(0, end - start));
+        if (existingBytes.length > end) {
+          bytesBuilder.add(existingBytes.sublist(end));
+        }
+        bytes = bytesBuilder.toBytes();
+      }
+      await txnStoreSetPart(partStore, fileId, part.index, bytes, partId: pk);
+      var lastPos = (part.index * pageSize) + bytes.length;
+      posMax = max(lastPos, posMax);
+    }
+    /*
+    var rows = list;
+    var rowByPageIndex = rows.asMap().map(
+        (index, row) => MapEntry((rows[index].key as List)[1] as int, row));
+
+    // Write the new ones
+    var chunks = uint8ListChunk(bytes, pageSize);
+    for (var i = 0; i < chunks.length; i++) {
+      var chunk = chunks[i];
+      // read and remove
+      var existing = rowByPageIndex.remove(i);
+      late int partId;
+      var partEntry = {indexKey: i, fileKey: fileId, contentKey: chunk};
+      if (existing != null) {
+        partId = existing.primaryKey as int;
+        if (debugIdbShowLogs) {
+          print('put part $fileId/$i/$partId content size ${chunk.length}');
+        }
+        await partStore.put(partEntry, partId);
+      } else {
+        partId = (await partStore.add(partEntry)) as int;
+        if (debugIdbShowLogs) {
+          print('added file $fileId/$i/$partId content size ${bytes.length}');
+        }
+      }
+    }
+    */
+    // update size
+    var newTreeEntity = treeEntity.clone(pageSize: pageSize, size: posMax);
+
+    return await txnUpdateFileMetaSize(txn, newTreeEntity,
+        size: newTreeEntity.fileSize);
+  }
+
   /// Set the content of a file and update meta. return the updated node
   Future<Node> txnSetFileDataV2(
       idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
@@ -298,20 +423,8 @@ class IdbFileSystemStorage {
       var chunk = chunks[i];
       // read and remove
       var existing = rowByPageIndex.remove(i);
-      late int partId;
-      var partEntry = {indexKey: i, fileKey: fileId, contentKey: chunk};
-      if (existing != null) {
-        partId = existing.primaryKey as int;
-        if (debugIdbShowLogs) {
-          print('put part $fileId/$i/$partId content size ${chunk.length}');
-        }
-        await partStore.put(partEntry, partId);
-      } else {
-        partId = (await partStore.add(partEntry)) as int;
-        if (debugIdbShowLogs) {
-          print('added file $fileId/$i/$partId content size ${bytes.length}');
-        }
-      }
+      var partId = existing?.primaryKey as int?;
+      await txnStoreSetPart(partStore, fileId, i, chunk, partId: partId);
     }
 
     /// Safety delete remaining if any, but this should be empty
@@ -788,6 +901,10 @@ class NodeSearchResult {
 }
 
 List<String> getSegments(String path) {
+  return idbPathGetSegments(path);
+}
+
+List<String> idbPathGetSegments(String path) {
   final segments =
       List<String>.from(idbPathContext.split(idbPathContext.normalize(path)));
   // devPrint('$path => $segments');
@@ -857,9 +974,6 @@ extension NodeExt on Node {
   /// Safe if hasPageSize
   int get pageCount => pageCountFromSizeAndPageSize(fileSize, filePageSize);
 }
-
-int pageCountFromSizeAndPageSize(int size, int pageSize) =>
-    pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
 
 /// Convert an openKeyCursor stream to a list (must be auto-advance)
 Future<List<int>> keyCursorToPrimaryKeyList(Stream<idb.Cursor> stream) {

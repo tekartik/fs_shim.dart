@@ -15,10 +15,21 @@ import 'package:idb_shim/utils/idb_utils.dart';
 import 'test_common.dart';
 
 void main() {
+  test('idbMakePathAbsolute', () {
+    expect(idbMakePathAbsolute('/'), '/');
+    expect(idbMakePathAbsolute('.'), '/');
+    expect(idbMakePathAbsolute('a'), '/a');
+    expect(idbMakePathAbsolute('a/../b/c/../d'), '/b/d');
+  });
+
   test('getSegments', () {
+    expect(idbPathGetSegments('/./.'), ['/']);
+    expect(getSegments('/.'), ['/']);
+    expect(getSegments('.'), ['/']);
     expect(getSegments('/'), ['/']);
     expect(getSegments('a'), ['/', 'a']);
     expect(getSegments('/a'), ['/', 'a']);
+    expect(getSegments('/a/'), ['/', 'a']);
     expect(segmentsToPath(['/']), '/');
     expect(segmentsToPath(['/', 'a']), '/a');
   });

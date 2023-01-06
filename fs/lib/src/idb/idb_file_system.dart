@@ -7,7 +7,6 @@ import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/log_utils.dart';
-import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:fs_shim/src/idb/idb_file_write.dart';
 import 'package:fs_shim/src/idb/idb_random_access_file.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
@@ -29,13 +28,8 @@ var debugIdbShowLogs = false;
 var idbSupportsV2Format = true;
 // var idbSupportsV2Format = devWarning(true);
 
-/// Settle on using the posix way for idb files, (even on Windows).
+/// Settle on using the url way for idb files, (even on Windows).
 p.Context get idbPathContext => p.url;
-
-List<String> _getPathSegments(String path) {
-  path = idbMakePathAbsolute(path);
-  return idbPathContext.split(path);
-}
 
 // might not be absolute
 List<String> _getTargetSegments(String path) {
@@ -61,7 +55,7 @@ class IdbReadStreamCtlr {
 
       try {
         // Try to find the file if it exists
-        final segments = getSegments(idbMakePathAbsolute(file.path));
+        final segments = getSegments(file.path);
         try {
           var entity = await _fs.txnOpenNode(treeStore, segments,
               mode: fs.FileMode.read);
@@ -93,45 +87,8 @@ class IdbReadStreamCtlr {
   Stream<Uint8List> get stream => _ctlr.stream;
 }
 
-class IdbWriteStreamSink extends MemorySink {
-  final IdbFileSystem _fs;
-
-  IdbFileSystemStorage get storage => _fs._storage;
-  final fs.File file;
-
-  fs.FileMode mode;
-
-  IdbWriteStreamSink(this._fs, this.file, this.mode) : super();
-
-  @override
-  Future close() async {
-    await super.close();
-
-    await _fs._ready;
-
-    var txn = _fs._db!.writeAllTransactionList();
-
-    try {
-      // Try to find the file if it exists
-
-      var entity = await _fs.txnOpenNodeFile(txn, file, mode: mode);
-      await txn.completed;
-      txn = _fs._db!.writeAllTransactionList();
-      var ctlr = TxnWriteStreamSinkIdb(file, txn, entity, mode);
-      ctlr.add(content);
-      await ctlr.close();
-    } finally {
-      await txn.completed;
-    }
-  }
-}
-
-String idbMakePathAbsolute(String path) {
-  if (!idbPathContext.isAbsolute(path)) {
-    return idbPathContext.join(idbPathContext.separator, path);
-  }
-  return path;
-}
+String idbMakePathAbsolute(String path) =>
+    segmentsToPath(idbPathGetSegments(path));
 
 IdbFileSystemStorage fsStorage(IdbFileSystem fs) => fs._storage;
 
@@ -257,7 +214,7 @@ class IdbFileSystem extends Object
       {bool followLinks = true}) async {
     await _ready;
 
-    final segments = _getPathSegments(path!);
+    final segments = getSegments(path!);
 
     final entity = await _storage.getNode(segments, followLinks);
 
@@ -281,7 +238,7 @@ class IdbFileSystem extends Object
     await _ready;
     // Go up one by one
     // List<String> segments = getSegments(path);
-    final segments = _getPathSegments(path);
+    final segments = idbPathGetSegments(path);
 
     final txn = _db!.transaction(treeStoreName, idb.idbModeReadWrite);
     final store = txn.objectStore(treeStoreName);
@@ -819,30 +776,16 @@ class IdbFileSystem extends Object
     return entity;
   }
 
-  /*
-  Future<Node?> txnOpenNode(
-      idb.ObjectStore treeStore, List<String> segments,
-      {required fs.FileMode mode}) async {
-  // put data
-  _fs._ready.then((_) async {
-  final txn = _fs._db!.readAllTransactionList();
-  var store = txn.objectStore(treeStoreName);
+  /// Open (can create too in write mode), convert if needed
+  Future<Node> openNodeFile(File file, {required FileMode mode}) async {
+    await idbReady;
+    final txn = storage.db!.openNodeTreeTransaction(mode: mode);
 
-  try {
-  // Try to find the file if it exists
-  final segments = getSegments(path);
-  final entity = await _fs._storage.txnGetNode(store, segments, true);
+    var node = await txnOpenNodeFile(txn, file, mode: mode);
 
-  if (entity == null) {
-  _ctlr.addError(idbNotFoundException(path, 'Read failed'));
-  return;
+    await txn.completed;
+    return node;
   }
-  if (entity.type != fs.FileSystemEntityType.file) {
-  _ctlr.addError(idbIsADirectoryException(path, 'Read failed'));
-  return;
-  }
-
-*/
 
   /// Open a node file content ready to use.
   ///
@@ -850,7 +793,7 @@ class IdbFileSystem extends Object
   Future<Node> txnOpenNodeFile(idb.Transaction txn, File file,
       {FileMode mode = FileMode.read}) async {
     var treeStore = txn.objectStore(treeStoreName);
-    var segments = getSegments(idbMakePathAbsolute(file.path));
+    var segments = getSegments(file.path);
     var node = await txnOpenNode(treeStore, segments, mode: mode);
     // convert?
     var expectedPageSize = idbOptions.expectedPageSize;
@@ -881,12 +824,7 @@ class IdbFileSystem extends Object
   Future<RandomAccessFile> open(File file,
       {FileMode mode = FileMode.read}) async {
     await _ready;
-    final txn = storage.db!.openNodeTreeTransaction(mode: mode);
-
-    var node = await txnOpenNodeFile(txn, file, mode: mode);
-
-    await txn.completed;
-
+    var node = await openNodeFile(file, mode: mode);
     final raf = RandomAccessFileIdb(mode: mode, file: file, fileEntity: node);
     return raf;
   }
@@ -1050,6 +988,9 @@ extension FileSystemIdbExt on FileSystem {
 extension FileSystemInternalIdbExt on FileSystemIdb {
   /// The internal storage used
   IdbFileSystemStorage get storage => _storage;
+
+  /// File system ready
+  Future<void> get idbReady => _ready;
 
   Future<Node> txnWriteNodeFileContent(
       idb.Transaction txn, Node entity, Uint8List bytes) async {

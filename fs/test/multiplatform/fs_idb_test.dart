@@ -6,6 +6,7 @@ library fs_shim.test.multiplatform.fs_idb_test;
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'fs_src_idb_file_system_storage_test.dart';
