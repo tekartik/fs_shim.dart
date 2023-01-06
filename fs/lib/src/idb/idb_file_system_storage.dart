@@ -342,7 +342,7 @@ class IdbFileSystemStorage {
           throw StateError('Missing part index $partIndex for $fileId');
         }
         var existingBytes = await txnStoreGetPartContent(partStore, pk!);
-        var end = part.end ?? pageSize;
+        var end = part.end ?? (start + part.bytes.length);
 
         var bytesBuilder = BytesBuilder();
         if (start > 0) {
