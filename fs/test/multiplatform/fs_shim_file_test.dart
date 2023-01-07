@@ -8,12 +8,13 @@ import 'dart:typed_data';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_file_system.dart';
 
 import 'test_common.dart';
 
 void main() {
-  defineTests(memoryFileSystemTestContext);
-  // devWarning(defineTests(      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2))));
+  // defineTests(memoryFileSystemTestContext);
+  // devWarning(defineTests(MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2))));
 }
 
 final bool _doPrintErr = false;
@@ -488,6 +489,17 @@ void defineTests(FileSystemTestContext ctx) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'overwritten'.codeUnits);
+
+      // append nothing.
+      sink = file.openWrite(mode: FileMode.append);
+      await sink.close();
+      var text = await file.readAsString();
+      expect(text, 'overwritten');
+      // Write nothing.
+      sink = file.openWrite(mode: FileMode.write);
+      await sink.close();
+      text = await file.readAsString();
+      expect(text, '');
     });
 
     test('append', () async {

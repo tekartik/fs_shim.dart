@@ -235,7 +235,7 @@ class IdbFileSystemStorage {
   }
 
   int _pageCountFromSize(int size) =>
-      pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
+      pageCountFromSizeAndPageSize(size, pageSize);
 
   idb.KeyRange _allPartRange(int fileId) {
     return idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
@@ -304,7 +304,37 @@ class IdbFileSystemStorage {
     await partStore.put(partEntry);
   }
 
+  /// Delete a given part
+  Future<void> txnStoreDeletePart(
+      idb.ObjectStore partStore, FilePartRef ref) async {
+    if (debugIdbShowLogs) {
+      print('delete part $ref');
+    }
+    await partStore.delete(ref.toKey());
+  }
+
+  late var helper = StreamPartHelper(pageSize);
+  bool needClearRemainingV2(Node initialEntity, Node newEntity) {
+    var first = helper.pageCountFromSize(newEntity.fileSize);
+    var last = helper.pageCountFromSize(initialEntity.fileSize);
+    return last > first;
+  }
+
   /// Set the content of a file and update meta. return the updated node
+  ///
+  /// if [allAndClearInitialEntity] remaining content is removed.
+  Future<void> txnStoreClearRemainingV2(
+      idb.ObjectStore partStore, Node initialEntity, Node newEntity) async {
+    var first = helper.pageCountFromSize(newEntity.fileSize);
+    var last = helper.pageCountFromSize(initialEntity.fileSize);
+    for (var i = first; i < last; i++) {
+      await txnStoreDeletePart(partStore, FilePartRef(newEntity.fileId, i));
+    }
+  }
+
+  /// Set the content of a file and update meta. return the updated node
+  ///
+  /// if [allAndClearInitialEntity] remaining content is removed.
   Future<Node> txnUpdateStreamedFileDataV2(
       idb.Transaction txn, Node treeEntity, List<StreamPartIdb> parts) async {
     var fileId = treeEntity.id!;
@@ -354,6 +384,9 @@ class IdbFileSystemStorage {
       var lastPos = (part.index * pageSize) + bytes.length;
       posMax = max(lastPos, posMax);
     }
+
+    var newSize = posMax;
+
     /*
     var rows = list;
     var rowByPageIndex = rows.asMap().map(
@@ -382,7 +415,7 @@ class IdbFileSystemStorage {
     }
     */
     // update size
-    var newTreeEntity = treeEntity.clone(pageSize: pageSize, size: posMax);
+    var newTreeEntity = treeEntity.clone(pageSize: pageSize, size: newSize);
 
     return await txnUpdateFileMetaSize(txn, newTreeEntity,
         size: newTreeEntity.fileSize);

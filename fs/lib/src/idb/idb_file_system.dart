@@ -808,8 +808,9 @@ class IdbFileSystem extends Object
         var readCtrl =
             TxnNodeDataReadStreamCtlr(file, txn, node, 0, node.fileSize);
         var newNode = node.clone(pageSize: expectedPageSize);
-        var writeCtlr =
-            TxnWriteStreamSinkIdb(file, txn, newNode, fs.FileMode.write);
+        var writeCtlr = TxnWriteStreamSinkIdb(
+            file, txn, newNode, fs.FileMode.write,
+            existingEntity: node);
         await writeCtlr.addStream(readCtrl.stream);
         // Delete previous
         await txnDeleteFileContent(txn, node);

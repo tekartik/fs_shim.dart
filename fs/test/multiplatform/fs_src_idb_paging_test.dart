@@ -73,6 +73,14 @@ void main() {
       [4]
     ]);
   });
+
+  test('pageCount', () {
+    var helper = StreamPartHelper(2);
+    expect(helper.pageCountFromSize(0), 0);
+    expect(helper.pageCountFromSize(1), 1);
+    expect(helper.pageCountFromSize(2), 1);
+    expect(helper.pageCountFromSize(3), 2);
+  });
   var oneTeraByte = 1024 * 1024 * 1024 * 1024;
   var sixtyFourPageSize = 64 * 1024;
   var pageCount = oneTeraByte ~/ sixtyFourPageSize;

@@ -80,7 +80,7 @@ class StreamPartHelper {
 
 /// Page count from size and page size.
 int pageCountFromSizeAndPageSize(int size, int pageSize) =>
-    pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1);
+    size == 0 ? 0 : (pageSize == 0 ? 1 : ((((size - 1) ~/ pageSize)) + 1));
 
 /// Paging reference
 class FilePartRef {

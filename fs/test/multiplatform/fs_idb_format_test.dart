@@ -229,25 +229,136 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         }
       ]);
     });
-    test('sink access 1 byte', () async {
+    test('sink access 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
-      var dbName = 'sink_access.db';
+      var dbName = 'sink_access_2.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       var file = fs.file('test.txt');
-      var raf = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      var sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
       var bytes = utf8.encode('hello');
-      raf.add(bytes.sublist(0, 1));
-      await raf.flushPending();
+      sink.add(bytes.sublist(0, 1));
+      await sink.flushPending();
 
       var db = fs.db!;
       expect(await file.readAsString(), '');
       expect(await getPartEntries(db), []);
 
-      raf.add(bytes.sublist(1, 2));
-      await raf.flushPending();
+      sink.add(bytes.sublist(1, 2));
+      await sink.flushPending();
       expect(await file.readAsString(), 'he');
+
+      sink.add(bytes.sublist(2, 5));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'hell');
+      await sink.flush();
+      expect(await file.readAsString(), 'hello');
+      await sink.close();
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+      // overwrite
+      sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      expect(await file.readAsString(), 'hello');
+      sink.add(utf8.encode('s'));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'hello');
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+
+      sink.add(utf8.encode('o'));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'so');
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [115, 111]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+      sink.add(utf8.encode('t'));
+      await sink.flush();
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [115, 111]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [116]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+      await sink.close();
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [115, 111]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [116]
+        },
+      ]);
+
+      // append nothing.
+      sink = file.openWrite(mode: FileMode.append) as IdbWriteStreamSink;
+      await sink.close();
+      var text = await file.readAsString();
+      expect(text, 'sot');
+      // Write nothing.
+      sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      await sink.close();
+      text = await file.readAsString();
+      expect(text, '');
     });
   });
 }

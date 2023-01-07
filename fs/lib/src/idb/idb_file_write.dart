@@ -25,6 +25,8 @@ class TxnWriteStreamSinkIdb extends MemorySink {
   /// Transaction.
   final idb.Transaction txn;
 
+  final Node existingEntity;
+
   /// File entity.
   final Node fileEntity;
 
@@ -35,7 +37,8 @@ class TxnWriteStreamSinkIdb extends MemorySink {
   fs.FileMode mode;
 
   /// Write sink in transaction.
-  TxnWriteStreamSinkIdb(this.file, this.txn, this.fileEntity, this.mode)
+  TxnWriteStreamSinkIdb(this.file, this.txn, this.fileEntity, this.mode,
+      {required this.existingEntity})
       : super();
 
   @override
@@ -44,11 +47,11 @@ class TxnWriteStreamSinkIdb extends MemorySink {
     try {
       var entity = fileEntity;
 
-      var existingSize = entity.fileSize;
+      //var existingSize = entity.fileSize;
 
       // get existing content
       var bytesBuilder = BytesBuilder();
-      if (mode == fs.FileMode.write || existingSize == 0) {
+      if (mode == fs.FileMode.write || existingEntity.fileSize == 0) {
         // was created or existing
       } else {
         var result =
@@ -61,7 +64,7 @@ class TxnWriteStreamSinkIdb extends MemorySink {
       bytesBuilder.add(this.content);
       var content = bytesBuilder.toBytes();
       if (content.isEmpty) {
-        if (existingSize > 0) {
+        if (existingEntity.size != 0) {
           if (debugIdbShowLogs) {
             print('delete $entity content');
           }
@@ -86,7 +89,8 @@ class TxnWriteStreamSinkIdb extends MemorySink {
 /// Write stream sink.
 class IdbWriteStreamSink extends MemorySink {
   final IdbFileSystem _fs;
-  final _lock = Lock();
+  final _openLock = Lock();
+  final _flushLock = Lock();
 
   IdbFileSystemStorage get storage => _fs.storage;
   final fs.File file;
@@ -107,8 +111,8 @@ class IdbWriteStreamSink extends MemorySink {
   IdbWriteStreamSink(this._fs, this.file, this.mode) : super();
 
   /// Flush current stream. paging only for now
-  Future<void> flush() async {
-    await flushPending(all: true);
+  Future<void> flush({bool close = false}) async {
+    await flushPending(all: true, close: close);
   }
 
   @override
@@ -116,12 +120,13 @@ class IdbWriteStreamSink extends MemorySink {
     await super.close();
 
     if (_fs.idbOptions.hasPageSize) {
-      await flush();
+      await flush(close: true);
     } else {
       await _openNodeFile();
       var txn = _fs.db!.writeAllTransactionList();
       try {
-        var ctlr = TxnWriteStreamSinkIdb(file, txn, entity, mode);
+        var ctlr = TxnWriteStreamSinkIdb(file, txn, entity, mode,
+            existingEntity: initialEntity);
         ctlr.add(content);
         await ctlr.close();
       } finally {
@@ -131,45 +136,75 @@ class IdbWriteStreamSink extends MemorySink {
   }
 
   /// if [all] is false, flush full entries only
-  Future<void> flushPending({bool all = false}) async {
+  Future<void> flushPending({bool all = false, bool close = false}) async {
     if (_fs.idbOptions.hasPageSize) {
-      if (content.isNotEmpty || all) {
-        await _openNodeFile();
-        if (entity.hasPageSize) {
-          // Is one page full?
-          var pageSize = entity.filePageSize;
+      await _flushLock.synchronized(() async {
+        if (content.isNotEmpty || all) {
+          await _openNodeFile();
+          // devPrint('flushPending($all, $close) $initialEntity, $entity');
+          if (entity.hasPageSize) {
+            // Is one page full?
+            var pageSize = entity.filePageSize;
 
-          // var filled = position % pageSize;
-          //var neededToFill = pageSize -
-          var helper = StreamPartHelper(pageSize);
-          var result = helper.getStreamParts(
-              bytes: content, position: position, all: all);
-          if (result.list.isNotEmpty) {
-            var txn = _fs.db!.transactionList(
-                [treeStoreName, partStoreName], idb.idbModeReadWrite);
-            try {
-              entity = await storage.txnUpdateStreamedFileDataV2(
-                  txn, entity, result.list);
-            } finally {
-              await txn.completed;
+            // var filled = position % pageSize;
+            //var neededToFill = pageSize -
+            var helper = StreamPartHelper(pageSize);
+            var result = helper.getStreamParts(
+                bytes: content, position: position, all: all);
+            if (result.list.isNotEmpty) {
+              var txn = _fs.db!.transactionList(
+                  [treeStoreName, partStoreName], idb.idbModeReadWrite);
+              try {
+                entity = await storage.txnUpdateStreamedFileDataV2(
+                  txn,
+                  entity,
+                  result.list,
+                );
+                var length = result.position - position;
+                // Truncate
+                content = content.sublist(length);
+                position = result.position;
+
+                if (close) {
+                  await storage.txnStoreClearRemainingV2(
+                      txn.objectStore(partStoreName), initialEntity, entity);
+                }
+              } finally {
+                await txn.completed;
+              }
+            } else {
+              if (close) {
+                if (storage.needClearRemainingV2(initialEntity, entity)) {
+                  var txn =
+                      _fs.db!.transaction(partStoreName, idb.idbModeReadWrite);
+                  try {
+                    await storage.txnStoreClearRemainingV2(
+                        txn.objectStore(partStoreName), initialEntity, entity);
+                  } finally {
+                    await txn.completed;
+                  }
+                }
+              }
+              // devPrint('Are we done? closing: $close');
             }
           }
         }
-      }
-
-      if (content.isEmpty && all) {
-        // TODO delete empty?
-      }
+      });
     }
   }
 
   /// Open, set entity and position
   Future<void> _openNodeFile() async {
     if (!_opened) {
-      await _lock.synchronized(() async {
+      await _openLock.synchronized(() async {
         if (!_opened) {
-          entity = initialEntity = await _fs.openNodeFile(file, mode: mode);
-          position = mode == FileMode.append ? entity.fileSize : 0;
+          initialEntity = await _fs.openNodeFile(file, mode: mode);
+
+          position = mode == FileMode.append ? initialEntity.fileSize : 0;
+
+          // Truncate at position right away.
+          entity = initialEntity.clone(size: position);
+
           _opened = true;
         }
       });
