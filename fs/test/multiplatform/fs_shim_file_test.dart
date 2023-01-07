@@ -8,13 +8,11 @@ import 'dart:typed_data';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
-import 'package:fs_shim/src/idb/idb_file_system.dart';
 
 import 'test_common.dart';
 
 void main() {
-  // defineTests(memoryFileSystemTestContext);
-  // devWarning(defineTests(MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2))));
+  defineTests(memoryFileSystemTestContext);
 }
 
 final bool _doPrintErr = false;
