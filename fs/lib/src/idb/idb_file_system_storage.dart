@@ -237,15 +237,10 @@ class IdbFileSystemStorage {
   int _pageCountFromSize(int size) =>
       pageCountFromSizeAndPageSize(size, pageSize);
 
-  idb.KeyRange _allPartRange(int fileId) {
-    return idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
-        toFilePartIndexKey(fileId + 1, 0), false, true);
-  }
-
   Future<Uint8List> txnGetFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
     var stream =
-        partStore.openCursor(range: _allPartRange(fileId), autoAdvance: true);
+        partStore.openCursor(range: allPartRange(fileId), autoAdvance: true);
     var readIndex = -1;
     var bytesList = <Uint8List>[];
     await stream.listen((idb.CursorWithValue cursor) {
@@ -270,8 +265,8 @@ class IdbFileSystemStorage {
 
   Future<void> txnDeleteFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
-    var stream = partStore.openKeyCursor(
-        range: _allPartRange(fileId), autoAdvance: true);
+    var stream =
+        partStore.openKeyCursor(range: allPartRange(fileId), autoAdvance: true);
     var keys = await keyCursorToPrimaryKeyList(stream);
     for (var key in keys) {
       await partStore.delete(key);
@@ -428,8 +423,8 @@ class IdbFileSystemStorage {
     var partCount = _pageCountFromSize(bytes.length);
     // Ignore existing
     var partStore = txn.objectStore(partStoreName);
-    var stream = partStore.openKeyCursor(
-        range: _allPartRange(fileId), autoAdvance: true);
+    var stream =
+        partStore.openKeyCursor(range: allPartRange(fileId), autoAdvance: true);
     final list = <KeyCursorRow>[];
     final toDeleteKeys = <List>[];
     await stream.listen((idb.Cursor cursor) {
@@ -1013,4 +1008,9 @@ Future<List<List>> keyCursorToPrimaryKeyList(Stream<idb.Cursor> stream) {
     completer.complete(list);
   });
   return completer.future;
+}
+
+idb.KeyRange allPartRange(int fileId) {
+  return idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
+      toFilePartIndexKey(fileId + 1, 0), false, true);
 }

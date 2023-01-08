@@ -45,13 +45,13 @@ mixin FileSystemMixin implements FileSystem {
   bool get supportsRandomAccess => false;
 
   @override
-  Directory directory(String? path) => throw UnsupportedError('fs.directory');
+  Directory directory(String path) => throw UnsupportedError('fs.directory');
 
   @override
-  File file(String? path) => throw UnsupportedError('fs.file');
+  File file(String path) => throw UnsupportedError('fs.file');
 
   @override
-  Link link(String? path) => throw UnsupportedError('fs.link');
+  Link link(String path) => throw UnsupportedError('fs.link');
 
   @override
   String get name => throw UnsupportedError('fs.name');

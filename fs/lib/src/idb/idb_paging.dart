@@ -4,6 +4,9 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:fs_shim/src/common/bytes_utils.dart';
+import 'package:idb_shim/idb.dart' as idb;
+
+import 'idb_file_system_storage.dart';
 
 /// An idb part to update.
 class StreamPartIdb {
@@ -36,6 +39,15 @@ class StreamPartHelper {
   final int pageSize;
 
   StreamPartHelper(this.pageSize);
+
+  int getPositionInPage(int position) => position % pageSize;
+
+  idb.KeyRange getPartsRange(int fileId, int start, int end) {
+    var indexStart = pageIndexFromPosition(start);
+    var indexEnd = endPageIndexFromPosition(end);
+    return idb.KeyRange.bound(toFilePartIndexKey(fileId, indexStart),
+        toFilePartIndexKey(fileId, indexEnd), false, true);
+  }
 
   /// Add the whole bytes at position
   ///
@@ -74,6 +86,10 @@ class StreamPartHelper {
   }
 
   int pageIndexFromPosition(int position) => position ~/ pageSize;
+
+  // exclusive
+  int endPageIndexFromPosition(int position) => pageCountFromSize(position);
+
   int pageCountFromSize(int size) =>
       pageCountFromSizeAndPageSize(size, pageSize);
 }
@@ -88,6 +104,7 @@ class FilePartRef {
   final int index;
 
   FilePartRef(this.fileId, this.index);
+
   List<int> toKey() => [fileId, index];
 
   factory FilePartRef.fromKey(Object key) {

@@ -36,57 +36,6 @@ List<String> _getTargetSegments(String path) {
   return idbPathContext.split(path);
 }
 
-class IdbReadStreamCtlr {
-  FileSystemIdb get _fs => file.fs as FileSystemIdb;
-  final File file;
-  int? start;
-  int? end;
-
-  IdbFileSystemStorage get storage => _fs._storage;
-  late StreamController<Uint8List> _ctlr;
-
-  IdbReadStreamCtlr(this.file, this.start, this.end) {
-    _ctlr = StreamController(sync: true);
-
-    // put data
-    _fs._ready.then((_) async {
-      final txn = _fs._db!.readAllTransactionList();
-      var treeStore = txn.objectStore(treeStoreName);
-
-      try {
-        // Try to find the file if it exists
-        final segments = getSegments(file.path);
-        try {
-          var entity = await _fs.txnOpenNode(treeStore, segments,
-              mode: fs.FileMode.read);
-
-          var result = await _fs.txnReadCheckNodeFileContent(txn, file, entity);
-          entity = result.entity;
-          var content = result.content;
-          // get existing content
-          //store = txn.objectStore(fileStoreName);
-          //var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
-          if (content.isNotEmpty) {
-            // All at once!
-            if (start != null) {
-              content = content.sublist(start!, end);
-            }
-            _ctlr.add(anyListAsUint8List(content));
-          }
-          await _ctlr.close();
-        } catch (e) {
-          _ctlr.addError(e);
-          return;
-        }
-      } finally {
-        await txn.completed;
-      }
-    });
-  }
-
-  Stream<Uint8List> get stream => _ctlr.stream;
-}
-
 String idbMakePathAbsolute(String path) =>
     segmentsToPath(idbPathGetSegments(path));
 
@@ -807,6 +756,8 @@ class IdbFileSystem extends Object
       if (mode != FileMode.read) {
         var readCtrl =
             TxnNodeDataReadStreamCtlr(file, txn, node, 0, node.fileSize);
+
+        TxnNodeDataReadStreamCtlr(file, txn, node, 0, node.fileSize);
         var newNode = node.clone(pageSize: expectedPageSize);
         var writeCtlr = TxnWriteStreamSinkIdb(
             file, txn, newNode, fs.FileMode.write,

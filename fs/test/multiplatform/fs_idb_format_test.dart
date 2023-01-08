@@ -6,6 +6,7 @@ library fs_shim.test.multiplatform.fs_idb_format_test;
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_file_read.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_write.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
@@ -227,6 +228,36 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
           'key': 2,
           'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100]
         }
+      ]);
+    });
+    test('stream access 2 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'stream_access_2.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      var file = fs.file('test.txt');
+      await file.writeAsString('helloworld');
+
+      final ctlr = IdbReadStreamCtlr(file, 1, 5);
+      expect(await ctlr.stream.toList(), [
+        [101],
+        [108, 108],
+        [111]
+      ]);
+    });
+    test('stream access 1024 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'stream_access_2.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 1024));
+      var file = fs.file('test.txt');
+      await file.writeAsString('helloworld');
+
+      final ctlr = IdbReadStreamCtlr(file, 1, 5);
+      expect(await ctlr.stream.toList(), [
+        [101, 108, 108, 111]
       ]);
     });
     test('sink access 2 bytes', () async {

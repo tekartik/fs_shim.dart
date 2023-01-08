@@ -14,7 +14,7 @@ import 'package:synchronized/synchronized.dart';
 import 'idb_file_system.dart';
 import 'idb_file_system_storage.dart';
 
-/// Write in transaction controller.
+/// Write in transaction controller. v1 all in memory.
 class TxnWriteStreamSinkIdb extends MemorySink {
   /// The file.
   final fs.File file;
@@ -115,6 +115,18 @@ class IdbWriteStreamSink extends MemorySink {
     await flushPending(all: true, close: close);
   }
 
+  void asyncFlush() {
+    Future.value().then((_) {
+      flushPending();
+    });
+  }
+
+  @override
+  void add(List<int> data) {
+    super.add(data);
+    asyncFlush();
+  }
+
   @override
   Future close() async {
     await super.close();
@@ -211,3 +223,180 @@ class IdbWriteStreamSink extends MemorySink {
     }
   }
 }
+
+/*
+/// Write stream sink.
+class TxnIdbWriteStreamHelper {
+  FileSystemIdb get _fs => file.fs as FileSystemIdb;
+  final MemorySink sink;
+  final idb.Transaction txn;
+  final _openLock = Lock();
+  final _flushLock = Lock();
+
+  IdbFileSystemStorage get storage => _fs.storage;
+  final fs.File file;
+
+  fs.FileMode mode;
+  var _opened = false;
+
+  /// Only valid once opened.
+  late int position;
+
+  /// Only valid once opened.
+  late Node initialEntity;
+  Node get existingEntity => initialEntity;
+
+  /// Only valid once opened.
+  late Node entity;
+
+  /// Write stream helper
+  TxnIdbWriteStreamHelper(this.txn, this.file, this.mode,
+      {required this.initialEntity, required this.sink})
+      : super();
+
+  /// Flush current stream. paging only for now
+  Future<void> flush({bool close = false}) async {
+    await flushPending(all: true, close: close);
+  }
+
+  Future<void> writeAll() async {
+    var bytesBuilder = BytesBuilder();
+    if (mode == fs.FileMode.write || existingEntity.fileSize == 0) {
+      // was created or existing
+    } else {
+      var result = await _fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+      entity = result.entity;
+      var bytes = result.content;
+      bytesBuilder.add(bytes);
+    }
+
+    bytesBuilder.add(this.content);
+    var content = bytesBuilder.toBytes();
+    if (content.isEmpty) {
+      if (existingEntity.size != 0) {
+        if (debugIdbShowLogs) {
+          print('delete $entity content');
+        }
+        await _fs.txnDeleteFileContent(txn, entity);
+        await storage.txnUpdateFileMetaSize(txn, entity, size: 0);
+      }
+    } else {
+      // devPrint('wrilte all ${content.length}');
+      // New in 2020/11/1
+      var bytes = anyListAsUint8List(content);
+
+      entity.modified = DateTime.now();
+      entity.pageSize = storage.options.expectedPageSize;
+      await _fs.txnWriteNodeFileContent(txn, entity, bytes);
+    }
+  }
+
+  void asyncFlush() {
+    Future.value().then((_) {
+      flushPending();
+    });
+  }
+
+  @override
+  void add(List<int> data) {
+    super.add(data);
+    asyncFlush();
+  }
+
+  @override
+  Future close() async {
+    await super.close();
+
+    if (_fs.idbOptions.hasPageSize) {
+      await flush(close: true);
+    } else {
+      await _openNodeFile();
+      var txn = _fs.db!.writeAllTransactionList();
+      try {
+        var ctlr = TxnWriteStreamSinkIdb(file, txn, entity, mode,
+            existingEntity: initialEntity);
+        ctlr.add(content);
+        await ctlr.close();
+      } finally {
+        await txn.completed;
+      }
+    }
+  }
+
+  /// if [all] is false, flush full entries only
+  Future<void> flushPending({bool all = false, bool close = false}) async {
+    if (_fs.idbOptions.hasPageSize) {
+      await _flushLock.synchronized(() async {
+        if (content.isNotEmpty || all) {
+          await _openNodeFile();
+          // devPrint('flushPending($all, $close) $initialEntity, $entity');
+          if (entity.hasPageSize) {
+            // Is one page full?
+            var pageSize = entity.filePageSize;
+
+            // var filled = position % pageSize;
+            //var neededToFill = pageSize -
+            var helper = StreamPartHelper(pageSize);
+            var result = helper.getStreamParts(
+                bytes: content, position: position, all: all);
+            if (result.list.isNotEmpty) {
+              var txn = _fs.db!.transactionList(
+                  [treeStoreName, partStoreName], idb.idbModeReadWrite);
+              try {
+                entity = await storage.txnUpdateStreamedFileDataV2(
+                  txn,
+                  entity,
+                  result.list,
+                );
+                var length = result.position - position;
+                // Truncate
+                content = content.sublist(length);
+                position = result.position;
+
+                if (close) {
+                  await storage.txnStoreClearRemainingV2(
+                      txn.objectStore(partStoreName), initialEntity, entity);
+                }
+              } finally {
+                await txn.completed;
+              }
+            } else {
+              if (close) {
+                if (storage.needClearRemainingV2(initialEntity, entity)) {
+                  var txn =
+                      _fs.db!.transaction(partStoreName, idb.idbModeReadWrite);
+                  try {
+                    await storage.txnStoreClearRemainingV2(
+                        txn.objectStore(partStoreName), initialEntity, entity);
+                  } finally {
+                    await txn.completed;
+                  }
+                }
+              }
+              // devPrint('Are we done? closing: $close');
+            }
+          }
+        }
+      });
+    }
+  }
+
+  /// Open, set entity and position
+  Future<void> _openNodeFile() async {
+    if (!_opened) {
+      await _openLock.synchronized(() async {
+        if (!_opened) {
+          initialEntity = await _fs.openNodeFile(file, mode: mode);
+
+          position = mode == FileMode.append ? initialEntity.fileSize : 0;
+
+          // Truncate at position right away.
+          entity = initialEntity.clone(size: position);
+
+          _opened = true;
+        }
+      });
+    }
+  }
+}
+*/
