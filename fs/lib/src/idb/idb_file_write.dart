@@ -116,8 +116,12 @@ class IdbWriteStreamSink extends MemorySink {
   }
 
   void asyncFlush() {
-    Future.value().then((_) {
-      flushPending();
+    Future.value().then((_) async {
+      try {
+        await flushPending();
+      } catch (e) {
+        print('flushPending failed $e');
+      }
     });
   }
 

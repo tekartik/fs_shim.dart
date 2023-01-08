@@ -90,6 +90,14 @@ class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
 }
 
+class MemoryFileSystemTestContextWithOptions
+    extends FileSystemTestContextIdbWithOptions {
+  MemoryFileSystemTestContextWithOptions({required super.options});
+
+  @override
+  final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
+}
+
 void devPrintJson(Map json) {
   print(const JsonEncoder.withIndent('  ').convert(json));
 }

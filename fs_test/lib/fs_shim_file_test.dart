@@ -13,6 +13,7 @@ import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
+  // defineTests(MemoryFileSystemTestContextWithOptions(options: FileSystemIdbOptions(pageSize: 2)));
 }
 
 final bool _doPrintErr = false;
@@ -524,7 +525,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(content, 'testappend'.codeUnits);
     });
 
-    test('write_ondirectory', () async {
+    test('write_on_directory', () async {
       final directory = await ctx.prepare();
       var filePath = fs.path.join(directory.path, 'file');
       final dir = fs.directory(filePath);
