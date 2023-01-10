@@ -9,6 +9,7 @@ import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:idb_shim/idb.dart' as idb;
+import 'package:meta/meta.dart';
 import 'package:synchronized/synchronized.dart';
 
 import 'idb_file_access.dart';
@@ -78,6 +79,8 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
   final _openLock = Lock();
 
   var _opened = false;
+  @visibleForTesting
+  bool get opened => _opened;
 
   /// Only valid once opened.
   late int position;
@@ -93,9 +96,14 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
     await flushPending(all: true, close: close);
   }
 
+  /// Asynchronous flush
+  /// Always postpone
   void asyncFlush() {
-    Future.value().then((_) async {
+    asyncAction(() async {
       try {
+        if (debugIdbShowLogs) {
+          print('auto flush');
+        }
         await flushPending();
       } catch (e) {
         print('flushPending failed $e');

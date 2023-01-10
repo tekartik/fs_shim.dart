@@ -9,15 +9,15 @@ import 'package:tekartik_fs_test/fs_current_dir_file_test.dart' as current_dir;
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 
+void defineAllIdbTests(IdbFileSystemTestContext ctx) {
+  group('options: ${ctx.fs.idbOptions} ', () {
+    current_dir.defineTests(ctx.fs);
+    defineTests(memoryFileSystemTestContext);
+  });
+}
+
 void main() {
   group('memory', () {
-    void defineAllIdbTests(IdbFileSystemTestContext ctx) {
-      group('options: ${ctx.fs.idbOptions} ', () {
-        current_dir.defineTests(ctx.fs);
-        defineTests(memoryFileSystemTestContext);
-      });
-    }
-
     group('pageSize: null twice', () {
       defineAllIdbTests(MemoryFileSystemTestContext());
 

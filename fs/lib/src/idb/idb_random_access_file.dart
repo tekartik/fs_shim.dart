@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/fs_random_access_file_none.dart';
 import 'package:fs_shim/src/common/import.dart';
-import 'package:fs_shim/src/common/log_utils.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:fs_shim/src/idb/idb_paging.dart';
@@ -47,14 +46,10 @@ class RandomAccessFileIdb
       fileEntity,
       list,
     );
-    // Keep access file size to the latest.
-    //accessFileSize = min(accessFileSize, fileEntity.fileSize);
-    devPrint('updated $fileEntity');
   }
 
   /// Flush pending items
   Future<void> txnFlushPending({bool close = false}) async {
-    devPrint('flush pending $pending');
     if (fileEntity.hasPageSize) {
       if (pending.isNotEmpty) {}
     }
@@ -62,7 +57,6 @@ class RandomAccessFileIdb
 
   /// Flush pending items
   Future<void> flushPending({bool close = false}) async {
-    devPrint('flush pending $pending');
     if (fileEntity.hasPageSize) {
       if (pending.isNotEmpty || close) {
         await flushLock.synchronized(() async {
@@ -74,7 +68,6 @@ class RandomAccessFileIdb
                 .expand((element) => element)
                 .toList()
               ..sort((part1, part2) => part1.index - part2.index);
-            devPrint('do flush pending $list');
             try {
               await txnUpdateDataV2(txn, list);
 
@@ -152,7 +145,6 @@ class RandomAccessFileIdb
   @override
   Future<int> readInto(List<int> buffer, [int start = 0, int? end]) async {
     return await positionLock.synchronized(() async {
-      devPrint('readInto $fileEntity');
       await flushPending();
       return await doReadInto(buffer, start, end ?? buffer.length);
     });
@@ -171,8 +163,6 @@ class RandomAccessFileIdb
       var first = true;
       var count = 0;
       var expectedCount = positionEnd - positionStart;
-      devPrint(
-          '$fileEntity positionStart: $positionStart, positionEnd: $positionEnd (start: $start, end: $end) stat: $stat');
       if (expectedCount <= 0) {
         return 0;
       }
@@ -284,6 +274,7 @@ class RandomAccessFileIdb
           }
           fileEntity =
               await fsIdb.txnWriteNodeFileContent(txn, fileEntity, bytes);
+          accessFileSize = fileEntity.fileSize;
         }
       }
       return _me;
@@ -310,8 +301,9 @@ class RandomAccessFileIdb
     });
   }
 
+  /// Flush at the next async.
   void asyncFlush() {
-    Future.value().then((_) async {
+    asyncAction(() async {
       try {
         await flushPending();
       } catch (e) {
@@ -327,14 +319,11 @@ class RandomAccessFileIdb
   /// Do write content at current position, skippend buffer from start
   Future<RandomAccessFile> doWriteFrom(
       List<int> buffer, int start, int end) async {
-    devPrint(
-        'pos: $accessPosition ${accessFileSize} write($start to $end): ${logTruncateAny(buffer)}');
     idb.Transaction? txn;
     if (fileEntity.hasPageSize) {
       // Add blank if needed
       if (accessPosition > accessFileSize) {
         var blankSize = accessPosition - accessFileSize;
-        devPrint('add blank $blankSize');
         // add blank
         accessPosition = accessFileSize;
         await doWriteBuffer(Uint8List(blankSize));
@@ -346,7 +335,6 @@ class RandomAccessFileIdb
           end: end,
           position: accessPosition,
           all: true);
-      devPrint('write $start->$end at $accessPosition: $result');
       pending.add(result);
       accessPosition = result.position;
       accessFileSize = max(accessPosition, accessFileSize);
@@ -366,8 +354,8 @@ class RandomAccessFileIdb
             bytesBuilder.add(bytes.sublist(0, accessPosition));
           } else {
             bytesBuilder.add(bytes);
-            bytesBuilder.add(
-                List.generate(accessPosition - bytes.length, (index) => 0));
+            // add blank
+            bytesBuilder.add(Uint8List(accessPosition - bytes.length));
           }
         }
         bytesBuilder.add(buffer.sublist(start, end));
@@ -375,9 +363,11 @@ class RandomAccessFileIdb
         if (accessPosition < bytes.length) {
           bytesBuilder.add(bytes.sublist(accessPosition));
         }
+        var newBytes = bytesBuilder.toBytes();
 
-        fileEntity = await fsIdb.txnWriteNodeFileContent(
-            txn, fileEntity, bytesBuilder.toBytes());
+        fileEntity =
+            await fsIdb.txnWriteNodeFileContent(txn, fileEntity, newBytes);
+        accessFileSize = fileEntity.fileSize;
         return _me;
       } finally {
         await txn?.completed;

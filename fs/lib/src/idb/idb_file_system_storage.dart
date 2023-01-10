@@ -201,7 +201,6 @@ class IdbFileSystemStorage {
   Future<Node> txnUpdateFileMetaSize(idb.Transaction txn, Node treeEntity,
       {required int size}) async {
     var treeStore = txn.objectStore(treeStoreName);
-    devPrint('updating file size $treeEntity to $size');
     return await txnStoreUpdateFileMetaSize(treeStore, treeEntity, size: size);
   }
 
@@ -268,7 +267,7 @@ class IdbFileSystemStorage {
     var partStore = txn.objectStore(partStoreName);
     var stream =
         partStore.openKeyCursor(range: allPartRange(fileId), autoAdvance: true);
-    var keys = await keyCursorToPrimaryKeyList(stream);
+    var keys = await cursorToPrimaryKeyList(stream);
     for (var key in keys) {
       await partStore.delete(key);
     }
@@ -396,25 +395,10 @@ class IdbFileSystemStorage {
       idb.Transaction txn, Node treeEntity, List<FilePartIdb> parts) async {
     var fileId = treeEntity.id!;
     var partStore = txn.objectStore(partStoreName);
-    /*
-    var partIndex = partStore.index(partFilePartIndexName);
-    var range = _updatePartRange(fileId, parts);
-    var stream = partIndex.openKeyCursor(range: range, autoAdvance: true);
-    final map = <int, KeyCursorRow>{};
-    await stream.listen((idb.Cursor cursor) {
-      var partFileIndex = filePartIndexKeyPartIndex(cursor.key);
-      map[partFileIndex] = KeyCursorRow(cursor.key, cursor.primaryKey);
-    }).asFuture();
-     */
 
     /// Calculate the new file size based on the max position
     var posMax = treeEntity.fileSize;
-
-    devPrint('updating $treeEntity, $parts');
     for (var part in parts) {
-      devPrint('updating $part');
-      //var atEnd = part.end == null;
-
       var start = part.start;
 
       Uint8List bytes;
@@ -426,14 +410,10 @@ class IdbFileSystemStorage {
       var endPartPosition = helper.getFilePartPosition(part.index, part.end);
       var atEnd = endPartPosition > posMax;
 
-      devPrint('part $part atEnd: $atEnd');
       if (start == 0 && atEnd) {
         // Write full
         bytes = part.bytes;
       } else {
-        devPrint(
-            'reading $pk start: $start, posMax: $posMax, endPartPosition: $endPartPosition');
-
         var existingBytes = await txnStoreGetPartContent(partStore, pk);
         var end = part.end;
 
@@ -454,33 +434,6 @@ class IdbFileSystemStorage {
 
     var newSize = posMax;
 
-    /*
-    var rows = list;
-    var rowByPageIndex = rows.asMap().map(
-        (index, row) => MapEntry((rows[index].key as List)[1] as int, row));
-
-    // Write the new ones
-    var chunks = uint8ListChunk(bytes, pageSize);
-    for (var i = 0; i < chunks.length; i++) {
-      var chunk = chunks[i];
-      // read and remove
-      var existing = rowByPageIndex.remove(i);
-      late int partId;
-      var partEntry = {indexKey: i, fileKey: fileId, contentKey: chunk};
-      if (existing != null) {
-        partId = existing.primaryKey as int;
-        if (debugIdbShowLogs) {
-          print('put part $fileId/$i/$partId content size ${chunk.length}');
-        }
-        await partStore.put(partEntry, partId);
-      } else {
-        partId = (await partStore.add(partEntry)) as int;
-        if (debugIdbShowLogs) {
-          print('added file $fileId/$i/$partId content size ${bytes.length}');
-        }
-      }
-    }
-    */
     // update size
     var newTreeEntity = treeEntity.clone(pageSize: pageSize, size: newSize);
 
@@ -1070,17 +1023,13 @@ extension NodeExt on Node {
   int get pageCount => pageCountFromSizeAndPageSize(fileSize, filePageSize);
 }
 
+/// Convert an openKeyCursor stream to a list of key, must be auto-advance)
+Future<List<Object>> cursorToPrimaryKeyList(Stream<idb.Cursor> stream) =>
+    stream.map((cursor) => cursor.primaryKey).toList();
+
 /// Convert an openKeyCursor stream to a list (must be auto-advance)
-Future<List<List>> keyCursorToPrimaryKeyList(Stream<idb.Cursor> stream) {
-  var completer = Completer<List<List>>.sync();
-  final list = <List>[];
-  stream.listen((idb.Cursor cursor) {
-    list.add(cursor.primaryKey as List);
-  }).onDone(() {
-    completer.complete(list);
-  });
-  return completer.future;
-}
+Future<List<Object>> cursorToKeyList(Stream<idb.Cursor> stream) =>
+    stream.map((cursor) => cursor.key).toList();
 
 idb.KeyRange allPartRange(int fileId) {
   return idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),

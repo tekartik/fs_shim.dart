@@ -18,8 +18,8 @@ void main() {
 
 void defineTests(FileSystemTestContext ctx) {
   var fs = ctx.fs;
-  //idbSupportsV2Format = devWarning(true);
-  debugIdbShowLogs = devWarning(true);
+  // idbSupportsV2Format = devWarning(true);
+  // debugIdbShowLogs = devWarning(true);
   group('random_access_file', () {
     test('simple read/write', () async {
       final directory = await ctx.prepare();
@@ -53,7 +53,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('truncate', () async {
-      debugIdbShowLogs = devWarning(true);
+      // debugIdbShowLogs = devWarning(true);
       final directory = await ctx.prepare();
       var filePath = fs.path.join(directory.path, 'truncate');
       final file = fs.file(filePath);
@@ -121,7 +121,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('no flush', () async {
-      debugIdbShowLogs = devWarning(true);
+      // debugIdbShowLogs = devWarning(true);
       final directory = await ctx.prepare();
       var filePath = fs.path.join(directory.path, 'no_flush');
       final file = fs.file(filePath);

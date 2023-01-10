@@ -42,8 +42,8 @@ abstract class IdbFileSystemTestContext extends FileSystemTestContext {
   @override
   PlatformContext? platform;
 
-  @override
   FileSystemIdb get rawFsIdb;
+
   @override
   IdbFileSystem get fs => rawFsIdb;
 

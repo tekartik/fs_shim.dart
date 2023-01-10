@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs
 
-import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_shim.dart' as fs;
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/idb/idb_paging.dart';
@@ -58,4 +57,22 @@ mixin FileAccessIdbMixin implements FileAccessIdb {
 
   /// Internal storage
   IdbFileSystemStorage get storage => fsIdb.storage;
+
+  Timer? _asyncTimer;
+
+  /// Asynchronous flush
+  /// Always postpone
+  void asyncAction(Future<void> Function() action) {
+    _asyncTimer?.cancel();
+    late Timer newTimer;
+    newTimer = Timer(Duration.zero, () async {
+      try {
+        await action();
+      } catch (e) {
+        print('async action failed $e');
+      }
+      //}
+    });
+    _asyncTimer = newTimer;
+  }
 }

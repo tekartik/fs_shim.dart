@@ -48,8 +48,6 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs.close();
     });
     test('write pageSize 2 bytes', () async {
-      debugIdbShowLogs = devWarning(true);
-
       var file = fs.file('test.txt');
       var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
       // ignore: invalid_use_of_protected_member
@@ -79,10 +77,9 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
     });
 
     test('writeByte multiple no flush', () async {
-      debugIdbShowLogs = devWarning(true);
-
       var file = fs.file('write_byte_no_flush.bin');
       var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
       raf.noAsyncFlush = true;
       await raf.writeByte(1);
       await raf.writeByte(2);
@@ -103,12 +100,36 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         }
       ]);
     });
+    test('writeByte multiple auto flush', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var file = fs.file('write_byte_auto_flush.bin');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      await raf.writeByte(1);
+      await raf.writeByte(2);
+      await raf.writeByte(3);
+      expect(raf.fileEntity.fileSize, 0);
+      while (raf.fileEntity.fileSize == 0) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3]
+        }
+      ]);
+    });
 
-    test('truncate short', () async {
-      debugIdbShowLogs = devWarning(true);
-
+    test('truncate short no flush', () async {
+      // debugIdbShowLogs = devWarning(true);
       var file = fs.file('test.txt');
       var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
       raf.noAsyncFlush = true;
       await raf.doWriteBuffer([1, 2, 3, 4, 5]);
       await raf.truncate(3);
@@ -364,6 +385,40 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         }
       ]);
     });
+    test('sink access writeBytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'stream_access_write_bytes.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      var file = fs.file('test.');
+
+      final ctlr = IdbWriteStreamSink(file, FileMode.write);
+      ctlr.add([1]);
+      ctlr.add([2]);
+      ctlr.add([3]);
+      ctlr.add([4]);
+      ctlr.add([5]);
+      expect(ctlr.opened, false);
+      while (!ctlr.opened) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      while (ctlr.fileEntity.fileSize == 0) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        }
+      ]);
+    });
     test('stream access 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'stream_access_2.db';
@@ -395,7 +450,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       ]);
     });
     test('sink access 2 bytes', () async {
-      debugIdbShowLogs = devWarning(true);
+      // debugIdbShowLogs = devWarning(true);
       var dbName = 'sink_access_2.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName,
