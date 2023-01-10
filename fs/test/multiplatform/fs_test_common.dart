@@ -1,3 +1,5 @@
+// ignore_for_file: implementation_imports
+
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_fs.dart';
@@ -40,8 +42,10 @@ abstract class IdbFileSystemTestContext extends FileSystemTestContext {
   @override
   PlatformContext? platform;
 
+  FileSystemIdb get rawFsIdb;
+
   @override
-  IdbFileSystem get fs;
+  IdbFileSystem get fs => rawFsIdb;
 
   @override
   String toString() => 'IdbFsTestContext($fs)';
@@ -52,7 +56,7 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
   @override
-  late final FileSystemIdb fs = newFileSystemMemory() as FileSystemIdb;
+  FileSystemIdb rawFsIdb = newFileSystemMemory() as FileSystemIdb;
 
   MemoryFileSystemTestContext();
 }
@@ -62,7 +66,7 @@ class MemoryFileSystemTestContextWithOptions
   MemoryFileSystemTestContextWithOptions({required super.options});
 
   @override
-  final IdbFileSystem fs = newFileSystemMemory() as IdbFileSystem;
+  final IdbFileSystem rawFsIdb = newFileSystemMemory() as IdbFileSystem;
 }
 
 abstract class FileSystemTestContextIdbWithOptions
@@ -70,6 +74,10 @@ abstract class FileSystemTestContextIdbWithOptions
   final FileSystemIdbOptions options;
 
   FileSystemTestContextIdbWithOptions({required this.options});
+
+  @override
+  IdbFileSystem get fs =>
+      rawFsIdb.withIdbOptions(options: options) as FileSystemIdb;
 }
 
 void devPrintJson(Map json) {

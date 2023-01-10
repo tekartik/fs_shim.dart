@@ -18,7 +18,7 @@ FileSystem newFileSystemIdbBrowser([String? name]) =>
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
-  late IdbFileSystem fs = () {
+  late IdbFileSystem rawFsIdb = () {
     var fs = newFileSystemIdbBrowser()
         as IdbFileSystem; // Needed for initialization (supportsLink)
     return fs;
