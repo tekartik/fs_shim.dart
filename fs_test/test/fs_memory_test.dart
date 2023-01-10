@@ -3,6 +3,7 @@
 
 library tekartik_fs_test.fs_memory_test;
 
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:tekartik_fs_test/fs_current_dir_file_test.dart' as current_dir;
 import 'package:tekartik_fs_test/fs_test.dart';
@@ -10,8 +11,25 @@ import 'package:tekartik_fs_test/test_common.dart';
 
 void main() {
   group('memory', () {
-    current_dir.defineTests(newFileSystemMemory());
-    defineTests(memoryFileSystemTestContext);
+    void defineAllIdbTests(IdbFileSystemTestContext ctx) {
+      group('options: ${ctx.fs.idbOptions} ', () {
+        current_dir.defineTests(ctx.fs);
+        defineTests(memoryFileSystemTestContext);
+      });
+    }
+
+    group('pageSize: null twice', () {
+      defineAllIdbTests(MemoryFileSystemTestContext());
+
+      defineAllIdbTests(MemoryFileSystemTestContextWithOptions(
+          options: const FileSystemIdbOptions(pageSize: 16 * 1024)));
+      defineAllIdbTests(MemoryFileSystemTestContextWithOptions(
+          options: const FileSystemIdbOptions(pageSize: 2)));
+      defineAllIdbTests(MemoryFileSystemTestContextWithOptions(
+          options: const FileSystemIdbOptions(pageSize: 4)));
+      defineAllIdbTests(MemoryFileSystemTestContextWithOptions(
+          options: const FileSystemIdbOptions(pageSize: 1024)));
+    });
 
     // Copied from source test
     group('top', () {

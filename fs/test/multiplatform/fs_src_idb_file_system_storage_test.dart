@@ -34,7 +34,7 @@ void main() {
     expect(segmentsToPath(['/', 'a']), '/a');
   });
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
-  defineIdbFileSystemStorageTests(MemoryFileSystemTestContext(
+  defineIdbFileSystemStorageTests(MemoryFileSystemTestContextWithOptions(
       options: const FileSystemIdbOptions(pageSize: 2)));
 }
 

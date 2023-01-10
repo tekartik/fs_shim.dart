@@ -37,7 +37,7 @@ class TxnNodeDataReadStreamCtlr {
   Future<void> txnRead() async {
     try {
       if (fileEntity.hasPageSize) {
-        var helper = StreamPartHelper(fileEntity.filePageSize);
+        var helper = FilePartHelper(fileEntity.filePageSize);
 
         var fileId = fileEntity.fileId;
         var start = this.start ?? 0;
@@ -47,33 +47,35 @@ class TxnNodeDataReadStreamCtlr {
         var first = true;
         var expectedCount = end - start;
         var count = 0;
-        await txn
-            .objectStore(partStoreName)
-            .openCursor(
-                range: helper.getPartsRange(fileId, start, end),
-                autoAdvance: true)
-            .listen((event) {
-          var ref = FilePartRef.fromKey(event.key);
-          if (++partIndex != ref.index) {
-            throw StateError('Corrupted content');
-          }
-          var bytes = filePartIndexCursorPartContent(event);
-          if (first) {
-            if (startPositionInPage > 0) {
-              bytes = bytes.sublist(startPositionInPage);
+        if (end > start) {
+          await txn
+              .objectStore(partStoreName)
+              .openCursor(
+                  range: helper.getPartsRange(fileId, start, end),
+                  autoAdvance: true)
+              .listen((event) {
+            var ref = FilePartRef.fromKey(event.key);
+            if (++partIndex != ref.index) {
+              throw StateError('Corrupted content');
             }
-            first = false;
-          }
-          var total = count + bytes.length;
-          if (total > expectedCount) {
-            // truncate (last)
-            bytes = bytes.sublist(0, expectedCount - count);
-          }
-          if (bytes.isNotEmpty) {
-            count += bytes.length;
-            _ctlr.add(bytes);
-          }
-        }).asFuture();
+            var bytes = filePartIndexCursorPartContent(event);
+            if (first) {
+              if (startPositionInPage > 0) {
+                bytes = bytes.sublist(startPositionInPage);
+              }
+              first = false;
+            }
+            var total = count + bytes.length;
+            if (total > expectedCount) {
+              // truncate (last)
+              bytes = bytes.sublist(0, expectedCount - count);
+            }
+            if (bytes.isNotEmpty) {
+              count += bytes.length;
+              _ctlr.add(bytes);
+            }
+          }).asFuture();
+        }
       } else {
         var result =
             await fs.txnReadCheckNodeFileContent(txn, file, fileEntity);

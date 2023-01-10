@@ -201,6 +201,7 @@ class IdbFileSystemStorage {
   Future<Node> txnUpdateFileMetaSize(idb.Transaction txn, Node treeEntity,
       {required int size}) async {
     var treeStore = txn.objectStore(treeStoreName);
+    devPrint('updating file size $treeEntity to $size');
     return await txnStoreUpdateFileMetaSize(treeStore, treeEntity, size: size);
   }
 
@@ -278,9 +279,13 @@ class IdbFileSystemStorage {
       idb.ObjectStore partStore, FilePartRef ref) async {
     var partMap = await partStore.getObject(ref.toKey());
     if (partMap is Map) {
-      return anyAsUint8List(partMap[contentKey]);
+      var bytes = anyAsUint8List(partMap[contentKey]);
+      if (debugIdbShowLogs) {
+        print('read part $ref size ${bytes.length}');
+      }
+      return bytes;
     } else {
-      throw StateError('Invalid existing content for part $ref');
+      throw StateError('Missing existing content for part $ref: $partMap');
     }
   }
 
@@ -292,11 +297,16 @@ class IdbFileSystemStorage {
       fileKey: ref.fileId,
       contentKey: bytes
     };
-
     if (debugIdbShowLogs) {
       print('put part $ref size ${bytes.length}');
     }
-    await partStore.put(partEntry);
+    try {
+      await partStore.put(partEntry);
+    } catch (e) {
+      if (debugIdbShowLogs) {
+        print('put part $ref size ${bytes.length} error $e');
+      }
+    }
   }
 
   /// Delete a given part
@@ -308,30 +318,82 @@ class IdbFileSystemStorage {
     await partStore.delete(ref.toKey());
   }
 
-  late var helper = StreamPartHelper(pageSize);
+  late var helper = FilePartHelper(pageSize);
+
   bool needClearRemainingV2(Node initialEntity, Node newEntity) {
     var first = helper.pageCountFromSize(newEntity.fileSize);
     var last = helper.pageCountFromSize(initialEntity.fileSize);
     return last > first;
   }
 
-  /// Set the content of a file and update meta. return the updated node
-  ///
-  /// if [allAndClearInitialEntity] remaining content is removed.
-  Future<void> txnStoreClearRemainingV2(
-      idb.ObjectStore partStore, Node initialEntity, Node newEntity) async {
+  bool needClearStoreV2(Node initialEntity, Node newEntity,
+      {int? newEntityMaxFileSize}) {
     var first = helper.pageCountFromSize(newEntity.fileSize);
-    var last = helper.pageCountFromSize(initialEntity.fileSize);
-    for (var i = first; i < last; i++) {
-      await txnStoreDeletePart(partStore, FilePartRef(newEntity.fileId, i));
+    var last = getLastPartToClean(initialEntity, first,
+        newEntityMaxFileSize: newEntityMaxFileSize);
+    return last > first;
+  }
+
+  int getLastPartToClean(Node initialEntity, int first,
+      {int? newEntityMaxFileSize}) {
+    var last = first;
+    if (initialEntity.hasPageSize) {
+      // Max from initial content.
+      var initialLast = FilePartHelper(initialEntity.filePageSize)
+          .endPageIndexFromPosition(initialEntity.fileSize);
+      last = max(last, initialLast);
     }
+
+    if (newEntityMaxFileSize != null) {
+      // Max from max access.
+      var accessMaxLast = helper.endPageIndexFromPosition(newEntityMaxFileSize);
+      last = max(last, accessMaxLast);
+    }
+    return last;
   }
 
   /// Set the content of a file and update meta. return the updated node
   ///
   /// if [allAndClearInitialEntity] remaining content is removed.
-  Future<Node> txnUpdateStreamedFileDataV2(
-      idb.Transaction txn, Node treeEntity, List<StreamPartIdb> parts) async {
+  Future<void> txnStoreClearRemainingV2(
+      idb.ObjectStore partStore, Node initialEntity, Node newEntity,
+      {int? newEntityMaxFileSize}) async {
+    var first = helper.pageIndexFromPosition(newEntity.fileSize);
+    var last = first;
+    if (initialEntity.hasPageSize) {
+      // Max from initial content.
+      var initialLast = FilePartHelper(initialEntity.filePageSize)
+          .endPageIndexFromPosition(initialEntity.fileSize);
+      last = max(last, initialLast);
+    }
+
+    if (newEntityMaxFileSize != null) {
+      // Max from max access.
+      var accessMaxLast = helper.endPageIndexFromPosition(newEntityMaxFileSize);
+      last = max(last, accessMaxLast);
+    }
+    for (var i = first; i < last; i++) {
+      var ref = FilePartRef(newEntity.fileId, i);
+      if (i == first) {
+        var endPositionInPage = helper.getPositionInPage(newEntity.fileSize);
+        if (endPositionInPage > 0) {
+          // Read the first and make sure it is ok
+          var content = await txnStoreGetPartContent(partStore, ref);
+          if (endPositionInPage < content.length) {
+            // truncate
+            await txnStoreSetPart(
+                partStore, ref, content.sublist(0, endPositionInPage));
+          }
+          continue;
+        }
+      }
+      await txnStoreDeletePart(partStore, ref);
+    }
+  }
+
+  /// Set the content of a file and update meta. return the updated node
+  Future<Node> txnUpdateFileDataV2(
+      idb.Transaction txn, Node treeEntity, List<FilePartIdb> parts) async {
     var fileId = treeEntity.id!;
     var partStore = txn.objectStore(partStoreName);
     /*
@@ -348,8 +410,10 @@ class IdbFileSystemStorage {
     /// Calculate the new file size based on the max position
     var posMax = treeEntity.fileSize;
 
+    devPrint('updating $treeEntity, $parts');
     for (var part in parts) {
-      var atEnd = part.end == null;
+      devPrint('updating $part');
+      //var atEnd = part.end == null;
 
       var start = part.start;
 
@@ -358,18 +422,26 @@ class IdbFileSystemStorage {
       // devPrint('index ${part.index}: $kcr');
       var pk = FilePartRef(fileId, part.index);
 
+      // Are we appending
+      var endPartPosition = helper.getFilePartPosition(part.index, part.end);
+      var atEnd = endPartPosition > posMax;
+
+      devPrint('part $part atEnd: $atEnd');
       if (start == 0 && atEnd) {
         // Write full
         bytes = part.bytes;
       } else {
+        devPrint(
+            'reading $pk start: $start, posMax: $posMax, endPartPosition: $endPartPosition');
+
         var existingBytes = await txnStoreGetPartContent(partStore, pk);
-        var end = part.end ?? (start + part.bytes.length);
+        var end = part.end;
 
         var bytesBuilder = BytesBuilder();
         if (start > 0) {
           bytesBuilder.add(existingBytes.sublist(0, start));
         }
-        bytesBuilder.add(part.bytes.sublist(0, end - start));
+        bytesBuilder.add(part.bytes);
         if (existingBytes.length > end) {
           bytesBuilder.add(existingBytes.sublist(end));
         }
@@ -534,7 +606,7 @@ class IdbFileSystemStorage {
     return txnGetNode(treeStore, targetSegments, true);
   }
 
-  // Return a matching result
+// Return a matching result
   Future<Node?> txnGetNode(
       idb.ObjectStore store, List<String> segments, bool followLastLink) {
     //idb.idbDevPrint('#XX');
@@ -644,7 +716,7 @@ class IdbFileSystemStorage {
     //return result;
   }
 
-  // follow link only for last one
+// follow link only for last one
   Future<NodeSearchResult> searchNode(
       List<String> segments, bool followLastLink) async {
     await ready;

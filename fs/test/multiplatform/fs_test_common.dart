@@ -1,8 +1,8 @@
-import 'package:test/test.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_fs.dart';
 import 'package:fs_shim/src/platform/platform.dart';
+import 'package:test/test.dart';
 
 int _testId = 0;
 
@@ -51,23 +51,10 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
     MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
-  final FileSystemIdbOptions? options;
   @override
-  final PlatformContext? platform = null;
-  @override
-  late final IdbFileSystem fs = () {
-    if (debugIdbShowLogs) {
-      print('Creating file system $hashCode');
-    }
-    // IdbFactoryLogger.debugMaxLogCount = devWarning(256);
-    var fs = newFileSystemMemory();
-    if (options != null) {
-      fs = fs.withIdbOptions(options: options!);
-    }
-    return fs as IdbFileSystem;
-  }();
+  late final FileSystemIdb fs = newFileSystemMemory() as FileSystemIdb;
 
-  MemoryFileSystemTestContext({this.options});
+  MemoryFileSystemTestContext();
 }
 
 class MemoryFileSystemTestContextWithOptions

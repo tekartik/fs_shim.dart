@@ -9,36 +9,41 @@ import 'package:idb_shim/idb.dart' as idb;
 import 'idb_file_system_storage.dart';
 
 /// An idb part to update.
-class StreamPartIdb {
-  /// Source bytes
+class FilePartIdb {
+  /// Source bytes (trimmed)
   final Uint8List bytes;
 
   /// Part index.
   final int index;
 
   /// start to copy inside existing part (default 0)
+  ///
+  /// This is not a index in bytes.
   final int start;
 
-  /// end to copy inside existing part (default end)
-  final int? end;
+  int get end => start + bytes.lengthInBytes;
 
   /// An idb part to update.
-  StreamPartIdb(
-      {required this.bytes, required this.index, this.start = 0, this.end});
+  FilePartIdb({required this.bytes, required this.index, this.start = 0});
+
+  @override
+  String toString() => '[$index]: $start (size ${bytes.length})';
 }
 
-class StreamPartResult {
+class FilePartResult {
   final int position; // new position
 
-  final List<StreamPartIdb> list;
+  final List<FilePartIdb> list;
 
-  StreamPartResult({required this.position, required this.list});
+  FilePartResult({required this.position, required this.list});
+  @override
+  String toString() => 'pos: $position $list';
 }
 
-class StreamPartHelper {
+class FilePartHelper {
   final int pageSize;
 
-  StreamPartHelper(this.pageSize);
+  FilePartHelper(this.pageSize);
 
   int getPositionInPage(int position) => position % pageSize;
 
@@ -52,37 +57,50 @@ class StreamPartHelper {
   /// Add the whole bytes at position
   ///
   /// [all] means include last part
-  StreamPartResult getStreamParts(
-      {required List<int> bytes, required int position, bool all = false}) {
+  ///
+  /// [start] index int [bytes]
+  /// [end] index
+  ///
+  /// [position] is the absolute file index.
+  FilePartResult getFileParts(
+      {required List<int> bytes,
+      int position = 0,
+      int start = 0,
+      bool all = false,
+      int? end}) {
     // index in bytes
-    var index = 0;
+    var srcIndex = start;
+    end ??= bytes.length;
     var newPosition = position;
-    var list = <StreamPartIdb>[];
+    var list = <FilePartIdb>[];
     while (true) {
-      var remaining = bytes.length - index;
+      var remaining = end - srcIndex;
       if (remaining <= 0) {
         break;
       }
 
-      var positionInPage = newPosition % pageSize;
+      var positionInPage = getPositionInPage(newPosition);
       var pageIndex = pageIndexFromPosition(newPosition);
 
       var neededToFillPage = pageSize - positionInPage;
       if (remaining >= neededToFillPage || all) {
         // for all
         var adding = min(remaining, neededToFillPage);
-        list.add(StreamPartIdb(
-            bytes: asUint8List(bytes.sublist(index, index + adding)),
-            index: pageIndex,
-            start: positionInPage));
+        var buffer = asUint8List(bytes.sublist(srcIndex, srcIndex + adding));
+        var filePart = FilePartIdb(
+          bytes: buffer,
+          index: pageIndex,
+          start: positionInPage,
+        );
+        list.add(filePart);
         newPosition += adding;
-        index += adding;
+        srcIndex += adding;
       } else {
         // Not full
         break;
       }
     }
-    return StreamPartResult(position: newPosition, list: list);
+    return FilePartResult(position: newPosition, list: list);
   }
 
   int pageIndexFromPosition(int position) => position ~/ pageSize;
@@ -92,6 +110,10 @@ class StreamPartHelper {
 
   int pageCountFromSize(int size) =>
       pageCountFromSizeAndPageSize(size, pageSize);
+
+  int getFilePartPosition(int partIndex, int inPartIndex) {
+    return partIndex * pageSize + inPartIndex;
+  }
 }
 
 /// Page count from size and page size.

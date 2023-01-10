@@ -3,6 +3,7 @@ library fs_shim.test.test_common;
 export 'dart:async';
 export 'dart:convert';
 
+export 'package:fs_shim/src/idb/idb_file_system.dart' show debugIdbShowLogs;
 export 'package:fs_shim/src/idb/idb_fs.dart' show FileSystemIdb;
 export 'package:fs_shim/src/platform/platform.dart'
     show

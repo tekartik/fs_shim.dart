@@ -97,10 +97,7 @@ var rawExportOneFileV3PageSize2 = {
     },
     {
       'name': 'part',
-      'keys': [
-        [2, 0],
-        [2, 1]
-      ],
+      'keys': [1, 2],
       'values': [
         {
           'index': 0,
@@ -187,9 +184,7 @@ var rawExportOneFileV3PageSize1024 = {
     },
     {
       'name': 'part',
-      'keys': [
-        [2, 0]
-      ],
+      'keys': [1],
       'values': [
         {
           'index': 0,

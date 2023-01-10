@@ -8,7 +8,9 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_read.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:fs_shim/src/idb/idb_file_write.dart';
+import 'package:fs_shim/src/idb/idb_random_access_file.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
@@ -33,15 +35,141 @@ void main() {
 }
 
 void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
+  group('2 bytes', () {
+    late IdbFileSystem fs;
+    setUp(() async {
+      var dbName = 'idb_format_2_bytes.db';
+      await idbFactory.deleteDatabase(dbName);
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+    });
+
+    tearDown(() async {
+      fs.close();
+    });
+    test('write pageSize 2 bytes', () async {
+      debugIdbShowLogs = devWarning(true);
+
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
+      raf.noAsyncFlush = true;
+      await raf.writeString('h');
+      expect(raf.accessPosition, 1);
+      // expect(await raf.position(), 1);
+      expect(await file.readAsString(), '');
+      expect(await getPartEntries(fs.database), []);
+      // position does flush...
+      expect(await raf.position(), 1);
+      expect(await file.readAsString(), 'h');
+      //expect(await getPartEntries(fs.database), [{'index': 0, 'file': 2, 'content': [104]}]);
+      //await raf.flush();
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [104]
+        }
+      ]);
+      expect(await file.readAsString(), 'h');
+      await raf.writeString('ello');
+      await raf.setPosition(1);
+
+      await raf.close();
+    });
+
+    test('writeByte multiple no flush', () async {
+      debugIdbShowLogs = devWarning(true);
+
+      var file = fs.file('write_byte_no_flush.bin');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      raf.noAsyncFlush = true;
+      await raf.writeByte(1);
+      await raf.writeByte(2);
+      await raf.writeByte(3);
+      await raf.writeByte(4);
+      expect(await getPartEntries(fs.database), []);
+      await raf.flush();
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        }
+      ]);
+    });
+
+    test('truncate short', () async {
+      debugIdbShowLogs = devWarning(true);
+
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      raf.noAsyncFlush = true;
+      await raf.doWriteBuffer([1, 2, 3, 4, 5]);
+      await raf.truncate(3);
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [5]
+        }
+      ]);
+      await raf.close();
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3]
+        },
+      ]);
+    });
+
+    test('read pageSize 2 bytes', () async {
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      await raf.writeString('hello');
+      await raf.setPosition(1);
+
+      var stat = raf.stat.clone();
+      var buffer = Uint8List(4);
+      expect(await raf.readInto(buffer, 1, 3), 2);
+      // should read 2 parts
+      expect(raf.stat.getCount, stat.getCount + 2);
+
+      await raf.close();
+    });
+  });
   group('multi format', () {
-    test('random access open no page, append pageSize 2 bytes', () async {
+    test(
+        'random access open no page, append pageSize 2 bytes then 4 bytes then 2 bytes',
+        () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'multi_format.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName,
           options: FileSystemIdbOptions.noPage);
       var file = fs.file('test.txt');
-      var raf = await file.open(mode: FileMode.write);
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
       await raf.writeString('hello');
       await raf.close();
       fs.close();
@@ -57,7 +185,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
+      raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
       await raf.close();
       fs.close();
       db = await idbFactory.open(dbName);
@@ -83,8 +211,14 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
+      raf = (await file.open(mode: FileMode.append)) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
+      raf.noAsyncFlush = true;
       await raf.writeString('world');
+      expect(await file.readAsString(), 'hello');
+      await raf.flush();
+      expect(await file.readAsString(), 'helloworld');
+
       await raf.close();
       expect(await file.readAsString(), 'helloworld');
       fs.close();
@@ -119,7 +253,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs = IdbFileSystem(idbFactory, dbName,
           options: FileSystemIdbOptions.noPage);
       file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
+      raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
       await raf.close();
       expect(await file.readAsString(), 'helloworld');
       fs.close();
@@ -261,7 +395,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       ]);
     });
     test('sink access 2 bytes', () async {
-      // debugIdbShowLogs = devWarning(true);
+      debugIdbShowLogs = devWarning(true);
       var dbName = 'sink_access_2.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName,
@@ -517,10 +651,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
             if (options?.pageSize == 2)
               {
                 'name': 'part',
-                'keys': [
-                  [2, 0],
-                  [2, 1]
-                ],
+                'keys': [1, 2],
                 'values': [
                   {
                     'index': 0,
@@ -537,9 +668,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
             else
               {
                 'name': 'part',
-                'keys': [
-                  [2, 0]
-                ],
+                'keys': [1],
                 'values': [
                   {
                     'index': 0,

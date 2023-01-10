@@ -121,6 +121,9 @@ class IdbFileSystem extends Object
         IdbFileSystemStorage(factory, path ?? dbPath, options: options);
   }
 
+  /// Non null database.
+  idb.Database get database => db!;
+
   IdbFileSystem withOptionsImpl({required FileSystemIdbOptions options}) {
     var storage = _storage.withOptions(options: options);
     return IdbFileSystem._(storage);
@@ -703,7 +706,7 @@ class IdbFileSystem extends Object
       throw ArgumentError("Invalid file mode '$mode' for this operation");
     }
 
-    final sink = IdbWriteStreamSink(this, file, mode);
+    final sink = IdbWriteStreamSink(file, mode);
 
     return sink;
   }
@@ -761,7 +764,7 @@ class IdbFileSystem extends Object
         var newNode = node.clone(pageSize: expectedPageSize);
         var writeCtlr = TxnWriteStreamSinkIdb(
             file, txn, newNode, fs.FileMode.write,
-            existingEntity: node);
+            initialFileEntity: node);
         await writeCtlr.addStream(readCtrl.stream);
         // Delete previous
         await txnDeleteFileContent(txn, node);

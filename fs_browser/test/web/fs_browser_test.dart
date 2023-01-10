@@ -8,7 +8,7 @@ import 'package:tekartik_fs_test/test_common.dart';
 
 class FileSystemTestContextIdbBrowser extends IdbFileSystemTestContext {
   @override
-  IdbFileSystem fs = fileSystemIdb
+  IdbFileSystem rawFsIdb = fileSystemIdb
       as IdbFileSystem; // Needed for initialization (supportsLink)
   FileSystemTestContextIdbBrowser() {
     platform = platformContextBrowser;
