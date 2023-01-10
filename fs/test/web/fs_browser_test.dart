@@ -18,13 +18,15 @@ FileSystem newFileSystemIdbBrowser([String? name]) =>
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
-  final PlatformContext platform = PlatformContextBrowser();
-  @override
-  late IdbFileSystem fs = () {
+  late IdbFileSystem rawFsIdb = () {
     var fs = newFileSystemIdbBrowser()
         as IdbFileSystem; // Needed for initialization (supportsLink)
     return fs;
   }();
+
+  IdbBrowserFileSystemTestContext() {
+    platform = PlatformContextBrowser();
+  }
 }
 
 var _index = 0;

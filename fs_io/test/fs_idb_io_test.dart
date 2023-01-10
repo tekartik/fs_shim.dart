@@ -5,7 +5,6 @@
 library fs_shim.fs_src_idb_io_test;
 
 import 'package:fs_shim/fs_idb.dart';
-import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_io.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
@@ -26,12 +25,8 @@ var _index = 0;
 
 class FileSystemTestContextIdbIo extends FileSystemTestContextIdbWithOptions {
   @override
-  late final IdbFileSystem fs = () {
-    var fs = newIdbIoFileSystem('test_idb_io_${++_index}');
-
-    fs = fs.withIdbOptions(options: options);
-    return fs as FileSystemIdb;
-  }();
+  late final FileSystemIdb rawFsIdb =
+      newIdbIoFileSystem('test_idb_io_${++_index}') as FileSystemIdb;
 
   FileSystemTestContextIdbIo({FileSystemIdbOptions? options})
       : super(options: options ?? FileSystemIdbOptions.pageDefault);

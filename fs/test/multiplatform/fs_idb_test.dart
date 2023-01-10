@@ -6,6 +6,7 @@ library fs_shim.test.multiplatform.fs_idb_test;
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'fs_src_idb_file_system_storage_test.dart';
@@ -33,7 +34,7 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
     test('version', () async {
       await ctx.prepare();
       final db = ctx.fs.db!;
-      expect(db.version, 7);
+      expect(db.version, 8);
       // If this fails, delete .dart_tool/fs_shim/test folder
       expect(List.from(db.objectStoreNames)..sort(), ['file', 'part', 'tree']);
     });

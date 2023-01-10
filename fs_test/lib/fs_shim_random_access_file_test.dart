@@ -4,18 +4,22 @@
 library fs_shim.test.fs_shim_file_test;
 
 // ignore_for_file: unnecessary_import
+import 'dart:typed_data';
+
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_idb.dart';
 
 import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
+  //defineTests(MemoryFileSystemTestContextWithOptions(options: const FileSystemIdbOptions(pageSize: 2)));
 }
 
 void defineTests(FileSystemTestContext ctx) {
   var fs = ctx.fs;
-  //idbSupportsV2Format = devWarning(true);
-  //debugIdbShowLogs = devWarning(true);
+  // idbSupportsV2Format = devWarning(true);
+  // debugIdbShowLogs = devWarning(true);
   group('random_access_file', () {
     test('simple read/write', () async {
       final directory = await ctx.prepare();
@@ -49,6 +53,7 @@ void defineTests(FileSystemTestContext ctx) {
     });
 
     test('truncate', () async {
+      // debugIdbShowLogs = devWarning(true);
       final directory = await ctx.prepare();
       var filePath = fs.path.join(directory.path, 'truncate');
       final file = fs.file(filePath);
@@ -64,7 +69,7 @@ void defineTests(FileSystemTestContext ctx) {
         randomAccessFile = await randomAccessFile.truncate(4);
         expect(await randomAccessFile.length(), 4);
 
-        // on linux and idb
+        // on linux but not windows and idb
         var positionKept = await randomAccessFile.position() == 5;
         if (positionKept) {
           expect(await randomAccessFile.position(), 5);
@@ -113,6 +118,49 @@ void defineTests(FileSystemTestContext ctx) {
       await randomAccessFile.close();
 
       expect(await file.readAsString(), 'helloworld');
+    });
+
+    test('no flush', () async {
+      // debugIdbShowLogs = devWarning(true);
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'no_flush');
+      final file = fs.file(filePath);
+      var randomAccessFile = await file.open(mode: FileMode.write);
+      var rafRead = await file.open(mode: FileMode.read);
+      var buffer = Uint8List(5);
+      await randomAccessFile.writeString('hello');
+      var readLength = await rafRead.length();
+      if (readLength == 5) {
+        //expect(await rafRead.length(), 5);
+
+        unawaited(randomAccessFile.writeString('world'));
+        expect(await rafRead.readInto(buffer), 5);
+        expect(utf8.decode(buffer), 'hello');
+      }
+      await randomAccessFile.close();
+
+      /*
+      randomAccessFile = await file.open(mode: FileMode.append);
+      await randomAccessFile.writeString('world');
+      await randomAccessFile.close();
+
+      expect(await file.readAsString(), 'helloworld');
+
+       */
+    });
+    test('readInto', () async {
+      // debugIdbShowLogs = devWarning(true);
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'test_read_info.txt');
+      var file = fs.file(filePath);
+      var raf = await file.open(mode: FileMode.write);
+      await raf.writeString('helloworld');
+      await raf.setPosition(1);
+      var buffer = Uint8List(7);
+      await raf.readInto(buffer, 2, 6);
+      expect(buffer, [0, 0, 101, 108, 108, 111, 0]);
+
+      await raf.close();
     });
     test('complex read/write', () async {
       final directory = await ctx.prepare();

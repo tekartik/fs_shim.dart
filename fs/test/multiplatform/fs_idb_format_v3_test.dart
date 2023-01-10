@@ -10,13 +10,14 @@ import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:test/test.dart';
 
 import '../test_common.dart';
+import 'fs_idb_format_v2_test.dart';
 
 void main() {
   fsIdbFormatV2Group(idbFactoryMemoryFs);
 }
 
 void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
-  group('idb_format_v2', () {
+  group('idb_format_v3', () {
     test('v2 export page size 0', () async {
       var exportMap = rawExportOneFileV2PageSize0;
       var dbName = 'export_file_v2.sdb';
@@ -33,12 +34,12 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
 
       fs.close();
     }, skip: false);
-    test('v2 export page size 2', () async {
-      var exportMap = rawExportOneFileV2PageSize2;
-      var dbName = 'export_file_v2.sdb';
+    test('v3 export page size 2', () async {
+      var exportMap = rawExportOneFileV3PageSize2;
+      var dbName = 'export_file_v3.sdb';
       await idbFactory.deleteDatabase(dbName);
       var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await sdbExportDatabase(db), rawExportOneFileV2PageSize2);
+      expect(await sdbExportDatabase(db), rawExportOneFileV3PageSize2);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbName);
@@ -48,11 +49,11 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       expect(await file.readAsString(), 'test');
 
       fs.close();
-    }, skip: true); // no longer supported
+    }, skip: false);
 
     test('v2 page size 1024 import', () async {
-      var exportMap = rawExportOneFilePageSize1024;
-      var dbName = 'export_file_v2_1024.sdb';
+      var exportMap = rawExportOneFileV3PageSize1024;
+      var dbName = 'export_file_v3_1024.sdb';
       await idbFactory.deleteDatabase(dbName);
       var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
       expect(await sdbExportDatabase(db), exportMap);
@@ -65,12 +66,11 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       expect(await file.readAsString(), 'test');
 
       fs.close();
-    }, skip: true); // no longer supported
+    }, skip: false);
   });
 }
 
-// page size 2
-var rawExportOneFileV2PageSize2 = {
+var rawExportOneFileV3PageSize2 = {
   'sembast_export': 1,
   'version': 1,
   'stores': [
@@ -81,14 +81,7 @@ var rawExportOneFileV2PageSize2 = {
         {'name': 'file'},
         {
           'name': 'part',
-          'autoIncrement': true,
-          'indecies': [
-            {
-              'name': 'part_index',
-              'keyPath': ['file', 'index'],
-              'unique': true
-            }
-          ]
+          'keyPath': ['file', 'index']
         },
         {
           'name': 'tree',
@@ -99,7 +92,7 @@ var rawExportOneFileV2PageSize2 = {
           ]
         },
         ['file', 'part', 'tree'],
-        7
+        8
       ]
     },
     {
@@ -125,7 +118,7 @@ var rawExportOneFileV2PageSize2 = {
         {
           'name': '/',
           'type': 'dir',
-          'modified': '2023-01-03T11:29:31.923123Z',
+          'modified': '2023-01-06T17:14:04.528980Z',
           'size': 0,
           'pn': '/'
         },
@@ -134,7 +127,7 @@ var rawExportOneFileV2PageSize2 = {
           'type': 'file',
           'ps': 2,
           'parent': 1,
-          'modified': '2023-01-03T11:29:31.923412Z',
+          'modified': '2023-01-06T17:14:04.535381Z',
           'size': 4,
           'pn': '1/file.txt'
         }
@@ -142,8 +135,29 @@ var rawExportOneFileV2PageSize2 = {
     }
   ]
 };
+var mainStoreExportV3 = {
+  'name': '_main',
+  'keys': ['store_file', 'store_part', 'store_tree', 'stores', 'version'],
+  'values': [
+    {'name': 'file'},
+    {
+      'name': 'part',
+      'keyPath': ['file', 'index']
+    },
+    {
+      'name': 'tree',
+      'autoIncrement': true,
+      'indecies': [
+        {'name': 'parent', 'keyPath': 'parent'},
+        {'name': 'pn', 'keyPath': 'pn', 'unique': true}
+      ]
+    },
+    ['file', 'part', 'tree'],
+    8
+  ]
+};
 
-var rawExportOneFilePageSize1024 = {
+var rawExportOneFileV3PageSize1024 = {
   'sembast_export': 1,
   'version': 1,
   'stores': [
@@ -154,14 +168,7 @@ var rawExportOneFilePageSize1024 = {
         {'name': 'file'},
         {
           'name': 'part',
-          'autoIncrement': true,
-          'indecies': [
-            {
-              'name': 'part_index',
-              'keyPath': ['file', 'index'],
-              'unique': true
-            }
-          ]
+          'keyPath': ['file', 'index']
         },
         {
           'name': 'tree',
@@ -172,7 +179,7 @@ var rawExportOneFilePageSize1024 = {
           ]
         },
         ['file', 'part', 'tree'],
-        7
+        8
       ]
     },
     {
@@ -193,7 +200,7 @@ var rawExportOneFilePageSize1024 = {
         {
           'name': '/',
           'type': 'dir',
-          'modified': '2023-01-03T14:10:34.117682Z',
+          'modified': '2023-01-06T17:18:52.466915Z',
           'size': 0,
           'pn': '/'
         },
@@ -202,103 +209,11 @@ var rawExportOneFilePageSize1024 = {
           'type': 'file',
           'ps': 1024,
           'parent': 1,
-          'modified': '2023-01-03T14:10:34.117891Z',
+          'modified': '2023-01-06T17:18:52.473463Z',
           'size': 4,
           'pn': '1/file.txt'
         }
       ]
     }
-  ]
-};
-
-var rawExportOneFileV2PageSize0 = {
-  'sembast_export': 1,
-  'version': 1,
-  'stores': [
-    {
-      'name': '_main',
-      'keys': ['store_file', 'store_part', 'store_tree', 'stores', 'version'],
-      'values': [
-        {'name': 'file'},
-        {
-          'name': 'part',
-          'autoIncrement': true,
-          'indecies': [
-            {
-              'name': 'part_index',
-              'keyPath': ['file', 'index'],
-              'unique': true
-            }
-          ]
-        },
-        {
-          'name': 'tree',
-          'autoIncrement': true,
-          'indecies': [
-            {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
-        },
-        ['file', 'part', 'tree'],
-        7
-      ]
-    },
-    {
-      'name': 'file',
-      'keys': [2],
-      'values': [
-        {'@Blob': 'dGVzdA=='}
-      ]
-    },
-    {
-      'name': 'tree',
-      'keys': [1, 2],
-      'values': [
-        {
-          'name': '/',
-          'type': 'dir',
-          'modified': '2023-01-03T14:13:59.687055Z',
-          'size': 0,
-          'pn': '/'
-        },
-        {
-          'name': 'file.txt',
-          'type': 'file',
-          'parent': 1,
-          'modified': '2023-01-03T14:13:59.692498Z',
-          'size': 4,
-          'pn': '1/file.txt'
-        }
-      ]
-    }
-  ]
-};
-
-var mainStoreExportV2 = {
-  'name': '_main',
-  'keys': ['store_file', 'store_part', 'store_tree', 'stores', 'version'],
-  'values': [
-    {'name': 'file'},
-    {
-      'name': 'part',
-      'autoIncrement': true,
-      'indecies': [
-        {
-          'name': 'part_index',
-          'keyPath': ['file', 'index'],
-          'unique': true
-        }
-      ]
-    },
-    {
-      'name': 'tree',
-      'autoIncrement': true,
-      'indecies': [
-        {'name': 'parent', 'keyPath': 'parent'},
-        {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-      ]
-    },
-    ['file', 'part', 'tree'],
-    7
   ]
 };

@@ -13,7 +13,7 @@ import 'test_common.dart';
 
 void main() {
   defineTests(memoryFileSystemTestContext);
-  // devWarning(defineTests(      MemoryFileSystemTestContext(options: FileSystemIdbOptions(pageSize: 2))));
+  // defineTests(MemoryFileSystemTestContextWithOptions(options: FileSystemIdbOptions(pageSize: 2)));
 }
 
 final bool _doPrintErr = false;
@@ -488,6 +488,17 @@ void defineTests(FileSystemTestContext ctx) {
         content.addAll(data);
       }).asFuture();
       expect(content, 'overwritten'.codeUnits);
+
+      // append nothing.
+      sink = file.openWrite(mode: FileMode.append);
+      await sink.close();
+      var text = await file.readAsString();
+      expect(text, 'overwritten');
+      // Write nothing.
+      sink = file.openWrite(mode: FileMode.write);
+      await sink.close();
+      text = await file.readAsString();
+      expect(text, '');
     });
 
     test('append', () async {
@@ -514,7 +525,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(content, 'testappend'.codeUnits);
     });
 
-    test('write_ondirectory', () async {
+    test('write_on_directory', () async {
       final directory = await ctx.prepare();
       var filePath = fs.path.join(directory.path, 'file');
       final dir = fs.directory(filePath);

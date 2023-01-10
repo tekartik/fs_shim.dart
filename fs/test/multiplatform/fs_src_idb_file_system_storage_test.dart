@@ -15,15 +15,26 @@ import 'package:idb_shim/utils/idb_utils.dart';
 import 'test_common.dart';
 
 void main() {
+  test('idbMakePathAbsolute', () {
+    expect(idbMakePathAbsolute('/'), '/');
+    expect(idbMakePathAbsolute('.'), '/');
+    expect(idbMakePathAbsolute('a'), '/a');
+    expect(idbMakePathAbsolute('a/../b/c/../d'), '/b/d');
+  });
+
   test('getSegments', () {
+    expect(idbPathGetSegments('/./.'), ['/']);
+    expect(getSegments('/.'), ['/']);
+    expect(getSegments('.'), ['/']);
     expect(getSegments('/'), ['/']);
     expect(getSegments('a'), ['/', 'a']);
     expect(getSegments('/a'), ['/', 'a']);
+    expect(getSegments('/a/'), ['/', 'a']);
     expect(segmentsToPath(['/']), '/');
     expect(segmentsToPath(['/', 'a']), '/a');
   });
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
-  defineIdbFileSystemStorageTests(MemoryFileSystemTestContext(
+  defineIdbFileSystemStorageTests(MemoryFileSystemTestContextWithOptions(
       options: const FileSystemIdbOptions(pageSize: 2)));
 }
 
@@ -242,32 +253,23 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         if (pageSize == 0 || pageSize >= 3) {
           expect(partEntries, [
             {
-              'key': 1,
-              'value': {
-                'index': 0,
-                'file': 1,
-                'content': [1, 2, 3]
-              }
+              'index': 0,
+              'file': 1,
+              'content': [1, 2, 3]
             }
           ]);
         } else {
           // minimum is 2
           expect(partEntries, [
             {
-              'key': 1,
-              'value': {
-                'index': 0,
-                'file': 1,
-                'content': [1, 2]
-              }
+              'index': 0,
+              'file': 1,
+              'content': [1, 2]
             },
             {
-              'key': 2,
-              'value': {
-                'index': 1,
-                'file': 1,
-                'content': [3]
-              }
+              'index': 1,
+              'file': 1,
+              'content': [3]
             }
           ]);
         }
@@ -314,20 +316,14 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         var partEntries = await getPartEntries(db);
         expect(partEntries, [
           {
-            'key': 1,
-            'value': {
-              'index': 0,
-              'file': 1,
-              'content': [1, 2]
-            }
+            'index': 0,
+            'file': 1,
+            'content': [1, 2]
           },
           {
-            'key': 2,
-            'value': {
-              'index': 1,
-              'file': 1,
-              'content': [3]
-            }
+            'index': 1,
+            'file': 1,
+            'content': [3]
           }
         ]);
         //expect(partEntries[0]['value'], isA<Uint8List>());
@@ -372,7 +368,9 @@ Future<List<Map>> getPartEntries(Database db) async {
   var txn = db.transaction(partStoreName, idbModeReadOnly);
   var store = txn.objectStore(partStoreName);
   try {
-    return await getEntriesFromCursor(store.openCursor(autoAdvance: true));
+    return (await cursorToList(store.openCursor(autoAdvance: true)))
+        .map((e) => e.value as Map)
+        .toList();
   } finally {
     await txn.completed;
   }

@@ -26,10 +26,7 @@ FileSystem newIdbIoFileSystem([String? name]) {
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
   @override
-  final PlatformContext? platform = null;
-
-  @override
-  late final IdbFileSystem fs = () {
+  late final IdbFileSystem rawFsIdb = () {
     var fs = newIdbIoFileSystem('test') as IdbFileSystem;
     return fs;
   }();

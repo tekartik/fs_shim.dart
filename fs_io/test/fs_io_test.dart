@@ -10,9 +10,12 @@ class FileSystemTestContextIo extends FileSystemTestContext {
 
   @override
   FileSystem fs = fileSystem; // Needed for initialization (supportsLink)
-  FileSystemTestContextIo() {
-    basePath = join('.dart_tool', 'tekartik_fs_io', 'test');
-  }
+  FileSystemTestContextIo();
+
+  var basePath = join('.dart_tool', 'tekartik_fs_io', 'test');
+  // The path to use for testing
+  @override
+  String get outPath => fs.path.joinAll([basePath, ...testDescriptions]);
 }
 
 FileSystemTestContextIo fileSystemTestContextIo = FileSystemTestContextIo();

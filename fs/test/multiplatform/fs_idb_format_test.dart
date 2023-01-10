@@ -6,39 +6,191 @@ library fs_shim.test.multiplatform.fs_idb_format_test;
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/src/idb/idb_file_read.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:fs_shim/src/idb/idb_file_write.dart';
+import 'package:fs_shim/src/idb/idb_random_access_file.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 
 import 'fs_idb_format_v1_test.dart';
+import 'fs_idb_format_v3_test.dart';
 import 'fs_src_idb_file_system_storage_test.dart';
 import 'test_common.dart';
 
 //import 'test_common.dart';
 
 void main() {
-  fsIdbMultiFormatGroup(idbFactoryMemory);
   // if (devWarning(false)) {
+  fsIdbMultiFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 2));
   fsIdbFormatGroup(idbFactoryMemory,
       options: const FileSystemIdbOptions(pageSize: 1024));
-  // }
+  //}
 }
 
 void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
+  group('2 bytes', () {
+    late IdbFileSystem fs;
+    setUp(() async {
+      var dbName = 'idb_format_2_bytes.db';
+      await idbFactory.deleteDatabase(dbName);
+      fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+    });
+
+    tearDown(() async {
+      fs.close();
+    });
+    test('write pageSize 2 bytes', () async {
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
+      raf.noAsyncFlush = true;
+      await raf.writeString('h');
+      expect(raf.accessPosition, 1);
+      // expect(await raf.position(), 1);
+      expect(await file.readAsString(), '');
+      expect(await getPartEntries(fs.database), []);
+      // position does flush...
+      expect(await raf.position(), 1);
+      expect(await file.readAsString(), 'h');
+      //expect(await getPartEntries(fs.database), [{'index': 0, 'file': 2, 'content': [104]}]);
+      //await raf.flush();
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [104]
+        }
+      ]);
+      expect(await file.readAsString(), 'h');
+      await raf.writeString('ello');
+      await raf.setPosition(1);
+
+      await raf.close();
+    });
+
+    test('writeByte multiple no flush', () async {
+      var file = fs.file('write_byte_no_flush.bin');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
+      raf.noAsyncFlush = true;
+      await raf.writeByte(1);
+      await raf.writeByte(2);
+      await raf.writeByte(3);
+      await raf.writeByte(4);
+      expect(await getPartEntries(fs.database), []);
+      await raf.flush();
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        }
+      ]);
+    });
+    test('writeByte multiple auto flush', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var file = fs.file('write_byte_auto_flush.bin');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      await raf.writeByte(1);
+      await raf.writeByte(2);
+      await raf.writeByte(3);
+      expect(raf.fileEntity.fileSize, 0);
+      while (raf.fileEntity.fileSize == 0) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3]
+        }
+      ]);
+    });
+
+    test('truncate short no flush', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
+      raf.noAsyncFlush = true;
+      await raf.doWriteBuffer([1, 2, 3, 4, 5]);
+      await raf.truncate(3);
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [5]
+        }
+      ]);
+      await raf.close();
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3]
+        },
+      ]);
+    });
+
+    test('read pageSize 2 bytes', () async {
+      var file = fs.file('test.txt');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      await raf.writeString('hello');
+      await raf.setPosition(1);
+
+      var stat = raf.stat.clone();
+      var buffer = Uint8List(4);
+      expect(await raf.readInto(buffer, 1, 3), 2);
+      // should read 2 parts
+      expect(raf.stat.getCount, stat.getCount + 2);
+
+      await raf.close();
+    });
+  });
   group('multi format', () {
-    test('random access open no page, append pageSize 2 bytes', () async {
+    test(
+        'random access open no page, append pageSize 2 bytes then 4 bytes then 2 bytes',
+        () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'multi_format.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName,
           options: FileSystemIdbOptions.noPage);
       var file = fs.file('test.txt');
-      var raf = await file.open(mode: FileMode.write);
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
       await raf.writeString('hello');
       await raf.close();
       fs.close();
@@ -54,34 +206,25 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
+      raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
       await raf.close();
       fs.close();
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111]
         },
       ]);
 
@@ -89,58 +232,49 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
+      raf = (await file.open(mode: FileMode.append)) as RandomAccessFileIdb;
+      // ignore: invalid_use_of_protected_member
+      raf.noAsyncFlush = true;
       await raf.writeString('world');
+      expect(await file.readAsString(), 'hello');
+      await raf.flush();
+      expect(await file.readAsString(), 'helloworld');
+
       await raf.close();
       expect(await file.readAsString(), 'helloworld');
       fs.close();
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111, 119]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111, 119]
         },
         {
-          'key': 4,
-          'value': {
-            'index': 3,
-            'file': 2,
-            'content': [111, 114]
-          }
+          'index': 3,
+          'file': 2,
+          'content': [111, 114]
         },
         {
-          'key': 5,
-          'value': {
-            'index': 4,
-            'file': 2,
-            'content': [108, 100]
-          }
+          'index': 4,
+          'file': 2,
+          'content': [108, 100]
         }
       ]);
       fs = IdbFileSystem(idbFactory, dbName,
           options: FileSystemIdbOptions.noPage);
       file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append);
+      raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
       await raf.close();
       expect(await file.readAsString(), 'helloworld');
       fs.close();
@@ -182,28 +316,19 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111]
         },
       ]);
 
@@ -219,44 +344,29 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       db = await idbFactory.open(dbName);
       expect(await getPartEntries(db), [
         {
-          'key': 1,
-          'value': {
-            'index': 0,
-            'file': 2,
-            'content': [104, 101]
-          }
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
         },
         {
-          'key': 2,
-          'value': {
-            'index': 1,
-            'file': 2,
-            'content': [108, 108]
-          }
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
         },
         {
-          'key': 3,
-          'value': {
-            'index': 2,
-            'file': 2,
-            'content': [111, 119]
-          }
+          'index': 2,
+          'file': 2,
+          'content': [111, 119]
         },
         {
-          'key': 4,
-          'value': {
-            'index': 3,
-            'file': 2,
-            'content': [111, 114]
-          }
+          'index': 3,
+          'file': 2,
+          'content': [111, 114]
         },
         {
-          'key': 5,
-          'value': {
-            'index': 4,
-            'file': 2,
-            'content': [108, 100]
-          }
+          'index': 4,
+          'file': 2,
+          'content': [108, 100]
         }
       ]);
       fs = IdbFileSystem(idbFactory, dbName,
@@ -275,6 +385,201 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         }
       ]);
     });
+    test('sink access writeBytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'stream_access_write_bytes.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      var file = fs.file('test.');
+
+      final ctlr = IdbWriteStreamSink(file, FileMode.write);
+      ctlr.add([1]);
+      ctlr.add([2]);
+      ctlr.add([3]);
+      ctlr.add([4]);
+      ctlr.add([5]);
+      expect(ctlr.opened, false);
+      while (!ctlr.opened) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      while (ctlr.fileEntity.fileSize == 0) {
+        await Future.delayed(const Duration(milliseconds: 10));
+      }
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        }
+      ]);
+    });
+    test('stream access 2 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'stream_access_2.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      var file = fs.file('test.txt');
+      await file.writeAsString('helloworld');
+
+      final ctlr = IdbReadStreamCtlr(file, 1, 5);
+      expect(await ctlr.stream.toList(), [
+        [101],
+        [108, 108],
+        [111]
+      ]);
+    });
+    test('stream access 1024 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'stream_access_2.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 1024));
+      var file = fs.file('test.txt');
+      await file.writeAsString('helloworld');
+
+      final ctlr = IdbReadStreamCtlr(file, 1, 5);
+      expect(await ctlr.stream.toList(), [
+        [101, 108, 108, 111]
+      ]);
+    });
+    test('sink access 2 bytes', () async {
+      // debugIdbShowLogs = devWarning(true);
+      var dbName = 'sink_access_2.db';
+      await idbFactory.deleteDatabase(dbName);
+      var fs = IdbFileSystem(idbFactory, dbName,
+          options: const FileSystemIdbOptions(pageSize: 2));
+      var file = fs.file('test.txt');
+      var sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      var bytes = utf8.encode('hello');
+      sink.add(bytes.sublist(0, 1));
+      await sink.flushPending();
+
+      var db = fs.db!;
+      expect(await file.readAsString(), '');
+      expect(await getPartEntries(db), []);
+
+      sink.add(bytes.sublist(1, 2));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'he');
+
+      sink.add(bytes.sublist(2, 5));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'hell');
+      await sink.flush();
+      expect(await file.readAsString(), 'hello');
+      await sink.close();
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+      // overwrite
+      sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      expect(await file.readAsString(), 'hello');
+      sink.add(utf8.encode('s'));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'hello');
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [104, 101]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+
+      sink.add(utf8.encode('o'));
+      await sink.flushPending();
+      expect(await file.readAsString(), 'so');
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [115, 111]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [108, 108]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+      sink.add(utf8.encode('t'));
+      await sink.flush();
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [115, 111]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [116]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [111]
+        }
+      ]);
+      await sink.close();
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [115, 111]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [116]
+        },
+      ]);
+
+      // append nothing.
+      sink = file.openWrite(mode: FileMode.append) as IdbWriteStreamSink;
+      await sink.close();
+      var text = await file.readAsString();
+      expect(text, 'sot');
+      // Write nothing.
+      sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
+      await sink.close();
+      text = await file.readAsString();
+      expect(text, '');
+    });
   });
 }
 
@@ -282,6 +587,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
     {FileSystemIdbOptions? options}) {
   group('idb_format', () {
     test('absolute text file', () async {
+      // debugIdbShowLogs = devWarning(true);
       var dbName = 'absolute_text_file.db';
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(idbFactory, dbName, options: options);
@@ -310,7 +616,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            mainStoreExportV2,
+            mainStoreExportV3,
             {
               'name': 'file',
               'keys': [2],
@@ -372,31 +678,22 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
         if (options?.pageSize == 2) {
           expect(await getPartEntries(db), [
             {
-              'key': 1,
-              'value': {
-                'index': 0,
-                'file': 2,
-                'content': [116, 101]
-              }
+              'index': 0,
+              'file': 2,
+              'content': [116, 101]
             },
             {
-              'key': 2,
-              'value': {
-                'index': 1,
-                'file': 2,
-                'content': [115, 116]
-              }
+              'index': 1,
+              'file': 2,
+              'content': [115, 116]
             }
           ]);
         } else {
           expect(await getPartEntries(db), [
             {
-              'key': 1,
-              'value': {
-                'index': 0,
-                'file': 2,
-                'content': [116, 101, 115, 116]
-              }
+              'index': 0,
+              'file': 2,
+              'content': [116, 101, 115, 116]
             }
           ]);
         }
@@ -405,7 +702,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            mainStoreExportV2,
+            mainStoreExportV3,
             if (options?.pageSize == 2)
               {
                 'name': 'part',
@@ -616,7 +913,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           'sembast_export': 1,
           'version': 1,
           'stores': [
-            mainStoreExportV2,
+            mainStoreExportV3,
             {
               'name': 'file',
               'keys': [2],
