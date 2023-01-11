@@ -56,7 +56,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(raf.accessPosition, 1);
       // expect(await raf.position(), 1);
       expect(await file.readAsString(), '');
-      expect(await getPartEntries(fs.database), []);
+      expect(await getPartEntries(fs.database), isEmpty);
       // position does flush...
       expect(await raf.position(), 1);
       expect(await file.readAsString(), 'h');
@@ -85,7 +85,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await raf.writeByte(2);
       await raf.writeByte(3);
       await raf.writeByte(4);
-      expect(await getPartEntries(fs.database), []);
+      expect(await getPartEntries(fs.database), isEmpty);
       await raf.flush();
       expect(await getPartEntries(fs.database), [
         {
@@ -109,7 +109,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await raf.writeByte(3);
       expect(raf.fileEntity.fileSize, 0);
       while (raf.fileEntity.fileSize == 0) {
-        await Future.delayed(const Duration(milliseconds: 10));
+        await Future<void>.delayed(const Duration(milliseconds: 10));
       }
       expect(await getPartEntries(fs.database), [
         {
@@ -195,7 +195,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await raf.close();
       fs.close();
       var db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), []);
+      expect(await getPartEntries(db), isEmpty);
       expect(await getFileEntries(db), [
         {
           'key': 2,
@@ -228,7 +228,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         },
       ]);
 
-      expect(await getFileEntries(db), []);
+      expect(await getFileEntries(db), isEmpty);
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       file = fs.file('test.txt');
@@ -279,7 +279,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await file.readAsString(), 'helloworld');
       fs.close();
       db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), []);
+      expect(await getPartEntries(db), isEmpty);
       expect(await getFileEntries(db), [
         {
           'key': 2,
@@ -299,7 +299,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await raf.close();
       fs.close();
       var db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), []);
+      expect(await getPartEntries(db), isEmpty);
       expect(await getFileEntries(db), [
         {
           'key': 2,
@@ -332,7 +332,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         },
       ]);
 
-      expect(await getFileEntries(db), []);
+      expect(await getFileEntries(db), isEmpty);
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
       file = fs.file('test.txt');
@@ -377,7 +377,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await file.readAsString(), 'helloworld');
       fs.close();
       db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), []);
+      expect(await getPartEntries(db), isEmpty);
       expect(await getFileEntries(db), [
         {
           'key': 2,
@@ -401,10 +401,10 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       ctlr.add([5]);
       expect(ctlr.opened, false);
       while (!ctlr.opened) {
-        await Future.delayed(const Duration(milliseconds: 10));
+        await Future<void>.delayed(const Duration(milliseconds: 10));
       }
       while (ctlr.fileEntity.fileSize == 0) {
-        await Future.delayed(const Duration(milliseconds: 10));
+        await Future<void>.delayed(const Duration(milliseconds: 10));
       }
       expect(await getPartEntries(fs.database), [
         {
@@ -463,7 +463,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
 
       var db = fs.db!;
       expect(await file.readAsString(), '');
-      expect(await getPartEntries(db), []);
+      expect(await getPartEntries(db), isEmpty);
 
       sink.add(bytes.sublist(1, 2));
       await sink.flushPending();
@@ -610,7 +610,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
           }
         ]);
 
-        expect(await getPartEntries(db), []);
+        expect(await getPartEntries(db), isEmpty);
 
         var exportMap = {
           'sembast_export': 1,
@@ -674,7 +674,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
         // devPrint(jsonPretty(exportMap));
         expect(await sdbExportDatabase(db), exportMap);
       } else {
-        expect(await getFileEntries(db), []);
+        expect(await getFileEntries(db), isEmpty);
         if (options?.pageSize == 2) {
           expect(await getPartEntries(db), [
             {

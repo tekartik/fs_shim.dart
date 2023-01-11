@@ -18,7 +18,7 @@ void main() {
 
 final bool _doPrintErr = false;
 
-void _printErr(e) {
+void _printErr(Object? e) {
   if (_doPrintErr) {
     print('$e ${[e.runtimeType]}');
   }
@@ -379,19 +379,19 @@ void defineTests(FileSystemTestContext ctx) {
       var content = <int>[];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'test'.codeUnits);
 
       content = [];
       await file.openRead(1).listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'est'.codeUnits);
 
       content = [];
       await file.openRead(1, 3).listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'es'.codeUnits);
     });
 
@@ -411,7 +411,7 @@ void defineTests(FileSystemTestContext ctx) {
       try {
         await file.openRead().listen((Uint8List data) {
           //content.addAll(data);
-        }).asFuture();
+        }).asFuture<void>();
       } on FileSystemException catch (e) {
         // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
         // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
@@ -442,7 +442,7 @@ void defineTests(FileSystemTestContext ctx) {
       var content = <int>[];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'test'.codeUnits);
     });
 
@@ -462,7 +462,7 @@ void defineTests(FileSystemTestContext ctx) {
       final content = <int>[];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'test'.codeUnits);
     });
 
@@ -476,7 +476,7 @@ void defineTests(FileSystemTestContext ctx) {
       var content = <int>[];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'test'.codeUnits);
 
       sink = file.openWrite(mode: FileMode.write);
@@ -486,7 +486,7 @@ void defineTests(FileSystemTestContext ctx) {
       content = [];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'overwritten'.codeUnits);
 
       // append nothing.
@@ -511,7 +511,7 @@ void defineTests(FileSystemTestContext ctx) {
       var content = <int>[];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'test'.codeUnits);
 
       sink = file.openWrite(mode: FileMode.append);
@@ -521,7 +521,7 @@ void defineTests(FileSystemTestContext ctx) {
       content = [];
       await file.openRead().listen((Uint8List data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'testappend'.codeUnits);
     });
 

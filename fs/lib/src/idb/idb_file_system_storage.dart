@@ -254,7 +254,7 @@ class IdbFileSystemStorage {
       var subContent = filePartIndexCursorPartContent(cursor);
       // print('read subContent v2 ${readIndex}: ${subContent.length} bytes');
       bytesList.add(subContent);
-    }).asFuture();
+    }).asFuture<void>();
     var content = bytesListToBytes(bytesList);
     if (debugIdbShowLogs) {
       // devPrint('content $content, $bytesList');
@@ -460,7 +460,7 @@ class IdbFileSystemStorage {
       } else {
         list.add(KeyCursorRow(cursor.key, cursor.primaryKey));
       }
-    }).asFuture();
+    }).asFuture<void>();
     var rows = list;
     var rowByPageIndex = rows.asMap().map(
         (index, row) => MapEntry((rows[index].key as List)[1] as int, row));

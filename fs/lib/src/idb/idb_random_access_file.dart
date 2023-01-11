@@ -203,7 +203,7 @@ class RandomAccessFileIdb
         if (debugIdbShowLogs) {
           print('cursor reading $ref');
         }
-      }).asFuture();
+      }).asFuture<void>();
       accessPosition += count;
       return count;
     } else {

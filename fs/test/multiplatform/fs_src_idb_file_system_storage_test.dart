@@ -182,7 +182,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       test('writeDataV1', () async {
         var db = storage.db!;
 
-        expect(await getFileEntries(db), []);
+        expect(await getFileEntries(db), isEmpty);
         var txn = getWriteAllTransaction(db);
         var node = await storage.txnSetFileDataV1(
             txn,
@@ -220,7 +220,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         // debugIdbShowLogs = devWarning(true);
 
         var db = storage.db!;
-        expect(await getFileEntries(db), []);
+        expect(await getFileEntries(db), isEmpty);
         var txn = getWriteAllTransaction(db);
         var node = await storage.txnSetFileDataV2(
             txn,
@@ -228,7 +228,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             Uint8List.fromList([1, 2, 3]));
         expect(node.pageSize, isNotNull);
         expect(node.pageSize, storage.pageSize);
-        expect(await getFileEntries(db), []);
+        expect(await getFileEntries(db), isEmpty);
 
         var treeEntries = await getTreeEntries(db);
         var modified = (treeEntries[0]['value'] as Map)['modified'];
@@ -288,7 +288,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
 
       test('writeDataV2 page size 2', () async {
         var db = storage.db!;
-        expect(await getFileEntries(db), []);
+        expect(await getFileEntries(db), isEmpty);
         var txn = getWriteAllTransaction(db);
         var node = await storage.txnSetFileDataV2(
             txn,
@@ -296,7 +296,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             Uint8List.fromList([1, 2, 3]));
         expect(node.pageSize, isNotNull);
         expect(node.pageSize, storage.pageSize);
-        expect(await getFileEntries(db), []);
+        expect(await getFileEntries(db), isEmpty);
         var treeEntries = await getTreeEntries(db);
         var modified = (treeEntries[0]['value'] as Map)['modified'];
         expect(treeEntries, [
