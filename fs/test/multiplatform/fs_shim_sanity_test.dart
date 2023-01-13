@@ -57,7 +57,7 @@ void defineTests(FileSystemTestContext ctx) {
       final list = <FileSystemEntity>[];
       await top.list(recursive: true).listen((FileSystemEntity fse) {
         list.add(fse);
-      }).asFuture();
+      }).asFuture<void>();
 
       expect(indexOf(list, src), isNot(-1));
       expect(indexOf(list, dst), isNot(-1));

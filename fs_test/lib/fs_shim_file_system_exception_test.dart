@@ -14,7 +14,7 @@ void main() {
 
 final bool _doPrintErr = false;
 
-void _printErr(e) {
+void _printErr(Object? e) {
   if (_doPrintErr) {
     print('$e ${[e.runtimeType]}');
   }

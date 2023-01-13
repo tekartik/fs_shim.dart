@@ -3,7 +3,7 @@ import 'setup.dart';
 
 PreElement? outElement;
 
-void doPrint(msg) {
+void doPrint(Object? msg) {
   outElement = (outElement ?? querySelector('#output') as PreElement);
   outElement!.text = '${outElement!.text}$msg\n';
 }

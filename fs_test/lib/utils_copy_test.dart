@@ -338,7 +338,7 @@ void defineTests(FileSystemTestContext ctx) {
         // fsCopyDebug = true;
         final top = await ctx.prepare();
         final entity = topEntityPath(fs, top.path);
-        expect(entity.parts, []);
+        expect(entity.parts, isEmpty);
         expect(entity.basename, '');
         expect(entity.sub, '');
         expect(entity.top, top.path);

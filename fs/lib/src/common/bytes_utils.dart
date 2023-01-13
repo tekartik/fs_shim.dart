@@ -38,7 +38,7 @@ Future<Uint8List> streamToBytes(Stream<List<int>> stream) async {
 ///
 /// Never returns list. if list is null, returns an empty list.
 /// If [chunkSize] is null or 0, returns all in one list;
-List<Uint8List> uint8ListChunk<T>(Uint8List list, int? chunkSize) {
+List<Uint8List> uint8ListChunk(Uint8List list, int? chunkSize) {
   var chunks = <Uint8List>[];
   final len = list.length;
   if ((chunkSize ?? 0) == 0) {

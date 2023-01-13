@@ -49,13 +49,13 @@ void main() {
       final content = <int>[];
       await stream.listen((List<int> data) {
         content.addAll(data);
-      }).asFuture();
+      }).asFuture<void>();
       expect(content, 'test'.codeUnits);
 
       await dir.list().listen((FileSystemEntity entity) {
         expect(entity.path, filePath);
         expect(entity, const TypeMatcher<File>());
-      }).asFuture();
+      }).asFuture<void>();
 
       final file2 = await file.copy(join(dir.path, 'file2'));
       expect(await file2.readAsString(), 'test');

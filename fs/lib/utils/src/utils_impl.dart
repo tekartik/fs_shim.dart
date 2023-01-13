@@ -762,7 +762,7 @@ mixin SourceNodeTreeRunnerMixin
           futures.add(_runTreeChild(options, basename).then((childOperations) {
             operations.addAll(childOperations);
           }));
-        }).asFuture();
+        }).asFuture<void>();
         await Future.wait(futures);
       }
     } else if (await src!.fs.isFile(src!.path)) {

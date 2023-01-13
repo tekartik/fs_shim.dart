@@ -148,18 +148,20 @@ void main() {
     expect(filePartRef.toKey(), [9007199254740991, 9007199254740991]);
     filePartRef = FilePartRef(1, 1);
     testRoundTrip(filePartRef);
-    expect(filePartRef.toKey(), [1, 00000001]);
+    expect(filePartRef.toKey(), [1, 1]);
     filePartRef = FilePartRef(-1, -1);
     testRoundTrip(filePartRef);
-    expect(filePartRef.toKey(), [-1, -00000001]);
+    expect(filePartRef.toKey(), [-1, -1]);
     if (!isRunningAsJavascript) {
       // const int intMaxValue = 9223372036854775807;
+      final intExpectedMaxValue = int.parse('9223372036854775807');
+      final intExpectedMinValue = int.parse('-9223372036854775808');
       var intMaxValue = double.maxFinite.toInt();
       filePartRef = FilePartRef(intMaxValue, intMaxValue);
-      expect(filePartRef.toKey(), [9223372036854775807, 9223372036854775807]);
+      expect(filePartRef.toKey(), [intExpectedMaxValue, intExpectedMaxValue]);
       filePartRef = FilePartRef(intMaxValue + 1, intMaxValue + 1);
       expect(filePartRef.toKey(),
-          [-9223372036854775808, -9223372036854775808]); // !!
+          [intExpectedMinValue, intExpectedMinValue]); // !!
     }
   });
 }

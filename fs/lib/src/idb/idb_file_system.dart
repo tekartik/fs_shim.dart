@@ -412,7 +412,7 @@ class IdbFileSystem extends Object
     if (entity.type == fs.FileSystemEntityType.directory) {
       // check children first
       final parentIndex = store.index(parentIndexName);
-      final done = Completer.sync();
+      final done = Completer<void>.sync();
 
       final futures = <Future>[];
       parentIndex
@@ -430,7 +430,7 @@ class IdbFileSystem extends Object
               done.complete();
             }
           })
-          .asFuture()
+          .asFuture<void>()
           .then((_) {
             if (!done.isCompleted) {
               done.complete();

@@ -10,7 +10,7 @@ FileSystem fs = fileSystemIdb;
 
 PreElement? outElement;
 
-void print(msg) {
+void print(Object? msg) {
   outElement = (outElement ?? querySelector('#output') as PreElement);
   outElement!.text = '${outElement!.text}$msg\n';
 }

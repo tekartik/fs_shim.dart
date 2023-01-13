@@ -74,7 +74,7 @@ class TxnNodeDataReadStreamCtlr {
               count += bytes.length;
               _ctlr.add(bytes);
             }
-          }).asFuture();
+          }).asFuture<void>();
         }
       } else {
         var result =
