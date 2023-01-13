@@ -1,4 +1,4 @@
-## 2.1.0-8
+## 2.1.0
 
 * Starting RandomAccessFile support
 * strict-casts support
