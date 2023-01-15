@@ -11,7 +11,7 @@ class MemorySink implements StreamSink<List<int>> {
   /// Memory sink.
   MemorySink();
 
-  final _completer = Completer.sync();
+  final _completer = Completer<void>.sync();
 
   Future get _done => _completer.future;
 
