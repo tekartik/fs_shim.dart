@@ -448,7 +448,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await ctlr.stream.toList(), [
         [101, 108, 108, 111]
       ]);
-    }, solo: true, timeout: const Timeout(Duration(minutes: 2)));
+    }, timeout: const Timeout(Duration(minutes: 2)));
     test('sink access 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'sink_access_2.db';
