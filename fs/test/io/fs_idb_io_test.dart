@@ -11,6 +11,7 @@ import 'package:idb_shim/idb_io.dart';
 import '../multiplatform/fs_idb_format_test.dart';
 import '../multiplatform/fs_idb_format_v1_test.dart';
 import '../multiplatform/fs_idb_test.dart';
+import '../multiplatform/fs_src_idb_file_system_storage_test.dart';
 import '../test_common.dart';
 import '../test_common_io.dart';
 
@@ -43,7 +44,7 @@ void main() {
     fsIdbMultiFormatGroup(_idbFactory);
     fsIdbFormatGroup(_idbFactory);
     fsIdbFormatV1Group(_idbFactory);
-
+    defineIdbTypesFileSystemStorageTests(_idbIoFileSystemContext);
     defineIdbTests(_idbIoFileSystemContext);
   });
 }

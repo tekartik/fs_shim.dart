@@ -11,6 +11,7 @@ import 'package:idb_shim/idb_browser.dart';
 import '../multiplatform/fs_idb_format_test.dart';
 import '../multiplatform/fs_idb_format_v1_test.dart';
 import '../multiplatform/fs_idb_test.dart';
+import '../multiplatform/fs_src_idb_file_system_storage_test.dart';
 import '../test_common.dart';
 
 FileSystem newFileSystemIdbBrowser([String? name]) =>
@@ -58,6 +59,7 @@ void main() {
     fsIdbFormatV1Group(idbFactoryNative);
     // All tests
     defineIdbTests(idbBrowserFileSystemContext);
+    defineIdbTypesFileSystemStorageTests(idbBrowserFileSystemContext);
     defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
         options: const FileSystemIdbOptions(pageSize: 2)));
     defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(

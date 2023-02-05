@@ -1,1 +1,2 @@
-export 'src/common/fs_none.dart' show FileSystemEntityMixin, DirectoryNone;
+export 'src/common/fs_mixin.dart'
+    show FileSystemEntityMixin, DirectoryMixin, FileMixin, FileSystemMixin;

@@ -8,6 +8,8 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
+import 'package:fs_shim/src/idb/idb_paging.dart';
+import 'package:fs_shim/src/idb/idb_random_access_file.dart';
 import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_client_memory.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
@@ -33,12 +35,170 @@ void main() {
     expect(segmentsToPath(['/']), '/');
     expect(segmentsToPath(['/', 'a']), '/a');
   });
+  defineIdbTypesFileSystemStorageTests(memoryFileSystemTestContext);
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
   defineIdbFileSystemStorageTests(MemoryFileSystemTestContextWithOptions(
       options: const FileSystemIdbOptions(pageSize: 2)));
 }
 
 var _index = 0;
+
+// Only need once per type (i.e. not different options): memory, io, native
+void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
+  group('ready pageSize 2', () {
+    late IdbFileSystemStorage storage;
+    late IdbFactory idbFactory;
+    const idbOptions = FileSystemIdbOptions(pageSize: 2);
+    late IdbFileSystem fs;
+    setUp(() async {
+      idbFactory = newIdbFactoryMemory();
+      storage =
+          IdbFileSystemStorage(idbFactory, 'idb_storage', options: idbOptions);
+      await storage.ready;
+      fs = IdbFileSystem(idbFactory, null,
+          options: idbOptions, storage: storage);
+    });
+
+    test('writeDataV2 page size 2', () async {
+      var db = storage.db!;
+      expect(await getFileEntries(db), isEmpty);
+      var txn = getWriteAllTransaction(db);
+      var node = await storage.txnSetFileDataV2(
+          txn,
+          Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+          Uint8List.fromList([1, 2, 3]));
+      expect(node.pageSize, isNotNull);
+      expect(node.pageSize, storage.pageSize);
+      expect(await getFileEntries(db), isEmpty);
+      var treeEntries = await getTreeEntries(db);
+      var modified = (treeEntries[0]['value'] as Map)['modified'];
+      expect(treeEntries, [
+        {
+          'key': 1,
+          'value': {
+            'name': 'test',
+            'type': 'file',
+            'size': 3,
+            'ps': 2,
+            'pn': '/test',
+            'modified': modified,
+          }
+        }
+      ]);
+
+      var partEntries = await getPartEntries(db);
+      expect(partEntries, [
+        {
+          'index': 0,
+          'file': 1,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 1,
+          'content': [3]
+        }
+      ]);
+      //expect(partEntries[0]['value'], isA<Uint8List>());
+    });
+
+    test('write delete', () async {
+      var db = storage.db!;
+
+      expect(await getFileEntries(db), isEmpty);
+      var content = Uint8List.fromList([1, 2, 3]);
+      var file = fs.file('test');
+      await fs.file('test').writeAsBytes(content);
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3]
+        }
+      ]);
+      await file.delete();
+      expect(await getPartEntries(db), isEmpty);
+    });
+    test('corruption read/delete', () async {
+      var db = storage.db!;
+
+      expect(await getFileEntries(db), isEmpty);
+      var content = Uint8List.fromList([1, 2, 3, 4, 5]);
+      var file = fs.file('test');
+      await fs.file('test').writeAsBytes(content);
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 1,
+          'file': 2,
+          'content': [3, 4]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [5]
+        }
+      ]);
+      await storage.deletePart(FilePartRef(2, 1));
+      await storage.deletePart(FilePartRef(2, 1));
+      expect(await getPartEntries(db), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [5]
+        }
+      ]);
+      try {
+        await file.readAsBytes();
+        fail('should fail');
+      } on StateError catch (_) {}
+      await file.delete();
+      expect(await getPartEntries(db), isEmpty);
+    });
+    test('corruption random access', () async {
+      var db = storage.db!;
+
+      expect(await getFileEntries(db), isEmpty);
+      var content = Uint8List.fromList([1, 2, 3, 4, 5]);
+      var file = fs.file('test');
+      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+      await raf.doWriteBuffer(content);
+      await raf.flushPending();
+      await storage.deletePart(FilePartRef(2, 1));
+      expect(await getPartEntries(fs.database), [
+        {
+          'index': 0,
+          'file': 2,
+          'content': [1, 2]
+        },
+        {
+          'index': 2,
+          'file': 2,
+          'content': [5]
+        }
+      ]);
+      await raf.truncate(2);
+      await raf.close();
+
+      expect(await file.readAsBytes(), [1, 2]);
+    });
+  });
+}
+
 void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   var p = idbPathContext;
 
@@ -278,57 +438,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         await storage.txnDeleteFileDataV2(txn, node.fileId);
       });
     });
-    group('ready pageSize 2', () {
-      late IdbFileSystemStorage storage;
-      setUp(() async {
-        storage = IdbFileSystemStorage(newIdbFactoryMemory(), 'idb_storage',
-            options: const FileSystemIdbOptions(pageSize: 2));
-        await storage.ready;
-      });
 
-      test('writeDataV2 page size 2', () async {
-        var db = storage.db!;
-        expect(await getFileEntries(db), isEmpty);
-        var txn = getWriteAllTransaction(db);
-        var node = await storage.txnSetFileDataV2(
-            txn,
-            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
-            Uint8List.fromList([1, 2, 3]));
-        expect(node.pageSize, isNotNull);
-        expect(node.pageSize, storage.pageSize);
-        expect(await getFileEntries(db), isEmpty);
-        var treeEntries = await getTreeEntries(db);
-        var modified = (treeEntries[0]['value'] as Map)['modified'];
-        expect(treeEntries, [
-          {
-            'key': 1,
-            'value': {
-              'name': 'test',
-              'type': 'file',
-              'size': 3,
-              'ps': 2,
-              'pn': '/test',
-              'modified': modified,
-            }
-          }
-        ]);
-
-        var partEntries = await getPartEntries(db);
-        expect(partEntries, [
-          {
-            'index': 0,
-            'file': 1,
-            'content': [1, 2]
-          },
-          {
-            'index': 1,
-            'file': 1,
-            'content': [3]
-          }
-        ]);
-        //expect(partEntries[0]['value'], isA<Uint8List>());
-      });
-    });
     test('getSegments', () {
       expect(getSegments('/'), ['/']);
       expect(getSegments('/a'), ['/', 'a']);

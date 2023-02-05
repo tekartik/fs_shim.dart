@@ -48,7 +48,9 @@ class TxnNodeDataReadStreamCtlr {
         var expectedCount = end - start;
         var count = 0;
         if (end > start) {
-          await txn
+          var completer = Completer<void>();
+          late StreamSubscription subscription;
+          subscription = txn
               .objectStore(partStoreName)
               .openCursor(
                   range: helper.getPartsRange(fileId, start, end),
@@ -56,7 +58,10 @@ class TxnNodeDataReadStreamCtlr {
               .listen((event) {
             var ref = FilePartRef.fromKey(event.key);
             if (++partIndex != ref.index) {
-              throw StateError('Corrupted content');
+              if (!completer.isCompleted) {
+                completer.completeError(StateError('Corrupted content'));
+                subscription.cancel();
+              }
             }
             var bytes = filePartIndexCursorPartContent(event);
             if (first) {
@@ -74,7 +79,13 @@ class TxnNodeDataReadStreamCtlr {
               count += bytes.length;
               _ctlr.add(bytes);
             }
-          }).asFuture<void>();
+          });
+          unawaited(subscription.asFuture<void>().then((_) {
+            if (!completer.isCompleted) {
+              completer.complete();
+            }
+          }));
+          await completer.future;
         }
       } else {
         var result =
