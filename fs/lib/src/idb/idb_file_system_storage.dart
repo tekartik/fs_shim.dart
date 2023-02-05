@@ -11,6 +11,7 @@ import 'package:fs_shim/src/common/log_utils.dart';
 import 'package:fs_shim/src/idb/idb_file_system_exception.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 import 'package:idb_shim/utils/idb_utils.dart';
+import 'package:meta/meta.dart';
 
 import 'idb_fs.dart';
 import 'idb_paging.dart';
@@ -306,6 +307,14 @@ class IdbFileSystemStorage {
         print('put part $ref size ${bytes.length} error $e');
       }
     }
+  }
+
+  @visibleForTesting
+  Future<void> deletePart(FilePartRef ref) async {
+    var txn = db!.transaction(partStoreName, idb.idbModeReadWrite);
+    var partStore = txn.objectStore(partStoreName);
+    await txnStoreDeletePart(partStore, ref);
+    await txn.completed;
   }
 
   /// Delete a given part
@@ -1000,8 +1009,7 @@ extension DatabaseIdbExt on idb.Database {
       return transaction(treeStoreName, idb.idbModeReadOnly);
     } else {
       // in read/write mode we might have to write right away to convert the content
-      return transactionList(
-          [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadWrite);
+      return writeAllTransactionList();
     }
   }
 }

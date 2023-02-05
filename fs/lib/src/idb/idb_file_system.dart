@@ -382,8 +382,7 @@ class IdbFileSystem extends Object
     await _ready;
     final segments = getSegments(path);
 
-    final txn = _db!
-        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    final txn = _db!.writeAllTransactionList();
 
     await _delete(txn, type, segments, recursive: recursive);
     await txn.completed;
@@ -400,10 +399,10 @@ class IdbFileSystem extends Object
         if (debugIdbShowLogs) {
           print('Deleting $entity');
         }
+
         // For file delete content as well
         if (entity.type == fs.FileSystemEntityType.file) {
-          store = txn.objectStore(fileStoreName);
-          return store.delete(entity.id!);
+          return txnDeleteFileContent(txn, entity);
         }
         return null;
       });
@@ -512,8 +511,7 @@ class IdbFileSystem extends Object
     final segments = getSegments(path);
     final newSegments = getSegments(newPath);
 
-    final txn = _db!
-        .transactionList([treeStoreName, fileStoreName], idb.idbModeReadWrite);
+    final txn = _db!.writeAllTransactionList();
 
     final store = txn.objectStore(treeStoreName);
 
