@@ -992,6 +992,49 @@ void defineTests(FileSystemTestContext ctx) {
           }
         });
       });
+      test('create relative', () async {
+        final dirPath = fs.path.join(
+            '.', '.dart_tool', 'tekartik_fs_test', 'test', 'create_relative');
+
+        // Create a top level directory
+        // fs.directory('/dir');
+        final dir = fs.directory(dirPath);
+        print('dir: $dir');
+        // delete its content
+        if (await dir.exists()) {
+          await dir.delete(recursive: true);
+        }
+
+        // and a file in it
+        // fs.file(join(dir.path, "file"));
+        final file = fs.file(fs.path.join(dir.path, 'file'));
+
+        // create a file
+        await file.create(recursive: true);
+        await file.writeAsString('Hello world!');
+
+        // read a file
+        // use a file link if supported
+        if (fs.supportsFileLink) {
+          var link = fs.link(fs.path.join(dir.path, 'link'));
+          await link.create('file');
+
+          expect(await link.target(), 'file');
+          expect(await fs.file(link.path).readAsString(), 'Hello world!');
+
+          var linkFile = fs.file(link.path);
+          expect(await linkFile.readAsString(), 'Hello world!');
+        }
+
+        // list dir content
+        expect(
+            (await dir
+                .list(recursive: true, followLinks: true)
+                .map((event) => fs.path.basename(event.path))
+                .toList())
+              ..sort(),
+            ['file', 'link']);
+      });
       test('example', () async {
         // debugIdbShowLogs = devWarning(true);
         final top = await ctx.prepare();

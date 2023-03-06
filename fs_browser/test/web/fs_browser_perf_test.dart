@@ -2,7 +2,6 @@
 library fs_shim_browser.fs_browser_perf_test;
 
 import 'package:fs_shim/fs_browser.dart';
-import 'package:fs_shim/fs_idb.dart';
 import 'package:tekartik_fs_test/fs_perf_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 

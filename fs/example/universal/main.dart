@@ -10,7 +10,6 @@ Future main() async {
   final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
-  // fs.directory('/dir');
   final dir = Directory(dirPath);
   print('dir: $dir');
   // delete its content
@@ -19,7 +18,6 @@ Future main() async {
   }
 
   // and a file in it
-  // fs.file(join(dir.path, "file"));
   final file = File(join(dir.path, 'file'));
 
   // create a file

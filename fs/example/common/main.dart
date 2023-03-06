@@ -2,7 +2,6 @@ import 'dart:core' hide print;
 import 'dart:core' as core;
 
 import 'package:fs_shim/fs_browser.dart';
-import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_shim.dart';
 import 'package:fs_shim/src/common/import.dart';
 
