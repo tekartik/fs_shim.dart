@@ -935,6 +935,9 @@ extension FileSystemIdbExt on FileSystem {
 
   /// Idb specific options.
   FileSystemIdbOptions get idbOptions => _idbFileSystem._storage.options;
+
+  /// Only true for idb file system.
+  bool get hasIdbOptions => this is FileSystemIdb;
 }
 
 @protected

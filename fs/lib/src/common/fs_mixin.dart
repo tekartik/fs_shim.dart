@@ -4,8 +4,10 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
+import 'package:fs_shim/src/idb/idb_file_system.dart';
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
 /// FileSystem mixin
@@ -199,4 +201,16 @@ mixin DirectoryMixin implements Directory {
   Stream<FileSystemEntity> list(
           {bool recursive = false, bool followLinks = true}) =>
       throw UnsupportedError('directory.list');
+}
+
+/// Interal debug extension
+@protected
+extension FileSystemDebugExt on FileSystem {
+  /// debug name
+  String get debugName {
+    if (this is FileSystemIdb) {
+      return '${name}_${idbOptions.debugName}';
+    }
+    return name;
+  }
 }

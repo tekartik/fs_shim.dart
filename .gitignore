@@ -25,3 +25,4 @@ out/
 # prevent dartfmt formatting
 fs_node/build
 
+/fs_io/lfs.db
