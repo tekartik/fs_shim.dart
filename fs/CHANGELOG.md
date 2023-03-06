@@ -1,3 +1,11 @@
+## 2.2.0-1
+
+* Add `fileSystemDefault` global on web and io.
+* Add `File`, `Link` and `Directory`.
+* Add `Directory.current`.
+* Add `FileSystemEntity.isLink`, `FileSystemEntity.isFile`, `FileSystemEntity.isDirectory`,
+  `FileSystemEntity.type`
+
 ## 2.1.0+2
 
 * RandomAccessFile support
