@@ -110,5 +110,10 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       expect(await getTreeStoreSize(db), treeStoreSize);
       expect(await getFileStoreSize(db), fileStoreSize);
     });
+
+    test('current', () async {
+      expect(fs.currentDirectory.path, '.');
+      expect(fs.currentDirectory.absolute.path, '/');
+    });
   });
 }

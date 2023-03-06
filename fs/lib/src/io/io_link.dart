@@ -9,8 +9,6 @@ import 'package:fs_shim/fs_io.dart';
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 
-export 'package:fs_shim/fs.dart' show FileSystemEntityType;
-
 class LinkImpl extends FileSystemEntityImpl implements Link, FileSystemEntity {
   io.Link? get ioLink => ioFileSystemEntity as io.Link?;
 

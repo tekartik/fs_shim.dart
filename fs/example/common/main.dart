@@ -58,6 +58,8 @@ Future main() async {
     // Create a top level directory
     final dir = fs.directory(fs.path.join(topPath, 'dir'));
 
+    print('dir: $dir');
+
     // delete its content
     if (await dir.exists()) {
       await dir.delete(recursive: true);

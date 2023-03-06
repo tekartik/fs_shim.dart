@@ -63,6 +63,9 @@ mixin FileSystemMixin implements FileSystem {
 
   @override
   p.Context get path => throw UnsupportedError('fs.path');
+  @override
+  Directory get currentDirectory =>
+      throw UnsupportedError('fs.currentDirectory');
 }
 
 /// File mixin

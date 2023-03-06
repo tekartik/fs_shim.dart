@@ -2,20 +2,22 @@
 
 library fs_shim.src.io.io_directory;
 
+import 'dart:async';
 import 'dart:io' as io;
 
 import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/fs_shim.dart' as fs;
 
 import 'io_file.dart';
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 import 'io_link.dart';
 
-export 'package:fs_shim/fs.dart' show FileSystemEntityType;
+DirectoryImpl get currentDirectoryIo => DirectoryImpl.io(io.Directory.current);
+@Deprecated('use currentDirectoryIo')
+DirectoryImpl get currentDirectory => currentDirectoryIo;
 
-DirectoryImpl get currentDirectory => DirectoryImpl.io(io.Directory.current);
-
-class DirectoryImpl extends FileSystemEntityImpl implements Directory {
+class DirectoryImpl extends FileSystemEntityImpl implements fs.Directory {
   io.Directory? get ioDir => ioFileSystemEntity as io.Directory?;
 
   DirectoryImpl.io(io.Directory dir) {

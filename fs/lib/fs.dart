@@ -10,12 +10,12 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:fs_shim/fs_shim.dart';
 import 'package:path/path.dart' as p;
 
-import 'fs.dart';
 export 'src/random_access_file.dart' show RandomAccessFile;
 
-/// FileSystem eneity.
+/// FileSystem entity.
 abstract class FileSystemEntity {
   ///
   /// Get the path of the file.
@@ -99,6 +99,43 @@ abstract class FileSystemEntity {
   /// fs_shim specific
   /// holds a reference to the file system
   FileSystem get fs;
+
+  ///
+  /// Checks if type(path, followLinks: false) returns
+  /// FileSystemEntityType.LINK.
+  ///
+  static Future<bool> isLink(String path) => fileSystemDefault.isLink(path);
+
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.FILE.
+  ///
+
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.DIRECTORY.
+  ///
+  static Future<bool> isDirectory(String path) =>
+      fileSystemDefault.isDirectory(path);
+
+  ///
+  /// Checks if type(path) returns FileSystemEntityType.FILE.
+  ///
+  static Future<bool> isFile(String path) => fileSystemDefault.isFile(path);
+
+  ///
+  /// Finds the type of file system object that a path points to. Returns
+  /// a [:Future<FileSystemEntityType>:] that completes with the result.
+  ///
+  /// [FileSystemEntityType] has the constant instances FILE, DIRECTORY,
+  /// LINK, and NOT_FOUND.  [type] will return LINK only if the optional
+  /// named argument [followLinks] is false, and [path] points to a link.
+  /// If the path does not point to a file system object, or any other error
+  /// occurs in looking up the path, NOT_FOUND is returned.  The only
+  /// error or exception that may be put on the returned future is ArgumentError,
+  /// caused by passing the wrong type of arguments to the function.
+  ///
+  static Future<FileSystemEntityType> type(String path,
+          {bool followLinks = true}) =>
+      fileSystemDefault.type(path, followLinks: followLinks);
 }
 
 /// File open mode.
@@ -179,7 +216,14 @@ abstract class FileStat {
 
 /// Abstract File entity.
 abstract class File extends FileSystemEntity {
-  File._();
+  /// Creates a [File] object.
+  ///
+  /// If [path] is a relative path, it will be interpreted relative to the
+  /// current working directory (see [Directory.current]), when used.
+  ///
+  /// If [path] is an absolute path, it will be immune to changes to the
+  /// current working directory.
+  factory File(String path) => fileSystemDefault.file(path);
 
   /// Create the file. Returns a [:Future<File>:] that completes with
   /// the file when it has been created.
@@ -323,8 +367,14 @@ abstract class File extends FileSystemEntity {
 
 /// Abstract directory.
 abstract class Directory extends FileSystemEntity {
-  /// prevent extends
-  Directory._();
+  /// Creates a [Directory] object.
+  ///
+  /// If [path] is a relative path, it will be interpreted relative to the
+  /// current working directory (see [Directory.current]), when used.
+  ///
+  /// If [path] is an absolute path, it will be immune to changes to the
+  /// current working directory.
+  factory Directory(String path) => fileSystemDefault.directory(path);
 
   ///
   /// Creates the directory with this name.
@@ -370,13 +420,20 @@ abstract class Directory extends FileSystemEntity {
   ///
   Stream<FileSystemEntity> list(
       {bool recursive = false, bool followLinks = true});
+
+  ///
+  /// Creates a directory object pointing to the current working
+  /// directory.
+  ///
+  static Directory get current => fileSystemDefault.currentDirectory;
 }
 
 ///
 /// [Link] objects are references to filesystem links.
 ///
 abstract class Link extends FileSystemEntity {
-  Link._();
+  /// Creates a link entity.
+  factory Link(String path) => fileSystemDefault.link(path);
 
   ///
   /// Creates a symbolic link. Returns a [:Future<Link>:] that completes with
@@ -547,6 +604,10 @@ abstract class FileSystem {
   @Deprecated('Use path')
   // ignore: public_member_api_docs
   p.Context get pathContext;
+
+  /// Creates a directory object pointing to the current working
+  /// directory.
+  Directory get currentDirectory;
 }
 
 /// Generic OS error.
