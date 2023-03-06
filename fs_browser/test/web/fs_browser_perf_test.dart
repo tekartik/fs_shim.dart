@@ -10,7 +10,7 @@ var _options = [
   const FileSystemIdbOptions(pageSize: 64 * 1024),
   FileSystemIdbOptions.pageDefault,
   const FileSystemIdbOptions(pageSize: 1024),
-  const FileSystemIdbOptions(pageSize: 2)
+  const FileSystemIdbOptions(pageSize: 128)
 ];
 var _fsList = _options.map((e) => getFileSystemWeb(options: e)).toList();
 

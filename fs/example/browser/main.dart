@@ -5,6 +5,7 @@ import 'dart:html' hide FileSystem, File;
 import 'package:fs_shim/fs_browser.dart';
 import 'package:path/path.dart';
 
+// 16Kb page default
 final fs =
     fileSystemWeb.withIdbOptions(options: FileSystemIdbOptions.pageDefault);
 
