@@ -10,8 +10,6 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 
 import 'io_fs.dart';
 
-export 'package:fs_shim/fs.dart' show FileSystemEntityType;
-
 class FileStatImpl extends Object with FileStatModeMixin implements FileStat {
   FileStatImpl.io(this.ioFileStat);
 

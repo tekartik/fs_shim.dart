@@ -922,6 +922,9 @@ class IdbFileSystem extends Object
   idb.Transaction writeAllTransactionList() {
     return db!.writeAllTransactionList();
   }
+
+  @override
+  fs.Directory get currentDirectory => directory('.');
 }
 
 /// Web specific extesion
@@ -935,6 +938,9 @@ extension FileSystemIdbExt on FileSystem {
 
   /// Idb specific options.
   FileSystemIdbOptions get idbOptions => _idbFileSystem._storage.options;
+
+  /// Only true for idb file system.
+  bool get hasIdbOptions => this is FileSystemIdb;
 }
 
 @protected

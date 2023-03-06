@@ -2,6 +2,8 @@
 
 library fs_shim.src.io.io_file;
 
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io' as io;
 import 'dart:typed_data';
 
@@ -15,8 +17,6 @@ import 'package:fs_shim/src/io/io_random_access_file.dart';
 
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
-
-export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
 Future<T> _wrapFutureFile<T>(Future<T> future) => ioWrap(future);
 

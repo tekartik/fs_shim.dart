@@ -40,6 +40,9 @@ extension FileSystemIdbOptionsExt on FileSystemIdbOptions {
 
   /// Expected page size when writing.
   int get expectedPageSize => idbSupportsV2Format ? filePageSize : 0;
+
+  /// Debug name
+  String get debugName => '$filePageSize';
 }
 
 ///

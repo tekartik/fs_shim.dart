@@ -10,9 +10,6 @@ import 'package:fs_shim/fs.dart' as fs;
 
 import 'io_file_system_exception.dart';
 
-export 'dart:async';
-export 'dart:convert';
-
 io.FileMode unwrapFileMode(fs.FileMode fsFileMode) {
   return unwrapIoFileModeImpl(fsFileMode);
 }

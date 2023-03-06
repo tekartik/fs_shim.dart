@@ -5,11 +5,13 @@ library fs_shim.src.io.io_file_system;
 import 'dart:io' as io;
 
 import 'package:fs_shim/fs.dart' as fs;
-import 'package:fs_shim/fs_io.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart';
+import 'package:fs_shim/src/io/io_directory.dart';
 import 'package:path/path.dart';
 
+import 'io_file.dart';
 import 'io_fs.dart';
+import 'io_link.dart';
 
 export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
@@ -23,13 +25,13 @@ class IoFileSystemImpl extends Object
           io.FileSystemEntity.typeSync(path!, followLinks: followLinks));
 
   @override
-  File file(String? path) => File(path!);
+  fs.File file(String? path) => FileImpl(path!);
 
   @override
-  Directory directory(String? path) => Directory(path!);
+  fs.Directory directory(String? path) => DirectoryImpl(path!);
 
   @override
-  Link link(String? path) => Link(path!);
+  fs.Link link(String? path) => LinkImpl(path!);
 
   @override
   String get name => 'io';
@@ -71,6 +73,9 @@ class IoFileSystemImpl extends Object
 
   @override
   bool get supportsRandomAccess => true;
+
+  @override
+  fs.Directory get currentDirectory => currentDirectoryIo;
 }
 
 /// File system

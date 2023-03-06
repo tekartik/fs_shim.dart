@@ -3,10 +3,10 @@ import 'dart:core' as core;
 import 'dart:html' hide FileSystem, File;
 
 import 'package:fs_shim/fs_browser.dart';
-import 'package:fs_shim/fs_idb.dart';
 import 'package:path/path.dart';
 
-FileSystem fs = fileSystemIdb;
+final fs =
+    fileSystemWeb.withIdbOptions(options: FileSystemIdbOptions.pageDefault);
 
 PreElement? outElement;
 

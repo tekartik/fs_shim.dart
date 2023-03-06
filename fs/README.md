@@ -20,12 +20,14 @@ Classes
 - FileSystemEntityType,
 - FileSystemException,
 
-Static method (IO only)
+Static method
 
 - Directory.current
 - FileSystemEntity.isFile
 - FileSystemEntity.isDirectory
 - FileSystemEntity.isLink
+
+Static and File/Directory/Link constructor uses `fileSystemDefault` which is platform dependent (web or io).
 
 ## Usage
 
@@ -96,25 +98,22 @@ by
 import 'package:fs_shim/fs_io.dart';
 ```
 
-
 Then a reduced set of the IO API can be used, same source code that might requires some cleanup if you import from
 existing code
 
 Simple example
 
 ````
-
-
-import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/fs_shim.dart';
 import 'package:path/path.dart';
 
 Future main() async {
-  final fs = fileSystemIo;
+  await exampleInit();
+  final fs = fileSystemDefault;
   // safe place when running from package root
   final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
-  // fs.directory('/dir');
   final dir = Directory(dirPath);
   print('dir: $dir');
   // delete its content
@@ -123,7 +122,6 @@ Future main() async {
   }
 
   // and a file in it
-  // fs.file(join(dir.path, "file"));
   final file = File(join(dir.path, 'file'));
 
   // create a file
@@ -135,11 +133,11 @@ Future main() async {
 
   // use a file link if supported
   if (fs.supportsFileLink) {
-    // fs.newLink(join(dir.path, "link"));
-    final link = Link(join(dir.path, 'link'));
-    await link.create(file.path);
+    var link = Link(join(dir.path, 'link'));
 
-    print('link: ${await File(link.path).readAsString()}');
+    await link.create(basename(file.path));
+    var linkFile = File(link.path);
+    print('link: ${await linkFile.readAsString()}');
   }
 
   // list dir content
@@ -160,6 +158,24 @@ by
 ```dart
 final fs = fileSystemWeb;
 ```
+
+Default implementation on browser uses fileSystemWeb
+
+### Random access support.
+
+Random access is supported since version 2.1.0. Default web implementation is not optimized for random access support (it might change in the future).
+
+You can specify a paging parameter (initial testing is good in some scenario with a 16Kb page, you might tune it for your needs).
+
+```dart
+import 'package:fs_shim/fs_browser.dart';
+
+// Use default paging 16Kb
+final fs =
+  fileSystemWeb.withIdbOptions(options: FileSystemIdbOptions.pageDefault);
+```
+
+Storage remains compatible if the options is changed.
 
 ### Utilities
 

@@ -2,7 +2,6 @@ import 'dart:core' hide print;
 import 'dart:core' as core;
 
 import 'package:fs_shim/fs_browser.dart';
-import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_shim.dart';
 import 'package:fs_shim/src/common/import.dart';
 
@@ -57,6 +56,8 @@ Future main() async {
 
     // Create a top level directory
     final dir = fs.directory(fs.path.join(topPath, 'dir'));
+
+    print('dir: $dir');
 
     // delete its content
     if (await dir.exists()) {

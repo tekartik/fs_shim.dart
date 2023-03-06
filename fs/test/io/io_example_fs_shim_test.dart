@@ -55,7 +55,7 @@ void main() {
         expect(entity, const TypeMatcher<File>());
       }).asFuture<void>();
 
-      final file2 = await file.copy(join(dir.path, 'file2')) as File;
+      final file2 = await file.copy(join(dir.path, 'file2'));
       expect(await file2.readAsString(), 'test');
 
       // stat

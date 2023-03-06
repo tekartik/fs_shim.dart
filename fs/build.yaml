@@ -9,6 +9,7 @@ targets:
         # - example/multiplatform/**_test.dart
           - example/browser/**.dart
           - example/common/**.dart
+          - example/universal/**.dart
           - test/web/**.dart
           - test/multiplatform/**.dart
       build_vm_compilers|entrypoint:

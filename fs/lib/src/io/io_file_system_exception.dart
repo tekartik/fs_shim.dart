@@ -6,8 +6,6 @@ import 'dart:io' as io;
 
 import 'package:fs_shim/fs.dart' as fs;
 
-export 'package:fs_shim/fs.dart' show FileSystemEntityType;
-
 class OSErrorImpl implements fs.OSError {
   io.OSError? ioOSError;
 
