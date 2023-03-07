@@ -1,4 +1,4 @@
-## 2.2.0-1
+## 2.2.0
 
 * Add `fileSystemDefault` global on web and io.
 * Add `File`, `Link` and `Directory`.

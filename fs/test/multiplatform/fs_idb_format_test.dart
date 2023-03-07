@@ -99,6 +99,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
           'content': [3, 4]
         }
       ]);
+      await raf.close();
     });
     test('writeByte multiple auto flush', () async {
       // debugIdbShowLogs = devWarning(true);
@@ -123,6 +124,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
           'content': [3]
         }
       ]);
+      await raf.close();
     });
 
     test('truncate short no flush', () async {

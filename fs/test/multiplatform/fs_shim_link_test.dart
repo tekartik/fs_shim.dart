@@ -1024,16 +1024,16 @@ void defineTests(FileSystemTestContext ctx) {
 
           var linkFile = fs.file(link.path);
           expect(await linkFile.readAsString(), 'Hello world!');
-        }
 
-        // list dir content
-        expect(
-            (await dir
-                .list(recursive: true, followLinks: true)
-                .map((event) => fs.path.basename(event.path))
-                .toList())
-              ..sort(),
-            ['file', 'link']);
+          // list dir content
+          expect(
+              (await dir
+                  .list(recursive: true, followLinks: true)
+                  .map((event) => fs.path.basename(event.path))
+                  .toList())
+                ..sort(),
+              ['file', 'link']);
+        }
       });
       test('example', () async {
         // debugIdbShowLogs = devWarning(true);
