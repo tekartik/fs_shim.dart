@@ -70,7 +70,7 @@ Future main() async {
 
 ### Using IO API
 
-### Using fs_shim.dart
+#### Using fs_shim.dart
 
 You can simply replace in the above example:
 
@@ -84,12 +84,22 @@ by
 final fs = fileSystemIo;
 ```
 
-### Using fs_io.dart
-
 If you only target io, you can still be able to use `File` and `Directory` constructor, replace
 
 ```dart
-import 'dart:io';
+import 'dart:io'
+    hide
+    Directory,
+    File,
+    Link,
+    FileSystemEntity,
+    FileMode,
+    FileStat,
+    OSError,
+    FileSystemException,
+    FileSystemEntityType;
+
+import 'package:fs_shim/fs_shim.dart';
 ```
 
 by

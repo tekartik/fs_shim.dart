@@ -74,8 +74,9 @@ Future main() async {
     await file.writeAsString('Hello world!');
 
     // read a file
-    print('file: $file');
+    print('   file: $file');
     print('content: ${await file.readAsString()}');
+    print('   stat: ${await file.stat()}');
 
     // use a file link if supported
     if (fs.supportsFileLink) {
