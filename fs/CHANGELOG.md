@@ -1,3 +1,7 @@
+## 2.2.1
+
+* Dart 3 support
+
 ## 2.2.0
 
 * Add `fileSystemDefault` global on web and io.
