@@ -11,7 +11,7 @@ In `pubspec.yaml`:
     git:
       url: https://github.com/tekartik/fs_shim.dart
       path: fs_test
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.1.0'
 ```
 ## Usage
