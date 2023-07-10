@@ -6,7 +6,7 @@ publish_to: none
 #author: alex <email@example.com>
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
 
 dependencies:
   path: '>=1.6.1'
@@ -23,7 +23,7 @@ dev_dependencies:
     git:
       url: https://github.com/tekartik/fs_shim.dart
       path: fs_test
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.1.0'
   build_test: '>=0.10.2'
   process_run: '>=0.10.0+1'
@@ -31,7 +31,7 @@ dev_dependencies:
     git:
       url: https://github.com/tekartik/platform.dart
       path: platform_io
-      ref: dart2_3
+      ref: dart3a
     version: '>=0.2.0'
 
 dependency_overrides:

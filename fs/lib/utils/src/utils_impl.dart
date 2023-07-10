@@ -73,23 +73,23 @@ List<Glob> globList(List<String>? expressions) {
 }
 
 // for create/copy
-class OptionsDeleteMixin {
+mixin class OptionsDeleteMixin {
   bool delete = false;
 }
 
-class OptionsCreateMixin {
+mixin class OptionsCreateMixin {
   bool create = false;
 }
 
-class OptionsRecursiveMixin {
+mixin class OptionsRecursiveMixin {
   bool recursive = true;
 }
 
-class OptionsFollowLinksMixin {
+mixin class OptionsFollowLinksMixin {
   bool followLinks = true;
 }
 
-class OptionsExcludeMixin {
+mixin class OptionsExcludeMixin {
   List<String>? _exclude;
 
   List<String>? get exclude => _exclude;
@@ -109,7 +109,7 @@ class OptionsExcludeMixin {
   }
 }
 
-class OptionsIncludeMixin {
+mixin class OptionsIncludeMixin {
   List<String>? _include;
 
   List<String>? get include => _include;
