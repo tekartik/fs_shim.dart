@@ -18,7 +18,7 @@ dev_dependencies:
   dev_test: any
   build_runner: ">=0.8.8"
   idb_sqflite:
-  sqflite_common_ffi:
+  sqflite_common_ffi: '>=2.3.0'
   tekartik_fs_test:
     git:
       url: https://github.com/tekartik/fs_shim.dart
