@@ -8,7 +8,7 @@ import 'idb_fs.dart';
 class IdbLink extends IdbFileSystemEntity implements fs.Link {
   IdbLink _me(_) => this;
 
-  IdbLink(IdbFileSystem fs, String? path) : super(fs, path);
+  IdbLink(super.fs, super.path);
 
   IdbFileSystem get _fs => super.fs;
 
