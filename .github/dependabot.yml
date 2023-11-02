@@ -2,7 +2,30 @@
 # See https://docs.github.com/en/code-security/dependabot/dependabot-version-updates
 version: 2
 
+enable-beta-ecosystems: true
+
 updates:
+  - package-ecosystem: "pub"
+    directory: "fs"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "pub"
+    directory: "fs_browser"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "pub"
+    directory: "fs_io"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "pub"
+    directory: "fs_test"
+    schedule:
+      interval: "monthly"
+  - package-ecosystem: "repo_support"
+    directory: "fs"
+    schedule:
+      interval: "monthly"
+
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
