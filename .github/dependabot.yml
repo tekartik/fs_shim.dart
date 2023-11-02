@@ -21,8 +21,8 @@ updates:
     directory: "fs_test"
     schedule:
       interval: "monthly"
-  - package-ecosystem: "repo_support"
-    directory: "fs"
+  - package-ecosystem: "pub"
+    directory: "repo_support"
     schedule:
       interval: "monthly"
 
