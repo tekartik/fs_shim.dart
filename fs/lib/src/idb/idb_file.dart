@@ -10,7 +10,7 @@ import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
 class IdbFile extends IdbFileSystemEntity with FileMixin implements fs.File {
-  IdbFile(IdbFileSystem fs, String? path) : super(fs, path);
+  IdbFile(super.fs, super.path);
 
   IdbFileSystem get _fs => super.fs;
 
