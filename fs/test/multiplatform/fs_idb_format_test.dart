@@ -34,11 +34,12 @@ void main() {
   //}
 }
 
+var _dbNameIndex = 0;
 void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
   group('2 bytes', () {
     late IdbFileSystem fs;
     setUp(() async {
-      var dbName = 'idb_format_2_bytes.db';
+      var dbName = 'idb_format_2_bytes_${_dbNameIndex++}.db';
       await idbFactory.deleteDatabase(dbName);
       fs = IdbFileSystem(idbFactory, dbName,
           options: const FileSystemIdbOptions(pageSize: 2));
@@ -48,7 +49,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       fs.close();
     });
     test('write pageSize 2 bytes', () async {
-      var file = fs.file('test.txt');
+      var file = fs.file('write_string.txt');
       var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
       // ignore: invalid_use_of_protected_member
       raf.noAsyncFlush = true;
