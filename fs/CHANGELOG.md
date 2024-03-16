@@ -1,3 +1,7 @@
+## 2.3.0
+
+* Remove `dart:html` dependency
+
 ## 2.2.1
 
 * Dart 3 support
