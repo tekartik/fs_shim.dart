@@ -1,11 +1,12 @@
-import 'dart:html';
+import 'package:web/web.dart' as web;
 import 'setup.dart';
 
-PreElement? outElement;
+web.HTMLPreElement? outElement;
 
 void doPrint(Object? msg) {
-  outElement = (outElement ?? querySelector('#output') as PreElement);
-  outElement!.text = '${outElement!.text}$msg\n';
+  outElement = (outElement ??
+      web.document.querySelector('#output') as web.HTMLPreElement);
+  outElement!.text = '${outElement!.textContent}$msg\n';
 }
 
 Future<void> exampleInit() async {

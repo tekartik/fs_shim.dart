@@ -1,19 +1,20 @@
-import 'dart:core' hide print;
 import 'dart:core' as core;
-import 'dart:html' hide FileSystem, File;
+import 'dart:core' hide print;
 
 import 'package:fs_shim/fs_browser.dart';
 import 'package:path/path.dart';
+import 'package:web/web.dart' as web;
 
 // 16Kb page default
 final fs =
     fileSystemWeb.withIdbOptions(options: FileSystemIdbOptions.pageDefault);
 
-PreElement? outElement;
+web.HTMLPreElement? outElement;
 
 void print(Object? msg) {
-  outElement = (outElement ?? querySelector('#output') as PreElement);
-  outElement!.text = '${outElement!.text}$msg\n';
+  outElement = (outElement ??
+      web.document.querySelector('#output') as web.HTMLPreElement);
+  outElement!.text = '${outElement!.textContent}$msg\n';
 }
 
 Future main() async {

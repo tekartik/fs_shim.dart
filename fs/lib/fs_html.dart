@@ -1,8 +1,11 @@
+/// Legacy version using dart:html not wasm compatible
+library;
+
 import 'package:fs_shim/fs_idb.dart';
-import 'package:fs_shim/src/web_interop/fs_web.dart';
+import 'package:fs_shim/src/html/fs_web.dart';
 
 export 'package:fs_shim/fs_idb.dart';
-export 'package:fs_shim/src/web_interop/fs_web.dart';
+export 'package:fs_shim/src/html/fs_web.dart';
 
 /// The default browser file system on top of IndexedDB.
 FileSystem get fileSystemIdb => fileSystemWeb;
