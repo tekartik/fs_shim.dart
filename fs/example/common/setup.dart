@@ -1,6 +1,6 @@
 import 'dart:core' as core;
 
-export 'setup_stub.dart' if (dart.library.html) 'setup_web.dart';
+export 'setup_stub.dart' if (dart.library.js_interop) 'setup_web.dart';
 
 var print = doPrint;
 
