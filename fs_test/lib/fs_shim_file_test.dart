@@ -538,10 +538,12 @@ void defineTests(FileSystemTestContext ctx) {
       try {
         await sink.close();
       } on FileSystemException catch (e) {
+        // devPrint('fse ${e.status} $e');
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
           expect(e.status, FileSystemException.statusIsADirectory);
+          // node: [21] Error: EISDIR: illegal operation on a directory, open '/home'
           // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/write_ondirectory/file' (OS Error: Is a directory, errno = 21)
           // [21] FileSystemException: Write failed, path = '/file/write_ondirectory/file' (OS Error: Is a directory, errno = 21)
         }
