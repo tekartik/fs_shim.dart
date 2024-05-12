@@ -1,4 +1,6 @@
 @TestOn('vm')
+library;
+
 import 'package:path/path.dart';
 import 'package:tekartik_fs_io/fs_io.dart';
 import 'package:tekartik_fs_test/fs_test.dart';

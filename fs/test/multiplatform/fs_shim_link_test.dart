@@ -173,8 +173,8 @@ void defineTests(FileSystemTestContext ctx) {
         if (isIoWindows(ctx)) {
           try {
             await link.create(file.path);
-          } catch (_) {
-            print(_);
+          } catch (e) {
+            print(e);
           }
         } else {
           await link.create(file.path);
