@@ -538,7 +538,6 @@ void defineTests(FileSystemTestContext ctx) {
       try {
         await sink.close();
       } on FileSystemException catch (e) {
-        // devPrint('fse ${e.status} $e');
         if (isIoWindows(ctx)) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
