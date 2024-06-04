@@ -112,6 +112,7 @@ class FileImpl extends FileSystemEntityImpl
         await Process.run('chmod', [enable ? '+x' : '-x', absolute.path]);
       } catch (e) {
         if (isDebug) {
+          // ignore: avoid_print
           print('setExecutablePermission error $e');
         }
       }

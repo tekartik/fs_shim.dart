@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:fs_shim/fs_shim.dart';
 import 'package:path/path.dart';
 

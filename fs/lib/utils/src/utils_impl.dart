@@ -163,10 +163,12 @@ Future deleteDirectory(Directory dir, {DeleteOptions? options}) async {
             e.status == FileSystemException.statusNotEmpty) {
           // ok
         } else {
+          // ignore: avoid_print
           print('delete $dir failed $e');
         }
       }
     } else {
+      // ignore: avoid_print
       print('delete $dir failed $e');
     }
   }
@@ -184,9 +186,11 @@ Future deleteFile(File file, {DeleteOptions? options}) async {
   } catch (e) {
     if (e is FileSystemException) {
       if (e.status != FileSystemException.statusNotFound) {
+        // ignore: avoid_print
         print('delete $file failed $e');
       }
     } else {
+      // ignore: avoid_print
       print('delete $file failed $e');
     }
   }
@@ -547,6 +551,7 @@ class TopCopy extends Object
   // compat
   Future<int> run() async {
     if (fsCopyDebug) {
+      // ignore: avoid_print
       print(this);
     }
     return await _executeOperations(await _runTree());
@@ -576,13 +581,16 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
     _id = ++ActionNodeMixin._staticId;
     _options = options ?? recursiveLinkOrCopyNewerOptions;
     if (fsCopyDebug) {
+      // ignore: avoid_print
       print('src: $src');
+      // ignore: avoid_print
       print('dst: $dst');
     }
   }
 
   Future<List<CopyNodeOperation>> _runTree() async {
     if (fsCopyDebug) {
+      // ignore: avoid_print
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
@@ -626,6 +634,7 @@ class ChildCopy extends Object
 
   Future<int> run() async {
     if (fsCopyDebug) {
+      // ignore: avoid_print
       print('$this');
     }
     return await _executeOperations(await _runTree());
@@ -725,6 +734,7 @@ mixin SourceNodeTreeRunnerMixin
   Future<List<CopyNodeOperation>> _runTree() async {
     var operations = <CopyNodeOperation>[];
     if (fsCopyDebug) {
+      // ignore: avoid_print
       print('$this');
     }
 

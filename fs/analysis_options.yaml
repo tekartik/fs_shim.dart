@@ -22,6 +22,7 @@ analyzer:
 
 linter:
   rules:
+    - avoid_print
     - always_declare_return_types
     - avoid_bool_literals_in_conditional_expressions
     - avoid_dynamic_calls

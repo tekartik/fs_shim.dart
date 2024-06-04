@@ -1,7 +1,5 @@
-// Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
-// is governed by a BSD-style license that can be found in the LICENSE file.
-
-library fs_shim.fs_src_idb_test;
+@TestOn('!wasm')
+library;
 
 import 'dart:typed_data';
 
@@ -17,24 +15,6 @@ import 'package:idb_shim/utils/idb_utils.dart';
 import 'test_common.dart';
 
 void main() {
-  test('idbMakePathAbsolute', () {
-    expect(idbMakePathAbsolute('/'), '/');
-    expect(idbMakePathAbsolute('.'), '/');
-    expect(idbMakePathAbsolute('a'), '/a');
-    expect(idbMakePathAbsolute('a/../b/c/../d'), '/b/d');
-  });
-
-  test('getSegments', () {
-    expect(idbPathGetSegments('/./.'), ['/']);
-    expect(getSegments('/.'), ['/']);
-    expect(getSegments('.'), ['/']);
-    expect(getSegments('/'), ['/']);
-    expect(getSegments('a'), ['/', 'a']);
-    expect(getSegments('/a'), ['/', 'a']);
-    expect(getSegments('/a/'), ['/', 'a']);
-    expect(segmentsToPath(['/']), '/');
-    expect(segmentsToPath(['/', 'a']), '/a');
-  });
   defineIdbTypesFileSystemStorageTests(memoryFileSystemTestContext);
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
   defineIdbFileSystemStorageTests(MemoryFileSystemTestContextWithOptions(
@@ -209,6 +189,7 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
     try {
       await storage.delete().timeout(const Duration(seconds: 5));
     } catch (e) {
+      // ignore: avoid_print
       print('error $e');
     }
     await storage.ready;

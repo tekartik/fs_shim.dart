@@ -69,6 +69,7 @@ mixin FileAccessIdbMixin implements FileAccessIdb {
       try {
         await action();
       } catch (e) {
+        // ignore: avoid_print
         print('async action failed $e');
       }
       //}

@@ -20,6 +20,7 @@ final bool _doPrintErr = false;
 
 void _printErr(Object? e) {
   if (_doPrintErr) {
+    // ignore: avoid_print
     print('$e ${[e.runtimeType]}');
   }
 }
@@ -625,7 +626,9 @@ void defineTests(FileSystemTestContext ctx) {
         var read = await file.readAsBytes();
         expect(read.length, bytes.length);
       } catch (e, st) {
+        // ignore: avoid_print
         print('ERROR writing $size byes files, allowed on CI');
+        // ignore: avoid_print
         print(st);
       }
     }, timeout: const Timeout(Duration(minutes: 2))

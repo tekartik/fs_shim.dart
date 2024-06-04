@@ -397,6 +397,7 @@ class IdbFileSystem extends Object
     Future delete() {
       return store.delete(entity.id!).then((_) {
         if (debugIdbShowLogs) {
+          // ignore: avoid_print
           print('Deleting $entity');
         }
 
@@ -535,6 +536,7 @@ class IdbFileSystem extends Object
 
           entity.name = newSegments.last;
           if (debugIdbShowLogs) {
+            // ignore: avoid_print
             print('change parent $entity');
           }
           return store.put(entity.toMap(), entity.id);
@@ -682,6 +684,7 @@ class IdbFileSystem extends Object
           DateTime.now(), 0);
       return store.add(entity!.toMap()).then((dynamic id) {
         if (debugIdbShowLogs) {
+          // ignore: avoid_print
           print(
               '_createDirectory(${logTruncateAny(entity!.segments)}): $id ${logTruncateAny(entity)}');
         }
@@ -750,6 +753,7 @@ class IdbFileSystem extends Object
     var nodePageSize = node.filePageSize;
     if (nodePageSize != expectedPageSize) {
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('Read pageSize $nodePageSize expected $expectedPageSize');
       }
 
@@ -975,6 +979,7 @@ extension FileSystemInternalIdbExt on FileSystemIdb {
     var content = await txnRawReadNodeFileContent(txn, entity);
     if (isDebug) {
       if (content.length != entity.fileSize) {
+        // ignore: avoid_print
         print(
             'invalid content read ${content.length} bytes vs ${entity.fileSize} bytes expected');
       }

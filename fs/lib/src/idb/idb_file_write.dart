@@ -54,6 +54,7 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
       if (content.isEmpty) {
         if (initialFileEntity.size != 0) {
           if (debugIdbShowLogs) {
+            // ignore: avoid_print
             print('delete $fileEntity content');
           }
           await fsIdb.txnDeleteFileContent(txn, fileEntity);
@@ -102,10 +103,12 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
     asyncAction(() async {
       try {
         if (debugIdbShowLogs) {
+          // ignore: avoid_print
           print('auto flush');
         }
         await flushPending();
       } catch (e) {
+        // ignore: avoid_print
         print('flushPending failed $e');
       }
     });

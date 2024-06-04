@@ -129,12 +129,14 @@ class IdbFileSystemStorage {
 
   Future get ready async {
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('ready? $hashCode');
     }
     if (_readyCompleter == null) {
       _readyCompleter = Completer();
 
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('opening $dbPath');
       }
       // version 4: add file store
@@ -174,7 +176,9 @@ class IdbFileSystemStorage {
               keyPath: [partFileKey, partIndexKey]);
         }
       }, onBlocked: (e) {
+        // ignore: avoid_print
         print(e);
+        // ignore: avoid_print
         print('#### db format change - reload');
       });
       _readyCompleter!.complete();
@@ -187,6 +191,7 @@ class IdbFileSystemStorage {
     var content = await fileStore.getObject(fileId);
     if (content is List) {
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('read content v1 ${content.length} bytes');
       }
       return anyListAsUint8List(content);
@@ -213,6 +218,7 @@ class IdbFileSystemStorage {
         size: size,
         modified: DateTime.now().toUtc());
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('put clone ${logTruncateAny(newTreeEntity)}');
     }
     await treeStore.put(newTreeEntity.toMap(), treeEntity.fileId);
@@ -226,6 +232,7 @@ class IdbFileSystemStorage {
     // Content store
     var fileStore = txn.objectStore(fileStoreName);
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('put file ${treeEntity.id} content size ${bytes.length}');
     }
 
@@ -259,6 +266,7 @@ class IdbFileSystemStorage {
     var content = bytesListToBytes(bytesList);
     if (debugIdbShowLogs) {
       // devPrint('content $content, $bytesList');
+      // ignore: avoid_print
       print('read content v2 ${content.length} bytes');
     }
     return content;
@@ -281,6 +289,7 @@ class IdbFileSystemStorage {
     if (partMap is Map) {
       var bytes = anyAsUint8List(partMap[contentKey]);
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('read part $ref size ${bytes.length}');
       }
       return bytes;
@@ -298,12 +307,14 @@ class IdbFileSystemStorage {
       contentKey: bytes
     };
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('put part $ref size ${bytes.length}');
     }
     try {
       await partStore.put(partEntry);
     } catch (e) {
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('put part $ref size ${bytes.length} error $e');
       }
     }
@@ -321,6 +332,7 @@ class IdbFileSystemStorage {
   Future<void> txnStoreDeletePart(
       idb.ObjectStore partStore, FilePartRef ref) async {
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('delete part $ref');
     }
     await partStore.delete(ref.toKey());
@@ -504,6 +516,7 @@ class IdbFileSystemStorage {
     final entity =
         Node.fromMap(parent, (map as Map).cast<String, Object?>(), id);
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('nodeFromMap($id, $map)');
     }
     return entity;
@@ -525,6 +538,7 @@ class IdbFileSystemStorage {
 
     FutureOr<Node?> nodeFromKey(dynamic id) {
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('nodeFromKey($parentName): $id');
       }
       if (id == null) {
@@ -538,6 +552,7 @@ class IdbFileSystemStorage {
           return txnResolveLinkNode(treeStore, entity);
         }
         if (debugIdbShowLogs) {
+          // ignore: avoid_print
           print('nodeFromMap($parentName): $map');
         }
         return entity;
@@ -661,6 +676,7 @@ class IdbFileSystemStorage {
 
     return next().then((_) {
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('txnSearch($segments): $result');
       }
       return result;
@@ -694,6 +710,7 @@ class IdbFileSystemStorage {
     // devPrint('adding ${entity}');
     return store.add(entity.toMap()).then((dynamic id) {
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('txnAddNode(${entity.segments}): $id');
       }
       entity.id = id as int;
@@ -715,6 +732,7 @@ class IdbFileSystemStorage {
   /// Delete the associated storage.
   Future<void> delete() async {
     if (debugIdbShowLogs) {
+      // ignore: avoid_print
       print('delete database $dbPath');
     }
     try {
@@ -723,16 +741,20 @@ class IdbFileSystemStorage {
         try {
           await idbFactory.open(dummyDbName);
         } catch (e) {
+          // ignore: avoid_print
           print('failed $e opening $dummyDbName');
         }
       }
       await idbFactory.deleteDatabase(dbPath, onBlocked: (_) {
+        // ignore: avoid_print
         print('ignore blocking');
       });
       if (debugIdbShowLogs) {
+        // ignore: avoid_print
         print('database deleted $dbPath');
       }
     } catch (e) {
+      // ignore: avoid_print
       print('error deleting database $dbPath: $e');
     }
     _readyCompleter = null;

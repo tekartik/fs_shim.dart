@@ -16,6 +16,7 @@ final bool _doPrintErr = false;
 
 void _printErr(Object? e) {
   if (_doPrintErr) {
+    // ignore: avoid_print
     print('$e ${[e.runtimeType]}');
   }
 }

@@ -1,7 +1,5 @@
-// Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
-// is governed by a BSD-style license that can be found in the LICENSE file.
-
-library fs_shim.test.multiplatform.fs_idb_test;
+@TestOn('!wasm')
+library;
 
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
@@ -10,7 +8,7 @@ import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'fs_src_idb_file_system_storage_test.dart';
-import 'fs_test.dart' as fs_test;
+
 import 'test_common.dart';
 
 void main() {
@@ -19,7 +17,6 @@ void main() {
 }
 
 void defineIdbTests(IdbFileSystemTestContext ctx) {
-  fs_test.defineTests(ctx);
   defineIdbFileSystemStorageTests(ctx);
   group('idb', () {
     var fs = ctx.fs;

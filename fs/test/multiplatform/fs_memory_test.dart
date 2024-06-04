@@ -1,13 +1,10 @@
-// Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
-// is governed by a BSD-style license that can be found in the LICENSE file.
-
-library tekartik_fs_test.fs_memory_test;
+@TestOn('!wasm')
+library;
 
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 
 import 'fs_idb_test.dart';
-import 'fs_test.dart';
 import 'test_common.dart';
 
 void main() {
@@ -15,7 +12,6 @@ void main() {
     void defineAllIdbTests(IdbFileSystemTestContext ctx) {
       group('options: ${ctx.fs.idbOptions} ', () {
         defineIdbTests(ctx);
-        defineTests(ctx);
       });
     }
 

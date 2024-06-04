@@ -18,6 +18,7 @@ final bool _doPrintErr = false;
 
 void _printErr(Object? e) {
   if (_doPrintErr) {
+    // ignore: avoid_print
     print('$e ${[e.runtimeType]}');
   }
 }
@@ -174,6 +175,7 @@ void defineTests(FileSystemTestContext ctx) {
           try {
             await link.create(file.path);
           } catch (e) {
+            // ignore: avoid_print
             print(e);
           }
         } else {
@@ -999,7 +1001,7 @@ void defineTests(FileSystemTestContext ctx) {
         // Create a top level directory
         // fs.directory('/dir');
         final dir = fs.directory(dirPath);
-        print('dir: $dir');
+        // print('dir: $dir');
         // delete its content
         if (await dir.exists()) {
           await dir.delete(recursive: true);

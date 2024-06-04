@@ -34,6 +34,7 @@ class RandomAccessFileIdb
     try {
       await flushPending(close: true);
     } catch (e) {
+      // ignore: avoid_print
       print('flush failed $e');
     }
   }
@@ -80,6 +81,7 @@ class RandomAccessFileIdb
               }
             } catch (e) {
               if (isDebug) {
+                // ignore: avoid_print
                 print('flush error $e');
               }
               rethrow;
@@ -201,6 +203,7 @@ class RandomAccessFileIdb
           count += bytes.length;
         }
         if (debugIdbShowLogs) {
+          // ignore: avoid_print
           print('cursor reading $ref');
         }
       }).asFuture<void>();
@@ -307,6 +310,7 @@ class RandomAccessFileIdb
       try {
         await flushPending();
       } catch (e) {
+        // ignore: avoid_print
         print('flushPending failed $e');
       }
     });

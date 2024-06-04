@@ -9,7 +9,6 @@ import 'dart:io' as io;
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
-import '../multiplatform/fs_test.dart';
 import '../test_common.dart';
 import '../test_common_io.dart';
 
@@ -195,8 +194,5 @@ void main() {
             FileSystemEntityType.directory);
       });
     });
-
-    // All tests
-    defineTests(ioFileSystemTestContext);
   });
 }

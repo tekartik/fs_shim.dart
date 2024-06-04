@@ -81,6 +81,7 @@ abstract class FileSystemTestContextIdbWithOptions
 }
 
 void devPrintJson(Map json) {
+  // ignore: avoid_print
   print(const JsonEncoder.withIndent('  ').convert(json));
 }
 
