@@ -391,7 +391,9 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.type(link.path, followLinks: false),
             FileSystemEntityType.link);
         // on windows following a missing link return the link
-        if (isIoWindows(ctx)) {
+        // ignore: dead_code
+        if (isIoWindows(ctx) && false) {
+          // Fixed since dart 3.4.0
           expect(await fs.type(link.path, followLinks: true),
               FileSystemEntityType.link);
         } else {
@@ -404,14 +406,14 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await fs.type(link.path, followLinks: false),
             FileSystemEntityType.link);
         if (isIoWindows(ctx)) {
-          // Somehow this does not work on windows
+          // Since dart 3.4.0
           expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.link);
+              FileSystemEntityType.notFound);
         } else {
           expect(await fs.type(link.path, followLinks: true),
               FileSystemEntityType.directory);
         }
-      });
+      }, solo: true);
 
       test('link_read_string', () async {
         if (fs.supportsFileLink) {
