@@ -1,4 +1,3 @@
-@TestOn('!wasm')
 library;
 
 import 'package:fs_shim/src/idb/idb_file_system.dart';

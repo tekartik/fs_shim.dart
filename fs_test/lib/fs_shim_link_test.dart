@@ -413,7 +413,7 @@ void defineTests(FileSystemTestContext ctx) {
           expect(await fs.type(link.path, followLinks: true),
               FileSystemEntityType.directory);
         }
-      }, solo: true);
+      });
 
       test('link_read_string', () async {
         if (fs.supportsFileLink) {

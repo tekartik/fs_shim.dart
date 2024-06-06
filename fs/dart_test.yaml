@@ -3,5 +3,5 @@ platforms:
   - vm
 compilers:
   - dart2js
-#  - dart2wasm
+  - dart2wasm
 concurrency: 1

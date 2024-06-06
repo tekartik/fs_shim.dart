@@ -1,4 +1,3 @@
-@TestOn('!wasm')
 library;
 
 import 'dart:typed_data';
