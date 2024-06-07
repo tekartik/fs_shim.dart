@@ -12,6 +12,8 @@ Future<void> main() async {
   ]) {
     var path = join(topDir, dir);
     // concurrent test are not supported
-    await packageRunCi(path, options: PackageRunCiOptions(noBrowserTest: true));
+    await packageRunCi(path,
+        options: PackageRunCiOptions(
+            testOnly: true, noVmTest: true, noNodeTest: true));
   }
 }

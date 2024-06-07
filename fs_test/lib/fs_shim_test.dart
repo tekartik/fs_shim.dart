@@ -5,14 +5,15 @@ library fs_shim.test.file_system_import_test;
 
 import 'package:fs_shim/fs_shim.dart';
 
-import 'test_common.dart' show isRunningAsJavascript, fail, group, test;
+import 'test_common.dart'
+    show fail, group, isRunningAsJavascript, kDartIsWeb, test;
 
 void main() {
   group('import', () {
     test('web', () {
       try {
         fileSystemWeb;
-        if (!isRunningAsJavascript) {
+        if (!kDartIsWeb) {
           fail('should fail');
         }
       } on UnimplementedError catch (_) {
