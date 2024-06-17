@@ -4,9 +4,9 @@
 library fs_shim.test.file_system_import_test;
 
 import 'package:fs_shim/fs_shim.dart';
+import 'package:test/test.dart';
 
-import 'test_common.dart'
-    show fail, group, isRunningAsJavascript, kDartIsWeb, test;
+import 'test_common.dart' show isRunningAsJavascript, kDartIsWeb;
 
 void main() {
   group('import', () {

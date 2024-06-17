@@ -5,6 +5,7 @@ library fs_shim.test.fs_shim_file_stat_test;
 
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
+import 'package:test/test.dart';
 
 import 'test_common.dart';
 
@@ -42,7 +43,9 @@ void defineTests(FileSystemTestContext ctx) {
       final stat = await file.stat();
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);
-      expect(stat.modified, isNotNull);
+      print(stat.modified);
+      expect(
+          stat.modified.difference(DateTime.now()).inDays.abs(), lessThan(1));
     });
   });
 }

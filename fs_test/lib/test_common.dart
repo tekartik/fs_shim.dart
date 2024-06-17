@@ -19,7 +19,6 @@ export 'package:fs_shim/utils/glob.dart';
 export 'package:fs_shim/utils/part.dart';
 export 'package:fs_shim/utils/path.dart';
 export 'package:fs_shim/utils/read_write.dart';
-export 'package:test/test.dart';
 
 export 'fs_test_common.dart';
 export 'src/import_common.dart';

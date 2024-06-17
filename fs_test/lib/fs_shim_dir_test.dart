@@ -5,6 +5,7 @@ library fs_shim.test.fs_shimdirectory_test;
 
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
+import 'package:test/test.dart';
 
 import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
@@ -133,7 +134,7 @@ void defineTests(FileSystemTestContext ctx) {
       final path2 = fs.path.join(directory.path, 'dir2');
       final dir = fs.directory(path);
       await dir.create();
-      final dir2 = await dir.rename(path2) as Directory;
+      final dir2 = (await dir.rename(path2)) as Directory;
       expect(dir2.path, path2);
       expect(await dir.exists(), isFalse);
       expect(await dir2.exists(), isTrue);

@@ -8,6 +8,7 @@ import 'dart:typed_data';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
+import 'package:test/test.dart';
 
 import 'test_common.dart';
 
@@ -369,186 +370,188 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
-    test('simple_write_read', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      await file.create();
-      var sink = file.openWrite(mode: FileMode.write);
-      sink.add('test'.codeUnits);
-      await sink.close();
-
-      var content = <int>[];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'test'.codeUnits);
-
-      content = [];
-      await file.openRead(1).listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'est'.codeUnits);
-
-      content = [];
-      await file.openRead(1, 3).listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'es'.codeUnits);
-    });
-
-    test('simple_write_no_create', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      var sink = file.openWrite(mode: FileMode.write);
-      sink.add('test'.codeUnits);
-      await sink.close();
-
-      expect(await file.readAsString(), 'test');
-    });
-
-    test('read_not_found', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      try {
-        await file.openRead().listen((Uint8List data) {
-          //content.addAll(data);
-        }).asFuture<void>();
-      } on FileSystemException catch (e) {
-        // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
-        // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
-        _printErr(e);
-        expect(e.status, FileSystemException.statusNotFound);
-      }
-    });
-
-    test('write_bad_mode', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      try {
-        var sink = file.openWrite(mode: FileMode.read);
+    if (ctx.supportsFileContentStream) {
+      test('simple_write_read', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        await file.create();
+        var sink = file.openWrite(mode: FileMode.write);
         sink.add('test'.codeUnits);
         await sink.close();
-      } on ArgumentError catch (e) {
-        _printErr(e);
-      }
-    });
 
-    test('append_not_found', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      var sink = file.openWrite(mode: FileMode.append);
-      sink.add('test'.codeUnits);
-      await sink.close();
+        var content = <int>[];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'test'.codeUnits);
 
-      var content = <int>[];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'test'.codeUnits);
-    });
+        content = [];
+        await file.openRead(1).listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'est'.codeUnits);
 
-    test('write_not_found', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      try {
+        content = [];
+        await file.openRead(1, 3).listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'es'.codeUnits);
+      });
+
+      test('simple_write_no_create', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        var sink = file.openWrite(mode: FileMode.write);
+        sink.add('test'.codeUnits);
+        await sink.close();
+
+        expect(await file.readAsString(), 'test');
+      });
+
+      test('read_not_found', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        try {
+          await file.openRead().listen((Uint8List data) {
+            //content.addAll(data);
+          }).asFuture<void>();
+        } on FileSystemException catch (e) {
+          // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
+          // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
+          _printErr(e);
+          expect(e.status, FileSystemException.statusNotFound);
+        }
+      });
+
+      test('write_bad_mode', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        try {
+          var sink = file.openWrite(mode: FileMode.read);
+          sink.add('test'.codeUnits);
+          await sink.close();
+        } on ArgumentError catch (e) {
+          _printErr(e);
+        }
+      });
+
+      test('append_not_found', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
         var sink = file.openWrite(mode: FileMode.append);
         sink.add('test'.codeUnits);
         await sink.close();
-      } on FileSystemException catch (e) {
-        // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
-        // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
-        _printErr(e);
-      }
 
-      final content = <int>[];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'test'.codeUnits);
-    });
+        var content = <int>[];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'test'.codeUnits);
+      });
 
-    test('overwrite', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      var sink = file.openWrite(mode: FileMode.write);
-      sink.add('test'.codeUnits);
-      await sink.close();
-
-      var content = <int>[];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'test'.codeUnits);
-
-      sink = file.openWrite(mode: FileMode.write);
-      sink.add('overwritten'.codeUnits);
-      await sink.close();
-
-      content = [];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'overwritten'.codeUnits);
-
-      // append nothing.
-      sink = file.openWrite(mode: FileMode.append);
-      await sink.close();
-      var text = await file.readAsString();
-      expect(text, 'overwritten');
-      // Write nothing.
-      sink = file.openWrite(mode: FileMode.write);
-      await sink.close();
-      text = await file.readAsString();
-      expect(text, '');
-    });
-
-    test('append', () async {
-      final directory = await ctx.prepare();
-      final file = fs.file(fs.path.join(directory.path, 'file'));
-      var sink = file.openWrite(mode: FileMode.write);
-      sink.add('test'.codeUnits);
-      await sink.close();
-
-      var content = <int>[];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'test'.codeUnits);
-
-      sink = file.openWrite(mode: FileMode.append);
-      sink.add('append'.codeUnits);
-      await sink.close();
-
-      content = [];
-      await file.openRead().listen((Uint8List data) {
-        content.addAll(data);
-      }).asFuture<void>();
-      expect(content, 'testappend'.codeUnits);
-    });
-
-    test('write_on_directory', () async {
-      final directory = await ctx.prepare();
-      var filePath = fs.path.join(directory.path, 'file');
-      final dir = fs.directory(filePath);
-      final file = fs.file(filePath);
-
-      await dir.create();
-
-      var sink = file.openWrite(mode: FileMode.append);
-      sink.add('test'.codeUnits);
-      try {
-        await sink.close();
-      } on FileSystemException catch (e) {
-        if (isIoWindows(ctx)) {
-          expect(e.status, FileSystemException.statusAccessError);
-        } else {
-          expect(e.status, FileSystemException.statusIsADirectory);
-          // node: [21] Error: EISDIR: illegal operation on a directory, open '/home'
-          // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/write_ondirectory/file' (OS Error: Is a directory, errno = 21)
-          // [21] FileSystemException: Write failed, path = '/file/write_ondirectory/file' (OS Error: Is a directory, errno = 21)
+      test('write_not_found', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        try {
+          var sink = file.openWrite(mode: FileMode.append);
+          sink.add('test'.codeUnits);
+          await sink.close();
+        } on FileSystemException catch (e) {
+          // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
+          // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
+          _printErr(e);
         }
-      }
-    });
+
+        final content = <int>[];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'test'.codeUnits);
+      });
+
+      test('overwrite', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        var sink = file.openWrite(mode: FileMode.write);
+        sink.add('test'.codeUnits);
+        await sink.close();
+
+        var content = <int>[];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'test'.codeUnits);
+
+        sink = file.openWrite(mode: FileMode.write);
+        sink.add('overwritten'.codeUnits);
+        await sink.close();
+
+        content = [];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'overwritten'.codeUnits);
+
+        // append nothing.
+        sink = file.openWrite(mode: FileMode.append);
+        await sink.close();
+        var text = await file.readAsString();
+        expect(text, 'overwritten');
+        // Write nothing.
+        sink = file.openWrite(mode: FileMode.write);
+        await sink.close();
+        text = await file.readAsString();
+        expect(text, '');
+      });
+
+      test('append', () async {
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        var sink = file.openWrite(mode: FileMode.write);
+        sink.add('test'.codeUnits);
+        await sink.close();
+
+        var content = <int>[];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'test'.codeUnits);
+
+        sink = file.openWrite(mode: FileMode.append);
+        sink.add('append'.codeUnits);
+        await sink.close();
+
+        content = [];
+        await file.openRead().listen((Uint8List data) {
+          content.addAll(data);
+        }).asFuture<void>();
+        expect(content, 'testappend'.codeUnits);
+      });
+
+      test('write_on_directory', () async {
+        final directory = await ctx.prepare();
+        var filePath = fs.path.join(directory.path, 'file');
+        final dir = fs.directory(filePath);
+        final file = fs.file(filePath);
+
+        await dir.create();
+
+        var sink = file.openWrite(mode: FileMode.append);
+        sink.add('test'.codeUnits);
+        try {
+          await sink.close();
+        } on FileSystemException catch (e) {
+          if (isIoWindows(ctx)) {
+            expect(e.status, FileSystemException.statusAccessError);
+          } else {
+            expect(e.status, FileSystemException.statusIsADirectory);
+            // node: [21] Error: EISDIR: illegal operation on a directory, open '/home'
+            // [21] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/write_ondirectory/file' (OS Error: Is a directory, errno = 21)
+            // [21] FileSystemException: Write failed, path = '/file/write_ondirectory/file' (OS Error: Is a directory, errno = 21)
+          }
+        }
+      });
+    }
 
     test('read_write_bytes', () async {
       final bytes = Uint8List.fromList([0, 1, 2, 3]);
@@ -631,8 +634,6 @@ void defineTests(FileSystemTestContext ctx) {
         // ignore: avoid_print
         print(st);
       }
-    }, timeout: const Timeout(Duration(minutes: 2))
-        //, solo: true
-        );
+    }, timeout: const Timeout(Duration(minutes: 2)));
   });
 }

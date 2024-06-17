@@ -1,5 +1,7 @@
 library fs_shim.test.utils_entity_tests;
 
+import 'package:test/test.dart';
+
 import 'test_common.dart';
 
 void main() {

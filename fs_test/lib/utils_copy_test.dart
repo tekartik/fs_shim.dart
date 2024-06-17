@@ -4,6 +4,7 @@ library fs_shim.test.utils_copy_tests;
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/utils/src/utils_impl.dart'
     show copyFileSystemEntityImpl;
+import 'package:test/test.dart';
 
 import 'test_common.dart';
 

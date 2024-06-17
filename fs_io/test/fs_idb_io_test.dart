@@ -9,6 +9,7 @@ import 'package:idb_shim/idb_io.dart';
 import 'package:path/path.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
+import 'package:test/test.dart';
 
 var testOutTopPath = join('.dart_tool', 'tekartik_fs_idb_io', 'test');
 final _idbFactory = getIdbFactorySembastIo(testOutTopPath);

@@ -8,6 +8,7 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
+import 'package:test/test.dart';
 
 import 'test_common.dart';
 

@@ -4,7 +4,7 @@ library fs_shim_browser.fs_browser_test;
 import 'package:fs_shim/fs_idb.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/fs_test_web.dart';
-import 'package:tekartik_fs_test/test_common.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('browser_page_size_2', () {

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_shim.dart';
 import 'package:tekartik_fs_test/test_common.dart';
+import 'package:test/test.dart';
 
 void main() {
   fsPerfTestGroup(fileSystemDefault);

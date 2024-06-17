@@ -27,6 +27,10 @@ abstract class FileSystemTestContext {
   }
 
   String? basePath;
+
+  /// Support openRead/openWrite
+  /// True by default.
+  bool get supportsFileContentStream => true;
   Future<Directory> prepare() async {
     final dir = fs.directory(outPath);
     try {
@@ -54,6 +58,8 @@ abstract class IdbFileSystemTestContext extends FileSystemTestContext {
   @override
   IdbFileSystem get fs => rawFsIdb;
 
+  @override
+  bool get supportsFileContentStream => true;
   @override
   String toString() => 'IdbFsTestContext($fs)';
 }

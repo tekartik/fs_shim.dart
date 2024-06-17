@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:tekartik_fs_test/fs_perf_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
+import 'package:test/test.dart';
 
 var idbOptions = [
   FileSystemIdbOptions.noPage,
