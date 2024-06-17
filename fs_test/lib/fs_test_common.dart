@@ -18,8 +18,15 @@ abstract class FileSystemTestContext {
   FileSystem get fs;
 
   // The path to use for testing
-  String get outPath => fs.path.joinAll(testDescriptions);
+  String get outPath {
+    var dir = fs.path.joinAll(testDescriptions);
+    if (basePath != null) {
+      dir = fs.path.join(basePath!, dir);
+    }
+    return dir;
+  }
 
+  String? basePath;
   Future<Directory> prepare() async {
     final dir = fs.directory(outPath);
     try {

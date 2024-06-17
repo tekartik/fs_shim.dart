@@ -58,14 +58,12 @@ void defineTests(FileSystemTestContext ctx) {
     test('create', () async {
       // devPrint('prepare ${ctx.fs}');
       final dir = await ctx.prepare();
-
       final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
       expect(await dir.exists(), isTrue);
       expect(await subDir.exists(), isFalse);
       expect(await fs.isDirectory(subDir.path), isFalse);
       expect(await (await subDir.create()).exists(), isTrue);
       expect(await fs.isDirectory(subDir.path), isTrue);
-
       // second time fine too
       await subDir.create();
     });
