@@ -21,13 +21,5 @@ FileSystemTestContextIdbBrowser fileSystemTestContextIdbBrowser =
 void main() {
   group('browser', () {
     defineTests(fileSystemTestContextIdbBrowser);
-
-    test('Directory', () {
-      Directory('test');
-    });
-
-    test('File', () {
-      File('test');
-    });
   });
 }

@@ -64,5 +64,13 @@ void main() {
         options: const FileSystemIdbOptions(pageSize: 2)));
     defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
         options: const FileSystemIdbOptions(pageSize: 16 * 1024)));
+
+    test('Directory', () {
+      Directory('test');
+    });
+
+    test('File', () {
+      File('test');
+    });
   });
 }

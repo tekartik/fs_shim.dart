@@ -45,7 +45,7 @@ void defineTests(FileSystemTestContext ctx) {
     test('prepare', () async {
       var dir1 = await ctx.prepare();
       var dir2 = await ctx.prepare();
-      expect(dir1.path, dir2.path);
+      expect(dir1.path, isNot(dir2.path));
     });
 
     test('exists', () async {
@@ -53,7 +53,7 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await dir.exists(), isTrue);
       final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
       expect(await subDir.exists(), isFalse);
-    }, solo: true);
+    });
 
     test('create', () async {
       // devPrint('prepare ${ctx.fs}');
