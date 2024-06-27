@@ -306,6 +306,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail('shoud fail');
       } on FileSystemException catch (e) {
         // Mac: errno 66 - not empty
+        // Node windows {errno: -4051, code: ENOTEMPTY, syscall: rmdir}
         // FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
         // [39] FileSystemException: Deletion failed, path = '/default/dir/delete_recursive/sub' (OS Error: Directory not empty, errno = 39)
         expect(e.status, FileSystemException.statusNotEmpty);
