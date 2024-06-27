@@ -309,7 +309,7 @@ void defineTests(FileSystemTestContext ctx) {
         _printErr(e);
         // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         // [17] FileSystemException: Creation failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: File exists, errno = 17)
-        if (isIoWindows(ctx)) {
+        if (isIo(ctx) && !isIoWindows(ctx)) {
           // tested on linux
           expect(e.status, FileSystemException.statusNotADirectory);
         } else {
