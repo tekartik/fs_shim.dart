@@ -1,5 +1,6 @@
-## 2.3.1+2
+## 2.3.1+3
 
+* Remove `dev_test` dependency
 * Remove `dart:html` dependency
 
 ## 2.2.1
