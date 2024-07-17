@@ -3,7 +3,7 @@
 
 library fs_shim.fs_test;
 
-import 'package:test/test.dart';
+import 'package:dev_test/test.dart';
 
 import 'fs_shim_dir_test.dart' as dir_test;
 import 'fs_shim_file_stat_test.dart' as file_stat_test;

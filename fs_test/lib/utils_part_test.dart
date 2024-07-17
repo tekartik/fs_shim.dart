@@ -1,7 +1,7 @@
 library fs_shim.test.utils_part_tests;
 
+import 'package:dev_test/test.dart';
 import 'package:path/path.dart';
-import 'package:test/test.dart';
 
 import 'test_common.dart';
 

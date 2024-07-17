@@ -5,10 +5,10 @@ library fs_shim.test.fs_shim_file_test;
 
 import 'dart:typed_data';
 
+import 'package:dev_test/test.dart';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_idb.dart';
-import 'package:test/test.dart';
 
 import 'test_common.dart';
 

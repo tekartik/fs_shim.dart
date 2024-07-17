@@ -1,6 +1,6 @@
 library fs_shim.test.utils_read_write_test;
 
-import 'package:test/test.dart';
+import 'package:dev_test/test.dart';
 
 import 'test_common.dart';
 
