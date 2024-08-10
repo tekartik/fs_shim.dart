@@ -102,6 +102,10 @@ bool isIoWindows(FileSystemTestContext ctx) {
   return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoWindows == true;
 }
 
+bool isIoNode(FileSystemTestContext ctx) {
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoNode == true;
+}
+
 bool isIoMac(FileSystemTestContext ctx) {
   return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoMacOS == true;
 }

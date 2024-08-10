@@ -223,7 +223,7 @@ void defineTests(FileSystemTestContext ctx) {
         await dir.rename(path2);
         fail('should fail');
       } on FileSystemException catch (e) {
-        if (isIoWindows(ctx)) {
+        if (isIoWindows(ctx) && !isIoNode(ctx)) {
           expect(e.status, FileSystemException.statusAlreadyExists);
         } else {
           // [20] FileSystemException: Rename failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/dir/rename_over_existing_different_type/dir' (OS Error: Not a directory, errno = 20)

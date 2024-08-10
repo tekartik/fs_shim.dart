@@ -6,7 +6,7 @@ class PlatformContext {
   bool get isIo => false;
 }
 
-/// IO only
+/// IO && node only
 class PlatformContextIo extends PlatformContext {
   ///
   /// true if windows operating system
@@ -19,9 +19,12 @@ class PlatformContextIo extends PlatformContext {
   bool isIoMacOS = false;
 
   ///
-  /// true if Linuxm
+  /// true if Linux
   ///
   bool isIoLinux = false;
+
+  /// True on node (can be windows, mac or linux)
+  bool get isIoNode => false;
 
   @override
   bool get isIo => true;

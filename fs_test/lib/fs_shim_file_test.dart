@@ -222,7 +222,11 @@ void defineTests(FileSystemTestContext ctx) {
         fail('should fail');
       } on FileSystemException catch (e) {
         if (isIoWindows(ctx)) {
-          expect(e.status, FileSystemException.statusAccessError);
+          if (isIoNode(ctx)) {
+            expect(e.status, FileSystemException.statusAlreadyExists);
+          } else {
+            expect(e.status, FileSystemException.statusAccessError);
+          }
         } else {
           // [21] FileSystemException: Cannot rename file to '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/rename_over_existing_different_type/dir', path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/rename_over_existing_different_type/file' (OS Error: Is a directory, errno = 21)
           expect(e.status, FileSystemException.statusIsADirectory);
@@ -309,11 +313,11 @@ void defineTests(FileSystemTestContext ctx) {
         _printErr(e);
         // [17] FileSystemException: Creation failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: File exists, errno = 17)
         // [17] FileSystemException: Creation failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: File exists, errno = 17)
-        if (isIo(ctx) && !isIoWindows(ctx)) {
+        if (isIoWindows(ctx)) {
+          expect(e.status, FileSystemException.statusAlreadyExists);
+        } else {
           // tested on linux
           expect(e.status, FileSystemException.statusNotADirectory);
-        } else {
-          expect(e.status, FileSystemException.statusAlreadyExists);
         }
       }
 
@@ -542,7 +546,11 @@ void defineTests(FileSystemTestContext ctx) {
           await sink.close();
         } on FileSystemException catch (e) {
           if (isIoWindows(ctx)) {
-            expect(e.status, FileSystemException.statusAccessError);
+            if (isIoNode(ctx)) {
+              expect(e.status, FileSystemException.statusIsADirectory);
+            } else {
+              expect(e.status, FileSystemException.statusAccessError);
+            }
           } else {
             expect(e.status, FileSystemException.statusIsADirectory);
             // node: [21] Error: EISDIR: illegal operation on a directory, open '/home'
