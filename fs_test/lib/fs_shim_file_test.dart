@@ -344,7 +344,11 @@ void defineTests(FileSystemTestContext ctx) {
       } on FileSystemException catch (e) {
         _printErr(e);
         if (isIoWindows(ctx)) {
-          expect(e.status, FileSystemException.statusNotFound);
+          if (isIoNode(ctx)) {
+            expect(e.status, FileSystemException.statusNotADirectory);
+          } else {
+            expect(e.status, FileSystemException.statusNotFound);
+          }
         } else {
           // [20] FileSystemException: Deletion failed, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
           // [20] FileSystemException: Deletion failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: Not a directory, errno = 20)
@@ -364,7 +368,11 @@ void defineTests(FileSystemTestContext ctx) {
       } on FileSystemException catch (e) {
         _printErr(e);
         if (isIoWindows(ctx)) {
-          expect(e.status, FileSystemException.statusAccessError);
+          if (isIoNode(ctx)) {
+            expect(e.status, FileSystemException.statusIsADirectory);
+          } else {
+            expect(e.status, FileSystemException.statusAccessError);
+          }
         } else {
           // [21] FileSystemException: Cannot create file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
           // [21] FileSystemException: Creation failed, path = '/file/createdirectory_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
@@ -377,7 +385,7 @@ void defineTests(FileSystemTestContext ctx) {
         fail('should fail');
       } on FileSystemException catch (e) {
         _printErr(e);
-        if (isIoWindows(ctx)) {
+        if (isIoWindows(ctx) && !isIoNode(ctx)) {
           expect(e.status, FileSystemException.statusAccessError);
         } else {
           // [21] FileSystemException: Cannot delete file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/createdirectory_or_file/dir_or_file' (OS Error: Is a directory, errno = 21)
