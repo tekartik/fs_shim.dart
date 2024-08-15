@@ -86,15 +86,15 @@ void devPrintJson(Map json) {
 }
 
 bool isIoWindows(FileSystemTestContext ctx) {
-  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoWindows == true;
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoWindows;
 }
 
 bool isIoMac(FileSystemTestContext ctx) {
-  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoMacOS == true;
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoMacOS;
 }
 
 bool isIoLinux(FileSystemTestContext ctx) {
-  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoLinux == true;
+  return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoLinux;
 }
 
 bool isIo(FileSystemTestContext ctx) {

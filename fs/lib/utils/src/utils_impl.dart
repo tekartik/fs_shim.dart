@@ -159,7 +159,7 @@ Future deleteDirectory(Directory dir, {DeleteOptions? options}) async {
   } catch (e) {
     if (e is FileSystemException) {
       if (e.status != FileSystemException.statusNotFound) {
-        if (options.recursive == false &&
+        if (!options.recursive &&
             e.status == FileSystemException.statusNotEmpty) {
           // ok
         } else {
@@ -711,7 +711,7 @@ class CopyNodeOperation extends CopyNode {
         return 1;
       }
       // Handle modified date
-      if (options!.checkSizeAndModifiedDate == true) {
+      if (options!.checkSizeAndModifiedDate) {
         final srcStat = await srcFile.stat();
         final dstStat = await dstFile.stat();
         if ((dstStat.type != FileSystemEntityType.notFound) &&

@@ -23,6 +23,7 @@ void main() {
   });
   Future<void> writeResult() async {
     var resultText = fsPerfMarkdownResult();
+    // ignore: avoid_print
     print(resultText);
   }
 

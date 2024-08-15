@@ -13,6 +13,6 @@ import 'dart:io'
 import 'package:fs_shim/fs_shim.dart';
 
 void main() {
-  print('    version: ${Platform.version}');
-  print('current dir: ${Directory.current}');
+  stdout.writeln('    version: ${Platform.version}');
+  stdout.writeln('current dir: ${Directory.current}');
 }

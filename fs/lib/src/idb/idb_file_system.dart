@@ -207,12 +207,12 @@ class IdbFileSystem extends Object
 
       // Are we creating a root?
       if ((segments.length == 2) &&
-          (recursive != true) &&
+          (!recursive) &&
           (segments[0] == pathContext.separator)) {
         // Always create the root when needed
       } else {
         // not recursive and too deep, cancel
-        if ((result.depthDiff > 1) && (recursive != true)) {
+        if ((result.depthDiff > 1) && (!recursive)) {
           throw idbNotFoundException(path, 'Creation failed');
         }
       }
@@ -253,12 +253,12 @@ class IdbFileSystem extends Object
 
       // Are we creating a root?
       if ((segments.length == 2) &&
-          (recursive != true) &&
+          (!recursive) &&
           (segments[0] == pathContext.separator)) {
         // Always create the root when needed
       } else
       // not recursive and too deep, cancel
-      if ((result.depthDiff > 1) && (recursive != true)) {
+      if ((result.depthDiff > 1) && (!recursive)) {
         throw idbNotFoundException(result.path, 'Creation failed');
       }
       // regular directory case
@@ -331,7 +331,7 @@ class IdbFileSystem extends Object
       }
 
       // not recursive and too deep, cancel
-      if ((result.depthDiff > 1) && (recursive != true)) {
+      if ((result.depthDiff > 1) && (!recursive)) {
         throw idbNotFoundException(result.path, 'Creation failed');
       }
 
@@ -422,7 +422,7 @@ class IdbFileSystem extends Object
                 entity,
                 (cwv.value as Map).cast<String, Object?>(),
                 cwv.primaryKey as int);
-            if (recursive == true) {
+            if (recursive) {
               futures.add(_deleteEntity(txn, child, recursive: true));
               cwv.next();
             } else {
@@ -859,7 +859,7 @@ class IdbFileSystem extends Object
               if (childNode.isDir) {
                 final dir = IdbDirectory(this, relativePath);
                 ctlr.add(dir);
-                if (recursive == true) {
+                if (recursive) {
                   recursives.add(list(relativePath, childNode));
                 }
               } else if (childNode.isFile) {
@@ -879,7 +879,7 @@ class IdbFileSystem extends Object
                                 as IdbFileSystemEntity);
 
                         // recursive?
-                        if (entity.isDir && recursive == true) {
+                        if (entity.isDir && recursive) {
                           recursives.add(list(relativePath, entity));
                         }
                       } else {

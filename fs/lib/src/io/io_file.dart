@@ -109,7 +109,7 @@ class FileImpl extends FileSystemEntityImpl
   Future<void> setExecutablePermission(bool enable) async {
     if (!Platform.isWindows) {
       try {
-        await Process.run('chmod', [enable ? '+x' : '-x', absolute.path]);
+        await Process.run('chmod', [if (enable) '+x' else '-x', absolute.path]);
       } catch (e) {
         if (isDebug) {
           // ignore: avoid_print
