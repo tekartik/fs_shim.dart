@@ -1,3 +1,7 @@
+## 2.3.2
+
+* Add writeLines/readLines helpers
+
 ## 2.3.1+3
 
 * Remove `dev_test` dependency
