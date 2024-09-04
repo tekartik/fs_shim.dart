@@ -246,8 +246,8 @@ abstract class File extends FileSystemEntity {
   /// system resources.
   ///
   /// An [StreamSink] for a file can be opened in two modes:
-  /// * [FileMode.WRITE]: truncates the file to length zero.
-  /// * [FileMode.APPEND]: sets the initial write position to the end
+  /// * [FileMode.write]: truncates the file to length zero.
+  /// * [FileMode.append]: sets the initial write position to the end
   ///   of the file.
   ///
   /// When writing strings through the returned [StreamSink] the encoding
