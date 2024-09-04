@@ -22,6 +22,19 @@ void main() {
       expect(await readString(file), 'test2');
     });
 
+    test('write_read_lines', () async {
+      final file = File(join(outPath, 'file'));
+      await writeLines(file, []);
+      expect(await readLines(file), <String>[]);
+      await writeLines(file, ['test1', 'test2']);
+      expect(await readLines(file), ['test1', 'test2']);
+      if (Platform.isWindows) {
+        expect(await readString(file), 'test1\r\ntest2\r\n');
+      } else {
+        expect(await readString(file), 'test1\ntest2\n');
+      }
+    });
+
     test('write_read_sub', () async {
       final file = File(join(outPath, 'sub', 'file'));
       await writeString(file, 'test');

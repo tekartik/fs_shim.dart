@@ -1,3 +1,5 @@
+import 'package:fs_shim/src/platform/platform.dart';
+
 export 'platform_io.dart' if (dart.library.js_interop) 'platform_web.dart';
 
 /// Common platform context
@@ -29,3 +31,7 @@ class PlatformContextIo extends PlatformContext {
 
 /// Browser only
 class PlatformContextBrowser extends PlatformContext {}
+
+/// True if we are on windows
+bool get platformIsIoWindows =>
+    platformContext.isIo && platformContextIo.isIoWindows;
