@@ -9,7 +9,6 @@ import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:fs_shim/src/idb/idb_file_write.dart';
 import 'package:fs_shim/src/idb/idb_random_access_file.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
-import 'package:idb_shim/idb_shim.dart';
 import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 

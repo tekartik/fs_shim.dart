@@ -7,7 +7,6 @@ import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:fs_shim/src/idb/idb_random_access_file.dart';
-import 'package:idb_shim/idb.dart';
 import 'package:idb_shim/idb_client_memory.dart';
 import 'package:idb_shim/utils/idb_utils.dart';
 
