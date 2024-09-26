@@ -24,7 +24,7 @@ abstract class FileSystemEntity {
 
   ///
   /// Checks whether the file system entity with this path exists. Returns
-  /// a [:Future<bool>:] that completes with the result.
+  /// a [`Future<bool>`] that completes with the result.
   ///
   /// Since FileSystemEntity is abstract, every FileSystemEntity object
   /// is actually an instance of one of the subclasses [File],
@@ -51,7 +51,7 @@ abstract class FileSystemEntity {
   /// This behavior allows [delete] to be used to unconditionally delete any file
   /// system object.
   ///
-  /// Returns a [:Future<FileSystemEntity>:] that completes with this
+  /// Returns a [`Future<FileSystemEntity>`] that completes with this
   /// [FileSystemEntity] when the deletion is done. If the [FileSystemEntity]
   /// cannot be deleted, the future completes with an exception.
   ///
@@ -81,7 +81,7 @@ abstract class FileSystemEntity {
   /// Calls the operating system's stat() function on the [path] of this
   /// [FileSystemEntity].  Identical to [:FileStat.stat(this.path):].
   ///
-  /// Returns a [:Future<FileStat>:] object containing the data returned by
+  /// Returns a [`Future<FileStat>`] object containing the data returned by
   /// stat().
   ///
   /// If the call fails, completes the future with a [FileStat] object
@@ -123,7 +123,7 @@ abstract class FileSystemEntity {
 
   ///
   /// Finds the type of file system object that a path points to. Returns
-  /// a [:Future<FileSystemEntityType>:] that completes with the result.
+  /// a [`Future<FileSystemEntityType>`] that completes with the result.
   ///
   /// [FileSystemEntityType] has the constant instances FILE, DIRECTORY,
   /// LINK, and NOT_FOUND.  [type] will return LINK only if the optional
@@ -225,7 +225,7 @@ abstract class File extends FileSystemEntity {
   /// current working directory.
   factory File(String path) => fileSystemDefault.file(path);
 
-  /// Create the file. Returns a [:Future<File>:] that completes with
+  /// Create the file. Returns a [`Future<File>`] that completes with
   /// the file when it has been created.
   ///
   /// If [recursive] is false, the default, the file is created only if
@@ -297,7 +297,7 @@ abstract class File extends FileSystemEntity {
   /// Write a list of bytes to a file.
   ///
   /// Opens the file, writes the list of bytes to it, and closes the file.
-  /// Returns a [:Future<File>:] that completes with this [File] object once
+  /// Returns a [`Future<File>`] that completes with this [File] object once
   /// the entire operation has completed.
   ///
   /// By default [writeAsBytes] creates the file for writing and truncates the
@@ -314,7 +314,7 @@ abstract class File extends FileSystemEntity {
   /// Write a string to a file.
   ///
   /// Opens the file, writes the string in the given encoding, and closes the
-  /// file. Returns a [:Future<File>:] that completes with this [File] object
+  /// file. Returns a [`Future<File>`] that completes with this [File] object
   /// once the entire operation has completed.
   ///
   /// By default [writeAsString] creates the file for writing and truncates the
@@ -331,7 +331,7 @@ abstract class File extends FileSystemEntity {
 
   ///
   /// Read the entire file contents as a list of bytes. Returns a
-  /// [:Future<List<int>>:] that completes with the list of bytes that
+  /// [`Future<List<int>>`] that completes with the list of bytes that
   /// is the contents of the file.
   ///
   Future<Uint8List> readAsBytes();
@@ -340,7 +340,7 @@ abstract class File extends FileSystemEntity {
   /// Read the entire file contents as a string using the given
   /// [Encoding].
   ///
-  /// Returns a [:Future<String>:] that completes with the string once
+  /// Returns a [`Future<String>`] that completes with the string once
   /// the file contents has been read.
   ///
   Future<String> readAsString({Encoding encoding = utf8});
@@ -383,7 +383,7 @@ abstract class Directory extends FileSystemEntity {
   /// created. If [recursive] is true, all non-existing path components
   /// are created. If the directory already exists nothing is done.
   ///
-  /// Returns a [:Future<Directory>:] that completes with this
+  /// Returns a [`Future<Directory>`] that completes with this
   /// directory once it has been created. If the directory cannot be
   /// created the future completes with an exception.
   ///
@@ -436,7 +436,7 @@ abstract class Link extends FileSystemEntity {
   factory Link(String path) => fileSystemDefault.link(path);
 
   ///
-  /// Creates a symbolic link. Returns a [:Future<Link>:] that completes with
+  /// Creates a symbolic link. Returns a [`Future<Link>`] that completes with
   /// the link when it has been created. If the link exists,
   /// the future will complete with an error.
   ///
@@ -556,7 +556,7 @@ abstract class FileSystem {
 
   ///
   /// Finds the type of file system object that a path points to. Returns
-  /// a [:Future<FileSystemEntityType>:] that completes with the result.
+  /// a [`Future<FileSystemEntityType>`] that completes with the result.
   ///
   /// [FileSystemEntityType] has the constant instances FILE, DIRECTORY,
   /// LINK, and NOT_FOUND.  [type] will return LINK only if the optional

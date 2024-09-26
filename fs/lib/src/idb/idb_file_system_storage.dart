@@ -48,9 +48,9 @@ const String targetKey = 'target'; // Link only
 
 /// Page
 /// part (generated>:
-/// file: <treeId> (id in tree)
-/// index: <partIndex>
-/// content: <blob>
+/// file: `<treeId>` (id in tree)
+/// index: `<partIndex>`
+/// content: `<blob>`
 
 const partIndexKey = 'index'; // part index
 const partFileKey = 'file'; // part index
