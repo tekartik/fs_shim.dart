@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
-library fs_shim.src.memory_sink;
+library;
 
 import 'package:fs_shim/src/common/import.dart';
 

@@ -1,4 +1,4 @@
-library fs_shim.utils.io.read_write;
+library;
 
 import 'dart:convert';
 import 'dart:io';

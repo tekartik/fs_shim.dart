@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
-library fs_shim.utils.src.utils_impl;
+library;
 
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:fs_shim/src/common/import.dart';

@@ -1,4 +1,4 @@
-library fs_shim.src.common.import;
+library;
 
 export 'dart:async';
 export 'dart:convert';

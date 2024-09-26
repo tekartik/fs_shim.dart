@@ -1,4 +1,4 @@
-library fs_shim.utils.glob;
+library;
 
 import 'package:fs_shim/src/common/import.dart';
 import 'package:path/path.dart';

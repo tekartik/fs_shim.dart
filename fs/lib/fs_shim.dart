@@ -1,5 +1,5 @@
 /// {@canonicalFor fs_io_stub.fileSystemIo}
-library fs_shim;
+library;
 
 export 'fs.dart';
 export 'fs_memory.dart' show fileSystemMemory;

@@ -1,5 +1,5 @@
 @TestOn('vm')
-library tekartik_fs.test.io_example_test;
+library;
 
 /// io_example_test.dart
 /// io_example_fs_shim_test.dart

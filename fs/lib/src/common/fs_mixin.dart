@@ -1,4 +1,4 @@
-library fs_shim.src.lfs_mixin;
+library;
 
 import 'dart:async';
 import 'dart:convert';

@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
-library fs_shim.utils.io.entity;
+library;
 
 import 'dart:io';
 

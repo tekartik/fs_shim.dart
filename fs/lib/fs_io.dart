@@ -1,4 +1,4 @@
-library fs_shim.fs_io;
+library;
 
 import 'dart:io' as io;
 

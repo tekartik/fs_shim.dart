@@ -1,4 +1,4 @@
-library fs_shim.fs_mixin_test;
+library;
 
 import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'package:test/test.dart';

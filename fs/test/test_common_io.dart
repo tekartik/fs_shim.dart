@@ -1,4 +1,4 @@
-library fs_shim.test.test_common_io;
+library;
 
 // basically same as the io runner but with extra output
 import 'dart:io';

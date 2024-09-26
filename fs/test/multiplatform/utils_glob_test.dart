@@ -1,4 +1,4 @@
-library fs_shim.test.utils_glob_test;
+library;
 
 import 'package:path/path.dart' as p;
 

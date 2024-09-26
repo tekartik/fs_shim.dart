@@ -1,4 +1,4 @@
-library fs_shim.utils.copy;
+library;
 
 import 'package:fs_shim/src/common/import.dart';
 

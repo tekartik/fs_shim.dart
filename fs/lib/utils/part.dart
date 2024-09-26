@@ -1,4 +1,4 @@
-library fs_shim.utils.part;
+library;
 
 import 'package:path/path.dart' as p;
 

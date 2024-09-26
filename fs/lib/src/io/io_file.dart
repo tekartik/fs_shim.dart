@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
-library fs_shim.src.io.io_file;
+library;
 
 import 'dart:async';
 import 'dart:convert';

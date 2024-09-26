@@ -1,5 +1,5 @@
 @TestOn('vm')
-library fs_shim.test.utils_entity_tests;
+library;
 
 import 'dart:io';
 

@@ -1,4 +1,4 @@
-library fs_shim.fs_idb;
+library;
 
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:fs_shim/src/idb/idb_fs.dart';
