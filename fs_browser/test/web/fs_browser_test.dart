@@ -1,5 +1,5 @@
 @TestOn('browser')
-library fs_shim_browser.fs_browser_test;
+library;
 
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:tekartik_fs_browser/fs_browser.dart';

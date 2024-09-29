@@ -1,4 +1,4 @@
-library fs_shim.test.utils_entity_tests;
+library;
 
 import 'package:dev_test/test.dart';
 

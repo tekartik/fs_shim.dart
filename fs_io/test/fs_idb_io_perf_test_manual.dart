@@ -1,5 +1,5 @@
 @TestOn('vm')
-library fs_shim_browser.fs_idb_sqflite_perf_test;
+library;
 
 import 'dart:io' as io;
 

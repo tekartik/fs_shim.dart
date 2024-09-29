@@ -1,4 +1,4 @@
-library fs_shim.test.test_common;
+library;
 
 export 'dart:async';
 export 'dart:convert';

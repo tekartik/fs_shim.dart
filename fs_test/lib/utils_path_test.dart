@@ -1,4 +1,4 @@
-library fs_shim.test.utils_path_tests;
+library;
 
 import 'package:dev_test/test.dart';
 

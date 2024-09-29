@@ -1,4 +1,4 @@
-library fs_shim.test.utils_copy_tests;
+library;
 
 import 'package:dev_test/test.dart';
 // ignore_for_file: unnecessary_import

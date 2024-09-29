@@ -1,7 +1,7 @@
 // Copyright (c) 2015, <your name>. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-library fs_shim.test.fs_shim_file_system_exception_test;
+library;
 
 import 'package:dev_test/test.dart';
 // ignore_for_file: unnecessary_import
