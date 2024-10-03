@@ -62,12 +62,7 @@ void defineTests(FileSystemTestContext ctx) {
 
       expect(indexOf(list, src), isNot(-1));
       expect(indexOf(list, dst), isNot(-1));
-      if (isIoWindows(ctx) && isIoNode(ctx)) {
-        // Recursive not supported on windows
-        expect(list.length, 2);
-      } else {
-        expect(list.length, fs.supportsFileLink ? 6 : 4);
-      }
+      expect(list.length, fs.supportsFileLink ? 6 : 4);
     });
   });
 }

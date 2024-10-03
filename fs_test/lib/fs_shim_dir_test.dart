@@ -372,17 +372,12 @@ void defineTests(FileSystemTestContext ctx) {
       // recursive
       list = await directory.list(recursive: true).toList();
 
-      // Somehow this fails on node windows...
-      if (isIoWindows(ctx) && isIoNode(ctx)) {
-        expect(list.length, 2);
-      } else {
-        expect(list.length, 4);
-        expect(indexOf(list, dir1), isNot(-1));
-        expect(indexOf(list, dir1), lessThan(indexOf(list, subDir)));
-        expect(indexOf(list, subDir), lessThan(indexOf(list, file)));
-        expect(getInList(list, file), const TypeMatcher<File>());
-        expect(indexOf(list, dir2), isNot(-1));
-      }
+      expect(list.length, 4);
+      expect(indexOf(list, dir1), isNot(-1));
+      expect(indexOf(list, dir1), lessThan(indexOf(list, subDir)));
+      expect(indexOf(list, subDir), lessThan(indexOf(list, file)));
+      expect(getInList(list, file), const TypeMatcher<File>());
+      expect(indexOf(list, dir2), isNot(-1));
     });
 
     test('list_nodirectory', () async {
