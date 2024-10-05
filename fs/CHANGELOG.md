@@ -1,6 +1,6 @@
-## 2.3.2+2
+## 2.3.2+3
 
-* Add writeLines/readLines helpers
+* Add writeLines/readLines and io lines helpers
 * require dart 3.5
 
 ## 2.3.1+3
