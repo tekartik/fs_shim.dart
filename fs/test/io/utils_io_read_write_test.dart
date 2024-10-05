@@ -12,6 +12,30 @@ import '../test_common_io.dart' show ioFileSystemTestContext;
 String get outPath => ioFileSystemTestContext.outPath;
 
 void main() {
+  group('file_lines_io', () {
+    test('linesTo/FromIoString', () {
+      expect(linesToIoString([]), '');
+      expect(linesFromIoString(''), <String>[]);
+      expect(linesFromIoString(linesToIoString(['a', 'b'])), ['a', 'b']);
+    });
+    if (Platform.isWindows) {
+      test('stringToIoString', () {
+        expect(stringToIoString('a\nb'), 'a\r\nb\r\n');
+        expect(stringToIoString('a\r\nb'), 'a\r\nb\r\n');
+      });
+      test('linesToIoString', () {
+        expect(linesToIoString(['a', 'b']), 'a\r\nb\r\n');
+      });
+    } else {
+      test('stringToIoString', () {
+        expect(stringToIoString('a\nb'), 'a\nb\n');
+        expect(stringToIoString('a\r\nb'), 'a\nb\n');
+      });
+      test('linesToIoString', () {
+        expect(linesToIoString(['a', 'b']), 'a\nb\n');
+      });
+    }
+  });
   group('utils_read_write', () {
     test('write_read', () async {
       final file = File(join(outPath, 'file'));
