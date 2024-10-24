@@ -81,7 +81,6 @@ extension DirectoryEmptyOrCreateExt on Directory {
 
   /// Ensure the directory is created and empty.
   Future<void> emptyOrCreate() async {
-    await _fsDir.delete(recursive: true);
-    await _fsDir.create(recursive: true);
+    await _fsDir.emptyOrCreate();
   }
 }
