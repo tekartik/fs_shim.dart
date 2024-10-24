@@ -43,5 +43,18 @@ void defineTests(FileSystemTestContext ctx) {
       await writeString(file, 'test2');
       expect(await readString(file), 'test2');
     });
+
+    test('Directory.emptyOrCreate', () async {
+      final top = await ctx.prepare();
+      var dir = fs.directory(fs.path.join(top.path, 'dir'));
+      expect(await dir.exists(), isFalse);
+      await dir.emptyOrCreate();
+      expect(await dir.exists(), isTrue);
+      // test 2 level depth
+      dir = fs.directory(fs.path.join(top.path, 'sub', 'dir'));
+      expect(await dir.exists(), isFalse);
+      await dir.emptyOrCreate();
+      expect(await dir.exists(), isTrue);
+    });
   });
 }

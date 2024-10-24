@@ -46,3 +46,18 @@ Future<List<String>> readLines(File file, {Encoding encoding = utf8}) async {
   var text = await readString(file, encoding: encoding);
   return LineSplitter.split(text).toList();
 }
+
+/// Empty or create helper
+extension DirectoryEmptyOrCreateExt on Directory {
+  /// Ensure the directory is created and empty.
+  Future<void> emptyOrCreate() async {
+    if (await exists()) {
+      try {
+        await delete(recursive: true);
+      } catch (_) {
+        // ignore
+      }
+    }
+    await create(recursive: true);
+  }
+}

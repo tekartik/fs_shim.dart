@@ -344,11 +344,6 @@ Future<int> copyFileMeta(File src, File dst) async {
   return 0;
 }
 
-Future emptyOrCreateDirectory(Directory dir) async {
-  await dir.delete(recursive: true);
-  await dir.create(recursive: true);
-}
-
 abstract class EntityNode {
   EntityNode? get parent; // can be null
   FileSystem get fs; // cannot be null

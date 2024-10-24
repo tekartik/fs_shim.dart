@@ -6,7 +6,6 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs_io.dart' as fs;
 import 'package:fs_shim/utils/read_write.dart' as fs;
-import 'package:fs_shim/utils/src/utils_impl.dart' as fs;
 
 var _useCrLf = Platform.isWindows;
 var _eol = _useCrLf ? '\r\n' : '\n';
@@ -71,6 +70,18 @@ Future<List<String>> readLines(File file, {Encoding encoding = utf8}) =>
     fs.readLines(fs.wrapIoFile(file), encoding: encoding);
 
 /// Ensure the directory is created and empty.
+/// @Deprecated
 Future emptyOrCreateDirectory(Directory dir) {
-  return fs.emptyOrCreateDirectory(fs.wrapIoDirectory(dir));
+  return dir.emptyOrCreate();
+}
+
+/// Empty or create helper
+extension DirectoryEmptyOrCreateExt on Directory {
+  fs.Directory get _fsDir => fs.wrapIoDirectory(this);
+
+  /// Ensure the directory is created and empty.
+  Future<void> emptyOrCreate() async {
+    await _fsDir.delete(recursive: true);
+    await _fsDir.create(recursive: true);
+  }
 }
