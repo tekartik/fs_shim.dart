@@ -9,17 +9,17 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
-  path: '>=1.6.1'
-  fs_shim: '>=0.11.0+3'
+  path: ">=1.9.0"
+  fs_shim: ">=2.3.3+1"
   idb_shim:
 
 dev_dependencies:
-  lints: '>=1.0.1'
-  test: ">=1.0.0"
-  dev_build: any
-  build_runner: ">=0.8.8"
+  lints: ">=5.0.0"
+  test: ">=1.24.0"
+  dev_build: ">=1.1.0+2"
+  build_runner: ">=2.4.13"
   idb_sqflite:
-  sqflite_common_ffi: '>=2.3.0'
+  sqflite_common_ffi: ">=2.3.4"
   tekartik_fs_test:
     git:
       url: https://github.com/tekartik/fs_shim.dart
@@ -27,7 +27,7 @@ dev_dependencies:
       ref: dart3a
     version: '>=0.1.0'
   build_test: '>=0.10.2'
-  process_run: '>=0.10.0+1'
+  process_run: ">=1.2.1+1"
   tekartik_platform_io:
     git:
       url: https://github.com/tekartik/platform.dart
