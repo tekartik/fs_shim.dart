@@ -8,7 +8,10 @@ import 'package:test/test.dart';
 
 void main() {
   group('browser_page_size_2', () {
-    defineTests(FileSystemTestContextIdbWeb(
-        options: const FileSystemIdbOptions(pageSize: 2)));
+    defineTests(
+      FileSystemTestContextIdbWeb(
+        options: const FileSystemIdbOptions(pageSize: 2),
+      ),
+    );
   });
 }

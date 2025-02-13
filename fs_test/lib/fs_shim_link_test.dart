@@ -284,8 +284,10 @@ void defineTests(FileSystemTestContext ctx) {
           expect(e.status, FileSystemException.statusNotFound);
           // [2] FileSystemException: Cannot create link to target 'target', path = '/media/ssd/devx/git/github.com/tekartik/fs_shim.dart/test_out/io/link/create_recursive/sub/file' (OS Error: No such file or directory, errno = 2) [FileSystemExceptionImpl]
         }
-        expect(await (await link.create('target', recursive: true)).exists(),
-            isTrue);
+        expect(
+          await (await link.create('target', recursive: true)).exists(),
+          isTrue,
+        );
       });
 
       test('delete', () async {
@@ -369,50 +371,71 @@ void defineTests(FileSystemTestContext ctx) {
               .link(fs.path.join(directory.path, 'link'))
               .create(file.path);
 
-          expect(await fs.type(link.path, followLinks: false),
-              FileSystemEntityType.link);
-          expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.notFound);
+          expect(
+            await fs.type(link.path, followLinks: false),
+            FileSystemEntityType.link,
+          );
+          expect(
+            await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.notFound,
+          );
 
           await file.create();
 
-          expect(await fs.type(link.path, followLinks: false),
-              FileSystemEntityType.link);
-          expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.file);
+          expect(
+            await fs.type(link.path, followLinks: false),
+            FileSystemEntityType.link,
+          );
+          expect(
+            await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.file,
+          );
         }
       });
 
       test('dir_follow_links', () async {
         final top = await ctx.prepare();
         final dir = fs.directory(fs.path.join(top.path, 'dir'));
-        final link =
-            await fs.link(fs.path.join(top.path, 'link')).create(dir.path);
+        final link = await fs
+            .link(fs.path.join(top.path, 'link'))
+            .create(dir.path);
 
-        expect(await fs.type(link.path, followLinks: false),
-            FileSystemEntityType.link);
+        expect(
+          await fs.type(link.path, followLinks: false),
+          FileSystemEntityType.link,
+        );
         // on windows following a missing link return the link
         // ignore: dead_code
         if (isIoWindows(ctx) && false) {
           // Fixed since dart 3.4.0
-          expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.link);
+          expect(
+            await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.link,
+          );
         } else {
-          expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.notFound);
+          expect(
+            await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.notFound,
+          );
         }
 
         await dir.create();
 
-        expect(await fs.type(link.path, followLinks: false),
-            FileSystemEntityType.link);
+        expect(
+          await fs.type(link.path, followLinks: false),
+          FileSystemEntityType.link,
+        );
         if (isIoWindows(ctx)) {
           // Since dart 3.4.0
-          expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.notFound);
+          expect(
+            await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.notFound,
+          );
         } else {
-          expect(await fs.type(link.path, followLinks: true),
-              FileSystemEntityType.directory);
+          expect(
+            await fs.type(link.path, followLinks: true),
+            FileSystemEntityType.directory,
+          );
         }
       });
 
@@ -821,7 +844,9 @@ void defineTests(FileSystemTestContext ctx) {
         }
 
         FileSystemEntity? getInList(
-            List<FileSystemEntity> list, FileSystemEntity entity) {
+          List<FileSystemEntity> list,
+          FileSystemEntity entity,
+        ) {
           for (var i = 0; i < list.length; i++) {
             if (list[i].path == entity.path) {
               return list[i];
@@ -934,9 +959,13 @@ void defineTests(FileSystemTestContext ctx) {
               expect(list.length, 3);
               expect(getInList(list, linkSubFile), const TypeMatcher<File>());
               expect(
-                  getInList(list, linkSubDir), const TypeMatcher<Directory>());
+                getInList(list, linkSubDir),
+                const TypeMatcher<Directory>(),
+              );
               expect(
-                  getInList(list, linkSubLink), const TypeMatcher<Directory>());
+                getInList(list, linkSubLink),
+                const TypeMatcher<Directory>(),
+              );
               expect(isIoWindows(ctx), isFalse);
             } on FileSystemException catch (e) {
               // fail only on windows
@@ -948,7 +977,9 @@ void defineTests(FileSystemTestContext ctx) {
               expect(list.length, 3);
               expect(getInList(list, linkSubFile), const TypeMatcher<File>());
               expect(
-                  getInList(list, linkSubDir), const TypeMatcher<Directory>());
+                getInList(list, linkSubDir),
+                const TypeMatcher<Directory>(),
+              );
               expect(getInList(list, linkSubLink), const TypeMatcher<Link>());
               expect(isIoWindows(ctx), isFalse);
             } on FileSystemException catch (e) {
@@ -999,7 +1030,12 @@ void defineTests(FileSystemTestContext ctx) {
       });
       test('create relative', () async {
         final dirPath = fs.path.join(
-            '.', '.dart_tool', 'tekartik_fs_test', 'test', 'create_relative');
+          '.',
+          '.dart_tool',
+          'tekartik_fs_test',
+          'test',
+          'create_relative',
+        );
 
         // Create a top level directory
         // fs.directory('/dir');
@@ -1032,12 +1068,13 @@ void defineTests(FileSystemTestContext ctx) {
 
           // list dir content
           expect(
-              (await dir
+            (await dir
                   .list(recursive: true, followLinks: true)
                   .map((event) => fs.path.basename(event.path))
                   .toList())
-                ..sort(),
-              ['file', 'link']);
+              ..sort(),
+            ['file', 'link'],
+          );
         }
       });
       test('example', () async {

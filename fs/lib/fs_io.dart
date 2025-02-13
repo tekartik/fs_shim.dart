@@ -65,13 +65,13 @@ io.Link /*!*/ unwrapIoLink(fs.Link dir) => (dir as LinkImpl).ioLink!;
 
 /// Wraps IO FileSystemException.
 fs.FileSystemException wrapIoFileSystemException(
-        io.FileSystemException ioFileSystemException) =>
-    FileSystemExceptionImpl.io(ioFileSystemException);
+  io.FileSystemException ioFileSystemException,
+) => FileSystemExceptionImpl.io(ioFileSystemException);
 
 /// Unwraps IO FileSystemException.
 io.FileSystemException unwrapIoFileSystemException(
-        fs.FileSystemException fileSystemException) =>
-    (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
+  fs.FileSystemException fileSystemException,
+) => (fileSystemException as FileSystemExceptionImpl).ioFileSystemException;
 
 /// Wraps IO OS Error.
 fs.OSError? /*!*/
@@ -99,10 +99,10 @@ io.FileMode unwrapIoFileMode(fs.FileMode fileMode) =>
 
 /// Wraps IO FileSystemEntityType.
 fs.FileSystemEntityType wrapIoFileSystemEntityType(
-        io.FileSystemEntityType ioFileSystemEntityType) =>
-    wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
+  io.FileSystemEntityType ioFileSystemEntityType,
+) => wrapIoFileSystemEntityTypeImpl(ioFileSystemEntityType);
 
 /// Unwraps IO FileSystemEntityType.
 io.FileSystemEntityType unwrapIoFileSystemEntityType(
-        fs.FileSystemEntityType fileSystemEntityType) =>
-    unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);
+  fs.FileSystemEntityType fileSystemEntityType,
+) => unwrapIoFileSystemEntityTypeImpl(fileSystemEntityType);

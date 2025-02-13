@@ -1,7 +1,6 @@
 @TestOn('vm')
 // Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
-
 library;
 
 import 'package:fs_shim/fs_idb.dart';
@@ -20,9 +19,10 @@ final _idbFactory = getIdbFactorySembastIo(testOutTopPath);
 FileSystem newIdbIoFileSystem([String? name]) {
   // IdbFactoryLogger.debugMaxLogCount = devWarning(256);
   return newFileSystemIdb(
-      // devWarning(getIdbFactoryLogger(getIdbFactorySembastIo(testOutTopPath))),
-      getIdbFactorySembastIo(testOutTopPath),
-      name);
+    // devWarning(getIdbFactoryLogger(getIdbFactorySembastIo(testOutTopPath))),
+    getIdbFactorySembastIo(testOutTopPath),
+    name,
+  );
 }
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {

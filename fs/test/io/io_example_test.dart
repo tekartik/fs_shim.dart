@@ -66,8 +66,9 @@ void main() {
 
       // error
       try {
-        await File(join(dir.path, 't', 'o', 'o', 'deep'))
-            .create(recursive: false);
+        await File(
+          join(dir.path, 't', 'o', 'o', 'deep'),
+        ).create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {
         final osError = e.osError!;
@@ -76,7 +77,9 @@ void main() {
 
       // file entity type
       expect(
-          await FileSystemEntity.type(file2.path), FileSystemEntityType.file);
+        await FileSystemEntity.type(file2.path),
+        FileSystemEntityType.file,
+      );
     });
   });
 }

@@ -19,20 +19,22 @@ void main() {
       await dir.create(recursive: true);
       expect(await dir.exists(), isTrue);
       expect(
-          await
-          // ignore: avoid_slow_async_io
-          FileSystemEntity.isDirectory(dir.path),
-          isTrue);
+        await
+        // ignore: avoid_slow_async_io
+        FileSystemEntity.isDirectory(dir.path),
+        isTrue,
+      );
 
       expect(dir.absolute.isAbsolute, isTrue);
 
       final filePath = join(dir.path, 'file');
       final file = File(filePath);
       expect(
-          await
-          // ignore: avoid_slow_async_io
-          FileSystemEntity.isFile(file.path),
-          isFalse);
+        await
+        // ignore: avoid_slow_async_io
+        FileSystemEntity.isFile(file.path),
+        isFalse,
+      );
       expect(file.absolute.isAbsolute, isTrue);
 
       // file mode
@@ -40,10 +42,11 @@ void main() {
       sink.add('test'.codeUnits);
       await sink.close();
       expect(
-          await
-          // ignore: avoid_slow_async_io
-          FileSystemEntity.isFile(file.path),
-          isTrue);
+        await
+        // ignore: avoid_slow_async_io
+        FileSystemEntity.isFile(file.path),
+        isTrue,
+      );
 
       var stream = file.openRead();
       final content = <int>[];
@@ -66,8 +69,9 @@ void main() {
 
       // error
       try {
-        await File(join(dir.path, 't', 'o', 'o', 'deep'))
-            .create(recursive: false);
+        await File(
+          join(dir.path, 't', 'o', 'o', 'deep'),
+        ).create(recursive: false);
         fail('should fail');
       } on FileSystemException catch (e) {
         final osError = e.osError!;
@@ -76,10 +80,11 @@ void main() {
 
       // file entity type
       expect(
-          await
-          // ignore: avoid_slow_async_io
-          FileSystemEntity.type(file2.path),
-          FileSystemEntityType.file);
+        await
+        // ignore: avoid_slow_async_io
+        FileSystemEntity.type(file2.path),
+        FileSystemEntityType.file,
+      );
     });
   });
 }

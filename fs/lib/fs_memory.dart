@@ -15,11 +15,12 @@ FileSystem newMemoryFileSystem([String? name]) => newFileSystemMemory(name);
 
 /// Creates a new file system in memory.
 FileSystem newFileSystemMemory([String? name]) => newFileSystemIdb(
-    //newFileSystemIdb(idbFactory)
-    //newIdbFactoryMemory(),
-    IdbFactorySembast(newDatabaseFactoryMemory()),
-    // Logger in warning
-    name);
+  //newFileSystemIdb(idbFactory)
+  //newIdbFactoryMemory(),
+  IdbFactorySembast(newDatabaseFactoryMemory()),
+  // Logger in warning
+  name,
+);
 
 FileSystem? _fileSystemMemory;
 

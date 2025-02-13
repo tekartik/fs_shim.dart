@@ -47,9 +47,9 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   // don't care about recursive
   //@override
   //Future<fs.FileSystemEntity> delete({bool recursive: false}) async {
-//    _fs._impl.delete(path, recursive: recursive);
-//    return this;
-//  }
+  //    _fs._impl.delete(path, recursive: recursive);
+  //    return this;
+  //  }
 
   @override
   String toString() => path;

@@ -34,26 +34,48 @@ extension FsShimFileLinesIoFileExt on File {
       fs.readLines(fs.wrapIoFile(this), encoding: encoding);
 
   /// Write lines to a file.
-  Future<void> writeLines(List<String> lines,
-      {Encoding encoding = utf8}) async {
-    fs.unwrapIoFile(await fs.writeLines(fs.wrapIoFile(this), lines,
-        encoding: encoding, useCrLf: _useCrLf));
+  Future<void> writeLines(
+    List<String> lines, {
+    Encoding encoding = utf8,
+  }) async {
+    fs.unwrapIoFile(
+      await fs.writeLines(
+        fs.wrapIoFile(this),
+        lines,
+        encoding: encoding,
+        useCrLf: _useCrLf,
+      ),
+    );
   }
 }
 
 /// Write a file string context. Does not fail
-Future<File> writeString(File file, String content,
-    {Encoding encoding = utf8}) async {
+Future<File> writeString(
+  File file,
+  String content, {
+  Encoding encoding = utf8,
+}) async {
   return fs.unwrapIoFile(
-      await fs.writeString(fs.wrapIoFile(file), content, encoding: encoding));
+    await fs.writeString(fs.wrapIoFile(file), content, encoding: encoding),
+  );
 }
 
 /// Write lines content. Does not fail
 /// Uses CR/LF if [useCrLf] is true or if null and on windows
-Future<File> writeLines(File file, List<String> lines,
-    {Encoding encoding = utf8, bool? useCrLf}) async {
-  return fs.unwrapIoFile(await fs.writeLines(fs.wrapIoFile(file), lines,
-      encoding: encoding, useCrLf: useCrLf));
+Future<File> writeLines(
+  File file,
+  List<String> lines, {
+  Encoding encoding = utf8,
+  bool? useCrLf,
+}) async {
+  return fs.unwrapIoFile(
+    await fs.writeLines(
+      fs.wrapIoFile(file),
+      lines,
+      encoding: encoding,
+      useCrLf: useCrLf,
+    ),
+  );
 }
 
 /// Write bytes content. Does not fail

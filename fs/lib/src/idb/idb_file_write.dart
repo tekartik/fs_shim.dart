@@ -22,9 +22,13 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
   final idb.Transaction txn;
 
   /// Write sink in transaction.
-  TxnWriteStreamSinkIdb(File file, this.txn, Node fileEntity, FileMode mode,
-      {required Node initialFileEntity})
-      : super() {
+  TxnWriteStreamSinkIdb(
+    File file,
+    this.txn,
+    Node fileEntity,
+    FileMode mode, {
+    required Node initialFileEntity,
+  }) : super() {
     this.initialFileEntity = initialFileEntity;
     this.fileEntity = fileEntity;
     this.file = file;
@@ -42,8 +46,11 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
       if (mode == fs.FileMode.write || initialFileEntity.fileSize == 0) {
         // was created or existing
       } else {
-        var result =
-            await fsIdb.txnReadCheckNodeFileContent(txn, file, fileEntity);
+        var result = await fsIdb.txnReadCheckNodeFileContent(
+          txn,
+          file,
+          fileEntity,
+        );
         fileEntity = result.entity;
         var bytes = result.content;
         bytesBuilder.add(bytes);
@@ -130,8 +137,13 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
       await _openNodeFile();
       var txn = database.writeAllTransactionList();
       try {
-        var ctlr = TxnWriteStreamSinkIdb(file, txn, fileEntity, mode,
-            initialFileEntity: initialFileEntity);
+        var ctlr = TxnWriteStreamSinkIdb(
+          file,
+          txn,
+          fileEntity,
+          mode,
+          initialFileEntity: initialFileEntity,
+        );
         ctlr.add(content);
         await ctlr.close();
       } finally {
@@ -156,10 +168,15 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
               //var neededToFill = pageSize -
               var helper = FilePartHelper(pageSize);
               var result = helper.getFileParts(
-                  bytes: content, position: position, all: all);
+                bytes: content,
+                position: position,
+                all: all,
+              );
               if (result.list.isNotEmpty) {
-                var txn = database.transactionList(
-                    [treeStoreName, partStoreName], idb.idbModeReadWrite);
+                var txn = database.transactionList([
+                  treeStoreName,
+                  partStoreName,
+                ], idb.idbModeReadWrite);
                 try {
                   fileEntity = await storage.txnUpdateFileDataV2(
                     txn,
@@ -173,9 +190,10 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
 
                   if (close) {
                     await storage.txnStoreClearRemainingV2(
-                        txn.objectStore(partStoreName),
-                        initialFileEntity,
-                        fileEntity);
+                      txn.objectStore(partStoreName),
+                      initialFileEntity,
+                      fileEntity,
+                    );
                   }
                 } finally {
                   await txn.completed;
@@ -183,14 +201,19 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
               } else {
                 if (close) {
                   if (storage.needClearRemainingV2(
-                      initialFileEntity, fileEntity)) {
+                    initialFileEntity,
+                    fileEntity,
+                  )) {
                     var txn = database.transaction(
-                        partStoreName, idb.idbModeReadWrite);
+                      partStoreName,
+                      idb.idbModeReadWrite,
+                    );
                     try {
                       await storage.txnStoreClearRemainingV2(
-                          txn.objectStore(partStoreName),
-                          initialFileEntity,
-                          fileEntity);
+                        txn.objectStore(partStoreName),
+                        initialFileEntity,
+                        fileEntity,
+                      );
                     } finally {
                       await txn.completed;
                     }

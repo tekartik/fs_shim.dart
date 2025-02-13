@@ -45,7 +45,9 @@ void defineTests(FileSystemTestContext ctx) {
       expect(stat.size, 4);
       print(stat.modified);
       expect(
-          stat.modified.difference(DateTime.now()).inDays.abs(), lessThan(1));
+        stat.modified.difference(DateTime.now()).inDays.abs(),
+        lessThan(1),
+      );
     });
   });
 }

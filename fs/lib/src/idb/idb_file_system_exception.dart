@@ -27,24 +27,44 @@ class IdbError implements fs.OSError {
 }
 
 IdbFileSystemException idbNotADirectoryException(String path, String msg) =>
-    IdbFileSystemException(fs.FileSystemException.statusNotADirectory, path,
-        msg, _notADirectoryError);
+    IdbFileSystemException(
+      fs.FileSystemException.statusNotADirectory,
+      path,
+      msg,
+      _notADirectoryError,
+    );
 
 IdbFileSystemException idbIsADirectoryException(String path, String msg) =>
-    IdbFileSystemException(fs.FileSystemException.statusIsADirectory, path, msg,
-        _isADirectoryError);
+    IdbFileSystemException(
+      fs.FileSystemException.statusIsADirectory,
+      path,
+      msg,
+      _isADirectoryError,
+    );
 
 IdbFileSystemException idbNotEmptyException(String path, String msg) =>
     IdbFileSystemException(
-        fs.FileSystemException.statusNotEmpty, path, msg, _notEmptyError);
+      fs.FileSystemException.statusNotEmpty,
+      path,
+      msg,
+      _notEmptyError,
+    );
 
 IdbFileSystemException idbNotFoundException(String path, String msg) =>
     IdbFileSystemException(
-        fs.FileSystemException.statusNotFound, path, msg, _noSuchPathError);
+      fs.FileSystemException.statusNotFound,
+      path,
+      msg,
+      _noSuchPathError,
+    );
 
 IdbFileSystemException idbAlreadyExistsException(String path, String msg) =>
-    IdbFileSystemException(fs.FileSystemException.statusAlreadyExists, path,
-        msg, _alreadyExistsError);
+    IdbFileSystemException(
+      fs.FileSystemException.statusAlreadyExists,
+      path,
+      msg,
+      _alreadyExistsError,
+    );
 
 class IdbFileSystemException implements fs.FileSystemException {
   IdbFileSystemException(this.status, this.path, [this._message, this.osError]);

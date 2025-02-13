@@ -33,13 +33,13 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
 
   @override
   Future<FileSystemEntity> delete({bool recursive = false}) //
-      =>
-      ioWrap(ioFileSystemEntity!.delete(recursive: recursive)).then(_me);
+  => ioWrap(ioFileSystemEntity!.delete(recursive: recursive)).then(_me);
 
   @override
   bool get isAbsolute => ioFileSystemEntity!.isAbsolute;
 
   @override
-  Future<FileStat> stat() => ioWrap(ioFileSystemEntity!.stat())
-      .then((io.FileStat stat) => FileStatImpl.io(stat));
+  Future<FileStat> stat() => ioWrap(
+    ioFileSystemEntity!.stat(),
+  ).then((io.FileStat stat) => FileStatImpl.io(stat));
 }

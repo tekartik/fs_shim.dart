@@ -37,7 +37,10 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       //devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
       await idbFactory.deleteDatabase(dbName);
       var db = await sdbImportDatabase(
-          exportMapOneAbsoluteFileV1, idbFactory, dbName);
+        exportMapOneAbsoluteFileV1,
+        idbFactory,
+        dbName,
+      );
       expect(await sdbExportDatabase(db), exportMapOneAbsoluteFileV1);
       db.close();
 
@@ -85,8 +88,11 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
     // 3 files here
     test('complex1_v1', () async {
       var dbName = 'complex1_v1.db';
-      var db =
-          await sdbImportDatabase(exportMap3FilesComplex1, idbFactory, dbName);
+      var db = await sdbImportDatabase(
+        exportMap3FilesComplex1,
+        idbFactory,
+        dbName,
+      );
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbName);
@@ -108,8 +114,8 @@ var exportMapOneFileV2 = {
       'name': 'file',
       'keys': [2],
       'values': [
-        {'@Blob': 'dGVzdA=='}
-      ]
+        {'@Blob': 'dGVzdA=='},
+      ],
     },
     {
       'name': 'tree',
@@ -120,7 +126,7 @@ var exportMapOneFileV2 = {
           'type': 'DIRECTORY',
           'modified': '2020-10-31T23:27:05.073',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'file.txt',
@@ -129,10 +135,10 @@ var exportMapOneFileV2 = {
           'modified': '2020-10-31T23:27:05.075',
           'size': 4,
           'pn': '1/file.txt',
-        }
-      ]
-    }
-  ]
+        },
+      ],
+    },
+  ],
 };
 var exportMapOneFileV1 = {
   'sembast_export': 1,
@@ -148,19 +154,19 @@ var exportMapOneFileV1 = {
           'autoIncrement': true,
           'indecies': [
             {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
         },
         ['file', 'tree'],
-        6
-      ]
+        6,
+      ],
     },
     {
       'name': 'file',
       'keys': [2],
       'values': [
-        [116, 101, 115, 116]
-      ]
+        [116, 101, 115, 116],
+      ],
     },
     {
       'name': 'tree',
@@ -171,7 +177,7 @@ var exportMapOneFileV1 = {
           'type': 'DIRECTORY',
           'modified': '2020-10-31T23:27:05.073',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'file.txt',
@@ -179,11 +185,11 @@ var exportMapOneFileV1 = {
           'parent': 1,
           'modified': '2020-10-31T23:27:05.075',
           'size': 4,
-          'pn': '1/file.txt'
-        }
-      ]
-    }
-  ]
+          'pn': '1/file.txt',
+        },
+      ],
+    },
+  ],
 };
 var exportMapOneAbsoluteFileV1 = {
   'sembast_export': 1,
@@ -199,19 +205,19 @@ var exportMapOneAbsoluteFileV1 = {
           'autoIncrement': true,
           'indecies': [
             {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
         },
         ['file', 'tree'],
-        1
-      ]
+        1,
+      ],
     },
     {
       'name': 'file',
       'keys': [2],
       'values': [
-        [116, 101, 115, 116]
-      ]
+        [116, 101, 115, 116],
+      ],
     },
     {
       'name': 'tree',
@@ -222,7 +228,7 @@ var exportMapOneAbsoluteFileV1 = {
           'type': 'DIRECTORY',
           'modified': '2020-11-01T00:12:27.333761',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'file.txt',
@@ -230,11 +236,11 @@ var exportMapOneAbsoluteFileV1 = {
           'parent': 1,
           'modified': '2020-11-01T00:12:27.342468',
           'size': 4,
-          'pn': '1/file.txt'
-        }
-      ]
-    }
-  ]
+          'pn': '1/file.txt',
+        },
+      ],
+    },
+  ],
 };
 
 var exportMap3FilesComplex1 = {
@@ -251,12 +257,12 @@ var exportMap3FilesComplex1 = {
           'autoIncrement': true,
           'indecies': [
             {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
         },
         ['file', 'tree'],
-        6
-      ]
+        6,
+      ],
     },
     {
       'name': 'file',
@@ -264,8 +270,8 @@ var exportMap3FilesComplex1 = {
       'values': [
         [116, 101, 115, 116, 49],
         [116, 101, 115, 116, 50],
-        [1, 2, 3]
-      ]
+        [1, 2, 3],
+      ],
     },
     {
       'name': 'tree',
@@ -276,7 +282,7 @@ var exportMap3FilesComplex1 = {
           'type': 'DIRECTORY',
           'modified': '2020-11-01T13:00:59.700622',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'dir1',
@@ -284,7 +290,7 @@ var exportMap3FilesComplex1 = {
           'parent': 1,
           'modified': '2020-11-01T13:00:59.706593',
           'size': 0,
-          'pn': '1/dir1'
+          'pn': '1/dir1',
         },
         {
           'name': 'sub2',
@@ -292,7 +298,7 @@ var exportMap3FilesComplex1 = {
           'parent': 2,
           'modified': '2020-11-01T13:00:59.708479',
           'size': 0,
-          'pn': '2/sub2'
+          'pn': '2/sub2',
         },
         {
           'name': 'nested1',
@@ -300,7 +306,7 @@ var exportMap3FilesComplex1 = {
           'parent': 3,
           'modified': '2020-11-01T13:00:59.709',
           'size': 0,
-          'pn': '3/nested1'
+          'pn': '3/nested1',
         },
         {
           'name': 'sub1',
@@ -308,7 +314,7 @@ var exportMap3FilesComplex1 = {
           'parent': 2,
           'modified': '2020-11-01T13:00:59.721647',
           'size': 0,
-          'pn': '2/sub1'
+          'pn': '2/sub1',
         },
         {
           'name': 'file1.text',
@@ -316,7 +322,7 @@ var exportMap3FilesComplex1 = {
           'parent': 5,
           'modified': '2020-11-01T13:00:59.738204',
           'size': 5,
-          'pn': '5/file1.text'
+          'pn': '5/file1.text',
         },
         {
           'name': 'file2.text',
@@ -324,7 +330,7 @@ var exportMap3FilesComplex1 = {
           'parent': 5,
           'modified': '2020-11-01T13:00:59.743326',
           'size': 5,
-          'pn': '5/file2.text'
+          'pn': '5/file2.text',
         },
         {
           'name': 'file3.bin',
@@ -332,9 +338,9 @@ var exportMap3FilesComplex1 = {
           'parent': 4,
           'modified': '2020-11-01T13:00:59.749122',
           'size': 3,
-          'pn': '4/file3.bin'
-        }
-      ]
-    }
-  ]
+          'pn': '4/file3.bin',
+        },
+      ],
+    },
+  ],
 };

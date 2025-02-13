@@ -72,9 +72,11 @@ String fsPerfMarkdownResult() {
   // First line, fs
   var sb = StringBuffer('');
   sb.writeln(
-      '| action | count | size | ${fsList.map((e) => e.debugName).join(' |')} |');
+    '| action | count | size | ${fsList.map((e) => e.debugName).join(' |')} |',
+  );
   sb.writeln(
-      '| ------ | ----- | ---- | ${fsList.map((e) => '---').join(' |')} |');
+    '| ------ | ----- | ---- | ${fsList.map((e) => '---').join(' |')} |',
+  );
   for (var i = 0; i < 4; i++) {
     String? label;
 
@@ -143,8 +145,9 @@ bool _skipTest(FileSystem fs, int size) {
 void fsPerfTestGroup(FileSystem fs, {List<FsPerfParam>? params}) {
   var fsPerfResult = _perfResult[fs] ??= _FsPerfResult();
   test('write_read_${fs.debugName}', () async {
-    var file =
-        fs.file(fs.path.join('.dart_tool', 'tekartik_fs_test', 'perf', 'file'));
+    var file = fs.file(
+      fs.path.join('.dart_tool', 'tekartik_fs_test', 'perf', 'file'),
+    );
     await file.parent.create(recursive: true);
 
     params ??= [

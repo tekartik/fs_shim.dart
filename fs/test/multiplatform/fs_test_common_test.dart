@@ -7,7 +7,8 @@ void main() {
   group('context', () {
     test('Memory', () {
       var fs = MemoryFileSystemTestContextWithOptions(
-          options: const FileSystemIdbOptions(pageSize: 2));
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
       expect(fs.options.pageSize, 2);
     });
   });

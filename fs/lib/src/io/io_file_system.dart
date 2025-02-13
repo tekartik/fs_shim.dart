@@ -19,10 +19,12 @@ class IoFileSystemImpl extends Object
     with FileSystemMixin
     implements FileSystemIo {
   @override
-  Future<fs.FileSystemEntityType> type(String? path,
-          {bool followLinks = true}) async =>
-      wrapIoFileSystemEntityTypeImpl(
-          io.FileSystemEntity.typeSync(path!, followLinks: followLinks));
+  Future<fs.FileSystemEntityType> type(
+    String? path, {
+    bool followLinks = true,
+  }) async => wrapIoFileSystemEntityTypeImpl(
+    io.FileSystemEntity.typeSync(path!, followLinks: followLinks),
+  );
 
   @override
   fs.File file(String? path) => FileImpl(path!);

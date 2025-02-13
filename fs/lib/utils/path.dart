@@ -24,7 +24,7 @@ String toPosixPath(String anyPath) {
       parts = [
         '/',
         rootPart.substring(0, rootPart.length - 1),
-        ...parts.sublist(1)
+        ...parts.sublist(1),
       ];
     }
   }
@@ -61,7 +61,10 @@ bool isPathPartSeparator(String part) =>
 List<String> contextPathSplit(Context context, String path) {
   if (path.isEmpty) {
     throw ArgumentError.value(
-        path, 'path', 'contextPathSplit path should not be empty');
+      path,
+      'path',
+      'contextPathSplit path should not be empty',
+    );
   }
 
   /// We split in the windows context

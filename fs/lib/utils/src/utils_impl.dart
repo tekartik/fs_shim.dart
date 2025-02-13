@@ -130,8 +130,10 @@ mixin class OptionsIncludeMixin {
 }
 
 /// Create a directory recursively
-Future<Directory> createDirectory(Directory dir,
-    {CreateOptions? options}) async {
+Future<Directory> createDirectory(
+  Directory dir, {
+  CreateOptions? options,
+}) async {
   options ??= defaultCreateOptions;
   if (options.delete) {
     await deleteDirectory(dir);
@@ -199,8 +201,11 @@ Future deleteFile(File file, {DeleteOptions? options}) async {
   }
 }
 
-Future<int> copyDirectoryImpl(Directory src, Directory? dst,
-    {CopyOptions? options}) async {
+Future<int> copyDirectoryImpl(
+  Directory src,
+  Directory? dst, {
+  CopyOptions? options,
+}) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
     // delete destination first?
@@ -208,45 +213,62 @@ Future<int> copyDirectoryImpl(Directory src, Directory? dst,
       await deleteDirectory(dst!);
     }
     return await TopCopy(
-            TopEntity(src.fs, src.path), TopEntity(dst!.fs, dst.path),
-            options: options)
-        .run();
+      TopEntity(src.fs, src.path),
+      TopEntity(dst!.fs, dst.path),
+      options: options,
+    ).run();
   } else {
     throw ArgumentError('not a directory ($src)');
   }
 }
 
-Future<Directory> copyDirectory(Directory src, Directory? dst,
-    {CopyOptions? options}) async {
+Future<Directory> copyDirectory(
+  Directory src,
+  Directory? dst, {
+  CopyOptions? options,
+}) async {
   await copyDirectoryImpl(src, dst, options: options);
   return asDirectory(dst);
 }
 
-Future<int> copyFileImpl(File src, FileSystemEntity dst,
-    {CopyOptions? options}) async {
+Future<int> copyFileImpl(
+  File src,
+  FileSystemEntity dst, {
+  CopyOptions? options,
+}) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isFile(src.path)) {
     // delete destination first?
     if (options.delete) {
       await dst.delete(recursive: true);
     }
-    return await TopCopy(TopEntity(src.fs, src.parent.path),
-            TopEntity(dst.fs, dst.parent.path), options: options)
-        .runChild(null, src.fs.path.basename(src.path),
-            dst.fs.path.basename(dst.path));
+    return await TopCopy(
+      TopEntity(src.fs, src.parent.path),
+      TopEntity(dst.fs, dst.parent.path),
+      options: options,
+    ).runChild(
+      null,
+      src.fs.path.basename(src.path),
+      dst.fs.path.basename(dst.path),
+    );
     //await copyFileSystemEntity_(src, dst, options: options);
   } else {
     throw ArgumentError('not a file ($src)');
   }
 }
 
-Future<List<File>> copyDirectoryListFiles(Directory src,
-    {Directory? dst, CopyOptions? options}) async {
+Future<List<File>> copyDirectoryListFiles(
+  Directory src, {
+  Directory? dst,
+  CopyOptions? options,
+}) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
     var operations =
-        await TopSourceNode(TopEntity(src.fs, src.path), options: options)
-            ._runTree();
+        await TopSourceNode(
+          TopEntity(src.fs, src.path),
+          options: options,
+        )._runTree();
     return operations
         .where((operation) => !operation.isDirectory!)
         .map((operation) => src.fs.file(operation.src!.path))
@@ -256,8 +278,11 @@ Future<List<File>> copyDirectoryListFiles(Directory src,
   }
 }
 
-Future<File> copyFile(File src, FileSystemEntity dst,
-    {CopyOptions? options}) async {
+Future<File> copyFile(
+  File src,
+  FileSystemEntity dst, {
+  CopyOptions? options,
+}) async {
   await copyFileImpl(src, dst, options: options);
   return asFile(dst);
 }
@@ -275,17 +300,25 @@ Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) async {
 
 // Copy a file to its destination
 Future<FileSystemEntity> copyFileSystemEntity(
-    FileSystemEntity src, FileSystemEntity dst,
-    {CopyOptions? options}) async {
+  FileSystemEntity src,
+  FileSystemEntity dst, {
+  CopyOptions? options,
+}) async {
   await copyFileSystemEntityImpl(src, dst, options: options);
   return dst;
 }
 
-Future<int> copyFileSystemEntityImpl(FileSystemEntity src, FileSystemEntity dst,
-    {CopyOptions? options}) async {
+Future<int> copyFileSystemEntityImpl(
+  FileSystemEntity src,
+  FileSystemEntity dst, {
+  CopyOptions? options,
+}) async {
   if (await src.fs.isDirectory(src.path)) {
-    return await copyDirectoryImpl(asDirectory(src), asDirectory(dst),
-        options: options);
+    return await copyDirectoryImpl(
+      asDirectory(src),
+      asDirectory(dst),
+      options: options,
+    );
   } else if (await src.fs.isFile(src.path)) {
     return await copyFileImpl(asFile(src), dst, options: options);
   }
@@ -516,8 +549,11 @@ mixin CopyNodeMixin implements CopyNode {
 
   int? get id => _id;
 
-  Future<int> runChild(CopyOptions? options, String srcRelative,
-      [String? dstRelative]) {
+  Future<int> runChild(
+    CopyOptions? options,
+    String srcRelative, [
+    String? dstRelative,
+  ]) {
     final copy = ChildCopy(this, options, srcRelative, dstRelative);
 
     // exclude?
@@ -569,8 +605,11 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
   // Null for src
   TopEntity? _dst;
 
-  void _init(
-      {required TopEntity src, TopEntity? dst, required CopyOptions? options}) {
+  void _init({
+    required TopEntity src,
+    TopEntity? dst,
+    required CopyOptions? options,
+  }) {
     _src = src;
     _dst = dst;
     _id = ++ActionNodeMixin._staticId;
@@ -617,8 +656,12 @@ class ChildCopy extends Object
         SourceNodeTreeRunnerMixin
     implements CopyNode {
   // if [options] is null, we'll use the parent options
-  ChildCopy(CopyNode parent, CopyOptions? options, String srcRelative,
-      [String? dstRelative]) {
+  ChildCopy(
+    CopyNode parent,
+    CopyOptions? options,
+    String srcRelative, [
+    String? dstRelative,
+  ]) {
     _init(parent, options, srcRelative, dstRelative);
   }
 
@@ -752,8 +795,14 @@ mixin SourceNodeTreeRunnerMixin
         }
       }
 
-      operations.add(CopyNodeOperation(
-          isDirectory: true, src: src, dst: dst, options: options));
+      operations.add(
+        CopyNodeOperation(
+          isDirectory: true,
+          src: src,
+          dst: dst,
+          options: options,
+        ),
+      );
 
       // recursive
       if (options!.recursive) {
@@ -763,11 +812,14 @@ mixin SourceNodeTreeRunnerMixin
         await srcDirectory
             .list(recursive: false, followLinks: options.followLinks)
             .listen((FileSystemEntity srcEntity) {
-          final basename = src!.fs.path.basename(srcEntity.path);
-          futures.add(_runTreeChild(options, basename).then((childOperations) {
-            operations.addAll(childOperations);
-          }));
-        }).asFuture<void>();
+              final basename = src!.fs.path.basename(srcEntity.path);
+              futures.add(
+                _runTreeChild(options, basename).then((childOperations) {
+                  operations.addAll(childOperations);
+                }),
+              );
+            })
+            .asFuture<void>();
         await Future.wait(futures);
       }
     } else if (await src!.fs.isFile(src!.path)) {
@@ -782,8 +834,14 @@ mixin SourceNodeTreeRunnerMixin
         }
       }
 
-      operations.add(CopyNodeOperation(
-          isDirectory: false, src: src, dst: dst, options: options));
+      operations.add(
+        CopyNodeOperation(
+          isDirectory: false,
+          src: src,
+          dst: dst,
+          options: options,
+        ),
+      );
     }
 
     return operations;
@@ -833,8 +891,12 @@ mixin ChildNodeMixin
   @override
   String? get srcSub => src!.sub;
 
-  void _init(CopyNode parent, CopyOptions? options, String srcRelative,
-      [String? dstRelative]) {
+  void _init(
+    CopyNode parent,
+    CopyOptions? options,
+    String srcRelative, [
+    String? dstRelative,
+  ]) {
     _parent = parent;
     _options = options ??= parent.options;
 
@@ -865,9 +927,11 @@ class ChildSourceNode extends Object
   String toString() => '  [$id] $src';
 
   @override
-  Future<int> runChild(CopyOptions? options, String srcRelative,
-          [String? dstRelative]) =>
-      throw UnsupportedError('temp');
+  Future<int> runChild(
+    CopyOptions? options,
+    String srcRelative, [
+    String? dstRelative,
+  ]) => throw UnsupportedError('temp');
 }
 
 mixin NodeExcludeMixin {

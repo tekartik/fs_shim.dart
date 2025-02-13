@@ -1,7 +1,6 @@
 @TestOn('vm')
 // Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
-
 library;
 
 import 'dart:io' as io;
@@ -46,18 +45,27 @@ void main() {
     });
     test('type', () async {
       expect(
-          await ioFileSystemTestContext.fs
-              .type(fs.path.join('test', 'io', 'fs_io_test.dart')),
-          FileSystemEntityType.file);
+        await ioFileSystemTestContext.fs.type(
+          fs.path.join('test', 'io', 'fs_io_test.dart'),
+        ),
+        FileSystemEntityType.file,
+      );
       expect(await fs.type('test'), FileSystemEntityType.directory);
     });
     test('test_path', () async {
-      expect(ioFileSystemTestContext.outTopPath,
-          join('.dart_tool', 'fs_shim', 'test'));
       expect(
-          dirname(ioFileSystemTestContext.outPath),
-          dirname(fs.path.join(
-              ioFileSystemTestContext.outTopPath!, joinAll(testDescriptions))));
+        ioFileSystemTestContext.outTopPath,
+        join('.dart_tool', 'fs_shim', 'test'),
+      );
+      expect(
+        dirname(ioFileSystemTestContext.outPath),
+        dirname(
+          fs.path.join(
+            ioFileSystemTestContext.outTopPath!,
+            joinAll(testDescriptions),
+          ),
+        ),
+      );
     });
 
     group('conversion', () {
@@ -103,10 +111,13 @@ void main() {
 
       test('filesystemexception', () {
         const ioFileSystemException = io.FileSystemException();
-        final fileSystemException =
-            wrapIoFileSystemException(ioFileSystemException);
-        expect(unwrapIoFileSystemException(fileSystemException),
-            ioFileSystemException);
+        final fileSystemException = wrapIoFileSystemException(
+          ioFileSystemException,
+        );
+        expect(
+          unwrapIoFileSystemException(fileSystemException),
+          ioFileSystemException,
+        );
       });
 
       test('filemode', () async {
@@ -150,8 +161,12 @@ void main() {
         expect(dir.fs, fs);
 
         try {
-          dir = Directory(fs.path.join(Directory.current.path,
-              'never_exist_such_a_dummy_dir_for_fs_shim_testing'));
+          dir = Directory(
+            fs.path.join(
+              Directory.current.path,
+              'never_exist_such_a_dummy_dir_for_fs_shim_testing',
+            ),
+          );
           await dir.list().toList();
         } catch (_) {}
       });
@@ -168,30 +183,35 @@ void main() {
 
       test('FileSystemEntity', () async {
         expect(
-            await
-            // ignore: avoid_slow_async_io
-            FileSystemEntity.isLink(Directory.current.path),
-            isFalse);
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.isLink(Directory.current.path),
+          isFalse,
+        );
         expect(
-            await
-            // ignore: avoid_slow_async_io
-            FileSystemEntity.isDirectory(Directory.current.path),
-            isTrue);
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.isDirectory(Directory.current.path),
+          isTrue,
+        );
         expect(
-            await
-            // ignore: avoid_slow_async_io
-            FileSystemEntity.isFile(Directory.current.path),
-            isFalse);
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.isFile(Directory.current.path),
+          isFalse,
+        );
         expect(
-            await
-            // ignore: avoid_slow_async_io
-            FileSystemEntity.type(Directory.current.path, followLinks: true),
-            FileSystemEntityType.directory);
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.type(Directory.current.path, followLinks: true),
+          FileSystemEntityType.directory,
+        );
         expect(
-            await
-            // ignore: avoid_slow_async_io
-            FileSystemEntity.type(Directory.current.path, followLinks: false),
-            FileSystemEntityType.directory);
+          await
+          // ignore: avoid_slow_async_io
+          FileSystemEntity.type(Directory.current.path, followLinks: false),
+          FileSystemEntityType.directory,
+        );
       });
     });
   });

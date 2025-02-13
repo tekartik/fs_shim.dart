@@ -9,9 +9,10 @@ class AccessStatIdb {
   int putCount = 0;
 
   /// Clone current value.
-  AccessStatIdb clone() => AccessStatIdb()
-    ..getCount = getCount
-    ..putCount = putCount;
+  AccessStatIdb clone() =>
+      AccessStatIdb()
+        ..getCount = getCount
+        ..putCount = putCount;
 
   @override
   String toString() => {'get': getCount, 'put': putCount}.toString();

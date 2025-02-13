@@ -25,7 +25,7 @@ void main() {
     expect(result.position, 3);
     expect(result.list.map((e) => e.bytes), [
       [1, 2],
-      [3]
+      [3],
     ]);
     bytes = Uint8List.fromList([1]);
     result = helper.getFileParts(bytes: bytes, start: 0);
@@ -46,14 +46,14 @@ void main() {
     expect(result.list.map((e) => e.index), [0, 1]);
     expect(result.list.map((e) => e.bytes), [
       [1, 2],
-      [3, 4]
+      [3, 4],
     ]);
     result = helper.getFileParts(bytes: bytes, start: 0, all: true);
     expect(result.position, 4);
     expect(result.list.map((e) => e.index), [0, 1]);
     expect(result.list.map((e) => e.bytes), [
       [1, 2],
-      [3, 4]
+      [3, 4],
     ]);
 
     result = helper.getFileParts(bytes: bytes, start: 1);
@@ -79,7 +79,7 @@ void main() {
     expect(result.list.map((e) => e.bytes), [
       [1],
       [2, 3],
-      [4]
+      [4],
     ]);
 
     result = helper.getFileParts(bytes: bytes, start: 1, all: true);
@@ -87,7 +87,7 @@ void main() {
     expect(result.list.map((e) => e.index), [0, 1]);
     expect(result.list.map((e) => e.bytes), [
       [2, 3],
-      [4]
+      [4],
     ]);
 
     result = helper.getFileParts(bytes: bytes, position: 1, all: true);
@@ -96,29 +96,42 @@ void main() {
     expect(result.list.map((e) => e.bytes), [
       [1],
       [2, 3],
-      [4]
+      [4],
     ]);
 
     expect(result.position, 5);
     bytes = Uint8List.fromList([1, 2, 3, 4, 5, 6, 7]);
     result = helper.getFileParts(
-        bytes: bytes, position: 3, start: 2, end: 6, all: true);
+      bytes: bytes,
+      position: 3,
+      start: 2,
+      end: 6,
+      all: true,
+    );
     expect(result.list.map((e) => e.index), [1, 2, 3]);
     expect(result.list.map((e) => e.start), [1, 0, 0]);
     expect(result.list.map((e) => e.bytes), [
       [3],
       [4, 5],
-      [6]
+      [6],
     ]);
 
-    result =
-        helper.getFileParts(bytes: bytes, position: 10, start: 6, all: true);
+    result = helper.getFileParts(
+      bytes: bytes,
+      position: 10,
+      start: 6,
+      all: true,
+    );
     expect(result.list.map((e) => e.index), [5]);
     expect(result.list.map((e) => e.bytes), [
       [7],
     ]);
-    result =
-        helper.getFileParts(bytes: bytes, position: 10, start: 7, all: true);
+    result = helper.getFileParts(
+      bytes: bytes,
+      position: 10,
+      start: 7,
+      all: true,
+    );
     expect(result.list, isEmpty);
   });
 
@@ -160,8 +173,10 @@ void main() {
       filePartRef = FilePartRef(intMaxValue, intMaxValue);
       expect(filePartRef.toKey(), [intExpectedMaxValue, intExpectedMaxValue]);
       filePartRef = FilePartRef(intMaxValue + 1, intMaxValue + 1);
-      expect(filePartRef.toKey(),
-          [intExpectedMinValue, intExpectedMinValue]); // !!
+      expect(filePartRef.toKey(), [
+        intExpectedMinValue,
+        intExpectedMinValue,
+      ]); // !!
     }
   });
 }

@@ -12,8 +12,13 @@ void main() {
       expect(contextPathSplit(windows, 'a'), ['a']);
       expect(contextPathSplit(windows, '/'), ['\\']);
       expect(contextPathSplit(windows, '\\'), ['\\']);
-      expect(
-          contextPathSplit(windows, '\\a/b\\c/d'), ['\\', 'a', 'b', 'c', 'd']);
+      expect(contextPathSplit(windows, '\\a/b\\c/d'), [
+        '\\',
+        'a',
+        'b',
+        'c',
+        'd',
+      ]);
       expect(contextPathSplit(url, '/'), ['/']);
       expect(contextPathSplit(url, '\\'), ['/']);
       expect(contextPathSplit(url, '\\a/b\\c/d'), ['/', 'a', 'b', 'c', 'd']);
@@ -90,8 +95,10 @@ void main() {
         expect(posix.split('\\a/b'), ['\\a', 'b']); // !!! args
 
         expect(posix.basename('a/b'), 'b');
-        expect(posix.basename('a\\b'),
-            'a\\b'); // !!!! posix does not convert windows style correctly
+        expect(
+          posix.basename('a\\b'),
+          'a\\b',
+        ); // !!!! posix does not convert windows style correctly
       });
 
       test('convert', () {
@@ -99,8 +106,10 @@ void main() {
         expect(windows.joinAll(windows.split(path)), path);
         final posixPath = posix.joinAll(windows.split(path));
         expect(windows.joinAll(posix.split(posixPath)), path);
-        expect(windows.joinAll(windows.split(posixPath)),
-            path); // !event this works
+        expect(
+          windows.joinAll(windows.split(posixPath)),
+          path,
+        ); // !event this works
       });
     });
   });

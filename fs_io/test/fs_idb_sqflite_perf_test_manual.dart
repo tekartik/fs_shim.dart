@@ -17,11 +17,13 @@ var idbOptions = [
   const FileSystemIdbOptions(pageSize: 64 * 1024),
   FileSystemIdbOptions.pageDefault,
   const FileSystemIdbOptions(pageSize: 1024),
-  const FileSystemIdbOptions(pageSize: 128)
+  const FileSystemIdbOptions(pageSize: 128),
 ];
-var _fsList = idbOptions.map((e) =>
-    newFileSystemIdb(getIdbFactorySqflite(databaseFactoryFfiNoIsolate))
-        .withIdbOptions(options: e));
+var _fsList = idbOptions.map(
+  (e) => newFileSystemIdb(
+    getIdbFactorySqflite(databaseFactoryFfiNoIsolate),
+  ).withIdbOptions(options: e),
+);
 
 void main() {
   sqfliteFfiInit();
@@ -31,8 +33,9 @@ void main() {
     }
   });
   Future<void> writeResult() async {
-    var file = io.File(p.join(
-        '.dart_tool', 'tekartik_fs_test', 'perf', 'perf_idb_sqflite.md'));
+    var file = io.File(
+      p.join('.dart_tool', 'tekartik_fs_test', 'perf', 'perf_idb_sqflite.md'),
+    );
     await file.parent.create(recursive: true);
     var resultText = fsPerfMarkdownResult();
     stdout.writeln(resultText);

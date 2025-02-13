@@ -1,7 +1,6 @@
 @TestOn('browser')
 // Copyright (c) 2015, Alexandre Roux. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
-
 library;
 
 import 'package:fs_shim/fs_idb.dart';
@@ -20,8 +19,9 @@ FileSystem newFileSystemIdbBrowser([String? name]) =>
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
   @override
   late IdbFileSystem rawFsIdb = () {
-    var fs = newFileSystemIdbBrowser()
-        as IdbFileSystem; // Needed for initialization (supportsLink)
+    var fs =
+        newFileSystemIdbBrowser()
+            as IdbFileSystem; // Needed for initialization (supportsLink)
     return fs;
   }();
 
@@ -39,9 +39,11 @@ class IdbBrowserFileSystemTestContextWithOptions
   @override
   IdbFileSystem get fs => _fs;
   late final IdbFileSystem _fs = () {
-    var fs = newFileSystemIdbBrowser('db_options_${++_index}')
-            .withIdbOptions(options: options)
-        as IdbFileSystem; // Needed for initialization (supportsLink)
+    var fs =
+        newFileSystemIdbBrowser(
+              'db_options_${++_index}',
+            ).withIdbOptions(options: options)
+            as IdbFileSystem; // Needed for initialization (supportsLink)
     return fs;
   }();
 
@@ -60,10 +62,16 @@ void main() {
     // All tests
     defineIdbTests(idbBrowserFileSystemContext);
     defineIdbTypesFileSystemStorageTests(idbBrowserFileSystemContext);
-    defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
-        options: const FileSystemIdbOptions(pageSize: 2)));
-    defineIdbTests(IdbBrowserFileSystemTestContextWithOptions(
-        options: const FileSystemIdbOptions(pageSize: 16 * 1024)));
+    defineIdbTests(
+      IdbBrowserFileSystemTestContextWithOptions(
+        options: const FileSystemIdbOptions(pageSize: 2),
+      ),
+    );
+    defineIdbTests(
+      IdbBrowserFileSystemTestContextWithOptions(
+        options: const FileSystemIdbOptions(pageSize: 16 * 1024),
+      ),
+    );
 
     test('Directory', () {
       Directory('test');

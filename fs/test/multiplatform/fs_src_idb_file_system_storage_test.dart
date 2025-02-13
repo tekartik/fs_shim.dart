@@ -15,8 +15,11 @@ import 'test_common.dart';
 void main() {
   defineIdbTypesFileSystemStorageTests(memoryFileSystemTestContext);
   defineIdbFileSystemStorageTests(memoryFileSystemTestContext);
-  defineIdbFileSystemStorageTests(MemoryFileSystemTestContextWithOptions(
-      options: const FileSystemIdbOptions(pageSize: 2)));
+  defineIdbFileSystemStorageTests(
+    MemoryFileSystemTestContextWithOptions(
+      options: const FileSystemIdbOptions(pageSize: 2),
+    ),
+  );
 }
 
 var _index = 0;
@@ -30,11 +33,18 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
     late IdbFileSystem fs;
     setUp(() async {
       idbFactory = newIdbFactoryMemory();
-      storage =
-          IdbFileSystemStorage(idbFactory, 'idb_storage', options: idbOptions);
+      storage = IdbFileSystemStorage(
+        idbFactory,
+        'idb_storage',
+        options: idbOptions,
+      );
       await storage.ready;
-      fs = IdbFileSystem(idbFactory, null,
-          options: idbOptions, storage: storage);
+      fs = IdbFileSystem(
+        idbFactory,
+        null,
+        options: idbOptions,
+        storage: storage,
+      );
     });
 
     test('writeDataV2 page size 2', () async {
@@ -42,9 +52,10 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       expect(await getFileEntries(db), isEmpty);
       var txn = getWriteAllTransaction(db);
       var node = await storage.txnSetFileDataV2(
-          txn,
-          Node.node(FileSystemEntityType.file, null, 'test', id: 1),
-          Uint8List.fromList([1, 2, 3]));
+        txn,
+        Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+        Uint8List.fromList([1, 2, 3]),
+      );
       expect(node.pageSize, isNotNull);
       expect(node.pageSize, storage.pageSize);
       expect(await getFileEntries(db), isEmpty);
@@ -60,8 +71,8 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             'ps': 2,
             'pn': '/test',
             'modified': modified,
-          }
-        }
+          },
+        },
       ]);
 
       var partEntries = await getPartEntries(db);
@@ -69,13 +80,13 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         {
           'index': 0,
           'file': 1,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 1,
-          'content': [3]
-        }
+          'content': [3],
+        },
       ]);
       //expect(partEntries[0]['value'], isA<Uint8List>());
     });
@@ -91,13 +102,13 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3]
-        }
+          'content': [3],
+        },
       ]);
       await file.delete();
       expect(await getPartEntries(db), isEmpty);
@@ -113,18 +124,18 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3, 4]
+          'content': [3, 4],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [5]
-        }
+          'content': [5],
+        },
       ]);
       await storage.deletePart(FilePartRef(2, 1));
       await storage.deletePart(FilePartRef(2, 1));
@@ -132,13 +143,13 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [5]
-        }
+          'content': [5],
+        },
       ]);
       try {
         await file.readAsBytes();
@@ -161,13 +172,13 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [5]
-        }
+          'content': [5],
+        },
       ]);
       await raf.truncate(2);
       await raf.close();
@@ -182,8 +193,10 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
 
   Future<IdbFileSystemStorage> newStorage() async {
     final storage = IdbFileSystemStorage(
-        ctx.fs.idbFactory, 'idb_storage_${++_index}',
-        options: FileSystemIdbOptions(pageSize: ctx.fs.idbOptions.pageSize));
+      ctx.fs.idbFactory,
+      'idb_storage_${++_index}',
+      options: FileSystemIdbOptions(pageSize: ctx.fs.idbOptions.pageSize),
+    );
     try {
       await storage.delete().timeout(const Duration(seconds: 5));
     } catch (e) {
@@ -280,8 +293,11 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       expect(await storage.getChildNode(dir, 'file', true), file);
       expect(await storage.getChildNode(dir, 'file', false), file);
 
-      final link =
-          Node.link(dir, 'link', targetSegments: [p.separator, 'file']);
+      final link = Node.link(
+        dir,
+        'link',
+        targetSegments: [p.separator, 'file'],
+      );
       await storage.addNode(link);
 
       expect(await storage.getNode([p.separator, 'link'], false), link);
@@ -296,8 +312,11 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       await storage.addNode(dir);
       final file = Node.file(dir, 'file');
       await storage.addNode(file);
-      final link =
-          Node.link(top, 'link', targetSegments: [p.separator, 'dir', 'file']);
+      final link = Node.link(
+        top,
+        'link',
+        targetSegments: [p.separator, 'dir', 'file'],
+      );
       await storage.addNode(link);
 
       expect(await storage.getNode([p.separator, 'link'], true), file);
@@ -324,16 +343,17 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         expect(await getFileEntries(db), isEmpty);
         var txn = getWriteAllTransaction(db);
         var node = await storage.txnSetFileDataV1(
-            txn,
-            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
-            Uint8List.fromList([1, 2, 3]));
+          txn,
+          Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+          Uint8List.fromList([1, 2, 3]),
+        );
         expect(node.pageSize, 0);
         var fileEntries = await getFileEntries(db);
         expect(fileEntries, [
           {
             'key': 1,
-            'value': [1, 2, 3]
-          }
+            'value': [1, 2, 3],
+          },
         ]);
         // expect(fileEntries[0]['value'], isA<Uint8List>());
         var treeEntries = await getTreeEntries(db);
@@ -347,9 +367,9 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
               'type': 'file',
               'size': 3,
               'pn': '/test',
-              'modified': modified
-            }
-          }
+              'modified': modified,
+            },
+          },
         ]);
         txn = getWriteAllTransaction(db);
         await storage.txnDeleteFileDataV1(txn, node.fileId);
@@ -362,9 +382,10 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         expect(await getFileEntries(db), isEmpty);
         var txn = getWriteAllTransaction(db);
         var node = await storage.txnSetFileDataV2(
-            txn,
-            Node.node(FileSystemEntityType.file, null, 'test', id: 1),
-            Uint8List.fromList([1, 2, 3]));
+          txn,
+          Node.node(FileSystemEntityType.file, null, 'test', id: 1),
+          Uint8List.fromList([1, 2, 3]),
+        );
         expect(node.pageSize, isNotNull);
         expect(node.pageSize, storage.pageSize);
         expect(await getFileEntries(db), isEmpty);
@@ -381,9 +402,9 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
               if (ctx.fs.idbOptions.hasPageSize)
                 'ps': ctx.fs.idbOptions.pageSize,
               'pn': '/test',
-              'modified': modified
-            }
-          }
+              'modified': modified,
+            },
+          },
         ]);
 
         var partEntries = await getPartEntries(db);
@@ -394,8 +415,8 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             {
               'index': 0,
               'file': 1,
-              'content': [1, 2, 3]
-            }
+              'content': [1, 2, 3],
+            },
           ]);
         } else {
           // minimum is 2
@@ -403,13 +424,13 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
             {
               'index': 0,
               'file': 1,
-              'content': [1, 2]
+              'content': [1, 2],
             },
             {
               'index': 1,
               'file': 1,
-              'content': [3]
-            }
+              'content': [3],
+            },
           ]);
         }
         //expect(partEntries[0]['value'], isA<Uint8List>());
@@ -433,8 +454,11 @@ void defineIdbFileSystemStorageTests(IdbFileSystemTestContext ctx) {
   });
 }
 
-Transaction getWriteAllTransaction(Database db) => db.transactionList(
-    [treeStoreName, fileStoreName, partStoreName], idbModeReadWrite);
+Transaction getWriteAllTransaction(Database db) => db.transactionList([
+  treeStoreName,
+  fileStoreName,
+  partStoreName,
+], idbModeReadWrite);
 
 Future<List<Map>> getEntriesFromCursor(Stream<CursorWithValue> cwv) async {
   var list = await cursorToList(cwv);
@@ -447,7 +471,8 @@ Future<List<Map>> getTreeEntries(Database db) async {
   var treeObjectStore = txn.objectStore(treeStoreName);
   try {
     return await getEntriesFromCursor(
-        treeObjectStore.openCursor(autoAdvance: true));
+      treeObjectStore.openCursor(autoAdvance: true),
+    );
   } finally {
     await txn.completed;
   }
@@ -457,9 +482,9 @@ Future<List<Map>> getPartEntries(Database db) async {
   var txn = db.transaction(partStoreName, idbModeReadOnly);
   var store = txn.objectStore(partStoreName);
   try {
-    return (await cursorToList(store.openCursor(autoAdvance: true)))
-        .map((e) => e.value as Map)
-        .toList();
+    return (await cursorToList(
+      store.openCursor(autoAdvance: true),
+    )).map((e) => e.value as Map).toList();
   } finally {
     await txn.completed;
   }
@@ -470,7 +495,8 @@ Future<List<Map>> getFileEntries(Database db) async {
   var fileObjectStore = txn.objectStore(fileStoreName);
   try {
     return await getEntriesFromCursor(
-        fileObjectStore.openCursor(autoAdvance: true));
+      fileObjectStore.openCursor(autoAdvance: true),
+    );
   } finally {
     await txn.completed;
   }

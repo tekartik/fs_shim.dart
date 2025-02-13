@@ -53,43 +53,49 @@ class TxnNodeDataReadStreamCtlr {
           subscription = txn
               .objectStore(partStoreName)
               .openCursor(
-                  range: helper.getPartsRange(fileId, start, end),
-                  autoAdvance: true)
+                range: helper.getPartsRange(fileId, start, end),
+                autoAdvance: true,
+              )
               .listen((event) {
-            var ref = FilePartRef.fromKey(event.key);
-            if (++partIndex != ref.index) {
+                var ref = FilePartRef.fromKey(event.key);
+                if (++partIndex != ref.index) {
+                  if (!completer.isCompleted) {
+                    completer.completeError(StateError('Corrupted content'));
+                    subscription.cancel();
+                  }
+                }
+                var bytes = filePartIndexCursorPartContent(event);
+                if (first) {
+                  if (startPositionInPage > 0) {
+                    bytes = bytes.sublist(startPositionInPage);
+                  }
+                  first = false;
+                }
+                var total = count + bytes.length;
+                if (total > expectedCount) {
+                  // truncate (last)
+                  bytes = bytes.sublist(0, expectedCount - count);
+                }
+                if (bytes.isNotEmpty) {
+                  count += bytes.length;
+                  _ctlr.add(bytes);
+                }
+              });
+          unawaited(
+            subscription.asFuture<void>().then((_) {
               if (!completer.isCompleted) {
-                completer.completeError(StateError('Corrupted content'));
-                subscription.cancel();
+                completer.complete();
               }
-            }
-            var bytes = filePartIndexCursorPartContent(event);
-            if (first) {
-              if (startPositionInPage > 0) {
-                bytes = bytes.sublist(startPositionInPage);
-              }
-              first = false;
-            }
-            var total = count + bytes.length;
-            if (total > expectedCount) {
-              // truncate (last)
-              bytes = bytes.sublist(0, expectedCount - count);
-            }
-            if (bytes.isNotEmpty) {
-              count += bytes.length;
-              _ctlr.add(bytes);
-            }
-          });
-          unawaited(subscription.asFuture<void>().then((_) {
-            if (!completer.isCompleted) {
-              completer.complete();
-            }
-          }));
+            }),
+          );
           await completer.future;
         }
       } else {
-        var result =
-            await fs.txnReadCheckNodeFileContent(txn, file, fileEntity);
+        var result = await fs.txnReadCheckNodeFileContent(
+          txn,
+          file,
+          fileEntity,
+        );
         fileEntity = result.entity;
         var content = result.content;
 
@@ -113,14 +119,20 @@ class TxnNodeDataReadStreamCtlr {
 
   /// Read in transaction controller.
   TxnNodeDataReadStreamCtlr(
-      this.file, this.txn, this.fileEntity, this.start, this.end) {
+    this.file,
+    this.txn,
+    this.fileEntity,
+    this.start,
+    this.end,
+  ) {
     _ctlr = StreamController(
-        sync: true,
-        onCancel: () {
-          // devPrint('txnRead onCancel');
-          // no await here, otherwise the transaction becomes inactive
-          _ctlr.close();
-        });
+      sync: true,
+      onCancel: () {
+        // devPrint('txnRead onCancel');
+        // no await here, otherwise the transaction becomes inactive
+        _ctlr.close();
+      },
+    );
     txnRead();
   }
 
@@ -150,17 +162,24 @@ class IdbReadStreamCtlr {
         // Try to find the file if it exists
         final segments = getSegments(file.path);
 
-        var entity =
-            await _fs.txnOpenNode(treeStore, segments, mode: FileMode.read);
+        var entity = await _fs.txnOpenNode(
+          treeStore,
+          segments,
+          mode: FileMode.read,
+        );
 
         var ctlr = TxnNodeDataReadStreamCtlr(file, txn, entity, start, end);
-        ctlr.stream.listen((event) {
-          _ctlr.add(event);
-        }, onDone: () {
-          _ctlr.close();
-        }, onError: (Object e) {
-          _ctlr.addError(e);
-        });
+        ctlr.stream.listen(
+          (event) {
+            _ctlr.add(event);
+          },
+          onDone: () {
+            _ctlr.close();
+          },
+          onError: (Object e) {
+            _ctlr.addError(e);
+          },
+        );
       } catch (e) {
         _ctlr.addError(e);
       } finally {
@@ -169,10 +188,11 @@ class IdbReadStreamCtlr {
     }
 
     _ctlr = StreamController(
-        sync: true,
-        onListen: () {
-          readAll();
-        });
+      sync: true,
+      onListen: () {
+        readAll();
+      },
+    );
   }
 
   Stream<Uint8List> get stream => _ctlr.stream;

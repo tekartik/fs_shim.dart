@@ -1,3 +1,7 @@
+## 2.3.4
+
+* Requires dart 3.7
+
 ## 2.3.3+1
 
 * Add `Directory.emptyOrCreate()` helper in utils read_write (fs and io)

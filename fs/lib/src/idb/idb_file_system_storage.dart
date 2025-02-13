@@ -103,9 +103,10 @@ class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
   @override
   Future get ready => delegate.ready;
 
-  IdbFileSystemStorageWithDelegate(
-      {required this.delegate, required FileSystemIdbOptions options})
-      : super(delegate.idbFactory, delegate.dbPath, options: options);
+  IdbFileSystemStorageWithDelegate({
+    required this.delegate,
+    required FileSystemIdbOptions options,
+  }) : super(delegate.idbFactory, delegate.dbPath, options: options);
 }
 
 // not exported
@@ -142,45 +143,54 @@ class IdbFileSystemStorage {
       // version 4: add file store
       // version 7: add part store v2
       // version 8: add part store v3
-      db = await idbFactory.open(dbPath, version: 8,
-          onUpgradeNeeded: (idb.VersionChangeEvent e) {
-        final db = e.database;
-        idb.ObjectStore store;
+      db = await idbFactory.open(
+        dbPath,
+        version: 8,
+        onUpgradeNeeded: (idb.VersionChangeEvent e) {
+          final db = e.database;
+          idb.ObjectStore store;
 
-        // Older export have version equals to 1 so handle it
-        if (e.oldVersion < 1) {
-          // delete previous if any
-          final storeNames = db.objectStoreNames;
-          if (storeNames.contains(treeStoreName)) {
-            db.deleteObjectStore(treeStoreName);
+          // Older export have version equals to 1 so handle it
+          if (e.oldVersion < 1) {
+            // delete previous if any
+            final storeNames = db.objectStoreNames;
+            if (storeNames.contains(treeStoreName)) {
+              db.deleteObjectStore(treeStoreName);
+            }
+            if (storeNames.contains(fileStoreName)) {
+              db.deleteObjectStore(fileStoreName);
+            }
+            if (storeNames.contains(partStoreName)) {
+              db.deleteObjectStore(partStoreName);
+            }
+            store = db.createObjectStore(treeStoreName, autoIncrement: true);
+            store.createIndex(
+              parentNameIndexName,
+              parentNameKey,
+              unique: true,
+            ); // <id_parent>/<name>
+            store.createIndex(parentIndexName, parentKey);
+
+            store = db.createObjectStore(fileStoreName);
           }
-          if (storeNames.contains(fileStoreName)) {
-            db.deleteObjectStore(fileStoreName);
-          }
-          if (storeNames.contains(partStoreName)) {
+          if (e.oldVersion == 7) {
+            // Sorry! it was in dev only though
             db.deleteObjectStore(partStoreName);
           }
-          store = db.createObjectStore(treeStoreName, autoIncrement: true);
-          store.createIndex(parentNameIndexName, parentNameKey,
-              unique: true); // <id_parent>/<name>
-          store.createIndex(parentIndexName, parentKey);
-
-          store = db.createObjectStore(fileStoreName);
-        }
-        if (e.oldVersion == 7) {
-          // Sorry! it was in dev only though
-          db.deleteObjectStore(partStoreName);
-        }
-        if (e.oldVersion < 8) {
-          store = db.createObjectStore(partStoreName,
-              keyPath: [partFileKey, partIndexKey]);
-        }
-      }, onBlocked: (e) {
-        // ignore: avoid_print
-        print(e);
-        // ignore: avoid_print
-        print('#### db format change - reload');
-      });
+          if (e.oldVersion < 8) {
+            store = db.createObjectStore(
+              partStoreName,
+              keyPath: [partFileKey, partIndexKey],
+            );
+          }
+        },
+        onBlocked: (e) {
+          // ignore: avoid_print
+          print(e);
+          // ignore: avoid_print
+          print('#### db format change - reload');
+        },
+      );
       _readyCompleter!.complete();
     }
     return _readyCompleter!.future;
@@ -204,19 +214,25 @@ class IdbFileSystemStorage {
     await fileStore.delete(fileId);
   }
 
-  Future<Node> txnUpdateFileMetaSize(idb.Transaction txn, Node treeEntity,
-      {required int size}) async {
+  Future<Node> txnUpdateFileMetaSize(
+    idb.Transaction txn,
+    Node treeEntity, {
+    required int size,
+  }) async {
     var treeStore = txn.objectStore(treeStoreName);
     return await txnStoreUpdateFileMetaSize(treeStore, treeEntity, size: size);
   }
 
   Future<Node> txnStoreUpdateFileMetaSize(
-      idb.ObjectStore treeStore, Node treeEntity,
-      {required int size}) async {
+    idb.ObjectStore treeStore,
+    Node treeEntity, {
+    required int size,
+  }) async {
     var newTreeEntity = treeEntity.clone(
-        pageSize: treeEntity.pageSize,
-        size: size,
-        modified: DateTime.now().toUtc());
+      pageSize: treeEntity.pageSize,
+      size: size,
+      modified: DateTime.now().toUtc(),
+    );
     if (debugIdbShowLogs) {
       // ignore: avoid_print
       print('put clone ${logTruncateAny(newTreeEntity)}');
@@ -227,7 +243,10 @@ class IdbFileSystemStorage {
 
   /// Set the content of a file and update meta.
   Future<Node> txnSetFileDataV1(
-      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
+    idb.Transaction txn,
+    Node treeEntity,
+    Uint8List bytes,
+  ) async {
     // devPrint('_txnSetFileData all ${bytes.length}');
     // Content store
     var fileStore = txn.objectStore(fileStoreName);
@@ -247,8 +266,10 @@ class IdbFileSystemStorage {
 
   Future<Uint8List> txnGetFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
-    var stream =
-        partStore.openCursor(range: allPartRange(fileId), autoAdvance: true);
+    var stream = partStore.openCursor(
+      range: allPartRange(fileId),
+      autoAdvance: true,
+    );
     var readIndex = -1;
     var bytesList = <Uint8List>[];
     await stream.listen((idb.CursorWithValue cursor) {
@@ -256,7 +277,8 @@ class IdbFileSystemStorage {
       var index = filePartIndexKeyPartIndex(cursor.key);
       if (index != readIndex + 1) {
         throw StateError(
-            'Invalid part index $index, ${readIndex + 1} expected');
+          'Invalid part index $index, ${readIndex + 1} expected',
+        );
       }
       readIndex = index;
       var subContent = filePartIndexCursorPartContent(cursor);
@@ -274,8 +296,10 @@ class IdbFileSystemStorage {
 
   Future<void> txnDeleteFileDataV2(idb.Transaction txn, int fileId) async {
     var partStore = txn.objectStore(partStoreName);
-    var stream =
-        partStore.openKeyCursor(range: allPartRange(fileId), autoAdvance: true);
+    var stream = partStore.openKeyCursor(
+      range: allPartRange(fileId),
+      autoAdvance: true,
+    );
     var keys = await cursorToPrimaryKeyList(stream);
     for (var key in keys) {
       await partStore.delete(key);
@@ -284,7 +308,9 @@ class IdbFileSystemStorage {
 
   /// Read the content key
   Future<Uint8List> txnStoreGetPartContent(
-      idb.ObjectStore partStore, FilePartRef ref) async {
+    idb.ObjectStore partStore,
+    FilePartRef ref,
+  ) async {
     var partMap = await partStore.getObject(ref.toKey());
     if (partMap is Map) {
       var bytes = anyAsUint8List(partMap[contentKey]);
@@ -300,11 +326,14 @@ class IdbFileSystemStorage {
 
   /// Set or add a given part
   Future<void> txnStoreSetPart(
-      idb.ObjectStore partStore, FilePartRef ref, Uint8List bytes) async {
+    idb.ObjectStore partStore,
+    FilePartRef ref,
+    Uint8List bytes,
+  ) async {
     var partEntry = {
       indexKey: ref.index,
       fileKey: ref.fileId,
-      contentKey: bytes
+      contentKey: bytes,
     };
     if (debugIdbShowLogs) {
       // ignore: avoid_print
@@ -330,7 +359,9 @@ class IdbFileSystemStorage {
 
   /// Delete a given part
   Future<void> txnStoreDeletePart(
-      idb.ObjectStore partStore, FilePartRef ref) async {
+    idb.ObjectStore partStore,
+    FilePartRef ref,
+  ) async {
     if (debugIdbShowLogs) {
       // ignore: avoid_print
       print('delete part $ref');
@@ -346,21 +377,31 @@ class IdbFileSystemStorage {
     return last > first;
   }
 
-  bool needClearStoreV2(Node initialEntity, Node newEntity,
-      {int? newEntityMaxFileSize}) {
+  bool needClearStoreV2(
+    Node initialEntity,
+    Node newEntity, {
+    int? newEntityMaxFileSize,
+  }) {
     var first = helper.pageCountFromSize(newEntity.fileSize);
-    var last = getLastPartToClean(initialEntity, first,
-        newEntityMaxFileSize: newEntityMaxFileSize);
+    var last = getLastPartToClean(
+      initialEntity,
+      first,
+      newEntityMaxFileSize: newEntityMaxFileSize,
+    );
     return last > first;
   }
 
-  int getLastPartToClean(Node initialEntity, int first,
-      {int? newEntityMaxFileSize}) {
+  int getLastPartToClean(
+    Node initialEntity,
+    int first, {
+    int? newEntityMaxFileSize,
+  }) {
     var last = first;
     if (initialEntity.hasPageSize) {
       // Max from initial content.
-      var initialLast = FilePartHelper(initialEntity.filePageSize)
-          .endPageIndexFromPosition(initialEntity.fileSize);
+      var initialLast = FilePartHelper(
+        initialEntity.filePageSize,
+      ).endPageIndexFromPosition(initialEntity.fileSize);
       last = max(last, initialLast);
     }
 
@@ -376,14 +417,18 @@ class IdbFileSystemStorage {
   ///
   /// if [allAndClearInitialEntity] remaining content is removed.
   Future<void> txnStoreClearRemainingV2(
-      idb.ObjectStore partStore, Node initialEntity, Node newEntity,
-      {int? newEntityMaxFileSize}) async {
+    idb.ObjectStore partStore,
+    Node initialEntity,
+    Node newEntity, {
+    int? newEntityMaxFileSize,
+  }) async {
     var first = helper.pageIndexFromPosition(newEntity.fileSize);
     var last = first;
     if (initialEntity.hasPageSize) {
       // Max from initial content.
-      var initialLast = FilePartHelper(initialEntity.filePageSize)
-          .endPageIndexFromPosition(initialEntity.fileSize);
+      var initialLast = FilePartHelper(
+        initialEntity.filePageSize,
+      ).endPageIndexFromPosition(initialEntity.fileSize);
       last = max(last, initialLast);
     }
 
@@ -402,7 +447,10 @@ class IdbFileSystemStorage {
           if (endPositionInPage < content.length) {
             // truncate
             await txnStoreSetPart(
-                partStore, ref, content.sublist(0, endPositionInPage));
+              partStore,
+              ref,
+              content.sublist(0, endPositionInPage),
+            );
           }
           continue;
         }
@@ -413,7 +461,10 @@ class IdbFileSystemStorage {
 
   /// Set the content of a file and update meta. return the updated node
   Future<Node> txnUpdateFileDataV2(
-      idb.Transaction txn, Node treeEntity, List<FilePartIdb> parts) async {
+    idb.Transaction txn,
+    Node treeEntity,
+    List<FilePartIdb> parts,
+  ) async {
     var fileId = treeEntity.id!;
     var partStore = txn.objectStore(partStoreName);
 
@@ -458,19 +509,27 @@ class IdbFileSystemStorage {
     // update size
     var newTreeEntity = treeEntity.clone(pageSize: pageSize, size: newSize);
 
-    return await txnUpdateFileMetaSize(txn, newTreeEntity,
-        size: newTreeEntity.fileSize);
+    return await txnUpdateFileMetaSize(
+      txn,
+      newTreeEntity,
+      size: newTreeEntity.fileSize,
+    );
   }
 
   /// Set the content of a file and update meta. return the updated node
   Future<Node> txnSetFileDataV2(
-      idb.Transaction txn, Node treeEntity, Uint8List bytes) async {
+    idb.Transaction txn,
+    Node treeEntity,
+    Uint8List bytes,
+  ) async {
     var fileId = treeEntity.id!;
     var partCount = _pageCountFromSize(bytes.length);
     // Ignore existing
     var partStore = txn.objectStore(partStoreName);
-    var stream =
-        partStore.openKeyCursor(range: allPartRange(fileId), autoAdvance: true);
+    var stream = partStore.openKeyCursor(
+      range: allPartRange(fileId),
+      autoAdvance: true,
+    );
     final list = <KeyCursorRow>[];
     final toDeleteKeys = <List>[];
     await stream.listen((idb.Cursor cursor) {
@@ -484,7 +543,8 @@ class IdbFileSystemStorage {
     }).asFuture<void>();
     var rows = list;
     var rowByPageIndex = rows.asMap().map(
-        (index, row) => MapEntry((rows[index].key as List)[1] as int, row));
+      (index, row) => MapEntry((rows[index].key as List)[1] as int, row),
+    );
 
     // Write the new ones
     var chunks = uint8ListChunk(bytes, pageSize);
@@ -505,16 +565,24 @@ class IdbFileSystemStorage {
     }
 
     // update size
-    var newTreeEntity =
-        treeEntity.clone(pageSize: pageSize, size: bytes.length);
+    var newTreeEntity = treeEntity.clone(
+      pageSize: pageSize,
+      size: bytes.length,
+    );
 
-    return await txnUpdateFileMetaSize(txn, newTreeEntity,
-        size: newTreeEntity.fileSize);
+    return await txnUpdateFileMetaSize(
+      txn,
+      newTreeEntity,
+      size: newTreeEntity.fileSize,
+    );
   }
 
   Node nodeFromMap(Node parent, int id, dynamic map) {
-    final entity =
-        Node.fromMap(parent, (map as Map).cast<String, Object?>(), id);
+    final entity = Node.fromMap(
+      parent,
+      (map as Map).cast<String, Object?>(),
+      id,
+    );
     if (debugIdbShowLogs) {
       // ignore: avoid_print
       print('nodeFromMap($id, $map)');
@@ -532,8 +600,13 @@ class IdbFileSystemStorage {
   }
 
   /// For the given [parent] find the child named [name]
-  Future<Node?> txnGetChildNode(idb.ObjectStore treeStore, idb.Index index,
-      Node? parent, String name, bool followLastLink) {
+  Future<Node?> txnGetChildNode(
+    idb.ObjectStore treeStore,
+    idb.Index index,
+    Node? parent,
+    String name,
+    bool followLastLink,
+  ) {
     final parentName = getParentName(parent, name);
 
     FutureOr<Node?> nodeFromKey(dynamic id) {
@@ -547,7 +620,10 @@ class IdbFileSystemStorage {
 
       FutureOr<Node?> nodeFromMap(dynamic map) {
         final entity = Node.fromMap(
-            parent, (map as Map).cast<String, Object?>(), id as int);
+          parent,
+          (map as Map).cast<String, Object?>(),
+          id as int,
+        );
         if (followLastLink && entity.isLink) {
           return txnResolveLinkNode(treeStore, entity);
         }
@@ -570,8 +646,13 @@ class IdbFileSystemStorage {
     final store = txn.objectStore(treeStoreName);
     final index = store.index(parentNameIndexName);
 
-    final entity =
-        await txnGetChildNode(store, index, parent, name, followLink);
+    final entity = await txnGetChildNode(
+      store,
+      index,
+      parent,
+      name,
+      followLink,
+    );
 
     await txn.completed;
     return entity;
@@ -583,13 +664,17 @@ class IdbFileSystemStorage {
     return txnGetNode(treeStore, targetSegments, true);
   }
 
-// Return a matching result
+  // Return a matching result
   Future<Node?> txnGetNode(
-      idb.ObjectStore store, List<String> segments, bool followLastLink) {
+    idb.ObjectStore store,
+    List<String> segments,
+    bool followLastLink,
+  ) {
     //idb.idbDevPrint('#XX');
     Future<Node?> nodeFromSegments(List<String> segments) {
-      return txnSearch(store, segments, followLastLink)
-          .then((NodeSearchResult result) {
+      return txnSearch(store, segments, followLastLink).then((
+        NodeSearchResult result,
+      ) {
         final entity = result.match;
         //print('##${entity}');
         if (entity == null) {
@@ -624,7 +709,10 @@ class IdbFileSystemStorage {
   /// Search in the tree
   /// follow link only for last one
   Future<NodeSearchResult> txnSearch(
-      idb.ObjectStore store, List<String> segments, bool followLastLink) {
+    idb.ObjectStore store,
+    List<String> segments,
+    bool followLastLink,
+  ) {
     final result = NodeSearchResult()..segments = segments;
     final index = store.index(parentNameIndexName);
     Node? parent;
@@ -640,8 +728,13 @@ class IdbFileSystemStorage {
 
       // try to lookup without following links for last segment
       if (isLastSegment()) {
-        return txnGetChildNode(store, index, parent, segment, followLastLink)
-            .then((Node? nodeEntity) {
+        return txnGetChildNode(
+          store,
+          index,
+          parent,
+          segment,
+          followLastLink,
+        ).then((Node? nodeEntity) {
           if (nodeEntity != null) {
             var entity = nodeEntity;
 
@@ -655,8 +748,9 @@ class IdbFileSystemStorage {
           }
         });
       }
-      return txnGetChildNode(store, index, parent, segment, true)
-          .then((Node? nodeEntity) {
+      return txnGetChildNode(store, index, parent, segment, true).then((
+        Node? nodeEntity,
+      ) {
         if (nodeEntity != null) {
           var entity = nodeEntity;
           // Change segments if changing parent
@@ -694,9 +788,11 @@ class IdbFileSystemStorage {
     //return result;
   }
 
-// follow link only for last one
+  // follow link only for last one
   Future<NodeSearchResult> searchNode(
-      List<String> segments, bool followLastLink) async {
+    List<String> segments,
+    bool followLastLink,
+  ) async {
     await ready;
     final txn = db!.transaction(treeStoreName, idb.idbModeReadWrite);
     final store = txn.objectStore(treeStoreName);
@@ -745,10 +841,13 @@ class IdbFileSystemStorage {
           print('failed $e opening $dummyDbName');
         }
       }
-      await idbFactory.deleteDatabase(dbPath, onBlocked: (_) {
-        // ignore: avoid_print
-        print('ignore blocking');
-      });
+      await idbFactory.deleteDatabase(
+        dbPath,
+        onBlocked: (_) {
+          // ignore: avoid_print
+          print('ignore blocking');
+        },
+      );
       if (debugIdbShowLogs) {
         // ignore: avoid_print
         print('database deleted $dbPath');
@@ -827,28 +926,50 @@ class Node {
   List<String>? targetSegments; // for Links only
 
   Node.file(Node parent, String name, {DateTime? modified, int? pageSize})
-      : this.node(fs.FileSystemEntityType.file, parent, name,
-            modified: modified, pageSize: pageSize);
+    : this.node(
+        fs.FileSystemEntityType.file,
+        parent,
+        name,
+        modified: modified,
+        pageSize: pageSize,
+      );
 
   Node.directory(Node? parent, String name, {DateTime? modified})
-      : this(
-          parent,
-          name,
-          fs.FileSystemEntityType.directory,
-          modified,
-          0,
-        );
+    : this(parent, name, fs.FileSystemEntityType.directory, modified, 0);
 
-  Node.link(Node? parent, String name,
-      {List<String>? targetSegments, DateTime? modified})
-      : this.node(fs.FileSystemEntityType.link, parent, name,
-            modified: modified, targetSegments: targetSegments);
+  Node.link(
+    Node? parent,
+    String name, {
+    List<String>? targetSegments,
+    DateTime? modified,
+  }) : this.node(
+         fs.FileSystemEntityType.link,
+         parent,
+         name,
+         modified: modified,
+         targetSegments: targetSegments,
+       );
 
-  Node.node(this.type, this.parent, this.name,
-      {this.targetSegments, this.id, this.modified, this.size, this.pageSize});
+  Node.node(
+    this.type,
+    this.parent,
+    this.name, {
+    this.targetSegments,
+    this.id,
+    this.modified,
+    this.size,
+    this.pageSize,
+  });
 
-  Node(this.parent, this.name, this.type, this.modified, this.size,
-      {this.id, this.pageSize}) {
+  Node(
+    this.parent,
+    this.name,
+    this.type,
+    this.modified,
+    this.size, {
+    this.id,
+    this.pageSize,
+  }) {
     _depth = parent == null ? 1 : parent!._depth! + 1;
   }
 
@@ -886,7 +1007,7 @@ class Node {
       nameKey: name,
       typeKey: typeToString(type),
       // omit the page size if 0
-      if ((pageSize ?? 0) != 0) pageSizeKey: pageSize
+      if ((pageSize ?? 0) != 0) pageSizeKey: pageSize,
     };
     if (parent != null) {
       map[parentKey] = parent!.id;
@@ -934,13 +1055,16 @@ class Node {
   @override
   int get hashCode => id!;
 
-  Node clone({int? pageSize, int? size, DateTime? modified}) =>
-      Node.node(type, parent, name,
-          pageSize: pageSize ?? this.pageSize,
-          id: id,
-          modified: modified ?? this.modified,
-          size: size ?? this.size,
-          targetSegments: targetSegments);
+  Node clone({int? pageSize, int? size, DateTime? modified}) => Node.node(
+    type,
+    parent,
+    name,
+    pageSize: pageSize ?? this.pageSize,
+    id: id,
+    modified: modified ?? this.modified,
+    size: size ?? this.size,
+    targetSegments: targetSegments,
+  );
 }
 
 class NodeSearchResult {
@@ -984,8 +1108,9 @@ List<String> getSegments(String path) {
 }
 
 List<String> idbPathGetSegments(String path) {
-  final segments =
-      List<String>.from(idbPathContext.split(idbPathContext.normalize(path)));
+  final segments = List<String>.from(
+    idbPathContext.split(idbPathContext.normalize(path)),
+  );
   // devPrint('$path => $segments');
   if (!idbPathContext.isAbsolute(path)) {
     segments.insert(0, idbPathContext.separator);
@@ -1017,16 +1142,23 @@ String getParentName(Node? parent, String? name) {
 
 extension DatabaseIdbExt on idb.Database {
   /// Helper to write on all stores
-  idb.Transaction writeAllTransactionList() => transactionList(
-      [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadWrite);
+  idb.Transaction writeAllTransactionList() => transactionList([
+    treeStoreName,
+    fileStoreName,
+    partStoreName,
+  ], idb.idbModeReadWrite);
 
   /// Helper to read on all stores
-  idb.Transaction readAllTransactionList() => transactionList(
-      [treeStoreName, fileStoreName, partStoreName], idb.idbModeReadOnly);
+  idb.Transaction readAllTransactionList() => transactionList([
+    treeStoreName,
+    fileStoreName,
+    partStoreName,
+  ], idb.idbModeReadOnly);
 
   /// Helper to read on all stores
-  idb.Transaction openNodeTreeTransaction(
-      {fs.FileMode mode = fs.FileMode.read}) {
+  idb.Transaction openNodeTreeTransaction({
+    fs.FileMode mode = fs.FileMode.read,
+  }) {
     if (mode == fs.FileMode.read) {
       return transaction(treeStoreName, idb.idbModeReadOnly);
     } else {
@@ -1062,6 +1194,10 @@ Future<List<Object>> cursorToKeyList(Stream<idb.Cursor> stream) =>
     stream.map((cursor) => cursor.key).toList();
 
 idb.KeyRange allPartRange(int fileId) {
-  return idb.KeyRange.bound(toFilePartIndexKey(fileId, 0),
-      toFilePartIndexKey(fileId + 1, 0), false, true);
+  return idb.KeyRange.bound(
+    toFilePartIndexKey(fileId, 0),
+    toFilePartIndexKey(fileId + 1, 0),
+    false,
+    true,
+  );
 }

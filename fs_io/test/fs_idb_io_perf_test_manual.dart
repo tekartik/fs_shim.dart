@@ -14,24 +14,32 @@ import 'package:test/test.dart';
 
 import 'fs_idb_sqflite_perf_test_manual.dart';
 
-var _fsList = idbOptions.map((e) => newFileSystemIdb(getIdbFactorySembastIo(
-        p.join('.dart_tool', 'tekartik_fs_test', 'perf_idb_io')))
-    .withIdbOptions(options: e));
+var _fsList = idbOptions.map(
+  (e) => newFileSystemIdb(
+    getIdbFactorySembastIo(
+      p.join('.dart_tool', 'tekartik_fs_test', 'perf_idb_io'),
+    ),
+  ).withIdbOptions(options: e),
+);
 
 void main() {
   sqfliteFfiInit();
   group('perf_idb_sqflite', () {
     for (var fs in _fsList) {
-      fsPerfTestGroup(fs, params: [
-        FsPerfParam(100, 2),
-        FsPerfParam(100, 1024),
-        FsPerfParam(20, 64 * 1024),
-      ]);
+      fsPerfTestGroup(
+        fs,
+        params: [
+          FsPerfParam(100, 2),
+          FsPerfParam(100, 1024),
+          FsPerfParam(20, 64 * 1024),
+        ],
+      );
     }
   });
   Future<void> writeResult() async {
     var file = io.File(
-        p.join('.dart_tool', 'tekartik_fs_test', 'perf', 'perf_idb_io.md'));
+      p.join('.dart_tool', 'tekartik_fs_test', 'perf', 'perf_idb_io.md'),
+    );
     await file.parent.create(recursive: true);
     var resultText = fsPerfMarkdownResult();
     stdout.writeln(resultText);

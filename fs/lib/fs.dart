@@ -133,9 +133,10 @@ abstract class FileSystemEntity {
   /// error or exception that may be put on the returned future is ArgumentError,
   /// caused by passing the wrong type of arguments to the function.
   ///
-  static Future<FileSystemEntityType> type(String path,
-          {bool followLinks = true}) =>
-      fileSystemDefault.type(path, followLinks: followLinks);
+  static Future<FileSystemEntityType> type(
+    String path, {
+    bool followLinks = true,
+  }) => fileSystemDefault.type(path, followLinks: followLinks);
 }
 
 /// File open mode.
@@ -255,8 +256,10 @@ abstract class File extends FileSystemEntity {
   /// has an [:encoding:] property which can be changed after the
   /// [StreamSink] has been created.
   ///
-  StreamSink<List<int>> openWrite(
-      {FileMode mode = FileMode.write, Encoding encoding = utf8});
+  StreamSink<List<int>> openWrite({
+    FileMode mode = FileMode.write,
+    Encoding encoding = utf8,
+  });
 
   ///
   /// Create a new independent [Stream] for the contents of this file.
@@ -307,8 +310,11 @@ abstract class File extends FileSystemEntity {
   /// If the argument [flush] is set to `true`, the data written will be
   /// flushed to the file system before the returned future completes.
   ///
-  Future<File> writeAsBytes(Uint8List bytes,
-      {FileMode mode = FileMode.write, bool flush = false});
+  Future<File> writeAsBytes(
+    Uint8List bytes, {
+    FileMode mode = FileMode.write,
+    bool flush = false,
+  });
 
   ///
   /// Write a string to a file.
@@ -324,10 +330,12 @@ abstract class File extends FileSystemEntity {
   /// If the argument [flush] is set to `true`, the data written will be
   /// flushed to the file system before the returned future completes.
   ///
-  Future<File> writeAsString(String contents,
-      {FileMode mode = FileMode.write,
-      Encoding encoding = utf8,
-      bool flush = false});
+  Future<File> writeAsString(
+    String contents, {
+    FileMode mode = FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  });
 
   ///
   /// Read the entire file contents as a list of bytes. Returns a
@@ -418,8 +426,10 @@ abstract class Directory extends FileSystemEntity {
   /// The result is a stream of [FileSystemEntity] objects
   /// for the directories, files, and links.
   ///
-  Stream<FileSystemEntity> list(
-      {bool recursive = false, bool followLinks = true});
+  Stream<FileSystemEntity> list({
+    bool recursive = false,
+    bool followLinks = true,
+  });
 
   ///
   /// Creates a directory object pointing to the current working

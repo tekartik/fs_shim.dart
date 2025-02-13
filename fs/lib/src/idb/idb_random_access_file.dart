@@ -15,8 +15,11 @@ import 'idb_file_access.dart';
 class RandomAccessFileIdb
     with DefaultRandomAccessFileMixin, FileAccessIdbMixin {
   /// Idb implementation
-  RandomAccessFileIdb(
-      {required File file, required Node fileEntity, required FileMode mode}) {
+  RandomAccessFileIdb({
+    required File file,
+    required Node fileEntity,
+    required FileMode mode,
+  }) {
     // set correct position in append mode
     accessPosition = mode == FileMode.append ? fileEntity.fileSize : 0;
     accessFileSize = fileEntity.fileSize;
@@ -41,12 +44,10 @@ class RandomAccessFileIdb
 
   /// Update data.
   Future<void> txnUpdateDataV2(
-      idb.Transaction txn, List<FilePartIdb> list) async {
-    fileEntity = await storage.txnUpdateFileDataV2(
-      txn,
-      fileEntity,
-      list,
-    );
+    idb.Transaction txn,
+    List<FilePartIdb> list,
+  ) async {
+    fileEntity = await storage.txnUpdateFileDataV2(txn, fileEntity, list);
   }
 
   /// Flush pending items
@@ -62,22 +63,23 @@ class RandomAccessFileIdb
       if (pending.isNotEmpty || close) {
         await flushLock.synchronized(() async {
           if (pending.isNotEmpty || close) {
-            var txn = fsIdb.db!.transactionList(
-                [treeStoreName, partStoreName], idb.idbModeReadWrite);
-            var list = pending
-                .map((e) => e.list)
-                .expand((element) => element)
-                .toList()
-              ..sort((part1, part2) => part1.index - part2.index);
+            var txn = fsIdb.db!.transactionList([
+              treeStoreName,
+              partStoreName,
+            ], idb.idbModeReadWrite);
+            var list =
+                pending.map((e) => e.list).expand((element) => element).toList()
+                  ..sort((part1, part2) => part1.index - part2.index);
             try {
               await txnUpdateDataV2(txn, list);
 
               if (close) {
                 await storage.txnStoreClearRemainingV2(
-                    txn.objectStore(partStoreName),
-                    initialFileEntity,
-                    fileEntity,
-                    newEntityMaxFileSize: accessMaxFileSize);
+                  txn.objectStore(partStoreName),
+                  initialFileEntity,
+                  fileEntity,
+                  newEntityMaxFileSize: accessMaxFileSize,
+                );
               }
             } catch (e) {
               if (isDebug) {
@@ -158,8 +160,10 @@ class RandomAccessFileIdb
       var bufferEnd = end;
       var positionStart = accessPosition;
       var startPositionInPage = filePartHelper.getPositionInPage(positionStart);
-      var positionEnd =
-          min(positionStart + (bufferEnd - start), fileEntity.fileSize);
+      var positionEnd = min(
+        positionStart + (bufferEnd - start),
+        fileEntity.fileSize,
+      );
       var startIndex = filePartHelper.pageIndexFromPosition(positionStart);
       var partIndexRead = startIndex - 1;
       var first = true;
@@ -173,47 +177,57 @@ class RandomAccessFileIdb
       await txn
           .objectStore(partStoreName)
           .openCursor(
-              range: filePartHelper.getPartsRange(
-                  fileId, positionStart, positionEnd),
-              autoAdvance: true)
+            range: filePartHelper.getPartsRange(
+              fileId,
+              positionStart,
+              positionEnd,
+            ),
+            autoAdvance: true,
+          )
           .listen((event) {
-        // stat
-        stat.getCount++;
-        var ref = FilePartRef.fromKey(event.key);
-        if (++partIndexRead != ref.index) {
-          throw StateError('Corrupted content $partIndexRead vs ${ref.index}');
-        }
-        var bytes = filePartIndexCursorPartContent(event);
-        if (first) {
-          first = false;
-          if (startPositionInPage > 0) {
-            bytes = bytes.sublist(startPositionInPage);
-          }
-          first = false;
-        }
+            // stat
+            stat.getCount++;
+            var ref = FilePartRef.fromKey(event.key);
+            if (++partIndexRead != ref.index) {
+              throw StateError(
+                'Corrupted content $partIndexRead vs ${ref.index}',
+              );
+            }
+            var bytes = filePartIndexCursorPartContent(event);
+            if (first) {
+              first = false;
+              if (startPositionInPage > 0) {
+                bytes = bytes.sublist(startPositionInPage);
+              }
+              first = false;
+            }
 
-        var total = count + bytes.length;
-        if (total > expectedCount) {
-          // truncate (last)
-          bytes = bytes.sublist(0, expectedCount - count);
-        }
-        if (bytes.isNotEmpty) {
-          /// Append
-          buffer.setAll(start + count, bytes);
-          count += bytes.length;
-        }
-        if (debugIdbShowLogs) {
-          // ignore: avoid_print
-          print('cursor reading $ref');
-        }
-      }).asFuture<void>();
+            var total = count + bytes.length;
+            if (total > expectedCount) {
+              // truncate (last)
+              bytes = bytes.sublist(0, expectedCount - count);
+            }
+            if (bytes.isNotEmpty) {
+              /// Append
+              buffer.setAll(start + count, bytes);
+              count += bytes.length;
+            }
+            if (debugIdbShowLogs) {
+              // ignore: avoid_print
+              print('cursor reading $ref');
+            }
+          })
+          .asFuture<void>();
       accessPosition += count;
       return count;
     } else {
       var txn = database.writeAllTransactionList();
 
-      var result =
-          await fsIdb.txnReadCheckNodeFileContent(txn, file, fileEntity);
+      var result = await fsIdb.txnReadCheckNodeFileContent(
+        txn,
+        file,
+        fileEntity,
+      );
       fileEntity = result.entity;
       var bytes = result.content;
       var remaining = bytes.length - accessPosition;
@@ -252,16 +266,22 @@ class RandomAccessFileIdb
         if (length < accessFileSize) {
           var txn = database.transaction(treeStoreName, idb.idbModeReadWrite);
 
-          fileEntity = await storage.txnUpdateFileMetaSize(txn, fileEntity,
-              size: length);
+          fileEntity = await storage.txnUpdateFileMetaSize(
+            txn,
+            fileEntity,
+            size: length,
+          );
           accessFileSize = length;
         }
         // Keep position
         // await fsIdb.txnWriteNodeFileContent(txn, fileEntity, bytes);
       } else {
         var txn = database.writeAllTransactionList();
-        var result =
-            await fsIdb.txnReadCheckNodeFileContent(txn, file, fileEntity);
+        var result = await fsIdb.txnReadCheckNodeFileContent(
+          txn,
+          file,
+          fileEntity,
+        );
         fileEntity = result.entity;
         var bytes = result.content;
 
@@ -271,12 +291,16 @@ class RandomAccessFileIdb
           } else {
             var bytesBuilder = BytesBuilder();
             bytesBuilder.add(bytes);
-            bytesBuilder
-                .add(List.generate(length - bytes.length, (index) => 0));
+            bytesBuilder.add(
+              List.generate(length - bytes.length, (index) => 0),
+            );
             bytes = bytesBuilder.toBytes();
           }
-          fileEntity =
-              await fsIdb.txnWriteNodeFileContent(txn, fileEntity, bytes);
+          fileEntity = await fsIdb.txnWriteNodeFileContent(
+            txn,
+            fileEntity,
+            bytes,
+          );
           accessFileSize = fileEntity.fileSize;
         }
       }
@@ -293,8 +317,11 @@ class RandomAccessFileIdb
   final pending = <FilePartResult>[];
 
   @override
-  Future<RandomAccessFile> writeFrom(List<int> buffer,
-      [int start = 0, int? end]) async {
+  Future<RandomAccessFile> writeFrom(
+    List<int> buffer, [
+    int start = 0,
+    int? end,
+  ]) async {
     return await positionLock.synchronized(() async {
       var result = await doWriteFrom(buffer, start, end ?? buffer.length);
       if (!noAsyncFlush) {
@@ -322,7 +349,10 @@ class RandomAccessFileIdb
 
   /// Do write content at current position, skippend buffer from start
   Future<RandomAccessFile> doWriteFrom(
-      List<int> buffer, int start, int end) async {
+    List<int> buffer,
+    int start,
+    int end,
+  ) async {
     idb.Transaction? txn;
     if (fileEntity.hasPageSize) {
       // Add blank if needed
@@ -334,11 +364,12 @@ class RandomAccessFileIdb
       }
 
       var result = filePartHelper.getFileParts(
-          bytes: buffer,
-          start: start,
-          end: end,
-          position: accessPosition,
-          all: true);
+        bytes: buffer,
+        start: start,
+        end: end,
+        position: accessPosition,
+        all: true,
+      );
       pending.add(result);
       accessPosition = result.position;
       accessFileSize = max(accessPosition, accessFileSize);
@@ -348,8 +379,11 @@ class RandomAccessFileIdb
       try {
         txn = fsIdb.writeAllTransactionList();
 
-        var result =
-            await fsIdb.txnReadCheckNodeFileContent(txn, file, fileEntity);
+        var result = await fsIdb.txnReadCheckNodeFileContent(
+          txn,
+          file,
+          fileEntity,
+        );
         fileEntity = result.entity;
         var bytes = result.content;
         var bytesBuilder = BytesBuilder();
@@ -369,8 +403,11 @@ class RandomAccessFileIdb
         }
         var newBytes = bytesBuilder.toBytes();
 
-        fileEntity =
-            await fsIdb.txnWriteNodeFileContent(txn, fileEntity, newBytes);
+        fileEntity = await fsIdb.txnWriteNodeFileContent(
+          txn,
+          fileEntity,
+          newBytes,
+        );
         accessFileSize = fileEntity.fileSize;
         return _me;
       } finally {
@@ -380,8 +417,10 @@ class RandomAccessFileIdb
   }
 
   @override
-  Future<RandomAccessFile> writeString(String string,
-      {Encoding encoding = utf8}) async {
+  Future<RandomAccessFile> writeString(
+    String string, {
+    Encoding encoding = utf8,
+  }) async {
     var bytes = asUint8List(encoding.encode(string));
     return await writeFrom(bytes);
   }

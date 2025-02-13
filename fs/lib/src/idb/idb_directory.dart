@@ -19,16 +19,16 @@ class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
 
   @override
   Future<IdbDirectory> rename(String newPath) {
-    return super
-        .fs
+    return super.fs
         .rename(type, path, newPath)
         .then((_) => IdbDirectory(super.fs, newPath));
   }
 
   @override
-  Stream<IdbFileSystemEntity> list(
-          {bool recursive = false, bool followLinks = true}) =>
-      super.fs.list(path, recursive: recursive, followLinks: followLinks);
+  Stream<IdbFileSystemEntity> list({
+    bool recursive = false,
+    bool followLinks = true,
+  }) => super.fs.list(path, recursive: recursive, followLinks: followLinks);
 
   @override
   IdbDirectory get absolute =>

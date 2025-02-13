@@ -59,15 +59,19 @@ class IoRandomAccessFile with DefaultRandomAccessFileMixin {
       ioWrapCall(() => ioRandomAccessFile.writeByte(value)).then(_wrap);
 
   @override
-  Future<RandomAccessFile> writeFrom(List<int> buffer,
-          [int start = 0, int? end]) =>
-      ioWrapCall(() => ioRandomAccessFile.writeFrom(buffer, start, end))
-          .then(_wrap);
+  Future<RandomAccessFile> writeFrom(
+    List<int> buffer, [
+    int start = 0,
+    int? end,
+  ]) => ioWrapCall(
+    () => ioRandomAccessFile.writeFrom(buffer, start, end),
+  ).then(_wrap);
 
   @override
-  Future<RandomAccessFile> writeString(String string,
-          {Encoding encoding = utf8}) =>
-      ioWrapCall(
-              () => ioRandomAccessFile.writeString(string, encoding: encoding))
-          .then(_wrap);
+  Future<RandomAccessFile> writeString(
+    String string, {
+    Encoding encoding = utf8,
+  }) => ioWrapCall(
+    () => ioRandomAccessFile.writeString(string, encoding: encoding),
+  ).then(_wrap);
 }

@@ -8,9 +8,10 @@ FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) =>
     _stub('getFileSystemWeb', 'use `fileSystemIo`');
 
 ///
-FileSystem newFileSystemWeb(
-        {required String name, FileSystemIdbOptions? options}) =>
-    _stub('newFileSystemWeb', 'use `fileSystemIo`');
+FileSystem newFileSystemWeb({
+  required String name,
+  FileSystemIdbOptions? options,
+}) => _stub('newFileSystemWeb', 'use `fileSystemIo`');
 
 T _stub<T>(String function, String message) {
   throw UnimplementedError('$function not supported on it. $message');

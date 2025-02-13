@@ -75,7 +75,8 @@ T ioWrapCallSync<T>(T Function() action) {
 }
 
 fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
-    io.FileSystemEntityType type) {
+  io.FileSystemEntityType type,
+) {
   switch (type) {
     case io.FileSystemEntityType.file:
       return fs.FileSystemEntityType.file;
@@ -91,7 +92,8 @@ fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
 }
 
 io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
-    fs.FileSystemEntityType type) {
+  fs.FileSystemEntityType type,
+) {
   switch (type) {
     case fs.FileSystemEntityType.file:
       return io.FileSystemEntityType.file;
@@ -134,13 +136,17 @@ class IoWriteFileSink implements StreamSink<Uint8List> {
 class IoReadFileStreamCtrl {
   IoReadFileStreamCtrl(this.ioStream) {
     _ctlr = StreamController();
-    ioStream.listen((Uint8List data) {
-      _ctlr.add(data);
-    }, onError: (Object error, StackTrace stackTrace) {
-      _ctlr.addError(ioWrapError(error));
-    }, onDone: () {
-      _ctlr.close();
-    });
+    ioStream.listen(
+      (Uint8List data) {
+        _ctlr.add(data);
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        _ctlr.addError(ioWrapError(error));
+      },
+      onDone: () {
+        _ctlr.close();
+      },
+    );
   }
 
   Stream<Uint8List> ioStream;

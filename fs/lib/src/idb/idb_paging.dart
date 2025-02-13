@@ -50,8 +50,12 @@ class FilePartHelper {
   idb.KeyRange getPartsRange(int fileId, int start, int end) {
     var indexStart = pageIndexFromPosition(start);
     var indexEnd = endPageIndexFromPosition(end);
-    return idb.KeyRange.bound(toFilePartIndexKey(fileId, indexStart),
-        toFilePartIndexKey(fileId, indexEnd), false, true);
+    return idb.KeyRange.bound(
+      toFilePartIndexKey(fileId, indexStart),
+      toFilePartIndexKey(fileId, indexEnd),
+      false,
+      true,
+    );
   }
 
   /// Add the whole bytes at position
@@ -62,12 +66,13 @@ class FilePartHelper {
   /// [end] index
   ///
   /// [position] is the absolute file index.
-  FilePartResult getFileParts(
-      {required List<int> bytes,
-      int position = 0,
-      int start = 0,
-      bool all = false,
-      int? end}) {
+  FilePartResult getFileParts({
+    required List<int> bytes,
+    int position = 0,
+    int start = 0,
+    bool all = false,
+    int? end,
+  }) {
     // index in bytes
     var srcIndex = start;
     end ??= bytes.length;

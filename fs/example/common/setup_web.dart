@@ -4,8 +4,9 @@ import 'setup.dart';
 web.HTMLPreElement? outElement;
 
 void doPrint(Object? msg) {
-  outElement = (outElement ??
-      web.document.querySelector('#output') as web.HTMLPreElement);
+  outElement =
+      (outElement ??
+          web.document.querySelector('#output') as web.HTMLPreElement);
   outElement!.text = '${outElement!.textContent}$msg\n';
 }
 

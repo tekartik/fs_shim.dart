@@ -6,14 +6,16 @@ import 'package:path/path.dart';
 import 'package:web/web.dart' as web;
 
 // 16Kb page default
-final fs =
-    fileSystemWeb.withIdbOptions(options: FileSystemIdbOptions.pageDefault);
+final fs = fileSystemWeb.withIdbOptions(
+  options: FileSystemIdbOptions.pageDefault,
+);
 
 web.HTMLPreElement? outElement;
 
 void print(Object? msg) {
-  outElement = (outElement ??
-      web.document.querySelector('#output') as web.HTMLPreElement);
+  outElement =
+      (outElement ??
+          web.document.querySelector('#output') as web.HTMLPreElement);
   outElement!.text = '${outElement!.textContent}$msg\n';
 }
 

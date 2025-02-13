@@ -61,15 +61,20 @@ abstract class RandomAccessFile {
   ///
   /// Returns a `Future<RandomAccessFile>` that completes with this
   /// [RandomAccessFile] when the write completes.
-  Future<RandomAccessFile> writeFrom(List<int> buffer,
-      [int start = 0, int? end]);
+  Future<RandomAccessFile> writeFrom(
+    List<int> buffer, [
+    int start = 0,
+    int? end,
+  ]);
 
   /// Writes a string to the file using the given [Encoding].
   ///
   /// Returns a `Future<RandomAccessFile>` that completes with this
   /// random access file when the write completes.
-  Future<RandomAccessFile> writeString(String string,
-      {Encoding encoding = utf8});
+  Future<RandomAccessFile> writeString(
+    String string, {
+    Encoding encoding = utf8,
+  });
 
   /// Gets the current byte position in the file.
   ///

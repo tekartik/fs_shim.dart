@@ -178,8 +178,11 @@ void defineTests(FileSystemTestContext ctx) {
       } on FileSystemException catch (e) {
         expect(isIoWindows(ctx), isTrue);
         //   [17] FileSystemException: Rename failed, path = 'D:\a\fs_shim.dart\fs_shim.dart\fs\.dart_tool\fs_shim\test\test12\dir' (OS Error: Cannot create a file when that file already exists.
-        expect(e.status == FileSystemException.statusAlreadyExists, isTrue,
-            reason: e.toString());
+        expect(
+          e.status == FileSystemException.statusAlreadyExists,
+          isTrue,
+          reason: e.toString(),
+        );
       }
     });
 
@@ -202,10 +205,11 @@ void defineTests(FileSystemTestContext ctx) {
         //expect(e.status, FileSystemException.statusNotEmpty);
         // travis returns 17!
         expect(
-            e.status == FileSystemException.statusNotEmpty ||
-                e.status == FileSystemException.statusAlreadyExists,
-            isTrue,
-            reason: e.toString());
+          e.status == FileSystemException.statusNotEmpty ||
+              e.status == FileSystemException.statusAlreadyExists,
+          isTrue,
+          reason: e.toString(),
+        );
       }
     });
 
@@ -293,11 +297,14 @@ void defineTests(FileSystemTestContext ctx) {
 
       final subDir = fs.directory(fs.path.join(dir.path, 'sub'));
       final subSubDir = fs.directory(fs.path.join(subDir.path, 'subsub'));
-      final subSubSubDir =
-          fs.directory(fs.path.join(subSubDir.path, 'subsubsub'));
+      final subSubSubDir = fs.directory(
+        fs.path.join(subSubDir.path, 'subsubsub'),
+      );
 
       expect(
-          await (await subSubSubDir.create(recursive: true)).exists(), isTrue);
+        await (await subSubSubDir.create(recursive: true)).exists(),
+        isTrue,
+      );
       expect(await subDir.exists(), isTrue);
       expect(await subSubDir.exists(), isTrue);
 
@@ -337,7 +344,9 @@ void defineTests(FileSystemTestContext ctx) {
     }
 
     FileSystemEntity? getInList(
-        List<FileSystemEntity> list, FileSystemEntity entity) {
+      List<FileSystemEntity> list,
+      FileSystemEntity entity,
+    ) {
       for (var i = 0; i < list.length; i++) {
         if (list[i].path == entity.path) {
           return list[i];

@@ -23,10 +23,14 @@ void main() {
   // if (devWarning(false)) {
   fsIdbMultiFormatGroup(idbFactoryMemory);
   fsIdbFormatGroup(idbFactoryMemory);
-  fsIdbFormatGroup(idbFactoryMemory,
-      options: const FileSystemIdbOptions(pageSize: 2));
-  fsIdbFormatGroup(idbFactoryMemory,
-      options: const FileSystemIdbOptions(pageSize: 1024));
+  fsIdbFormatGroup(
+    idbFactoryMemory,
+    options: const FileSystemIdbOptions(pageSize: 2),
+  );
+  fsIdbFormatGroup(
+    idbFactoryMemory,
+    options: const FileSystemIdbOptions(pageSize: 1024),
+  );
   //}
 }
 
@@ -37,8 +41,11 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
     setUp(() async {
       var dbName = 'idb_format_2_bytes_${_dbNameIndex++}.db';
       await idbFactory.deleteDatabase(dbName);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
+      fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
     });
 
     tearDown(() async {
@@ -63,8 +70,8 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [104]
-        }
+          'content': [104],
+        },
       ]);
       expect(await file.readAsString(), 'h');
       await raf.writeString('ello');
@@ -88,13 +95,13 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3, 4]
-        }
+          'content': [3, 4],
+        },
       ]);
       await raf.close();
     });
@@ -113,13 +120,13 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3]
-        }
+          'content': [3],
+        },
       ]);
       await raf.close();
     });
@@ -136,30 +143,30 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3, 4]
+          'content': [3, 4],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [5]
-        }
+          'content': [5],
+        },
       ]);
       await raf.close();
       expect(await getPartEntries(fs.database), [
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3]
+          'content': [3],
         },
       ]);
     });
@@ -181,117 +188,133 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
   });
   group('multi format', () {
     test(
-        'random access open no page, append pageSize 2 bytes then 4 bytes then 2 bytes',
-        () async {
-      // debugIdbShowLogs = devWarning(true);
-      var dbName = 'multi_format.db';
-      await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: FileSystemIdbOptions.noPage);
-      var file = fs.file('test.txt');
-      var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
-      await raf.writeString('hello');
-      await raf.close();
-      fs.close();
-      var db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), isEmpty);
-      expect(await getFileEntries(db), [
-        {
-          'key': 2,
-          'value': [104, 101, 108, 108, 111]
-        }
-      ]);
+      'random access open no page, append pageSize 2 bytes then 4 bytes then 2 bytes',
+      () async {
+        // debugIdbShowLogs = devWarning(true);
+        var dbName = 'multi_format.db';
+        await idbFactory.deleteDatabase(dbName);
+        var fs = IdbFileSystem(
+          idbFactory,
+          dbName,
+          options: FileSystemIdbOptions.noPage,
+        );
+        var file = fs.file('test.txt');
+        var raf = await file.open(mode: FileMode.write) as RandomAccessFileIdb;
+        await raf.writeString('hello');
+        await raf.close();
+        fs.close();
+        var db = await idbFactory.open(dbName);
+        expect(await getPartEntries(db), isEmpty);
+        expect(await getFileEntries(db), [
+          {
+            'key': 2,
+            'value': [104, 101, 108, 108, 111],
+          },
+        ]);
 
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
-      file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
-      await raf.close();
-      fs.close();
-      db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), [
-        {
-          'index': 0,
-          'file': 2,
-          'content': [104, 101]
-        },
-        {
-          'index': 1,
-          'file': 2,
-          'content': [108, 108]
-        },
-        {
-          'index': 2,
-          'file': 2,
-          'content': [111]
-        },
-      ]);
+        fs = IdbFileSystem(
+          idbFactory,
+          dbName,
+          options: const FileSystemIdbOptions(pageSize: 2),
+        );
+        file = fs.file('test.txt');
+        raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
+        await raf.close();
+        fs.close();
+        db = await idbFactory.open(dbName);
+        expect(await getPartEntries(db), [
+          {
+            'index': 0,
+            'file': 2,
+            'content': [104, 101],
+          },
+          {
+            'index': 1,
+            'file': 2,
+            'content': [108, 108],
+          },
+          {
+            'index': 2,
+            'file': 2,
+            'content': [111],
+          },
+        ]);
 
-      expect(await getFileEntries(db), isEmpty);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
-      file = fs.file('test.txt');
-      raf = (await file.open(mode: FileMode.append)) as RandomAccessFileIdb;
-      // ignore: invalid_use_of_protected_member
-      raf.noAsyncFlush = true;
-      await raf.writeString('world');
-      expect(await file.readAsString(), 'hello');
-      await raf.flush();
-      expect(await file.readAsString(), 'helloworld');
+        expect(await getFileEntries(db), isEmpty);
+        fs = IdbFileSystem(
+          idbFactory,
+          dbName,
+          options: const FileSystemIdbOptions(pageSize: 2),
+        );
+        file = fs.file('test.txt');
+        raf = (await file.open(mode: FileMode.append)) as RandomAccessFileIdb;
+        // ignore: invalid_use_of_protected_member
+        raf.noAsyncFlush = true;
+        await raf.writeString('world');
+        expect(await file.readAsString(), 'hello');
+        await raf.flush();
+        expect(await file.readAsString(), 'helloworld');
 
-      await raf.close();
-      expect(await file.readAsString(), 'helloworld');
-      fs.close();
-      db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), [
-        {
-          'index': 0,
-          'file': 2,
-          'content': [104, 101]
-        },
-        {
-          'index': 1,
-          'file': 2,
-          'content': [108, 108]
-        },
-        {
-          'index': 2,
-          'file': 2,
-          'content': [111, 119]
-        },
-        {
-          'index': 3,
-          'file': 2,
-          'content': [111, 114]
-        },
-        {
-          'index': 4,
-          'file': 2,
-          'content': [108, 100]
-        }
-      ]);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: FileSystemIdbOptions.noPage);
-      file = fs.file('test.txt');
-      raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
-      await raf.close();
-      expect(await file.readAsString(), 'helloworld');
-      fs.close();
-      db = await idbFactory.open(dbName);
-      expect(await getPartEntries(db), isEmpty);
-      expect(await getFileEntries(db), [
-        {
-          'key': 2,
-          'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100]
-        }
-      ]);
-    });
+        await raf.close();
+        expect(await file.readAsString(), 'helloworld');
+        fs.close();
+        db = await idbFactory.open(dbName);
+        expect(await getPartEntries(db), [
+          {
+            'index': 0,
+            'file': 2,
+            'content': [104, 101],
+          },
+          {
+            'index': 1,
+            'file': 2,
+            'content': [108, 108],
+          },
+          {
+            'index': 2,
+            'file': 2,
+            'content': [111, 119],
+          },
+          {
+            'index': 3,
+            'file': 2,
+            'content': [111, 114],
+          },
+          {
+            'index': 4,
+            'file': 2,
+            'content': [108, 100],
+          },
+        ]);
+        fs = IdbFileSystem(
+          idbFactory,
+          dbName,
+          options: FileSystemIdbOptions.noPage,
+        );
+        file = fs.file('test.txt');
+        raf = await file.open(mode: FileMode.append) as RandomAccessFileIdb;
+        await raf.close();
+        expect(await file.readAsString(), 'helloworld');
+        fs.close();
+        db = await idbFactory.open(dbName);
+        expect(await getPartEntries(db), isEmpty);
+        expect(await getFileEntries(db), [
+          {
+            'key': 2,
+            'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100],
+          },
+        ]);
+      },
+    );
     test('stream access open no page, append pageSize 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'multi_format_stream.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: FileSystemIdbOptions.noPage);
+      var fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: FileSystemIdbOptions.noPage,
+      );
       var file = fs.file('test.txt');
       var raf = file.openWrite(mode: FileMode.write);
       raf.add(utf8.encode('hello'));
@@ -302,12 +325,15 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await getFileEntries(db), [
         {
           'key': 2,
-          'value': [104, 101, 108, 108, 111]
-        }
+          'value': [104, 101, 108, 108, 111],
+        },
       ]);
 
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
+      fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
       file = fs.file('test.txt');
       raf = file.openWrite(mode: FileMode.append);
       await raf.close();
@@ -317,23 +343,26 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [104, 101]
+          'content': [104, 101],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [108, 108]
+          'content': [108, 108],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [111]
+          'content': [111],
         },
       ]);
 
       expect(await getFileEntries(db), isEmpty);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
+      fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
       file = fs.file('test.txt');
       raf = file.openWrite(mode: FileMode.append);
       raf.add(utf8.encode('world'));
@@ -345,31 +374,34 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [104, 101]
+          'content': [104, 101],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [108, 108]
+          'content': [108, 108],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [111, 119]
+          'content': [111, 119],
         },
         {
           'index': 3,
           'file': 2,
-          'content': [111, 114]
+          'content': [111, 114],
         },
         {
           'index': 4,
           'file': 2,
-          'content': [108, 100]
-        }
+          'content': [108, 100],
+        },
       ]);
-      fs = IdbFileSystem(idbFactory, dbName,
-          options: FileSystemIdbOptions.noPage);
+      fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: FileSystemIdbOptions.noPage,
+      );
       file = fs.file('test.txt');
       raf = file.openWrite(mode: FileMode.append);
       await raf.close();
@@ -380,16 +412,19 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await getFileEntries(db), [
         {
           'key': 2,
-          'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100]
-        }
+          'value': [104, 101, 108, 108, 111, 119, 111, 114, 108, 100],
+        },
       ]);
     });
     test('sink access writeBytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'stream_access_write_bytes.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
+      var fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
       var file = fs.file('test.');
 
       final ctlr = IdbWriteStreamSink(file, FileMode.write);
@@ -409,21 +444,24 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [1, 2]
+          'content': [1, 2],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [3, 4]
-        }
+          'content': [3, 4],
+        },
       ]);
     });
     test('stream access 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'stream_access_2.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
+      var fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
       var file = fs.file('test.txt');
       await file.writeAsString('helloworld');
 
@@ -431,29 +469,35 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await ctlr.stream.toList(), [
         [101],
         [108, 108],
-        [111]
+        [111],
       ]);
     });
     test('stream access 1024 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'stream_access_2.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 1024));
+      var fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 1024),
+      );
       var file = fs.file('test.txt');
       await file.writeAsString('helloworld');
 
       final ctlr = IdbReadStreamCtlr(file, 1, 5);
       expect(await ctlr.stream.toList(), [
-        [101, 108, 108, 111]
+        [101, 108, 108, 111],
       ]);
     }, timeout: const Timeout(Duration(minutes: 2)));
     test('sink access 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'sink_access_2.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName,
-          options: const FileSystemIdbOptions(pageSize: 2));
+      var fs = IdbFileSystem(
+        idbFactory,
+        dbName,
+        options: const FileSystemIdbOptions(pageSize: 2),
+      );
       var file = fs.file('test.txt');
       var sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
       var bytes = utf8.encode('hello');
@@ -478,18 +522,18 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [104, 101]
+          'content': [104, 101],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [108, 108]
+          'content': [108, 108],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [111]
-        }
+          'content': [111],
+        },
       ]);
       // overwrite
       sink = file.openWrite(mode: FileMode.write) as IdbWriteStreamSink;
@@ -501,18 +545,18 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [104, 101]
+          'content': [104, 101],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [108, 108]
+          'content': [108, 108],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [111]
-        }
+          'content': [111],
+        },
       ]);
 
       sink.add(utf8.encode('o'));
@@ -522,18 +566,18 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [115, 111]
+          'content': [115, 111],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [108, 108]
+          'content': [108, 108],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [111]
-        }
+          'content': [111],
+        },
       ]);
       sink.add(utf8.encode('t'));
       await sink.flush();
@@ -541,30 +585,30 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         {
           'index': 0,
           'file': 2,
-          'content': [115, 111]
+          'content': [115, 111],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [116]
+          'content': [116],
         },
         {
           'index': 2,
           'file': 2,
-          'content': [111]
-        }
+          'content': [111],
+        },
       ]);
       await sink.close();
       expect(await getPartEntries(db), [
         {
           'index': 0,
           'file': 2,
-          'content': [115, 111]
+          'content': [115, 111],
         },
         {
           'index': 1,
           'file': 2,
-          'content': [116]
+          'content': [116],
         },
       ]);
 
@@ -582,8 +626,10 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
   });
 }
 
-void fsIdbFormatGroup(idb.IdbFactory idbFactory,
-    {FileSystemIdbOptions? options}) {
+void fsIdbFormatGroup(
+  idb.IdbFactory idbFactory, {
+  FileSystemIdbOptions? options,
+}) {
   group('idb_format', () {
     test('absolute text file', () async {
       // debugIdbShowLogs = devWarning(true);
@@ -605,8 +651,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
         expect(await getFileEntries(db), [
           {
             'key': 2,
-            'value': [116, 101, 115, 116]
-          }
+            'value': [116, 101, 115, 116],
+          },
         ]);
 
         expect(await getPartEntries(db), isEmpty);
@@ -620,8 +666,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'name': 'file',
               'keys': [2],
               'values': [
-                {'@Blob': 'dGVzdA=='}
-              ]
+                {'@Blob': 'dGVzdA=='},
+              ],
             },
             {
               'name': 'tree',
@@ -632,7 +678,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   'type': 'dir',
                   'modified': dirStat.modified.toUtc().toIso8601String(),
                   'size': 0,
-                  'pn': fs.path.separator
+                  'pn': fs.path.separator,
                 },
                 {
                   'name': 'file.txt',
@@ -641,10 +687,10 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   'modified': fileStat.modified.toUtc().toIso8601String(),
                   'size': 4,
                   'pn': fs.path.join('1', 'file.txt'),
-                }
-              ]
-            }
-          ]
+                },
+              ],
+            },
+          ],
         };
         expect(await getTreeEntries(db), [
           {
@@ -655,7 +701,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'modified': dirStat.modified.toIso8601String(),
               'size': 0,
               'pn': fs.path.separator,
-            }
+            },
           },
           {
             'key': 2,
@@ -665,9 +711,9 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'parent': 1,
               'modified': fileStat.modified.toIso8601String(),
               'size': 4,
-              'pn': fs.path.join('1', 'file.txt')
-            }
-          }
+              'pn': fs.path.join('1', 'file.txt'),
+            },
+          },
         ]);
 
         // devPrint(jsonPretty(exportMap));
@@ -679,21 +725,21 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
             {
               'index': 0,
               'file': 2,
-              'content': [116, 101]
+              'content': [116, 101],
             },
             {
               'index': 1,
               'file': 2,
-              'content': [115, 116]
-            }
+              'content': [115, 116],
+            },
           ]);
         } else {
           expect(await getPartEntries(db), [
             {
               'index': 0,
               'file': 2,
-              'content': [116, 101, 115, 116]
-            }
+              'content': [116, 101, 115, 116],
+            },
           ]);
         }
 
@@ -710,14 +756,14 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   {
                     'index': 0,
                     'file': 2,
-                    'content': {'@Blob': 'dGU='}
+                    'content': {'@Blob': 'dGU='},
                   },
                   {
                     'index': 1,
                     'file': 2,
-                    'content': {'@Blob': 'c3Q='}
-                  }
-                ]
+                    'content': {'@Blob': 'c3Q='},
+                  },
+                ],
               }
             else
               {
@@ -727,9 +773,9 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   {
                     'index': 0,
                     'file': 2,
-                    'content': {'@Blob': 'dGVzdA=='}
-                  }
-                ]
+                    'content': {'@Blob': 'dGVzdA=='},
+                  },
+                ],
               },
             {
               'name': 'tree',
@@ -740,7 +786,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   'type': 'dir',
                   'modified': dirStat.modified.toUtc().toIso8601String(),
                   'size': 0,
-                  'pn': fs.path.separator
+                  'pn': fs.path.separator,
                 },
                 {
                   'name': 'file.txt',
@@ -750,10 +796,10 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   'size': 4,
                   if (options?.hasPageSize ?? false) 'ps': options?.pageSize,
                   'pn': fs.path.join('1', 'file.txt'),
-                }
-              ]
-            }
-          ]
+                },
+              ],
+            },
+          ],
         };
         expect(await getTreeEntries(db), [
           {
@@ -764,7 +810,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'modified': dirStat.modified.toIso8601String(),
               'size': 0,
               'pn': fs.path.separator,
-            }
+            },
           },
           {
             'key': 2,
@@ -775,9 +821,9 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'modified': fileStat.modified.toIso8601String(),
               'size': 4,
               if (options?.hasPageSize ?? false) 'ps': options?.pageSize,
-              'pn': fs.path.join('1', 'file.txt')
-            }
-          }
+              'pn': fs.path.join('1', 'file.txt'),
+            },
+          },
         ]);
 
         // devPrint(jsonPretty(exportMap));
@@ -789,8 +835,11 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
       var dbName = 'import_v_current.sdb';
       // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
       await idbFactory.deleteDatabase(dbName);
-      var db =
-          await sdbImportDatabase(exportMapOneFileCurrent, idbFactory, dbName);
+      var db = await sdbImportDatabase(
+        exportMapOneFileCurrent,
+        idbFactory,
+        dbName,
+      );
       expect(await sdbExportDatabase(db), exportMapOneFileCurrent);
       db.close();
 
@@ -831,7 +880,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
             'modified': '2020-10-31T23:27:05.073',
             'size': 0,
             'pn': fs.path.separator,
-          }
+          },
         },
         {
           'key': 2,
@@ -841,9 +890,9 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
             'parent': 1,
             'modified': modified.toUtc().toIso8601String(),
             'size': 4,
-            'pn': fs.path.join('1', 'file.txt')
-          }
-        }
+            'pn': fs.path.join('1', 'file.txt'),
+          },
+        },
       ]);
 
       fs.close();
@@ -874,8 +923,9 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
         //expect(db.objectStoreNames.toSet(), {'file', 'tree'});
         var txn = db.transaction(['file', 'tree'], idbModeReadOnly);
         var treeObjectStore = txn.objectStore('tree');
-        var list =
-            await cursorToList(treeObjectStore.openCursor(autoAdvance: true));
+        var list = await cursorToList(
+          treeObjectStore.openCursor(autoAdvance: true),
+        );
         expect(list.map((row) => {'key': row.key, 'value': row.value}), [
           {
             'key': 1,
@@ -885,7 +935,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'modified': dirStat.modified.toIso8601String(),
               'size': 0,
               'pn': fs.path.separator,
-            }
+            },
           },
           {
             'key': 2,
@@ -895,18 +945,19 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'parent': 1,
               'modified': fileStat.modified.toIso8601String(),
               'size': 4,
-              'pn': fs.path.join('1', 'file.txt')
-            }
-          }
+              'pn': fs.path.join('1', 'file.txt'),
+            },
+          },
         ]);
         var fileObjectStore = txn.objectStore('file');
-        list =
-            await cursorToList(fileObjectStore.openCursor(autoAdvance: true));
+        list = await cursorToList(
+          fileObjectStore.openCursor(autoAdvance: true),
+        );
         expect(list.map((row) => {'key': row.key, 'value': row.value}), [
           {
             'key': 2,
-            'value': Uint8List.fromList([116, 101, 115, 116])
-          }
+            'value': Uint8List.fromList([116, 101, 115, 116]),
+          },
         ]);
         var exportMap = {
           'sembast_export': 1,
@@ -917,8 +968,8 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
               'name': 'file',
               'keys': [2],
               'values': [
-                {'@Blob': 'dGVzdA=='}
-              ]
+                {'@Blob': 'dGVzdA=='},
+              ],
             },
             {
               'name': 'tree',
@@ -929,7 +980,7 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   'type': 'dir',
                   'modified': dirStat.modified.toIso8601String(),
                   'size': 0,
-                  'pn': fs.path.separator
+                  'pn': fs.path.separator,
                 },
                 {
                   'name': 'file.txt',
@@ -938,10 +989,10 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
                   'modified': fileStat.modified.toIso8601String(),
                   'size': 4,
                   'pn': fs.path.join('1', 'file.txt'),
-                }
-              ]
-            }
-          ]
+                },
+              ],
+            },
+          ],
         };
         expect(await sdbExportDatabase(db), exportMap);
         db.close();
@@ -1004,16 +1055,19 @@ void fsIdbFormatGroup(idb.IdbFactory idbFactory,
 
 Future<void> fsCheckComplex1(FileSystem fs) async {
   expect(
-      await fs
-          .file(fs.path.join('dir1', 'sub2', 'nested1', 'file3.bin'))
-          .readAsBytes(),
-      [1, 2, 3]);
+    await fs
+        .file(fs.path.join('dir1', 'sub2', 'nested1', 'file3.bin'))
+        .readAsBytes(),
+    [1, 2, 3],
+  );
   expect(
-      await fs.file(fs.path.join('dir1', 'sub1', 'file2.text')).readAsString(),
-      'test2');
+    await fs.file(fs.path.join('dir1', 'sub1', 'file2.text')).readAsString(),
+    'test2',
+  );
   expect(
-      await fs.file(fs.path.join('dir1', 'sub1', 'file1.text')).readAsBytes(),
-      [116, 101, 115, 116, 49]);
+    await fs.file(fs.path.join('dir1', 'sub1', 'file1.text')).readAsBytes(),
+    [116, 101, 115, 116, 49],
+  );
 }
 
 var exportMapOneFileCurrent = exportMapOneFileV2;

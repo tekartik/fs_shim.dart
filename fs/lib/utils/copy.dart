@@ -27,9 +27,11 @@ export 'src/utils_impl.dart'
 ///
 /// returns dst directory
 ///
-Future<Directory> copyDirectory(Directory src, Directory? dst,
-        {CopyOptions? options}) =>
-    utils_impl.copyDirectory(src, dst, options: options);
+Future<Directory> copyDirectory(
+  Directory src,
+  Directory? dst, {
+  CopyOptions? options,
+}) => utils_impl.copyDirectory(src, dst, options: options);
 
 /// Copy a file.
 Future<File> copyFile(File src, File dst, {CopyOptions? options}) =>
@@ -38,16 +40,19 @@ Future<File> copyFile(File src, File dst, {CopyOptions? options}) =>
 ///
 /// List the files to be copied
 ///
-Future<List<File>> copyDirectoryListFiles(Directory src,
-        {CopyOptions? options}) =>
-    utils_impl.copyDirectoryListFiles(src, options: options);
+Future<List<File>> copyDirectoryListFiles(
+  Directory src, {
+  CopyOptions? options,
+}) => utils_impl.copyDirectoryListFiles(src, options: options);
 // Future<Link> copyLink(Link src, Link dst, {CopyOptions options}) => _impl.copyLink(src, dst, options: options);
 
 /// Copy a file or a directory
 @Deprecated('User copyDirectory or copyFile')
 Future<FileSystemEntity> copyFileSystemEntity(
-    FileSystemEntity src, FileSystemEntity dst,
-    {CopyOptions? options}) {
+  FileSystemEntity src,
+  FileSystemEntity dst, {
+  CopyOptions? options,
+}) {
   options ??= CopyOptions(); // old behavior will change!
   return utils_impl.copyFileSystemEntity(src, dst, options: options);
 }
@@ -74,15 +79,16 @@ class CopyOptions extends Object
   bool tryToLinkDir; // not supported yet
 
   /// Copy options.
-  CopyOptions(
-      {bool recursive = false,
-      this.checkSizeAndModifiedDate = false,
-      this.tryToLinkFile = false,
-      this.tryToLinkDir = false,
-      bool followLinks = true,
-      bool delete = false,
-      List<String>? include,
-      List<String>? exclude}) {
+  CopyOptions({
+    bool recursive = false,
+    this.checkSizeAndModifiedDate = false,
+    this.tryToLinkFile = false,
+    this.tryToLinkDir = false,
+    bool followLinks = true,
+    bool delete = false,
+    List<String>? include,
+    List<String>? exclude,
+  }) {
     this.recursive = recursive;
     this.delete = delete;
     this.exclude = exclude;
@@ -91,15 +97,16 @@ class CopyOptions extends Object
   }
 
   /// Clone options.
-  CopyOptions get clone => CopyOptions()
-    ..recursive = recursive
-    ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
-    ..tryToLinkFile = tryToLinkFile
-    ..tryToLinkDir = tryToLinkDir
-    ..followLinks = followLinks
-    ..delete = delete
-    ..exclude = exclude
-    ..include = include;
+  CopyOptions get clone =>
+      CopyOptions()
+        ..recursive = recursive
+        ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
+        ..tryToLinkFile = tryToLinkFile
+        ..tryToLinkDir = tryToLinkDir
+        ..followLinks = followLinks
+        ..delete = delete
+        ..exclude = exclude
+        ..include = include;
 }
 
 /// Only copy if date is new.
@@ -107,7 +114,10 @@ CopyOptions get copyNewerOptions => CopyOptions(checkSizeAndModifiedDate: true);
 
 /// Only link (or copy if not possible) new files.
 CopyOptions get recursiveLinkOrCopyNewerOptions => CopyOptions(
-    recursive: true, checkSizeAndModifiedDate: true, tryToLinkFile: true);
+  recursive: true,
+  checkSizeAndModifiedDate: true,
+  tryToLinkFile: true,
+);
 
 /// Default clone tries to link first.
 CopyOptions get defaultCloneOptions => CopyOptions(tryToLinkFile: true);
@@ -127,14 +137,15 @@ Future deleteFile(File file, {DeleteOptions? options}) =>
 class CreateOptions extends Object
     with OptionsDeleteMixin, OptionsRecursiveMixin {
   /// Clone the options.
-  CreateOptions get clone => CreateOptions()
-    ..delete = delete
-    ..recursive = recursive;
+  CreateOptions get clone =>
+      CreateOptions()
+        ..delete = delete
+        ..recursive = recursive;
 }
 
 /// Default recursive create options.
-final CreateOptions defaultRecursiveCreateOptions = CreateOptions()
-  ..recursive = true;
+final CreateOptions defaultRecursiveCreateOptions =
+    CreateOptions()..recursive = true;
 
 /// recursive by default
 final CreateOptions defaultCreateOptions = defaultRecursiveCreateOptions;
@@ -160,15 +171,16 @@ class DeleteOptions extends Object
   }
 
   /// Create new options
-  DeleteOptions get clone => DeleteOptions()
-    ..recursive = recursive
-    ..followLinks = followLinks
-    ..create = create;
+  DeleteOptions get clone =>
+      DeleteOptions()
+        ..recursive = recursive
+        ..followLinks = followLinks
+        ..create = create;
 }
 
 /// Delete recursively options
-final DeleteOptions defaultRecursiveDeleteOptions = DeleteOptions()
-  ..recursive = true;
+final DeleteOptions defaultRecursiveDeleteOptions =
+    DeleteOptions()..recursive = true;
 
 /// Delete options default, delete recursively.
 final DeleteOptions defaultDeleteOptions = defaultRecursiveDeleteOptions;

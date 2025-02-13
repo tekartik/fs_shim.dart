@@ -9,8 +9,7 @@ import 'package:test/test.dart';
 
 class FileSystemTestContextIdbBrowser extends IdbFileSystemTestContext {
   @override
-  IdbFileSystem rawFsIdb = fileSystemIdb
-      as IdbFileSystem; // Needed for initialization (supportsLink)
+  IdbFileSystem rawFsIdb = fileSystemIdb as IdbFileSystem; // Needed for initialization (supportsLink)
   FileSystemTestContextIdbBrowser() {
     platform = platformContextBrowser;
   }

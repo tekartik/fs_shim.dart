@@ -4,9 +4,10 @@ import 'package:fs_shim/fs_idb.dart';
 FileSystem get fileSystemWeb => _stub('fileSystemWeb');
 
 /// Browser base file system With a custom indexed db
-FileSystem newFileSystemWeb(
-        {required String name, FileSystemIdbOptions? options}) =>
-    _stub('newFileSystemWeb');
+FileSystem newFileSystemWeb({
+  required String name,
+  FileSystemIdbOptions? options,
+}) => _stub('newFileSystemWeb');
 
 /// FileSystem with pageSize (default being 16Kb).
 FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) =>

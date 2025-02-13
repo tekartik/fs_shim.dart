@@ -82,21 +82,21 @@ var rawExportOneFileV2PageSize2 = {
             {
               'name': 'part_index',
               'keyPath': ['file', 'index'],
-              'unique': true
-            }
-          ]
+              'unique': true,
+            },
+          ],
         },
         {
           'name': 'tree',
           'autoIncrement': true,
           'indecies': [
             {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
         },
         ['file', 'part', 'tree'],
-        7
-      ]
+        7,
+      ],
     },
     {
       'name': 'part',
@@ -105,14 +105,14 @@ var rawExportOneFileV2PageSize2 = {
         {
           'index': 0,
           'file': 2,
-          'content': {'@Blob': 'dGU='}
+          'content': {'@Blob': 'dGU='},
         },
         {
           'index': 1,
           'file': 2,
-          'content': {'@Blob': 'c3Q='}
-        }
-      ]
+          'content': {'@Blob': 'c3Q='},
+        },
+      ],
     },
     {
       'name': 'tree',
@@ -123,7 +123,7 @@ var rawExportOneFileV2PageSize2 = {
           'type': 'dir',
           'modified': '2023-01-03T11:29:31.923123Z',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'file.txt',
@@ -132,11 +132,11 @@ var rawExportOneFileV2PageSize2 = {
           'parent': 1,
           'modified': '2023-01-03T11:29:31.923412Z',
           'size': 4,
-          'pn': '1/file.txt'
-        }
-      ]
-    }
-  ]
+          'pn': '1/file.txt',
+        },
+      ],
+    },
+  ],
 };
 
 var rawExportOneFilePageSize1024 = {
@@ -155,21 +155,21 @@ var rawExportOneFilePageSize1024 = {
             {
               'name': 'part_index',
               'keyPath': ['file', 'index'],
-              'unique': true
-            }
-          ]
+              'unique': true,
+            },
+          ],
         },
         {
           'name': 'tree',
           'autoIncrement': true,
           'indecies': [
             {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
         },
         ['file', 'part', 'tree'],
-        7
-      ]
+        7,
+      ],
     },
     {
       'name': 'part',
@@ -178,9 +178,9 @@ var rawExportOneFilePageSize1024 = {
         {
           'index': 0,
           'file': 2,
-          'content': {'@Blob': 'dGVzdA=='}
-        }
-      ]
+          'content': {'@Blob': 'dGVzdA=='},
+        },
+      ],
     },
     {
       'name': 'tree',
@@ -191,7 +191,7 @@ var rawExportOneFilePageSize1024 = {
           'type': 'dir',
           'modified': '2023-01-03T14:10:34.117682Z',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'file.txt',
@@ -200,11 +200,11 @@ var rawExportOneFilePageSize1024 = {
           'parent': 1,
           'modified': '2023-01-03T14:10:34.117891Z',
           'size': 4,
-          'pn': '1/file.txt'
-        }
-      ]
-    }
-  ]
+          'pn': '1/file.txt',
+        },
+      ],
+    },
+  ],
 };
 
 var rawExportOneFileV2PageSize0 = {
@@ -223,28 +223,28 @@ var rawExportOneFileV2PageSize0 = {
             {
               'name': 'part_index',
               'keyPath': ['file', 'index'],
-              'unique': true
-            }
-          ]
+              'unique': true,
+            },
+          ],
         },
         {
           'name': 'tree',
           'autoIncrement': true,
           'indecies': [
             {'name': 'parent', 'keyPath': 'parent'},
-            {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-          ]
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
         },
         ['file', 'part', 'tree'],
-        7
-      ]
+        7,
+      ],
     },
     {
       'name': 'file',
       'keys': [2],
       'values': [
-        {'@Blob': 'dGVzdA=='}
-      ]
+        {'@Blob': 'dGVzdA=='},
+      ],
     },
     {
       'name': 'tree',
@@ -255,7 +255,7 @@ var rawExportOneFileV2PageSize0 = {
           'type': 'dir',
           'modified': '2023-01-03T14:13:59.687055Z',
           'size': 0,
-          'pn': '/'
+          'pn': '/',
         },
         {
           'name': 'file.txt',
@@ -263,11 +263,11 @@ var rawExportOneFileV2PageSize0 = {
           'parent': 1,
           'modified': '2023-01-03T14:13:59.692498Z',
           'size': 4,
-          'pn': '1/file.txt'
-        }
-      ]
-    }
-  ]
+          'pn': '1/file.txt',
+        },
+      ],
+    },
+  ],
 };
 
 var mainStoreExportV2 = {
@@ -282,19 +282,19 @@ var mainStoreExportV2 = {
         {
           'name': 'part_index',
           'keyPath': ['file', 'index'],
-          'unique': true
-        }
-      ]
+          'unique': true,
+        },
+      ],
     },
     {
       'name': 'tree',
       'autoIncrement': true,
       'indecies': [
         {'name': 'parent', 'keyPath': 'parent'},
-        {'name': 'pn', 'keyPath': 'pn', 'unique': true}
-      ]
+        {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+      ],
     },
     ['file', 'part', 'tree'],
-    7
-  ]
+    7,
+  ],
 };

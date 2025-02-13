@@ -32,8 +32,11 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       final db = ctx.fs.db!;
       expect(db.version, 8);
       // If this fails, delete .dart_tool/fs_shim/test folder
-      expect(List<String>.from(db.objectStoreNames)..sort(),
-          ['file', 'part', 'tree']);
+      expect(List<String>.from(db.objectStoreNames)..sort(), [
+        'file',
+        'part',
+        'tree',
+      ]);
     });
 
     Future<int> getStoreSize(idb.Database db, String storeName) async {
@@ -96,9 +99,10 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       } else {
         expect(await getFileStoreSize(db), fileStoreSize);
         expect(
-            await getPartStoreSize(db),
-            partStoreSize +
-                pageCountFromSizeAndPageSize(4, ctx.fs.idbOptions.pageSize!));
+          await getPartStoreSize(db),
+          partStoreSize +
+              pageCountFromSizeAndPageSize(4, ctx.fs.idbOptions.pageSize!),
+        );
       }
 
       await file.delete();

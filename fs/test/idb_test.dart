@@ -8,15 +8,12 @@ void main() {
     group('Node', () {
       test('fromMap/toMap', () {
         var dateTextCompat = '2022-12-20T00:00:00.000';
-        var node = Node.fromMap(
-            null,
-            {
-              'name': '/',
-              'type': 'DIRECTORY',
-              'modified': dateTextCompat,
-              'ps': 1024
-            },
-            1);
+        var node = Node.fromMap(null, {
+          'name': '/',
+          'type': 'DIRECTORY',
+          'modified': dateTextCompat,
+          'ps': 1024,
+        }, 1);
         expect(node.type, FileSystemEntityType.directory);
         expect(node.modified, DateTime.tryParse(dateTextCompat));
         expect(node.pageSize, 1024);
@@ -25,7 +22,7 @@ void main() {
           'type': 'dir',
           'pn': '/',
           'ps': 1024,
-          'modified': node.modified!.toUtc().toIso8601String()
+          'modified': node.modified!.toUtc().toIso8601String(),
         });
 
         node = Node.fromMap(null, {'name': '/', 'type': 'dir'}, 1);
@@ -38,7 +35,7 @@ void main() {
           'name': '/',
           'type': 'dir',
           'pn': '/',
-          'modified': modified.toUtc().toIso8601String()
+          'modified': modified.toUtc().toIso8601String(),
         });
       });
     });
@@ -52,12 +49,18 @@ void main() {
       expect(typeFromStringCompat('DIRECTORY'), FileSystemEntityType.directory);
       expect(typeFromStringCompat('FILE'), FileSystemEntityType.file);
       expect(typeFromStringCompat('LINK'), FileSystemEntityType.link);
-      expect(typeFromStringCompat(FileSystemEntityType.directory.toString()),
-          FileSystemEntityType.directory);
-      expect(typeFromStringCompat(FileSystemEntityType.file.toString()),
-          FileSystemEntityType.file);
-      expect(typeFromStringCompat(FileSystemEntityType.link.toString()),
-          FileSystemEntityType.link);
+      expect(
+        typeFromStringCompat(FileSystemEntityType.directory.toString()),
+        FileSystemEntityType.directory,
+      );
+      expect(
+        typeFromStringCompat(FileSystemEntityType.file.toString()),
+        FileSystemEntityType.file,
+      );
+      expect(
+        typeFromStringCompat(FileSystemEntityType.link.toString()),
+        FileSystemEntityType.link,
+      );
       expect(typeFromStringCompat('dummy'), FileSystemEntityType.notFound);
     });
   });

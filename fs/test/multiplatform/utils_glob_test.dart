@@ -8,13 +8,19 @@ void main() {
   group('glob', () {
     void checkMatch(String expression, String name, Matcher matcher) {
       final glob = Glob(expression);
-      expect(glob.matches(toContextPath(p.url, name)), matcher,
-          reason: "'$glob' '$name'");
+      expect(
+        glob.matches(toContextPath(p.url, name)),
+        matcher,
+        reason: "'$glob' '$name'",
+      );
     }
 
     void checkPart(String? expression, String? name, Matcher matcher) {
-      expect(Glob.matchPart(expression, name), matcher,
-          reason: "'$expression' '$name'");
+      expect(
+        Glob.matchPart(expression, name),
+        matcher,
+        reason: "'$expression' '$name'",
+      );
     }
 
     test('equals', () {

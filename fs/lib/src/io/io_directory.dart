@@ -38,26 +38,32 @@ class DirectoryImpl extends FileSystemEntityImpl implements fs.Directory {
 
   @override
   Future<DirectoryImpl> create({bool recursive = false}) //
-      =>
-      ioWrap(ioDir!.create(recursive: recursive)).then(_ioThen);
+  => ioWrap(ioDir!.create(recursive: recursive)).then(_ioThen);
 
   @override
-  Future<DirectoryImpl> rename(String newPath) => ioWrap(ioDir!.rename(newPath))
-      .then((io.FileSystemEntity ioFileSystemEntity) =>
-          DirectoryImpl(ioFileSystemEntity.path));
+  Future<DirectoryImpl> rename(String newPath) =>
+      ioWrap(ioDir!.rename(newPath)).then(
+        (io.FileSystemEntity ioFileSystemEntity) =>
+            DirectoryImpl(ioFileSystemEntity.path),
+      );
 
   @override
-  Stream<FileSystemEntity> list(
-      {bool recursive = false, bool followLinks = true}) {
+  Stream<FileSystemEntity> list({
+    bool recursive = false,
+    bool followLinks = true,
+  }) {
     var ioStream = ioDir!.list(recursive: recursive, followLinks: followLinks);
 
     StreamSubscription<FileSystemEntity> transformer(
-        Stream<io.FileSystemEntity> input, bool cancelOnError) {
+      Stream<io.FileSystemEntity> input,
+      bool cancelOnError,
+    ) {
       late StreamController<FileSystemEntity> controller;
       //StreamSubscription<io.FileSystemEntity> subscription;
       controller = StreamController<FileSystemEntity>(
-          onListen: () {
-            input.listen((io.FileSystemEntity data) {
+        onListen: () {
+          input.listen(
+            (io.FileSystemEntity data) {
               // Duplicate the data.
               if (data is io.File) {
                 controller.add(FileImpl.io(data));
@@ -66,21 +72,30 @@ class DirectoryImpl extends FileSystemEntityImpl implements fs.Directory {
               } else if (data is io.Link) {
                 controller.add(LinkImpl.io(data));
               } else {
-                controller.addError(UnsupportedError(
-                    'type $data ${data.runtimeType} not supported'));
+                controller.addError(
+                  UnsupportedError(
+                    'type $data ${data.runtimeType} not supported',
+                  ),
+                );
               }
-            }, onError: (Object e) {
+            },
+            onError: (Object e) {
               // Important here to wrap the error
               controller.addError(ioWrapError(e));
-            }, onDone: controller.close, cancelOnError: cancelOnError);
-          },
-          sync: true);
+            },
+            onDone: controller.close,
+            cancelOnError: cancelOnError,
+          );
+        },
+        sync: true,
+      );
       return controller.stream.listen(null);
     }
 
     // as Stream<io.FileSystemEntity, FileSystemEntity>;
     return ioStream.transform(
-        StreamTransformer<io.FileSystemEntity, FileSystemEntity>(transformer));
+      StreamTransformer<io.FileSystemEntity, FileSystemEntity>(transformer),
+    );
   }
 
   @override

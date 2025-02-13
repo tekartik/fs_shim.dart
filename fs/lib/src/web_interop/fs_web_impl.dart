@@ -6,10 +6,13 @@ import 'package:idb_shim/idb_client_native.dart';
 final FileSystem fileSystemWeb = newFileSystemIdb(idbFactoryNative);
 
 /// New file system on the web using a particular database
-FileSystem newFileSystemWeb(
-        {required String name, FileSystemIdbOptions? options}) =>
-    newFileSystemIdb(idbFactoryNative, name)
-        .withIdbOptions(options: options ?? _defaultOptions);
+FileSystem newFileSystemWeb({
+  required String name,
+  FileSystemIdbOptions? options,
+}) => newFileSystemIdb(
+  idbFactoryNative,
+  name,
+).withIdbOptions(options: options ?? _defaultOptions);
 
 FileSystemIdbOptions get _defaultOptions =>
     const FileSystemIdbOptions(pageSize: defaultPageSize);

@@ -93,11 +93,15 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await randomAccessFile.length(), 10);
         await randomAccessFile.setPosition(2);
         if (positionKept) {
-          expect(utf8.decode(await randomAccessFile.read(20)),
-              'st\x00s\x00\x00\x00\x00');
+          expect(
+            utf8.decode(await randomAccessFile.read(20)),
+            'st\x00s\x00\x00\x00\x00',
+          );
         } else {
-          expect(utf8.decode(await randomAccessFile.read(20)),
-              'sts\x00\x00\x00\x00\x00');
+          expect(
+            utf8.decode(await randomAccessFile.read(20)),
+            'sts\x00\x00\x00\x00\x00',
+          );
         }
         //randomAccessFile = await randomAccessFile.truncate(20);
       } finally {

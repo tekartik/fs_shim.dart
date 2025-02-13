@@ -12,8 +12,11 @@ import 'package:path/path.dart' as p;
 
 /// FileSystem mixin
 mixin FileSystemMixin implements FileSystem {
-  Future<bool> _isType(String? path, FileSystemEntityType fseType,
-      {bool followLinks = true}) async {
+  Future<bool> _isType(
+    String? path,
+    FileSystemEntityType fseType, {
+    bool followLinks = true,
+  }) async {
     return (await type(path, followLinks: followLinks)) == fseType;
   }
 
@@ -85,41 +88,53 @@ mixin FileMixin implements File {
       throw UnsupportedError('file.openRead');
 
   @override
-  StreamSink<List<int>> openWrite(
-          {FileMode mode = FileMode.write, Encoding encoding = utf8}) =>
-      throw UnsupportedError('file.openWrite');
+  StreamSink<List<int>> openWrite({
+    FileMode mode = FileMode.write,
+    Encoding encoding = utf8,
+  }) => throw UnsupportedError('file.openWrite');
 
   @override
-  Future<File> writeAsBytes(Uint8List bytes,
-          {FileMode mode = FileMode.write, bool flush = false}) async =>
-      await doWriteAsBytes(bytes, mode: mode, flush: flush);
+  Future<File> writeAsBytes(
+    Uint8List bytes, {
+    FileMode mode = FileMode.write,
+    bool flush = false,
+  }) async => await doWriteAsBytes(bytes, mode: mode, flush: flush);
 
   @override
-  Future<File> writeAsString(String contents,
-      {FileMode mode = FileMode.write,
-      Encoding encoding = utf8,
-      bool flush = false}) async {
-    return await writeAsBytes(asUint8List(encoding.encode(contents)),
-        mode: mode, flush: flush);
+  Future<File> writeAsString(
+    String contents, {
+    FileMode mode = FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  }) async {
+    return await writeAsBytes(
+      asUint8List(encoding.encode(contents)),
+      mode: mode,
+      flush: flush,
+    );
   }
 
   @override
   String get path;
 
   /// Write bytes
-  Future<FileMixin> doWriteAsBytes(List<int> bytes,
-      {FileMode mode = FileMode.write, bool flush = false}) async {
+  Future<FileMixin> doWriteAsBytes(
+    List<int> bytes, {
+    FileMode mode = FileMode.write,
+    bool flush = false,
+  }) async {
     var sink = openWrite(mode: mode)..add(bytes);
     await sink.close();
     return this;
   }
 
   /// Write String
-  Future<FileMixin> doWriteAsString(String contents,
-          {FileMode mode = FileMode.write,
-          Encoding encoding = utf8,
-          bool flush = false}) =>
-      doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
+  Future<FileMixin> doWriteAsString(
+    String contents, {
+    FileMode mode = FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  }) => doWriteAsBytes(encoding.encode(contents), mode: mode, flush: flush);
 
   @override
   Future<Uint8List> readAsBytes() => doReadAsBytes();
@@ -129,7 +144,9 @@ mixin FileMixin implements File {
       return encoding.decode(bytes);
     } catch (e) {
       throw FormatException(
-          "Failed to decode data using encoding '${encoding.name}' $e", path);
+        "Failed to decode data using encoding '${encoding.name}' $e",
+        path,
+      );
     }
   }
 
@@ -201,9 +218,10 @@ mixin DirectoryMixin implements Directory {
       throw UnsupportedError('directory.create');
 
   @override
-  Stream<FileSystemEntity> list(
-          {bool recursive = false, bool followLinks = true}) =>
-      throw UnsupportedError('directory.list');
+  Stream<FileSystemEntity> list({
+    bool recursive = false,
+    bool followLinks = true,
+  }) => throw UnsupportedError('directory.list');
 }
 
 /// Interal debug extension

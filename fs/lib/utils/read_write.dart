@@ -4,8 +4,11 @@ import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/platform/platform.dart';
 
 /// Write a string content. Does not fail
-Future<File> writeString(File file, String content,
-    {Encoding encoding = utf8}) async {
+Future<File> writeString(
+  File file,
+  String content, {
+  Encoding encoding = utf8,
+}) async {
   try {
     await file.writeAsString(content, flush: true, encoding: encoding);
   } catch (_) {
@@ -28,8 +31,12 @@ Future<File> writeBytes(File file, Uint8List bytes) async {
 
 /// Write lines content. Does not fail
 /// Uses CR/LF if [useCrLf] is true or if null and on windows
-Future<File> writeLines(File file, List<String> lines,
-    {Encoding encoding = utf8, bool? useCrLf}) {
+Future<File> writeLines(
+  File file,
+  List<String> lines, {
+  Encoding encoding = utf8,
+  bool? useCrLf,
+}) {
   if (lines.isEmpty) {
     return writeString(file, '', encoding: encoding);
   }
