@@ -16,7 +16,7 @@ void print(Object? msg) {
   outElement =
       (outElement ??
           web.document.querySelector('#output') as web.HTMLPreElement);
-  outElement!.text = '${outElement!.textContent}$msg\n';
+  outElement!.textContent = '${outElement!.textContent}$msg\n';
 }
 
 Future main() async {
