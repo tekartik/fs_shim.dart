@@ -10,11 +10,11 @@ int _testId = 0;
 
 List<String> get testDescriptions => ['test${++_testId}'];
 
-// FileSystem context
+/// FileSystem context
 abstract class FileSystemTestContext {
   PlatformContext? get platform;
 
-  // The file system used
+  /// The file system used
   FileSystem get fs;
 
   // The path to use for testing
@@ -26,6 +26,7 @@ abstract class FileSystemTestContext {
     return dir;
   }
 
+  Directory get baseDir => fs.directoryWith(path: basePath);
   String? basePath;
 
   /// Support openRead/openWrite

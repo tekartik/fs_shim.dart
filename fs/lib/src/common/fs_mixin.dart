@@ -1,14 +1,15 @@
 library;
 
-import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/common/bytes_utils.dart';
+import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
+
+import 'fs_directory.dart';
 
 /// FileSystem mixin
 mixin FileSystemMixin implements FileSystem {
@@ -69,6 +70,11 @@ mixin FileSystemMixin implements FileSystem {
   @override
   Directory get currentDirectory =>
       throw UnsupportedError('fs.currentDirectory');
+
+  /// New directory with
+  @override
+  Directory directoryWith({String? path}) =>
+      path == null ? currentDirectory : directory(path);
 }
 
 /// File mixin
@@ -222,6 +228,17 @@ mixin DirectoryMixin implements Directory {
     bool recursive = false,
     bool followLinks = true,
   }) => throw UnsupportedError('directory.list');
+
+  /// Child directory
+  @override
+  Directory directory(String path) => newDirectory(path);
+
+  /// Child file
+  @override
+  File file(String path) => newFile(path);
+
+  @override
+  Directory directoryWith({String? path}) => newDirectoryWith(path: path);
 }
 
 /// Interal debug extension

@@ -1,11 +1,14 @@
 // ignore_for_file: public_member_api_docs
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/fs_mixin.dart';
 
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
-class IdbDirectory extends IdbFileSystemEntity implements fs.Directory {
+class IdbDirectory extends IdbFileSystemEntity
+    with DirectoryMixin
+    implements fs.Directory {
   IdbDirectory(super.fs, super.path);
 
   IdbDirectory _me(_) => this;

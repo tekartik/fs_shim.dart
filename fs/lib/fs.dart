@@ -13,6 +13,8 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs_shim.dart';
 import 'package:path/path.dart' as p;
 
+export 'src/common/fs_file_system_entity_parent.dart'
+    show FileSystemEntityParent;
 export 'src/random_access_file.dart' show RandomAccessFile;
 
 /// FileSystem entity.
@@ -374,7 +376,8 @@ abstract class File extends FileSystemEntity {
 }
 
 /// Abstract directory.
-abstract class Directory extends FileSystemEntity {
+abstract class Directory extends FileSystemEntity
+    implements FileSystemEntityParent {
   /// Creates a [Directory] object.
   ///
   /// If [path] is a relative path, it will be interpreted relative to the
@@ -537,7 +540,7 @@ class FileSystemEntityType {
 }
 
 /// Abstract File system.
-abstract class FileSystem {
+abstract class FileSystem implements FileSystemEntityParent {
   ///
   /// Creates a [Directory] object.
   /// If [path] is a relative path, it will be interpreted relative to the
@@ -546,6 +549,7 @@ abstract class FileSystem {
   /// If [path] is an absolute path, it will be immune to changes to the
   /// current working directory.
   ///
+  @override
   Directory directory(String path);
 
   ///
@@ -557,6 +561,7 @@ abstract class FileSystem {
   /// If [path] is an absolute path, it will be immune to changes to the
   /// current working directory.
   ///
+  @override
   File file(String path);
 
   ///
