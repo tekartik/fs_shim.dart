@@ -1,3 +1,8 @@
+## 2.4.0-1
+
+* Add `FileSystemEntityParent` interface with `directory()`, `directoryWith()`, 
+  and `file()` methods for Directory and FileSystem
+
 ## 2.3.4
 
 * Requires dart 3.7

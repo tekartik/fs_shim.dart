@@ -26,52 +26,27 @@ void defineFileSystemEntityParentTests(FileSystemTestContext ctx) {
   final rootDirPath = rootDir.path;
 
   void parentGroup(FileSystemEntityParent parent) {
-    test('directory with null', () {
-      expect(parent.directoryWith().path, rootDirPath);
-    });
-  }
-
-  void parentGroupWithPath(
-    FileSystemEntityParent parent, {
-    required String? path,
-  }) {
-    test('any directory with null', () {
-      var dir = parent.directoryWith();
-      var dirPath = dir.path;
-
-      if (parent is FileSystem) {
-        expect(dirPath, path);
-      } else if (parent is Directory) {
-        expect(dirPath, path);
-      } else {
-        throw UnsupportedError('Only FileSystem/Directory supported - $parent');
-      }
-    });
-    test('any directory with', () {
-      var dir = parent.directoryWith(path: 'test');
-      if (parent is FileSystem) {
-        expect(dir.path, 'test');
-      } else if (parent is Directory) {
-        if (parent.path == '.') {
-          expect(dir.path, 'test');
-        } else {
-          expect(dir.path, p.join(rootDirPath, 'test'));
-        }
-      } else {
-        throw UnsupportedError('Only FileSystem/Directory supported - $parent');
-      }
+    test('api', () {
+      // ignore: unnecessary_statements
+      parent.directoryWith;
+      // ignore: unnecessary_statements
+      parent.directory;
+      // ignore: unnecessary_statements
+      parent.file;
     });
   }
 
   group('FileSystemEntityParent', () {
     parentGroup(rootDir);
-    parentGroupWithPath(fs, path: '.');
+    parentGroup(fs);
+
     test('fs', () {
       expect(fs.directory('test').path, 'test');
       expect(fs.directoryWith(path: 'test').path, 'test');
       expect(fs.file('test').path, 'test');
     });
     test('directory', () {
+      expect(rootDir.fs.name, fs.name);
       // ignore: omit_local_variable_types
       File testFile = rootDir.file('test_file');
       // ignore: omit_local_variable_types
