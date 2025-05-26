@@ -1,4 +1,4 @@
-## 2.4.0-1
+## 2.4.0
 
 * Add `FileSystemEntityParent` interface with `directory()`, `directoryWith()`, 
   and `file()` methods for Directory and FileSystem
