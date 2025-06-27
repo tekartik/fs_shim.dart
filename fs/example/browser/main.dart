@@ -15,7 +15,7 @@ web.HTMLPreElement? outElement;
 void print(Object? msg) {
   outElement =
       (outElement ??
-          web.document.querySelector('#output') as web.HTMLPreElement);
+      web.document.querySelector('#output') as web.HTMLPreElement);
   outElement!.textContent = '${outElement!.textContent}$msg\n';
 }
 

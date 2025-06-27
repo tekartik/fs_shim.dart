@@ -12,47 +12,46 @@ import 'package:sembast/sembast_io.dart';
 import 'setup.dart';
 
 var _index = 0;
-List<FileSystem> fsList =
-    isRunningAsJavascript
-        ? [
-          fileSystemWeb,
-          getFileSystemWeb(
-            options: const FileSystemIdbOptions(pageSize: 16 * 1024),
-          ),
-          newFileSystemWeb(
-            name: 'lfs_options.db',
-            options: const FileSystemIdbOptions(pageSize: 16 * 1024),
-          ),
-          newFileSystemWeb(
-            name: 'lfs_options_2.db',
-            options: const FileSystemIdbOptions(pageSize: 2),
-          ),
-        ]
-        : [
-          fileSystemIo,
-          newFileSystemIdb(
-            IdbFactorySembast(
-              databaseFactoryIo,
-              global_path.join(
-                '.dart_tool',
-                'fs_shim_example',
-                'idb_io_${++_index}',
-              ),
+List<FileSystem> fsList = isRunningAsJavascript
+    ? [
+        fileSystemWeb,
+        getFileSystemWeb(
+          options: const FileSystemIdbOptions(pageSize: 16 * 1024),
+        ),
+        newFileSystemWeb(
+          name: 'lfs_options.db',
+          options: const FileSystemIdbOptions(pageSize: 16 * 1024),
+        ),
+        newFileSystemWeb(
+          name: 'lfs_options_2.db',
+          options: const FileSystemIdbOptions(pageSize: 2),
+        ),
+      ]
+    : [
+        fileSystemIo,
+        newFileSystemIdb(
+          IdbFactorySembast(
+            databaseFactoryIo,
+            global_path.join(
+              '.dart_tool',
+              'fs_shim_example',
+              'idb_io_${++_index}',
             ),
           ),
-          newFileSystemIdb(
-            IdbFactorySembast(
-              databaseFactoryIo,
-              global_path.join(
-                '.dart_tool',
-                'fs_shim_example',
-                'idb_io_${++_index}',
-              ),
+        ),
+        newFileSystemIdb(
+          IdbFactorySembast(
+            databaseFactoryIo,
+            global_path.join(
+              '.dart_tool',
+              'fs_shim_example',
+              'idb_io_${++_index}',
             ),
-          ).withIdbOptions(
-            options: const FileSystemIdbOptions(pageSize: 16 * 1024),
           ),
-        ];
+        ).withIdbOptions(
+          options: const FileSystemIdbOptions(pageSize: 16 * 1024),
+        ),
+      ];
 
 Future main() async {
   print('Universal running${isRunningAsJavascript ? ' as javascript' : ''}');
