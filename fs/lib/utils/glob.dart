@@ -178,10 +178,9 @@ class Glob {
     if (part == null) {
       return globPart == null;
     }
-    final runner =
-        _PartMatchRunner()
-          ..glob = globPart
-          ..part = part;
+    final runner = _PartMatchRunner()
+      ..glob = globPart
+      ..part = part;
     return runner.matches();
   }
 

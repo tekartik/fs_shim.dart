@@ -264,11 +264,10 @@ Future<List<File>> copyDirectoryListFiles(
 }) async {
   options ??= defaultCopyOptions;
   if (await src.fs.isDirectory(src.path)) {
-    var operations =
-        await TopSourceNode(
-          TopEntity(src.fs, src.path),
-          options: options,
-        )._runTree();
+    var operations = await TopSourceNode(
+      TopEntity(src.fs, src.path),
+      options: options,
+    )._runTree();
     return operations
         .where((operation) => !operation.isDirectory!)
         .map((operation) => src.fs.file(operation.src!.path))

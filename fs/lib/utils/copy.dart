@@ -97,16 +97,15 @@ class CopyOptions extends Object
   }
 
   /// Clone options.
-  CopyOptions get clone =>
-      CopyOptions()
-        ..recursive = recursive
-        ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
-        ..tryToLinkFile = tryToLinkFile
-        ..tryToLinkDir = tryToLinkDir
-        ..followLinks = followLinks
-        ..delete = delete
-        ..exclude = exclude
-        ..include = include;
+  CopyOptions get clone => CopyOptions()
+    ..recursive = recursive
+    ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
+    ..tryToLinkFile = tryToLinkFile
+    ..tryToLinkDir = tryToLinkDir
+    ..followLinks = followLinks
+    ..delete = delete
+    ..exclude = exclude
+    ..include = include;
 }
 
 /// Only copy if date is new.
@@ -137,15 +136,14 @@ Future deleteFile(File file, {DeleteOptions? options}) =>
 class CreateOptions extends Object
     with OptionsDeleteMixin, OptionsRecursiveMixin {
   /// Clone the options.
-  CreateOptions get clone =>
-      CreateOptions()
-        ..delete = delete
-        ..recursive = recursive;
+  CreateOptions get clone => CreateOptions()
+    ..delete = delete
+    ..recursive = recursive;
 }
 
 /// Default recursive create options.
-final CreateOptions defaultRecursiveCreateOptions =
-    CreateOptions()..recursive = true;
+final CreateOptions defaultRecursiveCreateOptions = CreateOptions()
+  ..recursive = true;
 
 /// recursive by default
 final CreateOptions defaultCreateOptions = defaultRecursiveCreateOptions;
@@ -171,16 +169,15 @@ class DeleteOptions extends Object
   }
 
   /// Create new options
-  DeleteOptions get clone =>
-      DeleteOptions()
-        ..recursive = recursive
-        ..followLinks = followLinks
-        ..create = create;
+  DeleteOptions get clone => DeleteOptions()
+    ..recursive = recursive
+    ..followLinks = followLinks
+    ..create = create;
 }
 
 /// Delete recursively options
-final DeleteOptions defaultRecursiveDeleteOptions =
-    DeleteOptions()..recursive = true;
+final DeleteOptions defaultRecursiveDeleteOptions = DeleteOptions()
+  ..recursive = true;
 
 /// Delete options default, delete recursively.
 final DeleteOptions defaultDeleteOptions = defaultRecursiveDeleteOptions;
