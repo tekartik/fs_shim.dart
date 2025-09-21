@@ -14,7 +14,6 @@ dependencies:
   tekartik_common_utils:
     git:
       url: https://github.com/tekartik/common_utils.dart
-      ref: dart3a
   dev_test: ">=1.0.0+4"
 
 dev_dependencies:
@@ -27,7 +26,6 @@ dev_dependencies:
     git:
       url: https://github.com/tekartik/platform.dart
       path: platform_io
-      ref: dart3a
   build_web_compilers: ">=4.0.11"
 
 dependency_overrides:

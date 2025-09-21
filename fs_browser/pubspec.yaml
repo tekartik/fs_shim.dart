@@ -22,7 +22,6 @@ dev_dependencies:
     git:
       url: https://github.com/tekartik/fs_shim.dart
       path: fs_test
-      ref: dart3a
     version: '>=0.1.0'
   build_test: '>=0.10.2'
   process_run: ">=1.2.1+1"
@@ -30,7 +29,6 @@ dev_dependencies:
     git:
       url: https://github.com/tekartik/platform.dart
       path: platform_browser
-      ref: dart3a
     version: '>=0.2.0'
 
 dependency_overrides:
