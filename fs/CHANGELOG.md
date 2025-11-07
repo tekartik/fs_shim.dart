@@ -1,7 +1,8 @@
-## 2.4.0
+## 2.4.0+1
 
 * Add `FileSystemEntityParent` interface with `directory()`, `directoryWith()`, 
   and `file()` methods for Directory and FileSystem
+* Fix web detection
 
 ## 2.3.4
 
