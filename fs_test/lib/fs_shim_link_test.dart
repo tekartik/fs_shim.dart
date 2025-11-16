@@ -405,7 +405,7 @@ void defineTests(FileSystemTestContext ctx) {
           FileSystemEntityType.link,
         );
         // on windows following a missing link return the link
-        // ignore: dead_code
+        // ignore: dead_code, no_literal_bool_comparisons
         if (isIoWindows(ctx) && false) {
           // Fixed since dart 3.4.0
           expect(
