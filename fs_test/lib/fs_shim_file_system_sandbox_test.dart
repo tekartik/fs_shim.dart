@@ -4,7 +4,8 @@
 library;
 
 import 'package:dev_test/test.dart';
-import 'package:path/path.dart';
+import 'package:path/path.dart' as path_prefix;
+
 import 'test_common.dart';
 
 void main() {
@@ -13,18 +14,20 @@ void main() {
 
 void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
   var fs = ctx.fs;
+  var p = ctx.path;
 
   group('file_system_sandbox', () {
     test('delegatePath', () async {
-      var p = ctx.path;
       var sep = p.separator;
-      var rootPath = '${sep}root';
+      var rootPath = p.join(fs.currentDirectory.path, 'root');
       var otherRootPath = '${sep}otherRoot';
       var sandbox = ctx.fs.sandbox(path: rootPath) as FsShimSandboxedFileSystem;
 
       var filePath = 'myfile.txt';
 
-      expect(sandbox.delegatePath(filePath), p.join(rootPath, filePath));
+      var delegatePath = sandbox.delegatePath(filePath);
+
+      expect(delegatePath, p.join(rootPath, filePath));
 
       /// Always returns absolute path
       expect(
@@ -33,7 +36,7 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
       );
       expect(
         () => sandbox.sandboxPath(p.join(otherRootPath, filePath)),
-        throwsA(isA<PathException>()),
+        throwsA(isA<path_prefix.PathException>()),
       );
 
       var sandbox2 =
@@ -58,7 +61,7 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
       var mainPath = p.join(dir.path, filePath);
       expect(sandbox.delegatePath(filePath), mainPath);
       final content = await sandboxedFile.readAsString();
-      expect(sandbox.sandboxPath(mainPath), join(p.separator, filePath));
+      expect(sandbox.sandboxPath(mainPath), p.join(p.separator, filePath));
       expect(content, 'hello');
     });
     test('two levels sandbox', () async {

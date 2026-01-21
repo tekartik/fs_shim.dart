@@ -12,7 +12,7 @@ import 'package:tekartik_fs_test/fs_perf_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 import 'package:test/test.dart';
 
-import 'fs_idb_sqflite_perf_test_manual.dart';
+import 'fs_idb_sqflite_perf_test_run.dart';
 
 var _fsList = idbOptions.map(
   (e) => newFileSystemIdb(

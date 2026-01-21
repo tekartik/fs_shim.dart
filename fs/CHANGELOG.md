@@ -1,3 +1,9 @@
+## 2.5.0-1
+
+* Add `Directory.tryCreate` extension method to create directory if does not exist
+* Add `FileSystem.sandbox` extension method to create a sandboxed file system
+* Add `FileSystem.absolutePath` extension method to get an absolute path
+
 ## 2.4.0+1
 
 * Add `FileSystemEntityParent` interface with `directory()`, `directoryWith()`, 

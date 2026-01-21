@@ -4,6 +4,7 @@
 library;
 
 import 'package:dev_test/test.dart';
+
 import 'test_common.dart';
 
 void main() {
@@ -12,6 +13,7 @@ void main() {
 
 void defineTests(FileSystemTestContext ctx) {
   var fs = ctx.fs;
+  var p = fs.path;
 
   group('file_system', () {
     test('equals', () {
@@ -66,11 +68,18 @@ void defineTests(FileSystemTestContext ctx) {
 
       var filePath = 'myfile.txt';
 
-      final file = fs.file(ctx.path.join(dir.path, filePath));
+      final file = fs.file(p.join(dir.path, filePath));
       await file.writeAsString('hello');
       var sandboxedFile = sandbox.file(filePath);
       final content = await sandboxedFile.readAsString();
       expect(content, 'hello');
+    });
+    test('absolutePath', () {
+      expect(fs.absolutePath('.'), fs.currentDirectory.path);
+      expect(
+        fs.absolutePath(p.join('.', '.', 'test')),
+        p.join(fs.currentDirectory.path, 'test'),
+      );
     });
   });
 }

@@ -7,7 +7,7 @@ import 'dart:io' as io;
 
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_io.dart';
-import 'package:path/path.dart' as p;
+import 'package:path/path.dart' as path_prefix;
 import 'package:path/path.dart';
 
 import '../test_common.dart';
@@ -15,6 +15,7 @@ import '../test_common_io.dart';
 
 void main() {
   FileSystem fs = ioFileSystemTestContext.fs;
+  final p = fs.path;
   group('io', () {
     test('supportRandomAccess', () {
       expect(fs.supportsRandomAccess, true);
@@ -25,20 +26,20 @@ void main() {
     test('supportsFileLink', () {
       expect(fs.supportsFileLink, !io.Platform.isWindows);
     });
-    test('windows', () {
+    test('windows config', () {
       expect(isIoWindows(ioFileSystemTestContext), io.Platform.isWindows);
       if (isIoWindows(ioFileSystemTestContext)) {
         //fs.path.rootPrefix(path)
       }
     });
-    test('linux', () async {
+    test('linux config', () async {
       expect(isIoLinux(ioFileSystemTestContext), io.Platform.isLinux);
       if (isIoLinux(ioFileSystemTestContext)) {
         expect(fs.path.rootPrefix(fs.path.absolute(fs.path.separator)), '/');
       }
     });
     test('windows.absolute/normalize', () {
-      var ctx = p.windows;
+      var ctx = path_prefix.windows;
 
       var path = ctx.join('C:\\', 'folder', 'file.txt');
       var absolutePath = ctx.absolute(path);
@@ -61,7 +62,7 @@ void main() {
       expect(normalizedPath, '\\file.txt');
     });
     test('posix.absolute/normalize', () {
-      var ctx = p.posix;
+      var ctx = path_prefix.posix;
 
       var path = ctx.join('/', 'folder', 'file.txt');
       var absolutePath = ctx.absolute(path);
@@ -83,15 +84,16 @@ void main() {
       normalizedPath = ctx.normalize('/sub/root/./test.txt');
       expect(normalizedPath, '/sub/root/test.txt');
     });
-    test('linux', () async {
+    test('linux run', () async {
       if (isIoLinux(ioFileSystemTestContext)) {
-        expect(fs.path.rootPrefix(fs.path.absolute(fs.path.separator)), '/');
+        expect(p.rootPrefix(p.absolute(p.separator)), '/');
 
-        expect(fs.path.absolute('.'), startsWith('/'));
-        expect(fs.path.isAbsolute('./.'), isFalse);
+        expect(fs.absolutePath('.'), fs.currentDirectory.path);
+        expect(p.absolute('.'), startsWith('/'));
+        expect(p.isAbsolute('./.'), isFalse);
         // Try to write above root
         var path = '/../test.txt';
-        var absolutePath = fs.path.absolute(path);
+        var absolutePath = p.absolute(path);
         expect(absolutePath, '/../test.txt');
         var file = fs.file(absolutePath);
         expect(await file.exists(), isFalse);
@@ -110,6 +112,45 @@ void main() {
         await dir.create(recursive: true);
       }
     });
+    test('windows run', () async {
+      var rootPrefix = fs.path.rootPrefix(fs.path.absolute(fs.path.separator));
+
+      expect(fs.absolutePath('.'), fs.currentDirectory.path);
+      expect(fs.absolutePath('/'), '/');
+      expect(fs.absolutePath('\\'), '\\');
+      expect(fs.absolutePath('C:\\'), 'C:\\');
+      // On windows rootPrefix is something 'C:\\'
+      expect(rootPrefix, endsWith(r'\'));
+
+      // fs_shim.dart\fs\.
+      expect(fs.path.absolute('.'), endsWith(r'\.'));
+      expect(fs.path.isAbsolute('./.'), isFalse);
+      expect(fs.path.isAbsolute(r'.\.'), isFalse);
+      // Try to write above root
+      var path = '/../test.txt';
+      var absolutePath = fs.path.absolute(path);
+      expect(absolutePath, '$rootPrefix../test.txt');
+      var file = fs.file(absolutePath);
+      expect(await file.exists(), isFalse);
+      try {
+        await file.create(recursive: true);
+      } on FileSystemException catch (e) {
+        // linux:
+        // error [5] PathAccessException: Cannot create file,
+        // path = '/../test.txt' (OS Error: Permission denied, errno = 13)
+        //
+        // windows:
+        // e: [5] PathAccessException: Cannot create file,
+        // path = 'C:\../test.txt' (OS Error: Access is denied, errno = 5)
+
+        /// To adapt for CI maybe
+        expect(e.status, FileSystemException.statusAccessError);
+        expect(e.osError?.errorCode, 5);
+      }
+      var dir = fs.directory('/..');
+      expect(await dir.exists(), isTrue); // ! Arg!
+      await dir.create(recursive: true);
+    }, skip: !isIoWindows(ioFileSystemTestContext));
     test('name', () {
       expect(fs.name, 'io');
     });
@@ -292,6 +333,10 @@ void main() {
     test('sandbox', () async {
       var sandbox = fs.sandbox() as FsShimSandboxedFileSystem;
       expect(sandbox.rootDirectory, fs.currentDirectory);
+    });
+    test('absolutePath', () async {
+      var path = fs.absolutePath('.');
+      expect(path, fs.currentDirectory.path);
     });
   });
 }

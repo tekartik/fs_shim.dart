@@ -7,7 +7,6 @@ import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:idb_shim/idb_client.dart' as idb;
 
 import 'fs_src_idb_file_system_storage_test.dart';
-
 import 'test_common.dart';
 
 void main() {

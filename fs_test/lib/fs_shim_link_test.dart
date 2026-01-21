@@ -6,7 +6,6 @@ library;
 import 'package:dev_test/test.dart';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
-import 'package:path/path.dart' as p;
 
 import 'fs_shim_file_stat_test.dart';
 import 'test_common.dart';
@@ -27,6 +26,7 @@ void _printErr(Object? e) {
 void defineTests(FileSystemTestContext ctx) {
   var fs = ctx.fs;
   final linkSupported = fs.supportsLink;
+  final p = fs.path;
 
   test('supportsLink', () {
     expect(fs.supportsLink, linkSupported);
@@ -108,14 +108,20 @@ void defineTests(FileSystemTestContext ctx) {
 
         await link.create(target);
 
-        try {
-          expect(await link.target(), target);
-        } catch (e) {
-          if (isIoWindows(ctx)) {
-            // on io windows link were absolute
-            // This did no happen when tested on 2019-09-05
-            expect(await link.target(), p.join(dir.path, target));
-            rethrow;
+        if (fs is FsShimSandboxedFileSystem) {
+          // windows sandboxed
+          // link target: Link: '\test1\link' \test1\target
+          expect(await link.target(), p.join(link.parent.path, target));
+        } else {
+          try {
+            expect(await link.target(), target);
+          } catch (e) {
+            if (isIoWindows(ctx)) {
+              // on io windows link were absolute
+              // This did no happen when tested on 2019-09-05
+              expect(await link.target(), p.join(dir.path, target));
+              rethrow;
+            }
           }
         }
       });
