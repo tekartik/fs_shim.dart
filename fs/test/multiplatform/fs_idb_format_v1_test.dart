@@ -61,7 +61,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       expect(await sdbExportDatabase(db), exportMapOneFileV1);
       db.close();
 
-      var fs = IdbFileSystem(idbFactory,dbPath:  dbName);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
       var filePath = 'file.txt';
 
       var file = fs.file(filePath);
