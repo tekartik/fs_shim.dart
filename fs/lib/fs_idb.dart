@@ -48,8 +48,8 @@ extension FileSystemIdbOptionsExt on FileSystemIdbOptions {
 ///
 /// Idb implementation (base for memory and browser)
 ///
-FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String? name]) =>
-    FileSystemIdb(idbFactory, name);
+FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String? dbPath]) =>
+    FileSystemIdb(idbFactory, dbPath: dbPath);
 
 /// Prefer newFileSystemIdb
 @Deprecated('use newFileSystemIdb')

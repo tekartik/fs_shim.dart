@@ -17,6 +17,8 @@ import 'fs_shim_random_access_file_test.dart' as random_access_file_test;
 import 'fs_shim_sanity_test.dart' as fs_shim_sanity_test;
 import 'test_common.dart';
 import 'utils_test.dart' as utils_test;
+export 'package:fs_shim/fs.dart';
+export 'fs_test_common.dart';
 
 void main() {
   group('default', () {

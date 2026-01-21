@@ -43,7 +43,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await idbFactory.deleteDatabase(dbName);
       fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 2),
       );
     });
@@ -195,7 +195,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         await idbFactory.deleteDatabase(dbName);
         var fs = IdbFileSystem(
           idbFactory,
-          dbName,
+          dbPath: dbName,
           options: FileSystemIdbOptions.noPage,
         );
         var file = fs.file('test.txt');
@@ -214,7 +214,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
 
         fs = IdbFileSystem(
           idbFactory,
-          dbName,
+          dbPath: dbName,
           options: const FileSystemIdbOptions(pageSize: 2),
         );
         file = fs.file('test.txt');
@@ -243,7 +243,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         expect(await getFileEntries(db), isEmpty);
         fs = IdbFileSystem(
           idbFactory,
-          dbName,
+          dbPath: dbName,
           options: const FileSystemIdbOptions(pageSize: 2),
         );
         file = fs.file('test.txt');
@@ -288,7 +288,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
         ]);
         fs = IdbFileSystem(
           idbFactory,
-          dbName,
+          dbPath: dbName,
           options: FileSystemIdbOptions.noPage,
         );
         file = fs.file('test.txt');
@@ -312,7 +312,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: FileSystemIdbOptions.noPage,
       );
       var file = fs.file('test.txt');
@@ -331,7 +331,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
 
       fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 2),
       );
       file = fs.file('test.txt');
@@ -360,7 +360,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       expect(await getFileEntries(db), isEmpty);
       fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 2),
       );
       file = fs.file('test.txt');
@@ -399,7 +399,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       ]);
       fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: FileSystemIdbOptions.noPage,
       );
       file = fs.file('test.txt');
@@ -422,7 +422,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 2),
       );
       var file = fs.file('test.');
@@ -459,7 +459,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 2),
       );
       var file = fs.file('test.txt');
@@ -478,7 +478,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 1024),
       );
       var file = fs.file('test.txt');
@@ -495,7 +495,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
       await idbFactory.deleteDatabase(dbName);
       var fs = IdbFileSystem(
         idbFactory,
-        dbName,
+        dbPath: dbName,
         options: const FileSystemIdbOptions(pageSize: 2),
       );
       var file = fs.file('test.txt');
@@ -635,7 +635,7 @@ void fsIdbFormatGroup(
       // debugIdbShowLogs = devWarning(true);
       var dbName = 'absolute_text_file.db';
       await idbFactory.deleteDatabase(dbName);
-      var fs = IdbFileSystem(idbFactory, dbName, options: options);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName, options: options);
       var filePath = '${fs.path.separator}file.txt';
 
       var file = fs.file(filePath);
@@ -843,7 +843,7 @@ void fsIdbFormatGroup(
       expect(await sdbExportDatabase(db), exportMapOneFileCurrent);
       db.close();
 
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
       var filePath = 'file.txt';
 
       var file = fs.file(filePath);
@@ -860,7 +860,7 @@ void fsIdbFormatGroup(
       expect(await sdbExportDatabase(db), exportMapOneFileV1);
       db.close();
 
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
       var filePath = 'file.txt';
 
       var file = fs.file(filePath);
@@ -902,7 +902,7 @@ void fsIdbFormatGroup(
       () async {
         var dbName = 'v1_format.db';
         await idbFactory.deleteDatabase(dbName);
-        var fs = IdbFileSystem(idbFactory, dbName);
+        var fs = IdbFileSystem(idbFactory, dbPath: dbName);
         var filePath = '${fs.path.separator}file.txt';
 
         var file = fs.file(filePath);
@@ -912,7 +912,7 @@ void fsIdbFormatGroup(
         fs.close();
 
         // Reopen file system
-        fs = IdbFileSystem(idbFactory, dbName);
+        fs = IdbFileSystem(idbFactory, dbPath: dbName);
         //devPrint(await fs.list('/', recursive: true).toList());
         file = fs.file(filePath);
 
@@ -1061,7 +1061,7 @@ void fsIdbFormatGroup(
         expect(await sdbExportDatabase(db), exportMap);
         db.close();
 
-        fs = IdbFileSystem(idbFactory, dbName);
+        fs = IdbFileSystem(idbFactory, dbPath: dbName);
         // devPrint(await fs.list('/', recursive: true).toList());
         file = fs.file(filePath);
 
@@ -1079,7 +1079,7 @@ void fsIdbFormatGroup(
     var dbName = 'complex1.db';
     var dbNameImported = 'complex1_imported.db';
     await idbFactory.deleteDatabase(dbName);
-    var fs = IdbFileSystem(idbFactory, dbName);
+    var fs = IdbFileSystem(idbFactory, dbPath: dbName);
     await fs
         .directory(fs.path.join('dir1', 'sub2', 'nested1'))
         .create(recursive: true);
@@ -1106,7 +1106,7 @@ void fsIdbFormatGroup(
     expect(await sdbExportDatabase(db), exportMap);
     db.close();
 
-    fs = IdbFileSystem(idbFactory, dbNameImported);
+    fs = IdbFileSystem(idbFactory, dbPath: dbNameImported);
     await fsCheckComplex1(fs);
     fs.close();
   });

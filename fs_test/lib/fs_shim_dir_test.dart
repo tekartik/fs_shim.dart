@@ -16,6 +16,7 @@ void main() {
 
 void defineTests(FileSystemTestContext ctx) {
   var fs = ctx.fs;
+  var p = ctx.path;
 
   group('dir', () {
     test('new', () {
@@ -441,7 +442,15 @@ void defineTests(FileSystemTestContext ctx) {
       var subDir = top.directory(fs.path.join('sub', 'sub2'));
       expect(await subDir.tryCreate(), isTrue);
 
-      var subFile = fs.file(fs.path.join('other', 'file1.txt'));
+      var subFile = fs.file(
+        p.join(
+          '.dart_tool',
+          'tekartik_fs_io',
+          'test',
+          'fs_shim_dir_test',
+          'file1.txt',
+        ),
+      );
       await subFile.create(recursive: true);
       expect(await subFile.exists(), isTrue);
       subDir = fs.directory(subFile.path);

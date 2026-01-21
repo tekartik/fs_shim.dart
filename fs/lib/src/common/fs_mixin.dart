@@ -14,7 +14,7 @@ import 'fs_directory.dart';
 /// FileSystem mixin
 mixin FileSystemMixin implements FileSystem {
   Future<bool> _isType(
-    String? path,
+    String path,
     FileSystemEntityType fseType, {
     bool followLinks = true,
   }) async {
@@ -23,21 +23,21 @@ mixin FileSystemMixin implements FileSystem {
 
   // helper
   @override
-  Future<bool> isFile(String? path) => _isType(path, FileSystemEntityType.file);
+  Future<bool> isFile(String path) => _isType(path, FileSystemEntityType.file);
 
   // helper
   @override
-  Future<bool> isDirectory(String? path) =>
+  Future<bool> isDirectory(String path) =>
       _isType(path, FileSystemEntityType.directory);
 
   // helper
   // do not follow links for link check
   @override
-  Future<bool> isLink(String? path) =>
+  Future<bool> isLink(String path) =>
       _isType(path, FileSystemEntityType.link, followLinks: false);
 
   @override
-  Future<FileSystemEntityType> type(String? path, {bool followLinks = true}) =>
+  Future<FileSystemEntityType> type(String path, {bool followLinks = true}) =>
       throw UnsupportedError('fs.type');
 
   @override

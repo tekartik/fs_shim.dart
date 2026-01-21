@@ -11,6 +11,13 @@ int _testId = 0;
 
 List<String> get testDescriptions => ['test${++_testId}'];
 
+extension FsShimFileSystemTestContextExtension on FileSystemTestContext {
+  /// Create a sandboxed context
+  FileSystemTestContext sandbox({required String path}) {
+    return _SandboxedFileSystemTestContext(delegate: this, sandboxPath: path);
+  }
+}
+
 mixin FileSystemTestContextMixin implements FileSystemTestContext {
   @override
   String? basePath;
@@ -50,10 +57,6 @@ mixin FileSystemTestContextMixin implements FileSystemTestContext {
     }
     await dir.create(recursive: true);
     return dir.absolute;
-  }
-
-  FileSystemTestContext sandbox({required String path}) {
-    return _SandboxedFileSystemTestContext(delegate: this, sandboxPath: path);
   }
 }
 

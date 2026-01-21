@@ -15,25 +15,25 @@ import 'io_link.dart';
 
 export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
-class IoFileSystemImpl extends Object
+class FileSystemIoImpl extends Object
     with FileSystemMixin
     implements FileSystemIo {
   @override
   Future<fs.FileSystemEntityType> type(
-    String? path, {
+    String path, {
     bool followLinks = true,
   }) async => wrapIoFileSystemEntityTypeImpl(
-    io.FileSystemEntity.typeSync(path!, followLinks: followLinks),
+    io.FileSystemEntity.typeSync(path, followLinks: followLinks),
   );
 
   @override
-  fs.File file(String? path) => FileIoImpl(path!);
+  fs.File file(String path) => FileIoImpl(path);
 
   @override
-  fs.Directory directory(String? path) => DirectoryIoImpl(path!);
+  fs.Directory directory(String path) => DirectoryIoImpl(path);
 
   @override
-  fs.Link link(String? path) => LinkImpl(path!);
+  fs.Link link(String path) => LinkImpl(path);
 
   @override
   String get name => 'io';
@@ -52,7 +52,7 @@ class IoFileSystemImpl extends Object
 
   @override
   bool operator ==(Object other) {
-    return other is IoFileSystemImpl;
+    return other is FileSystemIoImpl;
   }
 
   @override
@@ -62,16 +62,16 @@ class IoFileSystemImpl extends Object
   Context get path => context;
 
   @override
-  Future<bool> isLink(String? path) =>
-      Future.value(io.FileSystemEntity.isLinkSync(path!));
+  Future<bool> isLink(String path) =>
+      Future.value(io.FileSystemEntity.isLinkSync(path));
 
   @override
-  Future<bool> isFile(String? path) =>
-      Future.value(io.FileSystemEntity.isFileSync(path!));
+  Future<bool> isFile(String path) =>
+      Future.value(io.FileSystemEntity.isFileSync(path));
 
   @override
-  Future<bool> isDirectory(String? path) =>
-      Future.value(io.FileSystemEntity.isDirectorySync(path!));
+  Future<bool> isDirectory(String path) =>
+      Future.value(io.FileSystemEntity.isDirectorySync(path));
 
   @override
   bool get supportsRandomAccess => true;
@@ -82,5 +82,5 @@ class IoFileSystemImpl extends Object
 
 /// File system
 abstract class FileSystemIo extends fs.FileSystem {
-  factory FileSystemIo() => IoFileSystemImpl();
+  factory FileSystemIo() => FileSystemIoImpl();
 }

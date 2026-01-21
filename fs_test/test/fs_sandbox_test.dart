@@ -6,11 +6,22 @@ library;
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
-import 'package:tekartik_fs_test/fs_test_common.dart';
 
 void main() {
   group('sandbox', () {
     defineFsTests(memoryFileSystemTestContext.sandbox(path: '/root'));
+    defineFsTests(memoryFileSystemTestContext.sandbox(path: 'relative_root'));
+    defineFsTests(
+      memoryFileSystemTestContext
+          .sandbox(path: 'sub_route1/sub_route2/')
+          .sandbox(path: '/sub_route3/sub_route4/'),
+    );
+    defineFsTests(
+      memoryFileSystemTestContext
+          .sandbox(path: 'sub_route1/sub_route2/')
+          .sandbox(path: '/sub_route3/sub_route4/')
+          .sandbox(path: '/sub_route5/sub_route6'),
+    );
     group('empty', () {
       late FsShimSandboxedFileSystem fs;
       setUp(() {

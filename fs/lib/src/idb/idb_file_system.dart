@@ -56,13 +56,13 @@ mixin IdbFileSystemDelegateMixin implements fs.FileSystem {
   fs.File file(String path) => delegate.file(path);
 
   @override
-  Future<bool> isDirectory(String? path) => delegate.isDirectory(path);
+  Future<bool> isDirectory(String path) => delegate.isDirectory(path);
 
   @override
-  Future<bool> isFile(String? path) => delegate.isFile(path);
+  Future<bool> isFile(String path) => delegate.isFile(path);
 
   @override
-  Future<bool> isLink(String? path) => delegate.isLink(path);
+  Future<bool> isLink(String path) => delegate.isLink(path);
 
   @override
   fs.Link link(String path) => delegate.link(path);
@@ -88,18 +88,21 @@ mixin IdbFileSystemDelegateMixin implements fs.FileSystem {
 
   @override
   Future<fs.FileSystemEntityType> type(
-    String? path, {
+    String path, {
     bool followLinks = true,
   }) => delegate.type(path, followLinks: followLinks);
 }
 
 /// New internal name.
-typedef FileSystemIdb = IdbFileSystem;
+// typedef FileSystemIdb = IdbFileSystem;
+
+/// Compat
+typedef IdbFileSystem = FileSystemIdb;
 
 ///
 /// File system implement on idb_shim
 ///
-class IdbFileSystem extends Object
+class FileSystemIdb extends Object
     with FileSystemMixin
     implements fs.FileSystem {
   // file system name
@@ -116,11 +119,13 @@ class IdbFileSystem extends Object
   idb.Database? get db => _db;
   static const dbPath = 'lfs.db';
 
-  IdbFileSystem._(this._storage);
+  FileSystemIdb._(this._storage);
 
-  IdbFileSystem(
-    idb.IdbFactory factory,
-    String? path, {
+  FileSystemIdb(
+    idb.IdbFactory factory, {
+
+    /// Default to 'lfs.db'
+    String? dbPath,
     FileSystemIdbOptions? options,
     IdbFileSystemStorage? storage,
   }) {
@@ -128,7 +133,11 @@ class IdbFileSystem extends Object
     options ??= const FileSystemIdbOptions(pageSize: 0);
     _storage =
         storage ??
-        IdbFileSystemStorage(factory, path ?? dbPath, options: options);
+        IdbFileSystemStorage(
+          factory,
+          dbPath ?? FileSystemIdb.dbPath,
+          options: options,
+        );
   }
 
   /// Non null database.
@@ -173,12 +182,12 @@ class IdbFileSystem extends Object
 
   @override
   Future<fs.FileSystemEntityType> type(
-    String? path, {
+    String path, {
     bool followLinks = true,
   }) async {
     await _ready;
 
-    final segments = getSegments(path!);
+    final segments = getSegments(path);
 
     final entity = await _storage.getNode(segments, followLinks);
 
@@ -190,13 +199,13 @@ class IdbFileSystem extends Object
   }
 
   @override
-  IdbDirectory directory(String? path) => IdbDirectory(this, path);
+  IdbDirectory directory(String path) => IdbDirectory(this, path);
 
   @override
-  IdbFile file(String? path) => IdbFile(this, path);
+  FileIdb file(String path) => FileIdb(this, path);
 
   @override
-  IdbLink link(String? path) => IdbLink(this, path);
+  IdbLink link(String path) => IdbLink(this, path);
 
   Future createDirectory(String path, {bool recursive = false}) async {
     await _ready;
@@ -901,7 +910,7 @@ class IdbFileSystem extends Object
     if (node.isDir) {
       return IdbDirectory(this, node.path);
     } else if (node.isFile) {
-      return IdbFile(this, node.path);
+      return FileIdb(this, node.path);
     } else if (node.isLink) {
       return IdbLink(this, node.path);
     }
@@ -915,7 +924,7 @@ class IdbFileSystem extends Object
     if (targetNode.isDir) {
       return IdbDirectory(this, path);
     } else if (targetNode.isFile) {
-      return IdbFile(this, path);
+      return FileIdb(this, path);
     } else if (targetNode.isLink) {
       // should not happen...
       return IdbLink(this, path);
@@ -967,7 +976,7 @@ class IdbFileSystem extends Object
                           recursives.add(list(relativePath, childNode));
                         }
                       } else if (childNode.isFile) {
-                        ctlr.add(IdbFile(this, relativePath));
+                        ctlr.add(FileIdb(this, relativePath));
                         //ctlr.add(nodeToFileSystemEntity(childNode));
                       } else if (childNode.isLink) {
                         final link = IdbLink(this, relativePath);

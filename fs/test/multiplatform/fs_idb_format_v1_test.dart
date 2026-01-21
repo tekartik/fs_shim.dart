@@ -23,7 +23,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       expect(await sdbExportDatabase(db), exportMapOneAbsoluteFileV1);
       db.close();
 
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
       var filePath = 'file.txt';
 
       var file = fs.file(filePath);
@@ -45,7 +45,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
 
       db.close();
 
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
       var filePath = 'file.txt';
 
       var file = fs.file(filePath);
@@ -61,7 +61,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       expect(await sdbExportDatabase(db), exportMapOneFileV1);
       db.close();
 
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory,dbPath:  dbName);
       var filePath = 'file.txt';
 
       var file = fs.file(filePath);
@@ -73,7 +73,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       db = await sdbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
       db.close();
 
-      fs = IdbFileSystem(idbFactory, dbName);
+      fs = IdbFileSystem(idbFactory, dbPath: dbName);
       filePath = 'file.txt';
 
       file = fs.file(filePath);
@@ -96,7 +96,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       );
       db.close();
 
-      var fs = IdbFileSystem(idbFactory, dbName);
+      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
       await fsCheckComplex1(fs);
       fs.close();
     });

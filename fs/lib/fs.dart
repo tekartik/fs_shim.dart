@@ -594,22 +594,22 @@ abstract class FileSystem implements FileSystemEntityParent {
   /// error or exception that may be put on the returned future is ArgumentError,
   /// caused by passing the wrong type of arguments to the function.
   ///
-  Future<FileSystemEntityType> type(String? path, {bool followLinks = true});
+  Future<FileSystemEntityType> type(String path, {bool followLinks = true});
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.FILE.
   ///
-  Future<bool> isFile(String? path);
+  Future<bool> isFile(String path);
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.DIRECTORY.
   ///
-  Future<bool> isDirectory(String? path);
+  Future<bool> isDirectory(String path);
 
   ///
   /// Checks if type(path) returns FileSystemEntityType.Link.
   ///
-  Future<bool> isLink(String? path);
+  Future<bool> isLink(String path);
 
   /// fs_shim specific. Name of the file system.
   String get name; // io or idb

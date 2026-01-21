@@ -255,8 +255,8 @@ class _SandboxedFileSystem
   }
 
   @override
-  Future<FileSystemEntityType> type(String? path, {bool followLinks = true}) =>
-      _fsDelegate.type(delegatePath(path!), followLinks: followLinks);
+  Future<FileSystemEntityType> type(String path, {bool followLinks = true}) =>
+      _fsDelegate.type(delegatePath(path), followLinks: followLinks);
   @override
   File file(String path) => _SandboxFile(fs: this, path: path);
 

@@ -6,7 +6,6 @@ library;
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
-import 'package:tekartik_fs_test/fs_test_common.dart';
 
 void main() {
   group('default', () {

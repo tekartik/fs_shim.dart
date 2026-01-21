@@ -38,12 +38,7 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
         options: idbOptions,
       );
       await storage.ready;
-      fs = IdbFileSystem(
-        idbFactory,
-        null,
-        options: idbOptions,
-        storage: storage,
-      );
+      fs = IdbFileSystem(idbFactory, options: idbOptions, storage: storage);
     });
 
     test('writeDataV2 page size 2', () async {
