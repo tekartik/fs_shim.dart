@@ -5,7 +5,9 @@ library;
 
 import 'dart:io' as io;
 
+import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_io.dart';
+import 'package:path/path.dart' as p;
 import 'package:path/path.dart';
 
 import '../test_common.dart';
@@ -29,10 +31,83 @@ void main() {
         //fs.path.rootPrefix(path)
       }
     });
-    test('linux', () {
+    test('linux', () async {
       expect(isIoLinux(ioFileSystemTestContext), io.Platform.isLinux);
       if (isIoLinux(ioFileSystemTestContext)) {
         expect(fs.path.rootPrefix(fs.path.absolute(fs.path.separator)), '/');
+      }
+    });
+    test('windows.absolute/normalize', () {
+      var ctx = p.windows;
+
+      var path = ctx.join('C:\\', 'folder', 'file.txt');
+      var absolutePath = ctx.absolute(path);
+      expect(absolutePath, 'C:\\folder\\file.txt');
+      path = ctx.join('C:\\', '..', 'folder', 'file.txt');
+      absolutePath = ctx.absolute(path);
+      expect(absolutePath, 'C:\\..\\folder\\file.txt');
+      path = ctx.join('\\', '..', 'folder', 'file.txt');
+      absolutePath = ctx.absolute(path);
+      expect(absolutePath, '\\..\\folder\\file.txt');
+
+      var normalizedPath = ctx.normalize('C:\\..\\file.txt');
+      expect(normalizedPath, 'C:\\file.txt');
+      normalizedPath = ctx.normalize('C:\\..');
+      expect(normalizedPath, 'C:\\');
+
+      normalizedPath = ctx.normalize('\\..\\file.txt');
+      expect(normalizedPath, '\\file.txt');
+      normalizedPath = ctx.normalize('\\..\\..\\file.txt');
+      expect(normalizedPath, '\\file.txt');
+    });
+    test('posix.absolute/normalize', () {
+      var ctx = p.posix;
+
+      var path = ctx.join('/', 'folder', 'file.txt');
+      var absolutePath = ctx.absolute(path);
+      expect(absolutePath, '/folder/file.txt');
+      path = ctx.join('/', '..', 'folder', 'file.txt');
+      absolutePath = ctx.absolute(path);
+      expect(absolutePath, '/../folder/file.txt');
+      path = ctx.join('/', '..', 'folder', 'file.txt');
+      absolutePath = ctx.absolute(path);
+      expect(absolutePath, '/../folder/file.txt');
+
+      var normalizedPath = ctx.normalize('/../file.txt');
+      expect(normalizedPath, '/file.txt');
+      normalizedPath = ctx.normalize('/../file.txt');
+      expect(normalizedPath, '/file.txt');
+      normalizedPath = ctx.normalize('/../../file.txt');
+      expect(normalizedPath, '/file.txt');
+
+      normalizedPath = ctx.normalize('/sub/root/./test.txt');
+      expect(normalizedPath, '/sub/root/test.txt');
+    });
+    test('linux', () async {
+      if (isIoLinux(ioFileSystemTestContext)) {
+        expect(fs.path.rootPrefix(fs.path.absolute(fs.path.separator)), '/');
+
+        expect(fs.path.absolute('.'), startsWith('/'));
+        expect(fs.path.isAbsolute('./.'), isFalse);
+        // Try to write above root
+        var path = '/../test.txt';
+        var absolutePath = fs.path.absolute(path);
+        expect(absolutePath, '/../test.txt');
+        var file = fs.file(absolutePath);
+        expect(await file.exists(), isFalse);
+        try {
+          await file.create(recursive: true);
+        } on FileSystemException catch (e) {
+          // error [5] PathAccessException: Cannot create file,
+          // path = '/../test.txt' (OS Error: Permission denied, errno = 13)
+
+          /// To adapt for CI maybe
+          expect(e.status, FileSystemException.statusAccessError);
+          expect(e.osError?.errorCode, 13);
+        }
+        var dir = fs.directory('/..');
+        expect(await dir.exists(), isTrue); // ! Arg!
+        await dir.create(recursive: true);
       }
     });
     test('name', () {
@@ -213,6 +288,10 @@ void main() {
           FileSystemEntityType.directory,
         );
       });
+    });
+    test('sandbox', () async {
+      var sandbox = fs.sandbox() as FsShimSandboxedFileSystem;
+      expect(sandbox.rootDirectory, fs.currentDirectory);
     });
   });
 }

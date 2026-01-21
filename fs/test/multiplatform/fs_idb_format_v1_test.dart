@@ -42,6 +42,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
         dbName,
       );
       expect(await sdbExportDatabase(db), exportMapOneAbsoluteFileV1);
+
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbName);
@@ -192,6 +193,58 @@ var exportMapOneFileV1 = {
   ],
 };
 var exportMapOneAbsoluteFileV1 = {
+  'sembast_export': 1,
+  'version': 1,
+  'stores': [
+    {
+      'name': '_main',
+      'keys': ['store_file', 'store_tree', 'stores', 'version'],
+      'values': [
+        {'name': 'file'},
+        {
+          'name': 'tree',
+          'autoIncrement': true,
+          'indecies': [
+            {'name': 'parent', 'keyPath': 'parent'},
+            {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+          ],
+        },
+        ['file', 'tree'],
+        1,
+      ],
+    },
+    {
+      'name': 'file',
+      'keys': [2],
+      'values': [
+        [116, 101, 115, 116],
+      ],
+    },
+    {
+      'name': 'tree',
+      'keys': [1, 2],
+      'values': [
+        {
+          'name': '/',
+          'type': 'DIRECTORY',
+          'modified': '2020-11-01T00:12:27.333761',
+          'size': 0,
+          'pn': '/',
+        },
+        {
+          'name': 'file.txt',
+          'type': 'FILE',
+          'parent': 1,
+          'modified': '2020-11-01T00:12:27.342468',
+          'size': 4,
+          'pn': '1/file.txt',
+        },
+      ],
+    },
+  ],
+};
+
+var exportLinesOneAbsoluteFileV1 = {
   'sembast_export': 1,
   'version': 1,
   'stores': [

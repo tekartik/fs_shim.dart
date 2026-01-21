@@ -4,7 +4,6 @@
 library;
 
 import 'package:dev_test/test.dart';
-
 import 'test_common.dart';
 
 void main() {
@@ -29,6 +28,49 @@ void defineTests(FileSystemTestContext ctx) {
 
       // no check
       ctx.fs.path.split(top.path);
+    });
+    test('write above root', () async {
+      var p = ctx.fs.path;
+      var sep = p.separator;
+      var path = p.join(sep, '..', 'test.txt');
+      var absolutePath = ctx.fs.path.absolute(path);
+      expect(absolutePath, path);
+      var file = ctx.fs.file(absolutePath);
+      if (fs is! FsShimSandboxedFileSystem) {
+        expect(await file.exists(), isFalse);
+      }
+      try {
+        await file.create(recursive: true);
+      } on FileSystemException catch (e) {
+        // error [5] PathAccessException: Cannot create file,
+        // path = '/../test.txt' (OS Error: Permission denied, errno = 13)
+
+        /// To adapt for CI maybe
+        expect(e.status, FileSystemException.statusAccessError);
+      }
+      try {
+        await file.parent.create(recursive: true);
+      } on FileSystemException catch (e) {
+        // error [5] PathAccessException: Cannot create file,
+        // path = '/../test.txt' (OS Error: Permission denied, errno = 13)
+
+        /// To adapt for CI maybe
+        expect(e.status, FileSystemException.statusAccessError);
+      }
+    }, skip: 'Only valid for io for now, other fs allow it');
+
+    test('sandbox', () async {
+      final dir = await ctx.prepare();
+      //debugDevPrintEnabled = true;
+      var sandbox = ctx.fs.sandbox(path: dir.path) as FsShimSandboxedFileSystem;
+
+      var filePath = 'myfile.txt';
+
+      final file = fs.file(ctx.path.join(dir.path, filePath));
+      await file.writeAsString('hello');
+      var sandboxedFile = sandbox.file(filePath);
+      final content = await sandboxedFile.readAsString();
+      expect(content, 'hello');
     });
   });
 }

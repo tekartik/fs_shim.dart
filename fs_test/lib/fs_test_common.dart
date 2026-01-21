@@ -4,18 +4,16 @@ import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/src/idb/idb_fs.dart';
+import 'package:path/path.dart' as p;
 import 'package:tekartik_fs_test/test_common.dart';
 
 int _testId = 0;
 
 List<String> get testDescriptions => ['test${++_testId}'];
 
-/// FileSystem context
-abstract class FileSystemTestContext {
-  PlatformContext? get platform;
-
-  /// The file system used
-  FileSystem get fs;
+mixin FileSystemTestContextMixin implements FileSystemTestContext {
+  @override
+  String? basePath;
 
   // The path to use for testing
   String get outPath {
@@ -26,12 +24,17 @@ abstract class FileSystemTestContext {
     return dir;
   }
 
-  Directory get baseDir => fs.directoryWith(path: basePath);
-  String? basePath;
-
   /// Support openRead/openWrite
   /// True by default.
+  @override
   bool get supportsFileContentStream => true;
+
+  @override
+  p.Context get path => fs.path;
+
+  @override
+  Directory get baseDir => fs.directoryWith(path: basePath);
+  @override
   Future<Directory> prepare() async {
     final dir = fs.directory(outPath);
     try {
@@ -48,9 +51,47 @@ abstract class FileSystemTestContext {
     await dir.create(recursive: true);
     return dir.absolute;
   }
+
+  FileSystemTestContext sandbox({required String path}) {
+    return _SandboxedFileSystemTestContext(delegate: this, sandboxPath: path);
+  }
 }
 
-abstract class IdbFileSystemTestContext extends FileSystemTestContext {
+/// FileSystem context
+abstract class FileSystemTestContext {
+  PlatformContext? get platform;
+
+  /// The file system used
+  FileSystem get fs;
+
+  Directory get baseDir;
+
+  String? get basePath;
+  p.Context get path;
+  Future<Directory> prepare();
+  bool get supportsFileContentStream;
+}
+
+class _SandboxedFileSystemTestContext with FileSystemTestContextMixin {
+  final FileSystemTestContext delegate;
+  final String sandboxPath;
+
+  _SandboxedFileSystemTestContext({
+    required this.delegate,
+    required this.sandboxPath,
+  });
+
+  @override
+  late final fs = delegate.fs.sandbox(path: sandboxPath);
+
+  @override
+  PlatformContext? get platform => delegate.platform;
+
+  @override
+  bool get supportsFileContentStream => delegate.supportsFileContentStream;
+}
+
+abstract class IdbFileSystemTestContext with FileSystemTestContextMixin {
   @override
   PlatformContext? platform;
 

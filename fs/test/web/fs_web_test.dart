@@ -3,7 +3,7 @@
 // is governed by a BSD-style license that can be found in the LICENSE file.
 library;
 
-import 'package:fs_shim/fs_idb.dart';
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client_native_interop.dart';
 
@@ -54,6 +54,12 @@ IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =
     IdbBrowserFileSystemTestContext();
 
 void main() {
+  test('current', () {
+    var p = fileSystemWeb.path;
+    expect(fileSystemWeb.currentDirectory.path, '/');
+    expect(p.absolute('.'), '/.');
+    expect(p.isAbsolute('.'), isFalse);
+  });
   group('idb_web', () {
     fsIdbMultiFormatGroup(idbFactoryNative);
 

@@ -13,8 +13,21 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs_shim.dart';
 import 'package:path/path.dart' as p;
 
+import 'fs.dart' as fs;
+
+/// File system extension
+/// - [fs.Directory.tryCreate].
+export 'src/common/fs_directory.dart' show FsShimDirectoryExtension;
+
+/// File system sandboxing
+export 'src/common/fs_extension.dart' show FsShimFileSystemExtension;
+
+/// File system entity parent, i.e. directory or file system.
 export 'src/common/fs_file_system_entity_parent.dart'
     show FileSystemEntityParent;
+
+/// File system sandboxing
+export 'src/common/fs_sandbox.dart' show FsShimSandboxedFileSystem;
 export 'src/random_access_file.dart' show RandomAccessFile;
 
 /// FileSystem entity.

@@ -125,11 +125,40 @@ void defineTests(FileSystemTestContext ctx) {
 
         final target = 'target';
         final link = fs.link(fs.path.join(dir.path, 'link'));
-        await link.create(target);
+        var createdLink = await link.create(target);
+        expect(createdLink.path, link.path);
+        expect(createdLink, link);
+
+        if (fs is FsShimSandboxedFileSystem) {
+          expect(await link.target(), p.join(link.parent.path, target));
+        } else {
+          expect(await link.target(), target);
+        }
+
         final link2 = fs.link(fs.path.join(dir.path, 'link2'));
+
         await link2.create(link.path);
 
-        expect(await link2.target(), link.path);
+        // memory
+        // createDirectory test1 -> [/, test1]
+        // link: Link: '/test1/link' (target: target)
+        // link target: target
+        // link2: Link: '/test1/link2'
+        // link2 target: /test1/link
+
+        // sandbox
+        // createDirectory /root/test1 -> [/, root, test1]
+        // link: Link: '/test1/link' (target: target)
+        // targetDelegatePath: /root/target
+        // sandboxPath: target
+        // link target: target
+        // targetDelegatePath: /root/target
+        // sandboxPath: target
+        // link2: Link: '/test1/link2'
+        // targetDelegatePath: /root/test1/link
+        // sandboxPath: test1/link
+        var link2Target = await link2.target();
+        expect(link2Target, link.path);
       });
 
       test('create_file', () async {
@@ -502,12 +531,36 @@ void defineTests(FileSystemTestContext ctx) {
           final file = fs.file(fs.path.join(dir.path, 'file'));
 
           final link = fs.link(fs.path.join(top.path, 'link'));
-          await link.create('dir/file');
-          expect(await link.target(), fs.path.join('dir', 'file'));
+          var createdLink = await link.create('dir/file');
+          expect(createdLink.path, link.path);
 
+          var expectedPath = fs.path.join('dir', 'file');
+          expect(
+            await link.target(),
+            (fs is FsShimSandboxedFileSystem)
+                ? fs.path.join(link.parent.path, expectedPath)
+                : expectedPath,
+          );
+
+          // memory
+          // link path: /test1/link, target dir/file
+          // file path: /test1/dir/file
+
+          // sandbox
+          // createDirectory /root/test1 -> [/, root, test1]
+          // targetDelegatePath: /root/dir/file
+          // sandboxPath: /dir/file
+          // link path: /test1/link, target: /dir/file
+          // targetDelegatePath: /root/dir/file
+          // sandboxPath: /dir/file
+          // file path: /test1/dir/file
           await file.create(recursive: true);
-          expect(await fs.isFile(link.path), isTrue);
-          expect(await fs.isLink(link.path), isTrue);
+          var isFile = await fs.isFile(link.path);
+          var isLink = await fs.isLink(link.path);
+          var type = await fs.type(link.path);
+          expect(type, FileSystemEntityType.file);
+          expect(isFile, isTrue);
+          expect(isLink, isTrue);
 
           final linkFile = fs.file(link.path);
           await linkFile.writeAsString(text, flush: true);
@@ -526,7 +579,14 @@ void defineTests(FileSystemTestContext ctx) {
         await link.create(fs.path.join('dir', 'sub'));
 
         // 2019-09-06 fixed
-        expect(await link.target(), fs.path.join('dir', 'sub'));
+        if (fs is FsShimSandboxedFileSystem) {
+          expect(
+            await link.target(),
+            fs.path.join(link.parent.path, 'dir', 'sub'),
+          );
+        } else {
+          expect(await link.target(), fs.path.join('dir', 'sub'));
+        }
 
         await sub.create(recursive: true);
         if (isIoWindows(ctx)) {
@@ -548,7 +608,14 @@ void defineTests(FileSystemTestContext ctx) {
 
           final link = fs.link(fs.path.join(top.path, 'link'));
           await link.create('dir/file');
-          expect(await link.target(), fs.path.join('dir', 'file'));
+          if (fs is FsShimSandboxedFileSystem) {
+            expect(
+              await link.target(),
+              fs.path.join(link.parent.path, 'dir', 'file'),
+            );
+          } else {
+            expect(await link.target(), fs.path.join('dir', 'file'));
+          }
 
           final linkFile = fs.file(link.path);
           await linkFile.writeAsString(text, flush: true);
@@ -567,7 +634,11 @@ void defineTests(FileSystemTestContext ctx) {
         final link = fs.link(fs.path.join(top.path, 'link'));
         await link.create('dir');
 
-        expect(await link.target(), 'dir');
+        if (fs is FsShimSandboxedFileSystem) {
+          expect(await link.target(), fs.path.join(link.parent.path, 'dir'));
+        } else {
+          expect(await link.target(), 'dir');
+        }
 
         await file.create(recursive: true);
         final linkFile = fs.file(fs.path.join(link.path, 'file'));
@@ -1060,11 +1131,21 @@ void defineTests(FileSystemTestContext ctx) {
           var link = fs.link(fs.path.join(dir.path, 'link'));
           await link.create('file');
 
-          expect(await link.target(), 'file');
-          expect(await fs.file(link.path).readAsString(), 'Hello world!');
+          if (fs is FsShimSandboxedFileSystem) {
+            expect(
+              await link.target(),
+              p.joinAll([
+                p.separator,
+                ...p.split(link.parent.path).sublist(1),
+                'file',
+              ]),
+            );
+          } else {
+            expect(await link.target(), 'file');
+          }
 
-          var linkFile = fs.file(link.path);
-          expect(await linkFile.readAsString(), 'Hello world!');
+          var linkedFile = fs.file(link.path);
+          expect(await linkedFile.readAsString(), 'Hello world!');
 
           // list dir content
           expect(

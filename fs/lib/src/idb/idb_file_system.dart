@@ -28,9 +28,13 @@ var debugIdbShowLogs = false;
 var idbSupportsV2Format = true;
 // var idbSupportsV2Format = devWarning(true);
 
-/// Settle on using the url way for idb files, (even on Windows).
-p.Context get idbPathContext => p.url;
+bool get idbPathContextIsPosix => idbPathContext.style == p.Style.posix;
 
+/// (not longer valid) Settle on using the url way for idb files, (even on Windows).
+/// p.Context get idbPathContext => devWarning(p.url);
+/// 2026-01-20 hope this is not too much of a breaking change
+/// Settle on using the posix way for idb files, (even on Windows).
+p.Context get idbPathContext => p.Context(style: p.Style.posix, current: '/');
 // might not be absolute
 List<String> _getTargetSegments(String path) {
   return idbPathContext.split(path);
@@ -1040,7 +1044,7 @@ class IdbFileSystem extends Object
   }
 
   @override
-  fs.Directory get currentDirectory => directory('.');
+  fs.Directory get currentDirectory => directory(path.current);
 }
 
 /// Web specific extesion

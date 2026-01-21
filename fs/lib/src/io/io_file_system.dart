@@ -27,10 +27,10 @@ class IoFileSystemImpl extends Object
   );
 
   @override
-  fs.File file(String? path) => FileImpl(path!);
+  fs.File file(String? path) => FileIoImpl(path!);
 
   @override
-  fs.Directory directory(String? path) => DirectoryImpl(path!);
+  fs.Directory directory(String? path) => DirectoryIoImpl(path!);
 
   @override
   fs.Link link(String? path) => LinkImpl(path!);

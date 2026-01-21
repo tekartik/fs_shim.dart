@@ -22,9 +22,17 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
     var p = fs.path;
     test('path', () {
       expect(p.separator, '/');
-      expect(p.current, '.');
+      if (idbPathContextIsPosix) {
+        expect(p.current, '/');
+      } else {
+        expect(p.current, '.');
+        expect(p.isAbsolute('./.'), isTrue); // !!
+        expect(p.absolute('.'), './.'); // !!
+      }
+
       expect(p.absolute('/'), '/');
-      expect(p.absolute('.'), './.');
+
+      expect(p.isAbsolute(p.absolute('.')), isTrue);
     });
 
     test('version', () async {
@@ -112,7 +120,12 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
     });
 
     test('current', () async {
-      expect(fs.currentDirectory.path, '.');
+      if (idbPathContextIsPosix) {
+        expect(fs.currentDirectory.path, '/');
+      } else {
+        expect(fs.currentDirectory.path, '.');
+      }
+
       expect(fs.currentDirectory.absolute.path, '/');
     });
   });

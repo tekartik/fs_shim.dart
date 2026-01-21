@@ -67,6 +67,7 @@ mixin FileSystemMixin implements FileSystem {
 
   @override
   p.Context get path => throw UnsupportedError('fs.path');
+
   @override
   Directory get currentDirectory =>
       throw UnsupportedError('fs.currentDirectory');
@@ -171,6 +172,9 @@ mixin FileMixin implements File {
   Future<RandomAccessFile> open({FileMode mode = FileMode.read}) {
     throw UnsupportedError('File.open not supported in this file system');
   }
+
+  @override
+  String toString() => 'File: \'$path\'';
 }
 
 /// File stat mode mixin.
@@ -195,10 +199,10 @@ mixin FileSystemEntityMixin implements FileSystemEntity {
   Future<bool> exists() => throw UnsupportedError('fse.exists');
 
   @override
-  bool get isAbsolute => throw UnsupportedError('fse.isAbsolute');
+  bool get isAbsolute => fs.path.isAbsolute(path);
 
   @override
-  Directory get parent => throw UnsupportedError('fse.parent');
+  Directory get parent => fs.directory(fs.path.dirname(path));
 
   @override
   String get path => throw UnsupportedError('fse.path');
@@ -212,6 +216,16 @@ mixin FileSystemEntityMixin implements FileSystemEntity {
 
   @override
   FileSystem get fs => throw UnsupportedError('fse.fs');
+
+  @override
+  int get hashCode => path.hashCode;
+  @override
+  bool operator ==(Object other) {
+    if (other.runtimeType == runtimeType && other is FileSystemEntity) {
+      return fs == other.fs && path == other.path;
+    }
+    return super == other;
+  }
 }
 
 /// Directory mixin.
@@ -239,6 +253,9 @@ mixin DirectoryMixin implements Directory {
 
   @override
   Directory directoryWith({String? path}) => newDirectoryWith(path: path);
+
+  @override
+  String toString() => 'Directory: \'$path\'';
 }
 
 /// Interal debug extension
@@ -251,4 +268,10 @@ extension FileSystemDebugExt on FileSystem {
     }
     return name;
   }
+}
+
+/// Link mixin.
+mixin LinkMixin implements Link {
+  @override
+  String toString() => 'Link: \'$path\'';
 }

@@ -19,3 +19,29 @@ extension FsShimDirectoryPrvExtension on Directory {
   /// Child file
   File newFile(String path) => fs.file(fs.path.join(this.path, path));
 }
+
+/// Common extension helpers
+extension FsShimDirectoryExtension on Directory {
+  /// Tries to create a directory at [path]. Never throws.
+  Future<bool> tryCreate() async {
+    try {
+      var type = await fs.type(path);
+      if (type == FileSystemEntityType.directory) {
+        return true;
+      } else if (type != FileSystemEntityType.notFound) {
+        return false;
+      }
+      final dir = directory(path);
+      await dir.create(recursive: true);
+      return true;
+    } on FileSystemException catch (e) {
+      // ignore
+      if (e.status == FileSystemException.statusAlreadyExists) {
+        return true;
+      }
+    } catch (_) {
+      // ignore any error
+    }
+    return false;
+  }
+}

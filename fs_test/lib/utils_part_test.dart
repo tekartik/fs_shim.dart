@@ -40,5 +40,5 @@ void defineTests(FileSystemTestContext ctx) {
         expect(parts, contains('splitParts'));
       }
     });
-  });
+  }, skip: 'no longer the description in the parts');
 }

@@ -7,7 +7,8 @@ import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 import 'package:test/test.dart';
 
-class FileSystemTestContextIo extends FileSystemTestContext {
+class FileSystemTestContextIo extends FileSystemTestContext
+    with FileSystemTestContextMixin {
   @override
   final PlatformContext platform = platformContextIo;
 

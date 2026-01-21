@@ -5,13 +5,16 @@ library;
 import 'dart:io' as io;
 
 import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/fs_mixin.dart';
 import 'package:fs_shim/src/io/io_file_system.dart';
 
 import 'io_directory.dart';
 import 'io_file_stat.dart';
 import 'io_fs.dart';
 
-abstract class FileSystemEntityImpl implements FileSystemEntity {
+abstract class FileSystemEntityIoImpl
+    with FileSystemEntityMixin
+    implements FileSystemEntity {
   io.FileSystemEntity? ioFileSystemEntity;
 
   FileSystemEntity _me(_) => this;
@@ -26,7 +29,7 @@ abstract class FileSystemEntityImpl implements FileSystemEntity {
   String toString() => ioFileSystemEntity.toString();
 
   @override
-  DirectoryImpl get parent => DirectoryImpl.io(ioFileSystemEntity!.parent);
+  DirectoryIoImpl get parent => DirectoryIoImpl.io(ioFileSystemEntity!.parent);
 
   @override
   Future<bool> exists() => ioWrap(ioFileSystemEntity!.exists());

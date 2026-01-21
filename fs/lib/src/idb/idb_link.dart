@@ -1,11 +1,12 @@
 // ignore_for_file: public_member_api_docs
 
 import 'package:fs_shim/fs.dart' as fs;
+import 'package:fs_shim/src/common/fs_mixin.dart';
 
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
-class IdbLink extends IdbFileSystemEntity implements fs.Link {
+class IdbLink extends IdbFileSystemEntity with LinkMixin implements fs.Link {
   IdbLink _me(_) => this;
 
   IdbLink(super.fs, super.path);

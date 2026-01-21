@@ -5,11 +5,14 @@ library;
 import 'dart:io' as io;
 
 import 'package:fs_shim/fs_io.dart';
+import 'package:fs_shim/src/common/fs_mixin.dart';
 
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 
-class LinkImpl extends FileSystemEntityImpl implements Link, FileSystemEntity {
+class LinkImpl extends FileSystemEntityIoImpl
+    with LinkMixin
+    implements Link, FileSystemEntity {
   io.Link? get ioLink => ioFileSystemEntity as io.Link?;
 
   LinkImpl _me(_) => this;

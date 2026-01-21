@@ -355,7 +355,7 @@ void defineTests(FileSystemTestContext ctx) {
       return null;
     }
 
-    test('list', () async {
+    test('list current', () async {
       final directory = await ctx.prepare();
       var list = await directory.list().toList();
       expect(list, isEmpty);
@@ -373,6 +373,19 @@ void defineTests(FileSystemTestContext ctx) {
 
       // not recursive
       list = await directory.list().toList();
+      // memory:
+      // createDirectory test1 -> [/, test1]
+      // createDirectory /test1/dir2 -> [/, test1, dir2]
+      // dir1: /test1/dir1
+      // dir2: /test1/dir2
+      // list: [Directory: '/test1/dir1', Directory: '/test1/dir2']
+
+      // sandbox:
+      // createDirectory /root/test1 -> [/, root, test1]
+      // createDirectory /root/test1/dir2 -> [/, root, test1, dir2]
+      // dir1: /test1/dir1
+      // dir2: /test1/dir2
+      // list: [Directory: 'test1/dir1', Directory: 'test1/dir2']
       expect(list.length, 2);
       expect(indexOf(list, dir1), isNot(-1));
       expect(indexOf(list, dir2), isNot(-1));
@@ -421,6 +434,18 @@ void defineTests(FileSystemTestContext ctx) {
       }
       await dir.create(recursive: true);
       expect(await dir.exists(), isTrue);
+    });
+
+    test('tryCreate', () async {
+      final top = await ctx.prepare();
+      var subDir = top.directory(fs.path.join('sub', 'sub2'));
+      expect(await subDir.tryCreate(), isTrue);
+
+      var subFile = fs.file(fs.path.join('other', 'file1.txt'));
+      await subFile.create(recursive: true);
+      expect(await subFile.exists(), isTrue);
+      subDir = fs.directory(subFile.path);
+      expect(await subDir.tryCreate(), isFalse);
     });
   });
 }

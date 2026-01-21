@@ -14,40 +14,41 @@ import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 import 'io_link.dart';
 
-DirectoryImpl get currentDirectoryIo => DirectoryImpl.io(io.Directory.current);
+DirectoryIoImpl get currentDirectoryIo =>
+    DirectoryIoImpl.io(io.Directory.current);
 @Deprecated('use currentDirectoryIo')
-DirectoryImpl get currentDirectory => currentDirectoryIo;
+DirectoryIoImpl get currentDirectory => currentDirectoryIo;
 
-class DirectoryImpl extends FileSystemEntityImpl
+class DirectoryIoImpl extends FileSystemEntityIoImpl
     with DirectoryMixin
     implements fs.Directory {
   io.Directory? get ioDir => ioFileSystemEntity as io.Directory?;
 
-  DirectoryImpl.io(io.Directory dir) {
+  DirectoryIoImpl.io(io.Directory dir) {
     ioFileSystemEntity = dir;
   }
 
-  DirectoryImpl(String path) {
+  DirectoryIoImpl(String path) {
     ioFileSystemEntity = io.Directory(path);
   }
 
   //DirectoryImpl _me(_) => this;
-  DirectoryImpl _ioThen(io.Directory resultIoDir) {
+  DirectoryIoImpl _ioThen(io.Directory resultIoDir) {
     if (resultIoDir.path == ioDir!.path) {
       return this;
     }
-    return DirectoryImpl.io(resultIoDir);
+    return DirectoryIoImpl.io(resultIoDir);
   }
 
   @override
-  Future<DirectoryImpl> create({bool recursive = false}) //
+  Future<DirectoryIoImpl> create({bool recursive = false}) //
   => ioWrap(ioDir!.create(recursive: recursive)).then(_ioThen);
 
   @override
-  Future<DirectoryImpl> rename(String newPath) =>
+  Future<DirectoryIoImpl> rename(String newPath) =>
       ioWrap(ioDir!.rename(newPath)).then(
         (io.FileSystemEntity ioFileSystemEntity) =>
-            DirectoryImpl(ioFileSystemEntity.path),
+            DirectoryIoImpl(ioFileSystemEntity.path),
       );
 
   @override
@@ -69,9 +70,9 @@ class DirectoryImpl extends FileSystemEntityImpl
             (io.FileSystemEntity data) {
               // Duplicate the data.
               if (data is io.File) {
-                controller.add(FileImpl.io(data));
+                controller.add(FileIoImpl.io(data));
               } else if (data is io.Directory) {
-                controller.add(DirectoryImpl.io(data));
+                controller.add(DirectoryIoImpl.io(data));
               } else if (data is io.Link) {
                 controller.add(LinkImpl.io(data));
               } else {
@@ -102,5 +103,5 @@ class DirectoryImpl extends FileSystemEntityImpl
   }
 
   @override
-  DirectoryImpl get absolute => DirectoryImpl.io(ioDir!.absolute);
+  DirectoryIoImpl get absolute => DirectoryIoImpl.io(ioDir!.absolute);
 }

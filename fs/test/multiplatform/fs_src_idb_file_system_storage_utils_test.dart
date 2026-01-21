@@ -14,6 +14,8 @@ void main() {
   });
 
   test('getSegments', () {
+    // expect(idbPathGetSegments('/..'), ['/', '..']);
+    expect(idbPathGetSegments('/..'), ['/']); // normalized never get above root
     expect(idbPathGetSegments('/./.'), ['/']);
     expect(getSegments('/.'), ['/']);
     expect(getSegments('.'), ['/']);

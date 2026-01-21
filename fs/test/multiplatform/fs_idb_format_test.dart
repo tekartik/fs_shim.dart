@@ -994,7 +994,66 @@ void fsIdbFormatGroup(
             },
           ],
         };
+        var exportLines = [
+          {'sembast_export': 1, 'version': 1},
+          {'store': '_main'},
+          [
+            'store_file',
+            {'name': 'file'},
+          ],
+          [
+            'store_part',
+            {
+              'name': 'part',
+              'keyPath': ['file', 'index'],
+            },
+          ],
+          [
+            'store_tree',
+            {
+              'name': 'tree',
+              'autoIncrement': true,
+              'indecies': [
+                {'name': 'parent', 'keyPath': 'parent'},
+                {'name': 'pn', 'keyPath': 'pn', 'unique': true},
+              ],
+            },
+          ],
+          [
+            'stores',
+            ['file', 'part', 'tree'],
+          ],
+          ['version', 8],
+          {'store': 'file'},
+          [
+            2,
+            {'@Blob': 'dGVzdA=='},
+          ],
+          {'store': 'tree'},
+          [
+            1,
+            {
+              'name': '/',
+              'type': 'dir',
+              'modified': dirStat.modified.toIso8601String(),
+              'size': 0,
+              'pn': '/',
+            },
+          ],
+          [
+            2,
+            {
+              'name': 'file.txt',
+              'type': 'file',
+              'parent': 1,
+              'modified': fileStat.modified.toIso8601String(),
+              'size': 4,
+              'pn': '1/file.txt',
+            },
+          ],
+        ];
         expect(await sdbExportDatabase(db), exportMap);
+        expect(await sdbExportDatabaseLines(db), exportLines);
         db.close();
 
         // devPrint(exportMap);

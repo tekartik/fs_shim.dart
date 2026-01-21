@@ -44,18 +44,18 @@ export 'src/io/fs_io.dart' show fileSystemIo;
 fs.FileSystem get ioFileSystem => fileSystemIo;
 
 /// Wrap IO file.
-fs.File wrapIoFile(io.File ioFile) => FileImpl.io(ioFile);
+fs.File wrapIoFile(io.File ioFile) => FileIoImpl.io(ioFile);
 
 /// Unwrap IO file.
-io.File unwrapIoFile(fs.File file) => (file as FileImpl).ioFile!;
+io.File unwrapIoFile(fs.File file) => (file as FileIoImpl).ioFile!;
 
 /// Wrap IO directory.
 fs.Directory wrapIoDirectory(io.Directory ioDirectory) =>
-    DirectoryImpl.io(ioDirectory);
+    DirectoryIoImpl.io(ioDirectory);
 
 /// Unwrap IO directory.
 io.Directory /*!*/ unwrapIoDirectory(fs.Directory dir) =>
-    (dir as DirectoryImpl).ioDir!;
+    (dir as DirectoryIoImpl).ioDir!;
 
 /// Wraps IO link.
 fs.Link wrapIoLink(io.Link ioLink) => LinkImpl.io(ioLink);

@@ -43,7 +43,6 @@ void defineTests(FileSystemTestContext ctx) {
       final stat = await file.stat();
       expect(stat.type, FileSystemEntityType.file);
       expect(stat.size, 4);
-      print(stat.modified);
       expect(
         stat.modified.difference(DateTime.now()).inDays.abs(),
         lessThan(1),

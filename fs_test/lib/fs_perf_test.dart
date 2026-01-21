@@ -8,6 +8,7 @@ import 'package:tekartik_fs_test/test_common.dart';
 void main() {
   fsPerfTestGroup(fileSystemDefault);
   tearDownAll(() {
+    // ignore: avoid_print
     print(fsPerfMarkdownResult());
   });
 }
@@ -165,6 +166,7 @@ void fsPerfTestGroup(FileSystem fs, {List<FsPerfParam>? params}) {
         await file.delete(recursive: true);
       } catch (_) {}
       var paramResult = fsPerfResult[param];
+      // ignore: avoid_print
       print(fs.debugName);
       var sw = Stopwatch();
       sw.start();
@@ -191,6 +193,7 @@ void fsPerfTestGroup(FileSystem fs, {List<FsPerfParam>? params}) {
           await raf.close();
           sw.stop();
           paramResult.rafWrite = sw.elapsed;
+          // ignore: avoid_print
           print('raf write $param ${sw.elapsed}');
         }
       }
@@ -204,6 +207,7 @@ void fsPerfTestGroup(FileSystem fs, {List<FsPerfParam>? params}) {
       sw.stop();
       paramResult.read = sw.elapsed;
 
+      // ignore: avoid_print
       print('read $param ${sw.elapsed}');
 
       // raf
@@ -221,6 +225,7 @@ void fsPerfTestGroup(FileSystem fs, {List<FsPerfParam>? params}) {
           await raf.close();
           sw.stop();
           paramResult.rafRead = sw.elapsed;
+          // ignore: avoid_print
           print('raf read $param ${sw.elapsed}');
         }
       }

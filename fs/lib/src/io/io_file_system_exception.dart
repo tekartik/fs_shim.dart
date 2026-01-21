@@ -80,6 +80,12 @@ int? _statusFromException(io.FileSystemException ioFse) {
         case 2:
           status = fs.FileSystemException.statusNotFound;
           break;
+
+        /// Permission denied on linux
+        /// Happens when trying to write above root / a file or a directory
+        case 13:
+          status = fs.FileSystemException.statusAccessError;
+          break;
         case 17:
           status = fs.FileSystemException.statusAlreadyExists;
           break;
