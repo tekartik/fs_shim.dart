@@ -135,6 +135,7 @@ void defineTests(FileSystemTestContext ctx) {
         final top = await ctx.prepare();
         final src = childDirectory(top, 'src');
         final file1 = await writeString(childFile(src, 'file1'), 'test');
+
         final file2 = await writeString(childFile(src, 'file2'), 'test');
         await deleteDirectory(src, options: DeleteOptions()..recursive = true);
         expect(await entityExists(file1), isFalse);

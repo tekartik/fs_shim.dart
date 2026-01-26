@@ -67,7 +67,9 @@ void defineTests(FileSystemTestContext ctx) {
 
     test('exists', () async {
       final dir = await ctx.prepare();
-      final file = fs.file(fs.path.join(dir.path, 'file'));
+      var file = fs.file(fs.path.join(dir.path, 'file'));
+      expect(await file.exists(), isFalse);
+      file = fs.file(fs.path.join(dir.path, 'sub_exists', 'file'));
       expect(await file.exists(), isFalse);
     });
 
@@ -77,7 +79,9 @@ void defineTests(FileSystemTestContext ctx) {
       final file = fs.file(fs.path.join(dir.path, 'file'));
       expect(await file.exists(), isFalse);
       expect(await fs.isFile(file.path), isFalse);
-      expect(await (await file.create()).exists(), isTrue);
+      var createdFile = await file.create();
+      expect(createdFile, file);
+      expect(await createdFile.exists(), isTrue);
       expect(await fs.isFile(file.path), isTrue);
 
       // second time fine too

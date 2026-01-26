@@ -11,8 +11,8 @@ Future<File> writeString(
 }) async {
   try {
     await file.writeAsString(content, flush: true, encoding: encoding);
-  } catch (_) {
-    await file.create(recursive: true);
+  } catch (e) {
+    await file.parent.create(recursive: true);
     await file.writeAsString(content, flush: true, encoding: encoding);
   }
   return file;
@@ -23,7 +23,7 @@ Future<File> writeBytes(File file, Uint8List bytes) async {
   try {
     await file.writeAsBytes(bytes, flush: true);
   } catch (_) {
-    await file.create(recursive: true);
+    await file.parent.create(recursive: true);
     await file.writeAsBytes(bytes, flush: true);
   }
   return file;

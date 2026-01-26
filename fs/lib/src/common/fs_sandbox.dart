@@ -64,11 +64,34 @@ class _SandboxFile extends _SandboxFileSystemEntity with FileMixin {
   }) => _fileDelegate.openWrite(mode: mode, encoding: encoding);
 
   @override
-  Future<File> create({bool recursive = false}) =>
-      _fileDelegate.create(recursive: recursive);
+  Future<File> create({bool recursive = false}) async {
+    await _fileDelegate.create(recursive: recursive);
+    return this;
+  }
 
   @override
   FileSystemEntity get _entityDelegate => _fileDelegate;
+
+  @override
+  Future<File> writeAsBytes(
+    Uint8List bytes, {
+    FileMode mode = FileMode.write,
+    bool flush = false,
+  }) async {
+    await _fileDelegate.writeAsBytes(bytes, mode: mode, flush: flush);
+    return this;
+  }
+
+  @override
+  Future<File> writeAsString(
+    String contents, {
+    FileMode mode = FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  }) async {
+    await _fileDelegate.writeAsString(contents, mode: mode, flush: flush);
+    return this;
+  }
 
   @override
   Future<_SandboxFile> rename(String newPath) async {
