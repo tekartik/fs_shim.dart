@@ -19,8 +19,8 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       var exportMap = exportMapOneAbsoluteFileV1;
       var dbName = 'export_file_v1.sdb';
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await sdbExportDatabase(db), exportMapOneAbsoluteFileV1);
+      var db = await idbImportDatabase(exportMap, idbFactory, dbName);
+      expect(await idbExportDatabase(db), exportMapOneAbsoluteFileV1);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -36,12 +36,12 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       var dbName = 'import_v1.sdb';
       //devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(
+      var db = await idbImportDatabase(
         exportMapOneAbsoluteFileV1,
         idbFactory,
         dbName,
       );
-      expect(await sdbExportDatabase(db), exportMapOneAbsoluteFileV1);
+      expect(await idbExportDatabase(db), exportMapOneAbsoluteFileV1);
 
       db.close();
 
@@ -57,8 +57,8 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       var dbName = 'import_v1.sdb';
       // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
-      expect(await sdbExportDatabase(db), exportMapOneFileV1);
+      var db = await idbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
+      expect(await idbExportDatabase(db), exportMapOneFileV1);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -70,7 +70,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       fs.close();
 
       // Re do
-      db = await sdbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
+      db = await idbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
       db.close();
 
       fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -89,7 +89,7 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
     // 3 files here
     test('complex1_v1', () async {
       var dbName = 'complex1_v1.db';
-      var db = await sdbImportDatabase(
+      var db = await idbImportDatabase(
         exportMap3FilesComplex1,
         idbFactory,
         dbName,

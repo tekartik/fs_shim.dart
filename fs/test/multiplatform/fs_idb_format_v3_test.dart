@@ -18,8 +18,8 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       var exportMap = rawExportOneFileV2PageSize0;
       var dbName = 'export_file_v2.sdb';
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await sdbExportDatabase(db), exportMap);
+      var db = await idbImportDatabase(exportMap, idbFactory, dbName);
+      expect(await idbExportDatabase(db), exportMap);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -34,8 +34,8 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       var exportMap = rawExportOneFileV3PageSize2;
       var dbName = 'export_file_v3.sdb';
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await sdbExportDatabase(db), rawExportOneFileV3PageSize2);
+      var db = await idbImportDatabase(exportMap, idbFactory, dbName);
+      expect(await idbExportDatabase(db), rawExportOneFileV3PageSize2);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -51,8 +51,8 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       var exportMap = rawExportOneFileV3PageSize1024;
       var dbName = 'export_file_v3_1024.sdb';
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await sdbExportDatabase(db), exportMap);
+      var db = await idbImportDatabase(exportMap, idbFactory, dbName);
+      expect(await idbExportDatabase(db), exportMap);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);

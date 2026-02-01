@@ -717,7 +717,7 @@ void fsIdbFormatGroup(
         ]);
 
         // devPrint(jsonPretty(exportMap));
-        expect(await sdbExportDatabase(db), exportMap);
+        expect(await idbExportDatabase(db), exportMap);
       } else {
         expect(await getFileEntries(db), isEmpty);
         if (options?.pageSize == 2) {
@@ -827,7 +827,7 @@ void fsIdbFormatGroup(
         ]);
 
         // devPrint(jsonPretty(exportMap));
-        expect(await sdbExportDatabase(db), exportMap);
+        expect(await idbExportDatabase(db), exportMap);
       }
       db.close();
     });
@@ -835,12 +835,12 @@ void fsIdbFormatGroup(
       var dbName = 'import_v_current.sdb';
       // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(
+      var db = await idbImportDatabase(
         exportMapOneFileCurrent,
         idbFactory,
         dbName,
       );
-      expect(await sdbExportDatabase(db), exportMapOneFileCurrent);
+      expect(await idbExportDatabase(db), exportMapOneFileCurrent);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -855,9 +855,9 @@ void fsIdbFormatGroup(
       var dbName = 'import_v1_current.sdb';
       // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
       await idbFactory.deleteDatabase(dbName);
-      var db = await sdbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
+      var db = await idbImportDatabase(exportMapOneFileV1, idbFactory, dbName);
       // Untouch not changed
-      expect(await sdbExportDatabase(db), exportMapOneFileV1);
+      expect(await idbExportDatabase(db), exportMapOneFileV1);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -1052,13 +1052,13 @@ void fsIdbFormatGroup(
             },
           ],
         ];
-        expect(await sdbExportDatabase(db), exportMap);
-        expect(await sdbExportDatabaseLines(db), exportLines);
+        expect(await idbExportDatabase(db), exportMap);
+        expect(await idbExportDatabaseLines(db), exportLines);
         db.close();
 
         // devPrint(exportMap);
-        db = await sdbImportDatabase(exportMap, idbFactory, dbName);
-        expect(await sdbExportDatabase(db), exportMap);
+        db = await idbImportDatabase(exportMap, idbFactory, dbName);
+        expect(await idbExportDatabase(db), exportMap);
         db.close();
 
         fs = IdbFileSystem(idbFactory, dbPath: dbName);
@@ -1098,12 +1098,12 @@ void fsIdbFormatGroup(
     fs.close();
 
     var db = await idbFactory.open(dbName);
-    var exportMap = await sdbExportDatabase(db);
+    var exportMap = await idbExportDatabase(db);
     //devPrint(jsonPretty(exportMap)); //print for copying/pasting for import
     db.close();
 
-    db = await sdbImportDatabase(exportMap, idbFactory, dbNameImported);
-    expect(await sdbExportDatabase(db), exportMap);
+    db = await idbImportDatabase(exportMap, idbFactory, dbNameImported);
+    expect(await idbExportDatabase(db), exportMap);
     db.close();
 
     fs = IdbFileSystem(idbFactory, dbPath: dbNameImported);
