@@ -19,6 +19,27 @@ void main() {
       options: const FileSystemIdbOptions(pageSize: 2),
     ),
   );
+  test('equals', () {
+    var factory = newIdbFactoryMemory();
+    var storage1 = IdbFileSystemStorage(
+      factory,
+      'test',
+      options: const FileSystemIdbOptions(pageSize: 2),
+    );
+    var storage2 = IdbFileSystemStorage(
+      factory,
+      'test',
+      options: const FileSystemIdbOptions(pageSize: 2),
+    );
+    var storage3 = IdbFileSystemStorage(
+      factory,
+      'other_test',
+      options: const FileSystemIdbOptions(pageSize: 2),
+    );
+    expect(storage1, storage2);
+    expect(storage1.hashCode, storage2.hashCode);
+    expect(storage1, isNot(storage3));
+  });
 }
 
 var _index = 0;

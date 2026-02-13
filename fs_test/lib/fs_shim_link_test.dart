@@ -50,6 +50,14 @@ void defineTests(FileSystemTestContext ctx) {
         expect(link.toString(), "Link: '${link.path}'");
       });
 
+      test('equals', () {
+        final link1 = fs.link('link');
+        final link2 = fs.link(fs.path.join('.', 'link'));
+        final link3 = fs.link('other_link');
+        expect(link1, link2);
+        expect(link1.hashCode, link2.hashCode);
+        expect(link1, isNot(link3));
+      });
       test('absolute', () {
         var link = fs.link('dummy');
         expect(link.isAbsolute, isFalse);

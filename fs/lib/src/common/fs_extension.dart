@@ -20,17 +20,61 @@ extension FsShimFileSystemExtension on FileSystem {
     return FsShimSandboxedFileSystemImpl(rootDirectory: directory(absPath));
   }
 
-  /// Absolute path
+  /// Normalize a path, removing redundant separators and up-level references.
+  String normalizePath(String path) => p.normalize(path);
+
+  /// Absolute path, normalized and with dot separators removed.
+  /// If [path] is already absolute, it is returned as is
+  /// (after normalization and dot separator removal).
+  /// Otherwise, it is joined with [currentDirectory.path] to form an absolute path.
   String absolutePath(String path) {
     path = removeDotSep(path);
     if (path == '.') {
-      return currentDirectory.path;
+      return normalizePath(currentDirectory.path);
     }
     if (this.path.isAbsolute(path)) {
-      return path;
+      return normalizePath(path);
     } else {
-      return this.path.join(currentDirectory.path, path);
+      return normalizePath(this.path.join(currentDirectory.path, path));
     }
+  }
+
+  /// Path hash code based on absolute paths.
+  int pathHashCode(String path) {
+    var absPath = absolutePath(path);
+    return absPath.hashCode;
+  }
+
+  /// Path equality based on absolute paths.
+  bool pathEquals(String path1, String path2) {
+    var absPath1 = absolutePath(path1);
+    var absPath2 = absolutePath(path2);
+    return absPath1 == absPath2;
+  }
+
+  /// Unsandbox a file system, returning the root directory of the sandbox.
+  /// return [currentDirectory] if not sandboxed.
+  Directory unsandbox({String? path}) {
+    if (this is FsShimSandboxedFileSystem) {
+      return (this as FsShimSandboxedFileSystem).rootDirectory.directoryWith(
+        path: path,
+      );
+    } else {
+      return currentDirectory.directoryWith(path: path);
+    }
+  }
+
+  /// Recursively unsandbox a file system, returning the root directory of the outermost sandbox.
+  Directory recursiveUnsandbox({String? path}) {
+    var dir = unsandbox(path: path);
+    while (true) {
+      var fs = dir.fs;
+      if (fs is! FsShimSandboxedFileSystem) {
+        break;
+      }
+      dir = fs.unsandbox(path: dir.path);
+    }
+    return dir;
   }
 }
 

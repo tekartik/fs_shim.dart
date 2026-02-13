@@ -580,6 +580,7 @@ abstract class FileSystem implements FileSystemEntityParent {
   ///
   /// Creates a [Link] object.
   ///
+  @override
   Link link(String path);
 
   ///

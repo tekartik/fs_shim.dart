@@ -858,6 +858,16 @@ class IdbFileSystemStorage {
     }
     _readyCompleter = null;
   }
+
+  @override
+  int get hashCode => dbPath.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is IdbFileSystemStorage &&
+          idbFactory == other.idbFactory &&
+          dbPath == other.dbPath);
 }
 
 String? typeToString(fs.FileSystemEntityType type) {

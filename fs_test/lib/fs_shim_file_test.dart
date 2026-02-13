@@ -47,6 +47,15 @@ void defineTests(FileSystemTestContext ctx) {
       expect(file.toString(), "File: '${file.path}'");
     });
 
+    test('equals', () {
+      final file1 = fs.file('file');
+      final file2 = fs.file(fs.path.join('.', 'file'));
+      final file3 = fs.file('other_file');
+      expect(file1, file2);
+      expect(file1.hashCode, file2.hashCode);
+      expect(file1, isNot(file3));
+    });
+
     test('absolute', () {
       var file = fs.file('dummy');
       expect(file.isAbsolute, isFalse);

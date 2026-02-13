@@ -17,7 +17,13 @@ extension FsShimDirectoryPrvExtension on Directory {
       path == null ? this : newDirectory(path);
 
   /// Child file
-  File newFile(String path) => fs.file(fs.path.join(this.path, path));
+  File newFile(String path) => fs.file(newChildPath(path));
+
+  /// Child link
+  Link newLink(String path) => fs.link(newChildPath(path));
+
+  /// Child path
+  String newChildPath(String path) => fs.path.join(this.path, path);
 }
 
 /// Common extension helpers

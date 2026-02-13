@@ -35,6 +35,14 @@ void defineTests(FileSystemTestContext ctx) {
       expect(dir.toString(), "Directory: '${dir.path}'");
     });
 
+    test('equals', () {
+      final directory1 = fs.directory('directory');
+      final directory2 = fs.directory(fs.path.join('.', 'directory'));
+      final directory3 = fs.directory('other_directory');
+      expect(directory1, directory2);
+      expect(directory1.hashCode, directory2.hashCode);
+      expect(directory1, isNot(directory3));
+    });
     test('absolute', () {
       var dir = fs.directory('dummy');
       expect(dir.isAbsolute, isFalse);

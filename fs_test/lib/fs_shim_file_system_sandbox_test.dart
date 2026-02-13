@@ -63,6 +63,24 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
       final content = await sandboxedFile.readAsString();
       expect(sandbox.sandboxPath(mainPath), p.join(p.separator, filePath));
       expect(content, 'hello');
+
+      expect(sandbox.unsandbox(), dir);
+
+      if (ctx.fs is! FsShimSandboxedFileSystem) {
+        expect(sandbox.recursiveUnsandbox(), dir);
+        expect(sandbox.recursiveUnsandbox(path: 'test'), dir.directory('test'));
+      }
+
+      /// Handle if ctx.fs is already sandboxed
+      expect(
+        sandbox.recursiveUnsandbox(),
+        ctx.fs.recursiveUnsandbox(path: dir.path),
+      );
+      expect(sandbox.unsandbox(path: 'test'), dir.directory('test'));
+      expect(
+        sandbox.recursiveUnsandbox(path: 'test'),
+        ctx.fs.recursiveUnsandbox(path: dir.directory('test').path),
+      );
     });
     test('two levels sandbox', () async {
       final dir = await ctx.prepare();
@@ -87,6 +105,24 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
       //expect(sandbox.delegatePath(filePath), p.join(dir.path, filePath));
       final content = await sandboxed1File.readAsString();
       expect(content, 'hello');
+
+      expect(sandbox.unsandbox(), dir);
+      expect(sandbox2.unsandbox(), sandbox2.rootDirectory);
+      expect(
+        sandbox2.unsandbox(path: 'test'),
+        sandbox2.rootDirectory.directory('test'),
+      );
+      if (ctx.fs is! FsShimSandboxedFileSystem) {
+        expect(sandbox.recursiveUnsandbox(), dir);
+        expect(
+          sandbox2.recursiveUnsandbox(),
+          dir.directory(sandbox2.rootDirectory.path),
+        );
+        expect(
+          sandbox2.recursiveUnsandbox(path: 'test'),
+          dir.directory(sandbox2.rootDirectory.childPath('test')),
+        );
+      }
     });
   });
 }

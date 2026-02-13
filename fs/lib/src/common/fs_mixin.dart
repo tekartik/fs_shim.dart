@@ -69,6 +69,9 @@ mixin FileSystemMixin implements FileSystem {
   p.Context get path => throw UnsupportedError('fs.path');
 
   @override
+  String childPath(String path) => currentDirectory.childPath(path);
+
+  @override
   Directory get currentDirectory =>
       throw UnsupportedError('fs.currentDirectory');
 
@@ -175,6 +178,16 @@ mixin FileMixin implements File {
 
   @override
   String toString() => 'File: \'$path\'';
+
+  @override
+  int get hashCode => fs.pathHashCode(path);
+  @override
+  bool operator ==(Object other) {
+    if (other is File) {
+      return fs == other.fs && fs.pathEquals(path, other.path);
+    }
+    return super == other;
+  }
 }
 
 /// File stat mode mixin.
@@ -218,11 +231,11 @@ mixin FileSystemEntityMixin implements FileSystemEntity {
   FileSystem get fs => throw UnsupportedError('fse.fs');
 
   @override
-  int get hashCode => path.hashCode;
+  int get hashCode => fs.pathHashCode(path);
   @override
   bool operator ==(Object other) {
-    if (other.runtimeType == runtimeType && other is FileSystemEntity) {
-      return fs == other.fs && path == other.path;
+    if (other is FileSystemEntity) {
+      return fs == other.fs && fs.pathEquals(path, other.path);
     }
     return super == other;
   }
@@ -251,11 +264,29 @@ mixin DirectoryMixin implements Directory {
   @override
   File file(String path) => newFile(path);
 
+  /// Child link
+  @override
+  Link link(String path) => newLink(path);
+
+  /// Child path
+  @override
+  String childPath(String path) => newChildPath(path);
+
   @override
   Directory directoryWith({String? path}) => newDirectoryWith(path: path);
 
   @override
   String toString() => 'Directory: \'$path\'';
+
+  @override
+  int get hashCode => fs.pathHashCode(path);
+  @override
+  bool operator ==(Object other) {
+    if (other is Directory) {
+      return fs == other.fs && fs.pathEquals(path, other.path);
+    }
+    return false;
+  }
 }
 
 /// Interal debug extension
@@ -274,4 +305,14 @@ extension FileSystemDebugExt on FileSystem {
 mixin LinkMixin implements Link {
   @override
   String toString() => 'Link: \'$path\'';
+
+  @override
+  int get hashCode => fs.pathHashCode(path);
+  @override
+  bool operator ==(Object other) {
+    if (other is Link) {
+      return fs == other.fs && fs.pathEquals(path, other.path);
+    }
+    return false;
+  }
 }

@@ -81,5 +81,9 @@ void defineTests(FileSystemTestContext ctx) {
         p.join(fs.currentDirectory.path, 'test'),
       );
     });
+    test('normalizePath', () {
+      expect(fs.normalizePath('.'), '.');
+      expect(fs.normalizePath(fs.path.join('test', '..')), '.');
+    });
   });
 }
