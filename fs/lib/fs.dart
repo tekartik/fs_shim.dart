@@ -552,6 +552,11 @@ abstract class FileSystem implements FileSystemEntityParent {
   /// The path context for this file system.
   p.Context get path;
 
+  /// Use [path] instead
+  @Deprecated('Use path')
+  // ignore: public_member_api_docs
+  p.Context get pathContext;
+
   /// A [Directory] object pointing to the current working directory.
   Directory get currentDirectory;
 }
