@@ -1,8 +1,14 @@
-## 2.5.0+1
+## 2.5.0+2
 
 * Add `Directory.tryCreate` extension method to create a directory if it does not exist
 * Add `FileSystem.sandbox` extension method to create a sandboxed file system
+* Add `FileSystem.unsandbox` extension method to get the parent file system directory
 * Add `FileSystem.absolutePath` extension method to get an absolute path
+* Add `FileSystem.normalizePath` extension method to get an absolute path
+* Add `FileSystem.pathHashCode` extension method to get a hash code for a path (normalized and absolute)
+* Add `FileSystem.pathEquals` extension method to compare two paths (normalized and absolute)
+* Add `FileSystemEntityParent.link` method to create a link in the parent directory
+* Add `FileSystemEntityParent.childPath` method to get a child path in the parent directory/file system
 * null `path` argument no longer accepted for file, directory, and link constructors and various entity path arguments in methods 
   (type, isFile, isDirectory, isLink).
   This should be considered as a breaking change, however null was always throwing an error.
