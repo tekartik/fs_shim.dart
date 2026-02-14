@@ -3,7 +3,6 @@ library;
 import 'dart:io' as io;
 
 import 'fs.dart' as fs;
-
 import 'src/io/fs_io.dart' show fileSystemIo;
 import 'src/io/io_directory.dart';
 import 'src/io/io_file.dart';
@@ -36,7 +35,6 @@ export 'fs.dart'
         FileStat,
         FileMode,
         OSError;
-
 export 'src/io/fs_io.dart' show fileSystemIo;
 
 @Deprecated('Use fileSystemIo instead')
@@ -75,7 +73,8 @@ io.FileSystemException unwrapIoFileSystemException(
 
 /// Wraps IO OS Error.
 fs.OSError? /*!*/
-/*!*/ wrapIoOSError(io.OSError? /*!*/ ioOSError) => OSErrorImpl.io(ioOSError);
+/*!*/
+wrapIoOSError(io.OSError? /*!*/ ioOSError) => OSErrorImpl.io(ioOSError);
 
 /// Unwraps IO OS Error.
 io.OSError? /*!*/ unwrapIoOSError(fs.OSError? /*!*/ osError) =>

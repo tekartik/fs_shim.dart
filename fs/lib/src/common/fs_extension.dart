@@ -26,7 +26,8 @@ extension FsShimFileSystemExtension on FileSystem {
   /// Absolute path, normalized and with dot separators removed.
   /// If [path] is already absolute, it is returned as is
   /// (after normalization and dot separator removal).
-  /// Otherwise, it is joined with [currentDirectory.path] to form an absolute path.
+  /// Otherwise, it is joined with the path of [currentDirectory]
+  /// to form an absolute path.
   String absolutePath(String path) {
     path = removeDotSep(path);
     if (path == '.') {

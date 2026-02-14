@@ -3,7 +3,8 @@
 
 /// The fs_shim library.
 ///
-/// This is an awesome library. More dartdocs go here.
+/// File System abstraction layer for Dart. It provides a common API for file
+/// system access.
 library;
 
 import 'dart:async';
@@ -140,7 +141,7 @@ abstract class FileSystemEntity {
 
 /// The mode in which a file is opened.
 ///
-/// The [FileMode] is used by [File.open] and [File.openSync] to specify
+/// The [FileMode] is used by [File.open] to specify
 /// whether a file is opened for reading, writing, or appending.
 class FileMode {
   const FileMode._internal(this._mode);

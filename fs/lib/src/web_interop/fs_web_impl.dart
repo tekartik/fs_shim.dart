@@ -3,10 +3,10 @@ import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb_client_native.dart';
 
 /// The default browser file system on top of IndexedDB. Random access support is not optimized
-final FileSystem fileSystemWeb = newFileSystemIdb(idbFactoryNative);
+final FileSystem fileSystemWebImpl = newFileSystemIdb(idbFactoryNative);
 
 /// New file system on the web using a particular database
-FileSystem newFileSystemWeb({
+FileSystem newFileSystemWebImpl({
   required String name,
   FileSystemIdbOptions? options,
 }) => newFileSystemIdb(
@@ -21,7 +21,7 @@ FileSystemIdbOptions get _defaultOptions =>
 FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) {
   options ??= _defaultOptions;
   if (options.pageSize == null) {
-    return fileSystemWeb;
+    return fileSystemWebImpl;
   }
-  return fileSystemWeb.withIdbOptions(options: options);
+  return fileSystemWebImpl.withIdbOptions(options: options);
 }

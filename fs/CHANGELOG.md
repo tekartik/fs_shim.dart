@@ -1,4 +1,4 @@
-## 2.5.0+3
+## 2.5.0+4
 
 * Add `Directory.tryCreate` extension method to create a directory if it does not exist
 * Add `FileSystem.sandbox` extension method to create a sandboxed file system

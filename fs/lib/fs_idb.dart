@@ -1,3 +1,4 @@
+/// {@canonicalFor idb_file_system.FileSystemIdbExt}
 library;
 
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
@@ -5,7 +6,7 @@ import 'package:fs_shim/src/idb/idb_fs.dart';
 import 'package:idb_shim/idb.dart' as idb;
 import 'package:meta/meta.dart';
 
-import 'fs.dart';
+import 'fs_browser.dart';
 
 export 'fs.dart';
 export 'src/idb/idb_file_system.dart' show FileSystemIdbExt;
@@ -55,3 +56,7 @@ FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String? dbPath]) =>
 @Deprecated('use newFileSystemIdb')
 FileSystem newIdbFileSystem(idb.IdbFactory idbFactory, [String? name]) =>
     newFileSystemIdb(idbFactory, name);
+
+/// The default browser file system on top of IndexedDB.
+@Deprecated('Use fileSystemWeb instead')
+FileSystem get fileSystemIdb => fileSystemWeb;

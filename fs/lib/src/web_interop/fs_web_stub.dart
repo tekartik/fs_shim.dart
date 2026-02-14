@@ -1,10 +1,10 @@
 import 'package:fs_shim/fs_idb.dart';
 
 /// The default browser file system on top of IndexedDB.
-FileSystem get fileSystemWeb => _stub('fileSystemWeb');
+FileSystem get fileSystemWebImpl => _stub('fileSystemWeb');
 
 /// Browser base file system With a custom indexed db
-FileSystem newFileSystemWeb({
+FileSystem newFileSystemWebImpl({
   required String name,
   FileSystemIdbOptions? options,
 }) => _stub('newFileSystemWeb');
