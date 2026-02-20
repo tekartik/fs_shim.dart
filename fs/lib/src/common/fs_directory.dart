@@ -50,4 +50,9 @@ extension FsShimDirectoryExtension on Directory {
     }
     return false;
   }
+
+  /// Create a file system sandbox for this directory
+  FileSystem sandbox() {
+    return fs.sandbox(path: path);
+  }
 }

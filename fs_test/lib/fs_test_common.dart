@@ -71,6 +71,8 @@ abstract class FileSystemTestContext {
 
   String? get basePath;
   p.Context get path;
+
+  /// Empty and create dir
   Future<Directory> prepare();
   bool get supportsFileContentStream;
 }

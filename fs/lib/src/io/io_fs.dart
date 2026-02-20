@@ -8,6 +8,7 @@ import 'dart:typed_data';
 
 import 'package:fs_shim/fs.dart' as fs;
 
+import '../../fs.dart';
 import 'io_file_system_exception.dart';
 
 io.FileMode unwrapFileMode(fs.FileMode fsFileMode) {
@@ -108,7 +109,7 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
   }
 }
 
-class IoWriteFileSink implements StreamSink<Uint8List> {
+class IoWriteFileSink implements FileStreamSink {
   io.IOSink ioSink;
 
   IoWriteFileSink(this.ioSink);
@@ -124,6 +125,11 @@ class IoWriteFileSink implements StreamSink<Uint8List> {
   @override
   void addError(errorEvent, [StackTrace? stackTrace]) {
     ioSink.addError(errorEvent, stackTrace);
+  }
+
+  @override
+  Future<void> flush() async {
+    await ioSink.flush();
   }
 
   @override

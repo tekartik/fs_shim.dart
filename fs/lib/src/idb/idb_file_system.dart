@@ -180,6 +180,11 @@ class FileSystemIdb extends Object
   // when storage is ready
   Future get _ready => _storage.ready;
 
+  Future<idb.Database> get readyDatabase async {
+    await _ready;
+    return database;
+  }
+
   @override
   Future<fs.FileSystemEntityType> type(
     String path, {
@@ -785,10 +790,7 @@ class FileSystemIdb extends Object
     });
   }
 
-  StreamSink<List<int>> openWrite(
-    File file, {
-    fs.FileMode mode = fs.FileMode.write,
-  }) {
+  FileStreamSink openWrite(File file, {fs.FileMode mode = fs.FileMode.write}) {
     if (mode == fs.FileMode.read) {
       throw ArgumentError("Invalid file mode '$mode' for this operation");
     }

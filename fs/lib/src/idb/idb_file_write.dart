@@ -100,7 +100,13 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
   }
 
   /// Flush current stream. paging only for now
-  Future<void> flush({bool close = false}) async {
+  @override
+  Future<void> flush() async {
+    await doFlush();
+  }
+
+  /// Flush current stream. paging only for now
+  Future<void> doFlush({bool close = false}) async {
     await flushPending(all: true, close: close);
   }
 
@@ -132,7 +138,7 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
     await super.close();
 
     if (fsIdb.idbOptions.hasPageSize) {
-      await flush(close: true);
+      await doFlush(close: true);
     } else {
       await _openNodeFile();
       var txn = database.writeAllTransactionList();

@@ -78,6 +78,9 @@ class CopyOptions extends Object
   /// Try to link dir first (not supported)
   bool tryToLinkDir; // not supported yet
 
+  /// Verbose
+  final bool verbose;
+
   /// Copy options.
   CopyOptions({
     bool recursive = false,
@@ -88,7 +91,8 @@ class CopyOptions extends Object
     bool delete = false,
     List<String>? include,
     List<String>? exclude,
-  }) {
+    bool? verbose,
+  }) : verbose = verbose ?? false {
     this.recursive = recursive;
     this.delete = delete;
     this.exclude = exclude;
@@ -97,15 +101,31 @@ class CopyOptions extends Object
   }
 
   /// Clone options.
-  CopyOptions get clone => CopyOptions()
-    ..recursive = recursive
-    ..checkSizeAndModifiedDate = checkSizeAndModifiedDate
-    ..tryToLinkFile = tryToLinkFile
-    ..tryToLinkDir = tryToLinkDir
-    ..followLinks = followLinks
-    ..delete = delete
-    ..exclude = exclude
-    ..include = include;
+  CopyOptions get clone => copyWith();
+
+  /// Copy with, cloning with optional override
+  CopyOptions copyWith({
+    bool? recursive,
+    bool? checkSizeAndModifiedDate,
+    bool? tryToLinkFile,
+    bool? tryToLinkDir,
+    bool? followLinks,
+    bool? delete,
+    List<String>? include,
+    List<String>? exclude,
+    bool? verbose,
+  }) => CopyOptions(
+    recursive: recursive ?? this.recursive,
+    checkSizeAndModifiedDate:
+        checkSizeAndModifiedDate ?? this.checkSizeAndModifiedDate,
+    tryToLinkFile: tryToLinkFile ?? this.tryToLinkFile,
+    tryToLinkDir: tryToLinkDir ?? this.tryToLinkDir,
+    followLinks: followLinks ?? this.followLinks,
+    delete: delete ?? this.delete,
+    include: include ?? this.include,
+    exclude: exclude ?? this.exclude,
+    verbose: verbose ?? this.verbose,
+  );
 }
 
 /// Only copy if date is new.

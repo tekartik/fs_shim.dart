@@ -1,3 +1,9 @@
+## 2.5.1-wip
+
+* Add `Directory.sandbox` extension method as shortcut to sandbox a file system
+* Add `fsIdbExportLines` and `fsIdbImport` mainly for testing purpose
+* Add `FileStreamSink` to add `flush` feature when writing files.
+
 ## 2.5.0+4
 
 * Add `Directory.tryCreate` extension method to create a directory if it does not exist

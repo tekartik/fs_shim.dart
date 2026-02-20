@@ -29,6 +29,7 @@ export 'src/common/fs_file_system_entity_parent.dart'
 
 /// File system sandboxing
 export 'src/common/fs_sandbox.dart' show FsShimSandboxedFileSystem;
+export 'src/file_stream_sink.dart' show FileStreamSink;
 export 'src/random_access_file.dart' show RandomAccessFile;
 
 /// A reference to an entity on the file system, such as a file or directory.
@@ -250,7 +251,7 @@ abstract class File extends FileSystemEntity {
   /// specified using [encoding] will be used. The returned [StreamSink] has an
   /// `encoding` property which can be changed after the [StreamSink] has been
   /// created.
-  StreamSink<List<int>> openWrite({
+  FileStreamSink openWrite({
     FileMode mode = FileMode.write,
     Encoding encoding = utf8,
   });

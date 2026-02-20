@@ -24,7 +24,7 @@ class FileIdb extends IdbFileSystemEntity with FileMixin implements fs.File {
 
   // don't care about encoding - assume UTF8
   @override
-  StreamSink<List<int>> openWrite({
+  FileStreamSink openWrite({
     fs.FileMode mode = fs.FileMode.write,
     Encoding encoding = utf8,
   }) //

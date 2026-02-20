@@ -1,10 +1,12 @@
+import 'package:meta/meta.dart';
+
 bool _devPrintEnabled = true;
 
-@Deprecated('Dev only')
+@doNotSubmit
 set devPrintEnabled(bool enabled) => _devPrintEnabled = enabled;
 
 /// Deprecated to prevent keeping the code used.
-@Deprecated('Dev only')
+@doNotSubmit
 void devPrint(Object object) {
   if (_devPrintEnabled) {
     // ignore: avoid_print
@@ -16,5 +18,9 @@ void devPrint(Object object) {
 ///
 /// Can be use as a todo for weird code. int value = devWarning(myFunction());
 /// The function is always called
-@Deprecated('Dev only')
+@doNotSubmit
 T devWarning<T>(T value) => value;
+
+/// Temp
+@doNotSubmit
+const devTrue = true;

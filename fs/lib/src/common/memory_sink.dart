@@ -5,7 +5,7 @@ library;
 import 'package:fs_shim/src/common/import.dart';
 
 /// Memory sink.
-class MemorySink implements StreamSink<List<int>> {
+class MemorySink implements FileStreamSink {
   List<int> content = [];
 
   /// Memory sink.
@@ -41,5 +41,10 @@ class MemorySink implements StreamSink<List<int>> {
     return stream.listen((data) {
       add(data);
     }).asFuture();
+  }
+
+  @override
+  Future<void> flush() async {
+    // No-op in memory
   }
 }

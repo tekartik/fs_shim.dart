@@ -3,6 +3,7 @@ library;
 import 'package:dev_test/test.dart';
 // ignore_for_file: unnecessary_import
 import 'package:fs_shim/fs.dart';
+import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/utils/src/utils_impl.dart'
     show copyFileSystemEntityImpl;
 
@@ -438,7 +439,7 @@ void defineTests(FileSystemTestContext ctx) {
 
         await writeString(childFile(src, 'file'), 'test');
         final copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
-        final childCopy = ChildCopy(copy, null, 'file');
+        final childCopy = ChildCopy(copy, defaultCopyOptions, 'file');
         await childCopy.run();
         expect(await readString(childFile(dst, 'file')), 'test');
       });
@@ -452,7 +453,7 @@ void defineTests(FileSystemTestContext ctx) {
         await writeString(childFile(src, 'file'), 'test');
         final copy = TopCopy(fsTopEntity(src), fsTopEntity(dst));
 
-        await copy.runChild(null, 'file');
+        await copy.runChild(defaultCopyOptions, 'file');
         expect(await readString(childFile(dst, 'file')), 'test');
       });
 
@@ -833,6 +834,140 @@ void defineTests(FileSystemTestContext ctx) {
           0,
         );
       });
+    });
+  });
+  group('cross_fs_copy', () async {
+    Future<void> testCopyFile(File file1, File file2) async {
+      expect(await file1.exists(), isFalse);
+      expect(await file2.exists(), isFalse);
+      await expectLater(
+        () => copyFile(
+          file1,
+          file2,
+          options: defaultCopyOptions.copyWith(verbose: false),
+        ),
+        throwsArgumentError,
+      );
+      expect(await file2.exists(), isFalse);
+      await file1.create(recursive: true);
+      await file1.writeAsString('hello');
+      await copyFile(file1, file2);
+      expect(await file2.exists(), isTrue);
+      expect(await file2.readAsString(), 'hello');
+    }
+
+    test('file to memory', () async {
+      var dir = await ctx.prepare();
+      var fsMem = newFileSystemMemory();
+      var dir1 = dir.directory('dir1');
+      var dir2 = fsMem.currentDirectory;
+      var src = childFile(dir1, 'src');
+      var dst = childFile(dir2, 'dst');
+      await testCopyFile(src, dst);
+    });
+
+    test('memory to file', () async {
+      var dir = await ctx.prepare();
+      var fsMem = newFileSystemMemory();
+      var dir1 = dir.directory('dir1');
+      var dir2 = fsMem.currentDirectory;
+      var src = childFile(dir2, 'src');
+      var dst = childFile(dir1, 'dst');
+      await testCopyFile(src, dst);
+    });
+
+    Future<void> testCopyDir(Directory dir1, Directory dir2) async {
+      expect(await dir2.exists(), isFalse);
+      await expectLater(() => copyDirectory(dir1, dir2), throwsArgumentError);
+      expect(await dir2.exists(), isFalse);
+      await dir1.create(recursive: true);
+      await copyDirectory(dir1, dir2);
+      expect(await dir2.exists(), isTrue);
+    }
+
+    test('dir to memory', () async {
+      var dir = await ctx.prepare();
+      var fsMem = newFileSystemMemory();
+      var dir1 = dir.directory('src');
+      var dir2 = fsMem.currentDirectory;
+      await testCopyDir(dir1, dir2);
+    });
+    test('dir from memory', () async {
+      var dir = await ctx.prepare();
+      var fsMem = newFileSystemMemory();
+
+      var dir1 = fsMem.currentDirectory;
+      var dir2 = dir.directory('dst');
+
+      await testCopyDir(dir1, dir2);
+    });
+
+    Future<void> testCopyDirWithLinks(Directory src, Directory dst) async {
+      if (src.fs.supportsLink && src.fs.supportsLink) {
+        var p1 = src.fs.path;
+        var fs1 = src.fs;
+        var dir = src.directory(p1.join('sub1', 'dir'));
+        var file = dir.file('file1');
+        var linkDir = src.link(p1.join('sub2', 'link_dir1'));
+
+        await file.create(recursive: true);
+        await file.writeAsString('linked_content');
+        await linkDir.create(dir.path, recursive: true);
+
+        expect(await src.directory(dir.path).list().toList(), hasLength(1));
+        expect(await src.directory(linkDir.path).list().toList(), hasLength(1));
+        expect(
+          await src.file(p1.join(linkDir.path, 'file1')).readAsString(),
+          'linked_content',
+        );
+        expect(await fs1.isDirectory(linkDir.path), isTrue);
+        expect(await fs1.isLink(linkDir.path), isTrue);
+        if (src.fs.supportsFileLink && src.fs.supportsFileLink) {
+          var file = src.file(p1.join('sub1', 'file1'));
+          var linkFile = src.link(p1.join('sub2', 'link_file1'));
+          await file.create(recursive: true);
+          await file.writeAsString('linked');
+          await linkFile.create(file.path, recursive: true);
+
+          expect(await fs1.isFile(linkFile.path), isTrue);
+          expect(await fs1.isLink(linkFile.path), isTrue);
+        }
+        await copyDirectory(
+          src,
+          dst,
+          options: CopyOptions(verbose: true, recursive: true),
+        );
+
+        var p2 = dst.fs.path;
+        var fs2 = dst.fs;
+        var dstLinkDir = dst.directory(p2.join('sub2', 'link_dir1'));
+        expect(await dstLinkDir.file('file1').readAsString(), 'linked_content');
+        expect(await fs2.isDirectory(dstLinkDir.path), isTrue);
+        expect(await fs2.isLink(dstLinkDir.path), isFalse);
+        if (src.fs.supportsFileLink && src.fs.supportsFileLink) {
+          var dstLinkFile = dst.file(p2.join('sub2', 'link_file1'));
+          expect(await dstLinkFile.readAsString(), 'linked');
+          expect(await fs2.isFile(dstLinkFile.path), isTrue);
+          expect(await fs2.isLink(dstLinkFile.path), isFalse);
+        }
+      }
+    }
+
+    test('various to memory', () async {
+      var dir = await ctx.prepare();
+      var fsMem = newFileSystemMemory();
+      var dir1 = dir.directory('src');
+      var dir2 = fsMem.currentDirectory;
+      await testCopyDirWithLinks(dir1, dir2);
+    });
+    test('various from memory', () async {
+      var dir = await ctx.prepare();
+      var fsMem = newFileSystemMemory();
+
+      var dir1 = fsMem.currentDirectory;
+      var dir2 = dir.directory('dst');
+
+      await testCopyDirWithLinks(dir1, dir2);
     });
   });
 }

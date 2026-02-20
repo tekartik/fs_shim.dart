@@ -49,9 +49,34 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
 
     test('single level sandbox', () async {
       final dir = await ctx.prepare();
-      var p = ctx.path;
+
       //debugDevPrintEnabled = true;
       var sandbox = ctx.fs.sandbox(path: dir.path) as FsShimSandboxedFileSystem;
+
+      expect(sandbox.currentDirectory.path, p.separator);
+      expect(sandbox.rootDirectory, dir);
+      expect(sandbox.rootDirectory.fs, dir.fs);
+      var same = sandbox.sandbox() as FsShimSandboxedFileSystem;
+      expect(same.currentDirectory.path, p.separator);
+      expect(same.rootDirectory, sandbox.directory(p.separator));
+
+      var rootDir = sandbox.recursiveUnsandbox();
+      var rootDir2 = same.recursiveUnsandbox();
+      if (fs is! FsShimSandboxedFileSystem) {
+        expect(rootDir, dir);
+        expect(rootDir2, dir);
+      }
+
+      var unsandboxed = sandbox.unsandbox();
+      expect(unsandboxed, dir);
+
+      expect(same, sandbox);
+      same =
+          sandbox.sandbox(path: sandbox.currentDirectory.path)
+              as FsShimSandboxedFileSystem;
+
+      expect(same, sandbox);
+      expect(ctx.fs.sandbox(path: dir.path), sandbox);
 
       var filePath = 'myfile.txt';
 
@@ -88,10 +113,10 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
       var sep = p.separator;
       //debugDevPrintEnabled = true;
       var sandbox = ctx.fs.sandbox(path: dir.path) as FsShimSandboxedFileSystem;
+      var sandbox2Path = p.join('sub1', 'sub2');
       var sandbox2 =
-          sandbox.sandbox(path: p.join(p.separator, 'sub1', 'sub2'))
-              as FsShimSandboxedFileSystem;
-
+          sandbox.sandbox(path: sandbox2Path) as FsShimSandboxedFileSystem;
+      expect(sandbox2, isNot(sandbox));
       var filePath = 'myfile.txt';
       var sandboxed2File = sandbox2.file(filePath);
       var delegate2Path = sandbox2.delegatePath(filePath);
@@ -114,13 +139,10 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
       );
       if (ctx.fs is! FsShimSandboxedFileSystem) {
         expect(sandbox.recursiveUnsandbox(), dir);
-        expect(
-          sandbox2.recursiveUnsandbox(),
-          dir.directory(sandbox2.rootDirectory.path),
-        );
+        expect(sandbox2.recursiveUnsandbox(), dir.directory(sandbox2Path));
         expect(
           sandbox2.recursiveUnsandbox(path: 'test'),
-          dir.directory(sandbox2.rootDirectory.childPath('test')),
+          dir.directory(p.join(sandbox2Path, 'test')),
         );
       }
     });

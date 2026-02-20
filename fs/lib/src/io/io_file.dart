@@ -12,7 +12,7 @@ import 'package:fs_shim/fs_io.dart';
 import 'package:fs_shim/src/common/compat.dart';
 import 'package:fs_shim/src/common/fs_mixin.dart'
     show FileExecutableSupport, FileMixin;
-import 'package:fs_shim/src/common/import.dart' show isDebug;
+import 'package:fs_shim/src/common/import.dart' show isDebug, FileStreamSink;
 import 'package:fs_shim/src/io/io_random_access_file.dart';
 
 import 'io_file_system_entity.dart';
@@ -39,9 +39,8 @@ class FileIoImpl extends FileSystemEntityIoImpl
   Future<FileIoImpl> create({bool recursive = false}) //
   => ioWrap(ioFile!.create(recursive: recursive)).then(_me);
 
-  // ioFile.openWrite(mode: _fileMode(mode), encoding: encoding);
   @override
-  StreamSink<List<int>> openWrite({
+  FileStreamSink openWrite({
     fs.FileMode mode = fs.FileMode.write,
     Encoding encoding = utf8,
   }) {

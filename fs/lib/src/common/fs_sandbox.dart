@@ -58,7 +58,7 @@ class _SandboxFile extends _SandboxFileSystemEntity with FileMixin {
       _fileDelegate.openRead(start, end);
 
   @override
-  StreamSink<List<int>> openWrite({
+  FileStreamSink openWrite({
     FileMode mode = FileMode.write,
     Encoding encoding = utf8,
   }) => _fileDelegate.openWrite(mode: mode, encoding: encoding);
@@ -291,4 +291,19 @@ class _SandboxedFileSystem
 
   @override
   String get name => 'sandbox(${_fsDelegate.name}, ${rootDirectory.path})';
+
+  @override
+  String toString() => 'FileSystem($name)';
+
+  @override
+  bool operator ==(Object other) {
+    if (other is _SandboxedFileSystem) {
+      return recursiveUnsandbox() == other.recursiveUnsandbox();
+    } else {
+      return false;
+    }
+  }
+
+  @override
+  int get hashCode => currentDirectory.hashCode;
 }

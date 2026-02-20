@@ -98,7 +98,7 @@ mixin FileMixin implements File {
       throw UnsupportedError('file.openRead');
 
   @override
-  StreamSink<List<int>> openWrite({
+  FileStreamSink openWrite({
     FileMode mode = FileMode.write,
     Encoding encoding = utf8,
   }) => throw UnsupportedError('file.openWrite');

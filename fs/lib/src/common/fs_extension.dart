@@ -57,6 +57,10 @@ extension FsShimFileSystemExtension on FileSystem {
   /// return [currentDirectory] if not sandboxed.
   Directory unsandbox({String? path}) {
     if (this is FsShimSandboxedFileSystem) {
+      /// Handle absolute file
+      if (path != null && path.startsWith(this.path.separator)) {
+        path = path.substring(1);
+      }
       return (this as FsShimSandboxedFileSystem).rootDirectory.directoryWith(
         path: path,
       );
@@ -76,6 +80,15 @@ extension FsShimFileSystemExtension on FileSystem {
       dir = fs.unsandbox(path: dir.path);
     }
     return dir;
+  }
+
+  /// Sandbox if needed to the current directory
+  FileSystem asSandbox() {
+    if (this is FsShimSandboxedFileSystem) {
+      return this;
+    } else {
+      return sandbox();
+    }
   }
 }
 

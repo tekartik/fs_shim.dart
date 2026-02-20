@@ -247,7 +247,7 @@ Future<int> copyFileImpl(
       TopEntity(dst.fs, dst.parent.path),
       options: options,
     ).runChild(
-      null,
+      options,
       src.fs.path.basename(src.path),
       dst.fs.path.basename(dst.path),
     );
@@ -324,40 +324,48 @@ Future<int> copyFileSystemEntityImpl(
   return 0;
 }
 
+Future<void> _copyFileStreamed(File sourceFile, File destFile) async {
+  // 1. Open the read stream
+  Stream<List<int>> readStream = sourceFile.openRead();
+
+  // 2. Open the write sink
+  var writeSink = destFile.openWrite();
+
+  try {
+    // Pipe the read stream into the write sink
+    await writeSink.addStream(readStream);
+
+    // 3. Flush the data to ensure it's physically written to the disk
+    await writeSink.flush();
+  } catch (e) {
+    // ignore: avoid_print
+    print('Error during copy: $e');
+    rethrow;
+  } finally {
+    // 4. Always close the sink to release system resources
+    await writeSink.close();
+  }
+}
+
+/// Copy the file content
+Future<int> _doCopyFileContent(File src, File dst) async {
+  var fsSrc = src.fs;
+  var fsDst = dst.fs;
+  if (fsSrc == fsDst) {
+    await src.copy(dst.path);
+  } else {
+    await _copyFileStreamed(src, dst);
+  }
+  return 1;
+}
+
 /// Copy the file content
 Future<int> copyFileContent(File src, File dst) async {
-  try {
-    await src.copy(dst.path);
-  } catch (_) {
-    final parent = dst.parent;
-    if (!await parent.exists()) {
-      await parent.create(recursive: true);
-    }
-    await src.copy(dst.path);
+  final parent = dst.parent;
+  if (!await parent.exists()) {
+    await parent.create(recursive: true);
   }
-  /*
-  var inStream = src.openRead();
-  devPrint('openWrite1');
-  var outSink = dst.openWrite();
-  devPrint('openWrite2');
-  try {
-    await inStream.cast<List<int>>().pipe(outSink);
-    devPrint('openWrite3');
-  } catch (_) {
-    devPrint('openWrite4');
-    final parent = dst.parent;
-    devPrint('openWrite5');
-    if (!await parent.exists()) {
-      await parent.create(recursive: true);
-    }
-    devPrint('openWrite6');
-    outSink = dst.openWrite();
-    inStream = src.openRead();
-    await inStream.cast<List<int>>().pipe(outSink);
-  }
-  // Copy mode for unix executables
-   */
-  return 1;
+  return _doCopyFileContent(src, dst);
 }
 
 /// Copy the file meta for executable
@@ -530,7 +538,7 @@ abstract class CopyNode {
 
   EntityNode? get src;
 
-  CopyOptions? get options;
+  CopyOptions get options;
 }
 
 mixin ActionNodeMixin {
@@ -549,7 +557,7 @@ mixin CopyNodeMixin implements CopyNode {
   int? get id => _id;
 
   Future<int> runChild(
-    CopyOptions? options,
+    CopyOptions options,
     String srcRelative, [
     String? dstRelative,
   ]) {
@@ -592,10 +600,10 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
   @override
   TopEntity get src => _src;
 
-  CopyOptions? _options;
+  late CopyOptions _options;
 
   @override
-  CopyOptions? get options => _options;
+  CopyOptions get options => _options;
   late TopEntity _src;
 
   @override
@@ -627,7 +635,7 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
       print(this);
     }
     // Somehow the top folder is accessed using an empty part
-    final sourceNode = ChildSourceNode(this, null, utilsCurrentFolderPart);
+    final sourceNode = ChildSourceNode(this, options, utilsCurrentFolderPart);
     return await sourceNode._runTree();
   }
 }
@@ -657,7 +665,7 @@ class ChildCopy extends Object
   // if [options] is null, we'll use the parent options
   ChildCopy(
     CopyNode parent,
-    CopyOptions? options,
+    CopyOptions options,
     String srcRelative, [
     String? dstRelative,
   ]) {
@@ -698,11 +706,24 @@ class CopyNodeOperation extends CopyNode {
   final EntityNode? src;
 
   @override
-  final CopyOptions? options;
+  final CopyOptions options;
 
-  CopyNodeOperation({this.isDirectory, this.dst, this.src, this.options});
+  CopyNodeOperation({
+    this.isDirectory,
+    this.dst,
+    this.src,
+    required this.options,
+  });
+
+  @override
+  String toString() => '$src -> $dst';
 
   Future<int> execute(CopyNodeOperation operation) async {
+    var verbose = options.verbose;
+    if (verbose) {
+      // ignore: avoid_print
+      print('Copy: $operation');
+    }
     if (operation.isDirectory!) {
       final dstDirectory = operation.dst!.asDirectory();
       if (!await dstDirectory.exists()) {
@@ -716,7 +737,7 @@ class CopyNodeOperation extends CopyNode {
 
       // Try to link first
       // allow link if asked and on the same file system
-      if (options!.tryToLinkFile &&
+      if (options.tryToLinkFile &&
           (src!.fs == dst!.fs) &&
           src!.fs.supportsFileLink) {
         final srcTarget = srcFile.absolute.path;
@@ -748,7 +769,7 @@ class CopyNodeOperation extends CopyNode {
         return 1;
       }
       // Handle modified date
-      if (options!.checkSizeAndModifiedDate) {
+      if (options.checkSizeAndModifiedDate) {
         final srcStat = await srcFile.stat();
         final dstStat = await dstFile.stat();
         if ((dstStat.type != FileSystemEntityType.notFound) &&
@@ -775,7 +796,7 @@ mixin SourceNodeTreeRunnerMixin
       print('$this');
     }
 
-    if (await src!.fs.isLink(src!.path) && (!options!.followLinks)) {
+    if (await src!.fs.isLink(src!.path) && (!options.followLinks)) {
       return operations;
     }
 
@@ -790,7 +811,7 @@ mixin SourceNodeTreeRunnerMixin
       if (hasIncludeRules) {
         // when including dir, sub include options will be ignored
         if (shouldIncludeDir) {
-          options = options!.clone..include = null;
+          options = options.clone..include = null;
         }
       }
 
@@ -804,7 +825,7 @@ mixin SourceNodeTreeRunnerMixin
       );
 
       // recursive
-      if (options!.recursive) {
+      if (options.recursive) {
         final srcDirectory = src!.asDirectory();
 
         final futures = <Future>[];
@@ -847,7 +868,7 @@ mixin SourceNodeTreeRunnerMixin
   }
 
   Future<List<CopyNodeOperation>> _runTreeChild(
-    CopyOptions? options,
+    CopyOptions options,
     String srcRelative,
     /*[String dstRelative]*/
   ) async {
@@ -876,10 +897,10 @@ mixin ChildNodeMixin
 
   CopyNode? get parent => _parent;
 
-  CopyOptions? _options;
+  late CopyOptions _options;
 
   @override
-  CopyOptions? get options => _options;
+  CopyOptions get options => _options;
 
   @override
   OptionsExcludeMixin? get excludeOptions => options;
@@ -892,12 +913,12 @@ mixin ChildNodeMixin
 
   void _init(
     CopyNode parent,
-    CopyOptions? options,
+    CopyOptions options,
     String srcRelative, [
     String? dstRelative,
   ]) {
     _parent = parent;
-    _options = options ??= parent.options;
+    _options = options;
 
     _id = ++ActionNodeMixin._staticId;
 
@@ -916,7 +937,7 @@ class ChildSourceNode extends Object
         SourceNodeTreeRunnerMixin
     implements CopyNode {
   // if [options] is null, we'll use the parent options
-  ChildSourceNode(CopyNode parent, CopyOptions? options, String srcRelative) {
+  ChildSourceNode(CopyNode parent, CopyOptions options, String srcRelative) {
     _init(parent, options, srcRelative);
   }
 
