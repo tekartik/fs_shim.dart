@@ -1,4 +1,4 @@
-## 2.5.1-1
+## 2.5.1-2
 
 * Add `Directory.sandbox` extension method as shortcut to sandbox a file system
 * Add `fsIdbExportLines` and `fsIdbImport` mainly for testing purpose
