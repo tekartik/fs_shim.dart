@@ -128,6 +128,16 @@ void defineIdbTypesFileSystemStorageTests(IdbFileSystemTestContext ctx) {
       await file.delete();
       expect(await getPartEntries(db), isEmpty);
     });
+    test('write sub file', () async {
+      var db = storage.db!;
+
+      expect(await getFileEntries(db), isEmpty);
+      var content = Uint8List.fromList([1, 2, 3]);
+      var file = fs.file(fs.path.join('sub', 'test'));
+      await file.create(recursive: true);
+      await file.writeAsBytes(content);
+      expect(await getTreeEntries(db), hasLength(3));
+    });
     test('corruption read/delete', () async {
       var db = storage.db!;
 

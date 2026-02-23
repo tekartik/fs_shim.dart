@@ -6,7 +6,7 @@ library;
 import 'package:dev_test/test.dart';
 import 'package:fs_shim/fs_memory.dart';
 import 'package:fs_shim/utils/import_export.dart';
-import 'package:path/path.dart';
+
 // ignore_for_file: unnecessary_import
 
 import 'fs_shim_file_stat_test.dart';
@@ -41,8 +41,8 @@ Future<void> expectMatchesButDate(Directory dir1, Directory dir2) async {
     var name1 = p1.relative(entity1.path, from: dir1.path);
     var name2 = p2.relative(entity2.path, from: dir2.path);
     expect(
-      posix.normalize(name1),
-      posix.normalize(name2),
+      name1.replaceAll('\\', '/'),
+      name2.replaceAll('\\', '/'),
       reason: '$name1 != $name2',
     );
 

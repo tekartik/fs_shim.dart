@@ -35,7 +35,7 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       var dbName = 'export_file_v3.sdb';
       await idbFactory.deleteDatabase(dbName);
       var db = await idbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await idbExportDatabase(db), rawExportOneFileV3PageSize2);
+      expect(await idbExportDatabase(db), exportMap);
       db.close();
 
       var fs = IdbFileSystem(idbFactory, dbPath: dbName);
