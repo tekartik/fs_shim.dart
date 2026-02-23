@@ -87,7 +87,11 @@ void main() {
     test('linux run', () async {
       if (isIoLinux(ioFileSystemTestContext)) {
         expect(p.rootPrefix(p.absolute(p.separator)), '/');
-
+        expect(fs.absolutePath('/'), '/');
+        expect(
+          fs.absolutePath('\\'),
+          fs.normalizePath(join(fs.currentDirectory.path, '\\')),
+        ); // !!
         expect(fs.absolutePath('.'), fs.currentDirectory.path);
         expect(p.absolute('.'), startsWith('/'));
         expect(p.isAbsolute('./.'), isFalse);
@@ -116,7 +120,7 @@ void main() {
       var rootPrefix = fs.path.rootPrefix(fs.path.absolute(fs.path.separator));
 
       expect(fs.absolutePath('.'), fs.currentDirectory.path);
-      expect(fs.absolutePath('/'), '/');
+      expect(fs.absolutePath('/'), '\\');
       expect(fs.absolutePath('\\'), '\\');
       expect(fs.absolutePath('C:\\'), 'C:\\');
       // On windows rootPrefix is something 'C:\\'
