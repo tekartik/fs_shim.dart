@@ -298,7 +298,7 @@ class _SandboxedFileSystem
   @override
   bool operator ==(Object other) {
     if (other is _SandboxedFileSystem) {
-      return recursiveUnsandbox() == other.recursiveUnsandbox();
+      return unsandbox() == other.unsandbox();
     } else {
       return false;
     }

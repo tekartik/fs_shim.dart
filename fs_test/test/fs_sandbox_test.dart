@@ -22,6 +22,13 @@ void main() {
           .sandbox(path: '/sub_route3/sub_route4/')
           .sandbox(path: '/sub_route5/sub_route6'),
     );
+    test('nested', () {
+      var fs = newFileSystemMemory();
+      var fs1 = fs.sandbox(path: '/sub1') as FsShimSandboxedFileSystem;
+      var fs2 = fs1.sandbox(path: '/sub2') as FsShimSandboxedFileSystem;
+      expect(fs2.rootDirectory.path, '/sub1/sub2');
+      expect(fs2.rootDirectory.fs, fs);
+    });
     group('empty', () {
       late FsShimSandboxedFileSystem fs;
       setUp(() {

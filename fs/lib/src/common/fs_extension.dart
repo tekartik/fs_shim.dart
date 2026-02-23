@@ -8,7 +8,20 @@ import 'fs_sandbox.dart';
 extension FsShimFileSystemExtension on FileSystem {
   /// File system sandboxing
   /// Directory from an optional path, null meaning [currentDirectory],
+  /// If the original is a sandbox, the tree is sanitized (i.e. never 2 levels
+  /// of sandboxing.
   FileSystem sandbox({String? path}) {
+    var self = this;
+    if (self is FsShimSandboxedFileSystem) {
+      if (path == null) {
+        return self;
+      }
+      var delegateFs = self.rootDirectory.fs;
+      var delegatePath = self.delegatePath(path);
+      return FsShimSandboxedFileSystemImpl(
+        rootDirectory: delegateFs.directory(delegatePath),
+      );
+    }
     var absPath = p.normalize(
       path == null ? currentDirectory.path : absolutePath(path),
     );
@@ -66,28 +79,6 @@ extension FsShimFileSystemExtension on FileSystem {
       );
     } else {
       return currentDirectory.directoryWith(path: path);
-    }
-  }
-
-  /// Recursively unsandbox a file system, returning the root directory of the outermost sandbox.
-  Directory recursiveUnsandbox({String? path}) {
-    var dir = unsandbox(path: path);
-    while (true) {
-      var fs = dir.fs;
-      if (fs is! FsShimSandboxedFileSystem) {
-        break;
-      }
-      dir = fs.unsandbox(path: dir.path);
-    }
-    return dir;
-  }
-
-  /// Sandbox if needed to the current directory
-  FileSystem asSandbox() {
-    if (this is FsShimSandboxedFileSystem) {
-      return this;
-    } else {
-      return sandbox();
     }
   }
 }
