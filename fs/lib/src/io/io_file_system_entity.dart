@@ -32,7 +32,8 @@ abstract class FileSystemEntityIoImpl
   DirectoryIoImpl get parent => DirectoryIoImpl.io(ioFileSystemEntity!.parent);
 
   @override
-  Future<bool> exists() => ioWrap(ioFileSystemEntity!.exists());
+  Future<bool> exists() =>
+      ioWrap(Future.syncValue(ioFileSystemEntity!.existsSync()));
 
   @override
   Future<FileSystemEntity> delete({bool recursive = false}) //
