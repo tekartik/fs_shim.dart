@@ -5,9 +5,8 @@ import 'dart:typed_data';
 import 'package:fs_shim/fs.dart';
 import 'package:fs_shim/fs_mixin.dart';
 import 'package:meta/meta.dart';
-import 'package:path/path.dart';
-
 import 'package:path/path.dart' as path_prefix;
+import 'package:path/path.dart';
 
 /// A file system that is sandboxed to a specific directory.
 abstract class FsShimSandboxedFileSystem implements FileSystem {
@@ -67,6 +66,16 @@ class _SandboxFile extends _SandboxFileSystemEntity with FileMixin {
   Future<File> create({bool recursive = false}) async {
     await _fileDelegate.create(recursive: recursive);
     return this;
+  }
+
+  @override
+  Future<Uint8List> readAsBytes() {
+    return _fileDelegate.readAsBytes();
+  }
+
+  @override
+  Future<String> readAsString({Encoding encoding = utf8}) {
+    return _fileDelegate.readAsString(encoding: encoding);
   }
 
   @override
@@ -250,7 +259,7 @@ class _SandboxedFileSystem
       throw StateError('Relative path is absolute: $relativePath');
       // return p.join(p.separator, relativePath);
     } else {
-      return join(p.separator, relativePath);
+      return p.join(p.separator, relativePath);
     }
   }
 

@@ -251,7 +251,6 @@ Future<int> copyFileImpl(
       src.fs.path.basename(src.path),
       dst.fs.path.basename(dst.path),
     );
-    //await copyFileSystemEntity_(src, dst, options: options);
   } else {
     throw ArgumentError('not a file ($src)');
   }

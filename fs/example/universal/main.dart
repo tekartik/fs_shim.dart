@@ -6,8 +6,9 @@ import '../common/setup.dart';
 Future main() async {
   await exampleInit();
   final fs = fileSystemDefault;
+  var p = fs.path;
   // safe place when running from package root
-  final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
+  final dirPath = p.join(Directory.current.path, 'test_out', 'example', 'dir');
 
   // Create a top level directory
   final dir = Directory(dirPath);
@@ -18,7 +19,7 @@ Future main() async {
   }
 
   // and a file in it
-  final file = File(join(dir.path, 'file'));
+  final file = File(p.join(dir.path, 'file'));
 
   // create a file
   await file.create(recursive: true);
