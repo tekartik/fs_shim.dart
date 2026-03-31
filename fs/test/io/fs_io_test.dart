@@ -303,7 +303,6 @@ void main() {
 
       test('FileSystemEntity', () async {
         expect(
-          await
           // ignore: avoid_slow_async_io
           FileSystemEntity.isLink(Directory.current.path),
           isFalse,

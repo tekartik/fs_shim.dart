@@ -10,7 +10,7 @@ import 'package:test/test.dart';
 extension DirectoryEmptyOrCreateExt on Directory {
   /// Ensure the directory is created and empty.
   Future<void> emptyOrCreate() async {
-    if (await exists()) {
+    if (existsSync()) {
       try {
         await delete(recursive: true);
       } catch (_) {

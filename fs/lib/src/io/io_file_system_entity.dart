@@ -32,8 +32,8 @@ abstract class FileSystemEntityIoImpl
   DirectoryIoImpl get parent => DirectoryIoImpl.io(ioFileSystemEntity!.parent);
 
   @override
-  Future<bool> exists() =>
-      ioWrap(Future.syncValue(ioFileSystemEntity!.existsSync()));
+  Future<bool> exists() async =>
+      ioWrapCallSync(() => ioFileSystemEntity!.existsSync());
 
   @override
   Future<FileSystemEntity> delete({bool recursive = false}) //
@@ -43,7 +43,6 @@ abstract class FileSystemEntityIoImpl
   bool get isAbsolute => ioFileSystemEntity!.isAbsolute;
 
   @override
-  Future<FileStat> stat() => ioWrap(
-    ioFileSystemEntity!.stat(),
-  ).then((io.FileStat stat) => FileStatImpl.io(stat));
+  Future<FileStat> stat() async =>
+      FileStatImpl.io(ioWrapCallSync(() => ioFileSystemEntity!.statSync()));
 }
