@@ -105,8 +105,8 @@ class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
 
   IdbFileSystemStorageWithDelegate({
     required this.delegate,
-    required FileSystemIdbOptions options,
-  }) : super(delegate.idbFactory, delegate.dbPath, options: options);
+    required super.options,
+  }) : super(delegate.idbFactory, delegate.dbPath);
 }
 
 // not exported
