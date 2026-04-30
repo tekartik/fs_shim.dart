@@ -677,5 +677,19 @@ void defineTests(FileSystemTestContext ctx) {
         print(st);
       }
     }, timeout: const Timeout(Duration(minutes: 2)));
+    test('delete_read_bytes', () async {
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'file');
+      final file = fs.file(filePath);
+      await file.writeAsBytes(Uint8List.fromList([1, 2, 3, 4]), flush: true);
+      expect(await file.readAsBytes(), [1, 2, 3, 4]);
+      expect(await file.exists(), isTrue);
+      await file.delete();
+      await expectLater(
+        () => file.readAsBytes(),
+        throwsA(isA<FileSystemException>()),
+      );
+      expect(await file.exists(), isFalse);
+    });
   });
 }
