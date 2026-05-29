@@ -1,3 +1,7 @@
+## 2.5.2
+
+* dart 3.12 and new lints
+
 ## 2.5.1+1
 
 * Add `Directory.sandbox` extension method as shortcut to sandbox a file system
