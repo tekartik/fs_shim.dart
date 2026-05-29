@@ -13,17 +13,16 @@ import 'io_fs.dart';
 class LinkImpl extends FileSystemEntityIoImpl
     with LinkMixin
     implements Link, FileSystemEntity {
-  io.Link? get ioLink => ioFileSystemEntity as io.Link?;
-
-  LinkImpl _me(_) => this;
+  LinkImpl(String path) {
+    ioFileSystemEntity = io.Link(path);
+  }
 
   LinkImpl.io(io.Link dir) {
     ioFileSystemEntity = dir;
   }
+  io.Link? get ioLink => ioFileSystemEntity as io.Link?;
 
-  LinkImpl(String path) {
-    ioFileSystemEntity = io.Link(path);
-  }
+  LinkImpl _me(_) => this;
 
   @override
   Future<LinkImpl> create(String target, {bool recursive = false}) =>

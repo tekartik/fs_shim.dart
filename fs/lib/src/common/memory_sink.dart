@@ -6,10 +6,9 @@ import 'package:fs_shim/src/common/import.dart';
 
 /// Memory sink.
 class MemorySink implements FileStreamSink {
-  List<int> content = [];
-
   /// Memory sink.
   MemorySink();
+  List<int> content = [];
 
   final _completer = Completer<void>.sync();
 

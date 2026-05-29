@@ -89,12 +89,11 @@ class _PartMatchRunner {
 }
 
 class _GlobMatchRunner {
+  _GlobMatchRunner(this.glob, this.parts);
   Glob glob;
   List<String> parts;
 
   List<String>? get globParts => glob._expressionParts;
-
-  _GlobMatchRunner(this.glob, this.parts);
 
   int globIndex = 0;
   int partIndex = 0;
@@ -167,6 +166,11 @@ class _GlobMatchRunner {
 ///
 /// Convert everything to url internally
 class Glob {
+  /// Global expression.
+  Glob(this.expression) {
+    __expressionParts = posix.split(expression);
+  }
+
   /// Glob star (**) matches everything and subdirs
   static bool isGlobStar(String globPart) => globPart == '**';
 
@@ -192,11 +196,6 @@ class Glob {
     __expressionParts ??= posix.split(expression);
 
     return __expressionParts;
-  }
-
-  /// Global expression.
-  Glob(this.expression) {
-    __expressionParts = posix.split(expression);
   }
 
   /// true if the name matches the pattern

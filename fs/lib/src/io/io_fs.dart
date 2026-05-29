@@ -24,7 +24,7 @@ io.FileMode unwrapIoFileModeImpl(fs.FileMode fsFileMode) {
     case fs.FileMode.append:
       return io.FileMode.append;
     default:
-      throw 'invalid FileMode($fsFileMode)';
+      throw ArgumentError('invalid FileMode($fsFileMode)');
   }
 }
 
@@ -37,7 +37,7 @@ fs.FileMode wrapIoFileModeImpl(io.FileMode ioFileMode) {
     case io.FileMode.append:
       return fs.FileMode.append;
     default:
-      throw 'invalid io FileMode($ioFileMode)';
+      throw ArgumentError('invalid io FileMode($ioFileMode)');
   }
 }
 
@@ -52,7 +52,7 @@ Future<T> ioWrap<T>(Future<T> future) async {
   try {
     return await future;
   } on io.FileSystemException catch (e) {
-    //io.stderr.writeln(st);
+    // ignore: only_throw_errors
     throw ioWrapError(e);
   }
 }
@@ -61,7 +61,7 @@ Future<T> ioWrapCall<T>(Future<T> Function() action) async {
   try {
     return await action();
   } on io.FileSystemException catch (e) {
-    //io.stderr.writeln(st);
+    // ignore: only_throw_errors
     throw ioWrapError(e);
   }
 }
@@ -71,6 +71,7 @@ T ioWrapCallSync<T>(T Function() action) {
     return action();
   } on io.FileSystemException catch (e) {
     //io.stderr.writeln(st);
+    // ignore: only_throw_errors
     throw ioWrapError(e);
   }
 }
@@ -88,7 +89,7 @@ fs.FileSystemEntityType wrapIoFileSystemEntityTypeImpl(
     case io.FileSystemEntityType.notFound:
       return fs.FileSystemEntityType.notFound;
     default:
-      throw type;
+      throw ArgumentError('Invalid type $type');
   }
 }
 
@@ -105,14 +106,13 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
     case fs.FileSystemEntityType.notFound:
       return io.FileSystemEntityType.notFound;
     default:
-      throw type;
+      throw ArgumentError('Invalid type $type');
   }
 }
 
 class IoWriteFileSink implements FileStreamSink {
-  io.IOSink ioSink;
-
   IoWriteFileSink(this.ioSink);
+  io.IOSink ioSink;
 
   @override
   void add(List<int> data) {

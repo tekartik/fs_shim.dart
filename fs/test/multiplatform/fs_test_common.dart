@@ -55,10 +55,9 @@ final MemoryFileSystemTestContext memoryFileSystemTestContext =
     MemoryFileSystemTestContext();
 
 class MemoryFileSystemTestContext extends IdbFileSystemTestContext {
+  MemoryFileSystemTestContext();
   @override
   FileSystemIdb rawFsIdb = newFileSystemMemory() as FileSystemIdb;
-
-  MemoryFileSystemTestContext();
 }
 
 class MemoryFileSystemTestContextWithOptions
@@ -71,9 +70,8 @@ class MemoryFileSystemTestContextWithOptions
 
 abstract class FileSystemTestContextIdbWithOptions
     extends IdbFileSystemTestContext {
-  final FileSystemIdbOptions options;
-
   FileSystemTestContextIdbWithOptions({required this.options});
+  final FileSystemIdbOptions options;
 
   @override
   IdbFileSystem get fs =>

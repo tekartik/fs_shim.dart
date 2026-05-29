@@ -105,22 +105,6 @@ typedef IdbFileSystem = FileSystemIdb;
 class FileSystemIdb extends Object
     with FileSystemMixin
     implements fs.FileSystem {
-  // file system name
-  @override
-  String get name => 'idb';
-
-  late final IdbFileSystemStorage _storage;
-
-  @visibleForTesting
-  String get storageDbPath => _storage.dbPath;
-
-  idb.Database? get _db => _storage.db;
-
-  idb.Database? get db => _db;
-  static const dbPath = 'lfs.db';
-
-  FileSystemIdb._(this._storage);
-
   FileSystemIdb(
     idb.IdbFactory factory, {
 
@@ -139,6 +123,21 @@ class FileSystemIdb extends Object
           options: options,
         );
   }
+
+  FileSystemIdb._(this._storage);
+  // file system name
+  @override
+  String get name => 'idb';
+
+  late final IdbFileSystemStorage _storage;
+
+  @visibleForTesting
+  String get storageDbPath => _storage.dbPath;
+
+  idb.Database? get _db => _storage.db;
+
+  idb.Database? get db => _db;
+  static const dbPath = 'lfs.db';
 
   /// Non null database.
   idb.Database get database => db!;
@@ -278,7 +277,7 @@ class FileSystemIdb extends Object
           // Resolve the target
           // throw idbAlreadyExistsException(result.path, 'Already exists');
         } else {
-          throw 'unsupported type ${entity.type}';
+          throw UnsupportedError('unsupported type ${entity.type}');
         }
       }
 
@@ -493,6 +492,7 @@ class FileSystemIdb extends Object
       return done.future
           .then((_) {
             if (error != null) {
+              // ignore: only_throw_errors
               throw error!;
             }
             return Future.wait(futures);
@@ -1167,8 +1167,7 @@ extension FileSystemInternalIdbExt on FileSystemIdb {
 }
 
 class FileEntityContent {
+  FileEntityContent(this.entity, this.content);
   final Node entity;
   final Uint8List content;
-
-  FileEntityContent(this.entity, this.content);
 }

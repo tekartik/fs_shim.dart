@@ -9,15 +9,15 @@ import 'io_fs.dart';
 
 /// Io RandomAccessFile implementation.
 class IoRandomAccessFile with DefaultRandomAccessFileMixin {
+  /// Io RandomAccessFile implementation.
+  IoRandomAccessFile(this.ioRandomAccessFile);
+
   /// The io file
   final io.RandomAccessFile ioRandomAccessFile;
 
   IoRandomAccessFile _me(_) => this;
   static IoRandomAccessFile _wrap(io.RandomAccessFile ioRandomAccessFile) =>
       IoRandomAccessFile(ioRandomAccessFile);
-
-  /// Io RandomAccessFile implementation.
-  IoRandomAccessFile(this.ioRandomAccessFile);
 
   @override
   Future<void> close() => ioWrapCall(() => ioRandomAccessFile.close());

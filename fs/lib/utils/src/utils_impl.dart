@@ -467,6 +467,8 @@ mixin EntityPathMixin implements EntityNode {
 class TopEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {
+  //TopEntity.parts(this.fs, List<String> parts);
+  TopEntity(this.fs, this.top);
   @override
   EntityNode? get parent => null;
   @override
@@ -483,9 +485,6 @@ class TopEntity extends Object
   @override
   List<String> get parts => [];
 
-  //TopEntity.parts(this.fs, List<String> parts);
-  TopEntity(this.fs, this.top);
-
   @override
   String toString() => top;
 }
@@ -498,6 +497,17 @@ TopEntity fsTopEntity(FileSystemEntity entity) =>
 class CopyEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {
+  // Main one not used
+  //CopyEntity.main(this.fs, String top) : _top = top;
+  CopyEntity(this.parent, String relative) {
+    //relative = _path.relative(relative, from: parent.path);
+    basename = p.basename(relative);
+    _parts = List.from(parent.parts!);
+    if (relative != utilsCurrentFolderPart) {
+      _parts!.addAll(contextPathSplit(fs.path, relative));
+    }
+    _sub = fs.path.join(parent.sub!, relative);
+  }
   @override
   EntityNode parent; // cannot be null
   @override
@@ -515,18 +525,6 @@ class CopyEntity extends Object
 
   @override
   Iterable<String>? get parts => _parts;
-
-  // Main one not used
-  //CopyEntity.main(this.fs, String top) : _top = top;
-  CopyEntity(this.parent, String relative) {
-    //relative = _path.relative(relative, from: parent.path);
-    basename = p.basename(relative);
-    _parts = List.from(parent.parts!);
-    if (relative != utilsCurrentFolderPart) {
-      _parts!.addAll(contextPathSplit(fs.path, relative));
-    }
-    _sub = fs.path.join(parent.sub!, relative);
-  }
 
   @override
   String toString() => '$sub';
@@ -698,6 +696,12 @@ bool _isUnixExecutable(int mode) {
 }
 
 class CopyNodeOperation extends CopyNode {
+  CopyNodeOperation({
+    this.isDirectory,
+    this.dst,
+    this.src,
+    required this.options,
+  });
   final bool? isDirectory;
   @override
   final EntityNode? dst;
@@ -706,13 +710,6 @@ class CopyNodeOperation extends CopyNode {
 
   @override
   final CopyOptions options;
-
-  CopyNodeOperation({
-    this.isDirectory,
-    this.dst,
-    this.src,
-    required this.options,
-  });
 
   @override
   String toString() => '$src -> $dst';

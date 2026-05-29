@@ -7,9 +7,8 @@ import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
 class IdbLink extends IdbFileSystemEntity with LinkMixin implements fs.Link {
-  IdbLink _me(_) => this;
-
   IdbLink(super.fs, super.path);
+  IdbLink _me(_) => this;
 
   IdbFileSystem get _fs => super.fs;
 

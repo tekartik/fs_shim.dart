@@ -25,15 +25,14 @@ Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 class FileIoImpl extends FileSystemEntityIoImpl
     with FileMixin
     implements File, FileExecutableSupport {
-  io.File? get ioFile => ioFileSystemEntity as io.File?;
+  FileIoImpl(String path) {
+    ioFileSystemEntity = io.File(path);
+  }
 
   FileIoImpl.io(io.File file) {
     ioFileSystemEntity = file;
   }
-
-  FileIoImpl(String path) {
-    ioFileSystemEntity = io.File(path);
-  }
+  io.File? get ioFile => ioFileSystemEntity as io.File?;
 
   @override
   Future<FileIoImpl> create({bool recursive = false}) //

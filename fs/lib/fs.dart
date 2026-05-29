@@ -469,9 +469,8 @@ abstract class FileSink implements StreamSink<List<int>>, StringSink {}
 /// These constants are used by the [FileSystemEntity] class
 /// to indicate the object's type.
 class FileSystemEntityType {
-  final int _type;
-
   const FileSystemEntityType._internal(this._type);
+  final int _type;
 
   /// File type.
   static const file = FileSystemEntityType._internal(0);
@@ -584,7 +583,7 @@ abstract class OSError {
 }
 
 /// An exception holding information about a file system error.
-abstract class FileSystemException {
+abstract class FileSystemException implements Exception {
   FileSystemException._();
 
   /// File not found.

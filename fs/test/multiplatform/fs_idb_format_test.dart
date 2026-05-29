@@ -452,6 +452,7 @@ void fsIdbMultiFormatGroup(idb.IdbFactory idbFactory) {
           'content': [3, 4],
         },
       ]);
+      await ctlr.close();
     });
     test('stream access 2 bytes', () async {
       // debugIdbShowLogs = devWarning(true);

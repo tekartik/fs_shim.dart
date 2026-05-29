@@ -68,19 +68,6 @@ class CopyOptions extends Object
         OptionsExcludeMixin,
         OptionsFollowLinksMixin,
         OptionsIncludeMixin {
-  //final bool delete; // delete destination first
-  /// Check size and copy if newer.
-  bool checkSizeAndModifiedDate;
-
-  /// Try to link file first.
-  bool tryToLinkFile;
-
-  /// Try to link dir first (not supported)
-  bool tryToLinkDir; // not supported yet
-
-  /// Verbose
-  final bool verbose;
-
   /// Copy options.
   CopyOptions({
     bool recursive = false,
@@ -99,6 +86,18 @@ class CopyOptions extends Object
     this.include = include;
     this.followLinks = followLinks;
   }
+  //final bool delete; // delete destination first
+  /// Check size and copy if newer.
+  bool checkSizeAndModifiedDate;
+
+  /// Try to link file first.
+  bool tryToLinkFile;
+
+  /// Try to link dir first (not supported)
+  bool tryToLinkDir; // not supported yet
+
+  /// Verbose
+  final bool verbose;
 
   /// Clone options.
   CopyOptions get clone => copyWith();

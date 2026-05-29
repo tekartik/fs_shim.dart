@@ -26,13 +26,12 @@ FileSystem newIdbIoFileSystem([String? name]) {
 }
 
 class IdbIoFileSystemTestContext extends IdbFileSystemTestContext {
+  IdbIoFileSystemTestContext();
   @override
   late final IdbFileSystem rawFsIdb = () {
     var fs = newIdbIoFileSystem('test') as IdbFileSystem;
     return fs;
   }();
-
-  IdbIoFileSystemTestContext();
 }
 
 IdbIoFileSystemTestContext _idbIoFileSystemContext =

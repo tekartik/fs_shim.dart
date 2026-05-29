@@ -10,6 +10,9 @@ import 'idb_file_system_storage.dart';
 
 /// An idb part to update.
 class FilePartIdb {
+  /// An idb part to update.
+  FilePartIdb({required this.bytes, required this.index, this.start = 0});
+
   /// Source bytes (trimmed)
   final Uint8List bytes;
 
@@ -23,27 +26,22 @@ class FilePartIdb {
 
   int get end => start + bytes.lengthInBytes;
 
-  /// An idb part to update.
-  FilePartIdb({required this.bytes, required this.index, this.start = 0});
-
   @override
   String toString() => '[$index]: $start (size ${bytes.length})';
 }
 
 class FilePartResult {
+  FilePartResult({required this.position, required this.list});
   final int position; // new position
 
   final List<FilePartIdb> list;
-
-  FilePartResult({required this.position, required this.list});
   @override
   String toString() => 'pos: $position $list';
 }
 
 class FilePartHelper {
-  final int pageSize;
-
   FilePartHelper(this.pageSize);
+  final int pageSize;
 
   int getPositionInPage(int position) => position % pageSize;
 
@@ -127,17 +125,16 @@ int pageCountFromSizeAndPageSize(int size, int pageSize) =>
 
 /// Paging reference
 class FilePartRef {
-  final int fileId;
-  final int index;
-
   FilePartRef(this.fileId, this.index);
-
-  List<int> toKey() => [fileId, index];
 
   factory FilePartRef.fromKey(Object key) {
     var parts = key as List;
     return FilePartRef(parts[0] as int, parts[1] as int);
   }
+  final int fileId;
+  final int index;
+
+  List<int> toKey() => [fileId, index];
 
   @override
   int get hashCode => fileId + index;

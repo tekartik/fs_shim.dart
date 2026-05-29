@@ -22,6 +22,7 @@ abstract class FsShimSandboxedFileSystem implements FileSystem {
 }
 
 abstract class _SandboxFileSystemEntity with FileSystemEntityMixin {
+  _SandboxFileSystemEntity({required this.fs, required this.path});
   late final String delegatePath = fs.delegatePath(path);
   FileSystemEntity get _entityDelegate;
 
@@ -38,8 +39,6 @@ abstract class _SandboxFileSystemEntity with FileSystemEntityMixin {
     await _entityDelegate.delete(recursive: recursive);
     return this;
   }
-
-  _SandboxFileSystemEntity({required this.fs, required this.path});
 
   @override
   Future<bool> exists() => _entityDelegate.exists();
@@ -233,15 +232,14 @@ abstract class FsShimSandboxedFileSystemImpl extends FsShimSandboxedFileSystem {
 class _SandboxedFileSystem
     with FileSystemMixin
     implements FsShimSandboxedFileSystemImpl {
+  _SandboxedFileSystem({required this.rootDirectory}) {
+    assert(rootDirectory.isAbsolute);
+  }
   late final FileSystem _fsDelegate = rootDirectory.fs;
 
   /// The root directory of the sandbox in the delegate file system.
   @override
   final Directory rootDirectory;
-
-  _SandboxedFileSystem({required this.rootDirectory}) {
-    assert(rootDirectory.isAbsolute);
-  }
 
   path_prefix.Context get p => _fsDelegate.path;
   @override

@@ -18,9 +18,6 @@ import 'idb_file_system_storage.dart';
 
 /// Write in transaction controller. v1 all in memory.
 class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
-  /// Transaction.
-  final idb.Transaction txn;
-
   /// Write sink in transaction.
   TxnWriteStreamSinkIdb(
     File file,
@@ -34,6 +31,9 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
     this.file = file;
     this.mode = mode;
   }
+
+  /// Transaction.
+  final idb.Transaction txn;
 
   @override
   Future close() async {
@@ -84,6 +84,11 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
 
 /// Write stream sink.
 class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
+  /// Write stream helper
+  IdbWriteStreamSink(File file, FileMode mode) : super() {
+    this.file = file;
+    this.mode = mode;
+  }
   final _openLock = Lock();
 
   var _opened = false;
@@ -92,12 +97,6 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
 
   /// Only valid once opened.
   late int position;
-
-  /// Write stream helper
-  IdbWriteStreamSink(File file, FileMode mode) : super() {
-    this.file = file;
-    this.mode = mode;
-  }
 
   /// Flush current stream. paging only for now
   @override

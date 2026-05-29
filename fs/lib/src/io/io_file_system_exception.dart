@@ -7,9 +7,8 @@ import 'dart:io' as io;
 import 'package:fs_shim/fs.dart' as fs;
 
 class OSErrorImpl implements fs.OSError {
-  io.OSError? ioOSError;
-
   OSErrorImpl.io(this.ioOSError);
+  io.OSError? ioOSError;
 
   @override
   int get errorCode => ioOSError!.errorCode;
@@ -109,11 +108,10 @@ int? _statusFromException(io.FileSystemException ioFse) {
 }
 
 class FileSystemExceptionImpl implements fs.FileSystemException {
-  io.FileSystemException ioFileSystemException;
-
   FileSystemExceptionImpl.io(this.ioFileSystemException)
     : osError = OSErrorImpl.io(ioFileSystemException.osError),
       status = _statusFromException(ioFileSystemException);
+  io.FileSystemException ioFileSystemException;
 
   @override
   final int? status;

@@ -14,6 +14,25 @@ import 'idb_file_system_storage.dart';
 ///
 /// Must be read, right away/
 class TxnNodeDataReadStreamCtlr {
+  /// Read in transaction controller.
+  TxnNodeDataReadStreamCtlr(
+    this.file,
+    this.txn,
+    this.fileEntity,
+    this.start,
+    this.end,
+  ) {
+    _ctlr = StreamController(
+      sync: true,
+      onCancel: () {
+        // devPrint('txnRead onCancel');
+        // no await here, otherwise the transaction becomes inactive
+        _ctlr.close();
+      },
+    );
+    txnRead();
+  }
+
   /// The opened file.
   final File file;
 
@@ -117,38 +136,11 @@ class TxnNodeDataReadStreamCtlr {
     }
   }
 
-  /// Read in transaction controller.
-  TxnNodeDataReadStreamCtlr(
-    this.file,
-    this.txn,
-    this.fileEntity,
-    this.start,
-    this.end,
-  ) {
-    _ctlr = StreamController(
-      sync: true,
-      onCancel: () {
-        // devPrint('txnRead onCancel');
-        // no await here, otherwise the transaction becomes inactive
-        _ctlr.close();
-      },
-    );
-    txnRead();
-  }
-
   /// Stream
   Stream<Uint8List> get stream => _ctlr.stream;
 }
 
 class IdbReadStreamCtlr {
-  FileSystemIdb get _fs => file.fs as FileSystemIdb;
-  final File file;
-  int? start;
-  int? end;
-
-  IdbFileSystemStorage get storage => _fs.storage;
-  late StreamController<Uint8List> _ctlr;
-
   IdbReadStreamCtlr(this.file, this.start, this.end) {
     _ctlr = StreamController(sync: true);
 
@@ -194,6 +186,13 @@ class IdbReadStreamCtlr {
       },
     );
   }
+  FileSystemIdb get _fs => file.fs as FileSystemIdb;
+  final File file;
+  int? start;
+  int? end;
+
+  IdbFileSystemStorage get storage => _fs.storage;
+  late StreamController<Uint8List> _ctlr;
 
   Stream<Uint8List> get stream => _ctlr.stream;
 }

@@ -8,6 +8,7 @@ import 'idb_directory.dart';
 import 'idb_fs.dart';
 
 abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
+  IdbFileSystemEntity(this._fs, this._path);
   final IdbFileSystem _fs;
 
   @override
@@ -23,8 +24,6 @@ abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
 
   @override
   IdbDirectory get parent => fs.directory(path_pkg.dirname(path));
-
-  IdbFileSystemEntity(this._fs, this._path);
 
   @override
   Future<IdbFileSystemEntity> delete({bool recursive = false}) {

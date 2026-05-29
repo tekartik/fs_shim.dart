@@ -102,7 +102,7 @@ void main() {
       });
 
       test('convert', () {
-        final path = 'c:\\windows\\system';
+        const path = 'c:\\windows\\system';
         expect(windows.joinAll(windows.split(path)), path);
         final posixPath = posix.joinAll(windows.split(path));
         expect(windows.joinAll(posix.split(posixPath)), path);

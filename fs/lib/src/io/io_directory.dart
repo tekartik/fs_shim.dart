@@ -22,15 +22,14 @@ DirectoryIoImpl get currentDirectory => currentDirectoryIo;
 class DirectoryIoImpl extends FileSystemEntityIoImpl
     with DirectoryMixin
     implements fs.Directory {
-  io.Directory? get ioDir => ioFileSystemEntity as io.Directory?;
+  DirectoryIoImpl(String path) {
+    ioFileSystemEntity = io.Directory(path);
+  }
 
   DirectoryIoImpl.io(io.Directory dir) {
     ioFileSystemEntity = dir;
   }
-
-  DirectoryIoImpl(String path) {
-    ioFileSystemEntity = io.Directory(path);
-  }
+  io.Directory? get ioDir => ioFileSystemEntity as io.Directory?;
 
   //DirectoryImpl _me(_) => this;
   DirectoryIoImpl _ioThen(io.Directory resultIoDir) {

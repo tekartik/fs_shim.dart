@@ -14,6 +14,9 @@ final IoFileSystemTestContext ioFileSystemTestContext =
     IoFileSystemTestContext();
 
 class IoFileSystemTestContext extends FileSystemTestContext {
+  IoFileSystemTestContext() {
+    outTopPath = testOutTopPath;
+  }
   @override
   final PlatformContext platform = PlatformContextIo()
     ..isIoMacOS = Platform.isMacOS
@@ -22,10 +25,6 @@ class IoFileSystemTestContext extends FileSystemTestContext {
   @override
   final FileSystemIo fs = FileSystemIo();
   String? outTopPath;
-
-  IoFileSystemTestContext() {
-    outTopPath = testOutTopPath;
-  }
 
   @override
   String get outPath => fs.path.join(outTopPath!, super.outPath);

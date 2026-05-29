@@ -17,6 +17,9 @@ FileSystem newFileSystemIdbBrowser([String? name]) =>
     newFileSystemIdb(idbFactoryNative, name);
 
 class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
+  IdbBrowserFileSystemTestContext() {
+    platform = PlatformContextBrowser();
+  }
   @override
   late IdbFileSystem rawFsIdb = () {
     var fs =
@@ -24,16 +27,13 @@ class IdbBrowserFileSystemTestContext extends IdbFileSystemTestContext {
             as IdbFileSystem; // Needed for initialization (supportsLink)
     return fs;
   }();
-
-  IdbBrowserFileSystemTestContext() {
-    platform = PlatformContextBrowser();
-  }
 }
 
 var _index = 0;
 
 class IdbBrowserFileSystemTestContextWithOptions
     extends IdbBrowserFileSystemTestContext {
+  IdbBrowserFileSystemTestContextWithOptions({required this.options});
   final FileSystemIdbOptions options;
 
   @override
@@ -46,8 +46,6 @@ class IdbBrowserFileSystemTestContextWithOptions
             as IdbFileSystem; // Needed for initialization (supportsLink)
     return fs;
   }();
-
-  IdbBrowserFileSystemTestContextWithOptions({required this.options});
 }
 
 IdbBrowserFileSystemTestContext idbBrowserFileSystemContext =

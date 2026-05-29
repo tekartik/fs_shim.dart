@@ -95,6 +95,10 @@ List<String> getAbsoluteSegments(Node origin, List<String> target) {
 
 /// We use the same database
 class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
+  IdbFileSystemStorageWithDelegate({
+    required this.delegate,
+    required super.options,
+  }) : super(delegate.idbFactory, delegate.dbPath);
   final IdbFileSystemStorage delegate;
 
   @override
@@ -102,24 +106,18 @@ class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
 
   @override
   Future get ready => delegate.ready;
-
-  IdbFileSystemStorageWithDelegate({
-    required this.delegate,
-    required super.options,
-  }) : super(delegate.idbFactory, delegate.dbPath);
 }
 
 // not exported
 class IdbFileSystemStorage {
+  IdbFileSystemStorage(this.idbFactory, this.dbPath, {required this.options}) {
+    // devPrint('idbFactory ${idbFactory.hashCode}');
+  }
   idb.IdbFactory idbFactory;
   String dbPath;
   FileSystemIdbOptions options;
 
   int get pageSize => options.pageSize ?? 0;
-
-  IdbFileSystemStorage(this.idbFactory, this.dbPath, {required this.options}) {
-    // devPrint('idbFactory ${idbFactory.hashCode}');
-  }
 
   /// Use for derived options
   IdbFileSystemStorage withOptions({required FileSystemIdbOptions options}) =>
@@ -919,21 +917,17 @@ const _typeLink = 'link';
 
 /// Tree entity
 class Node {
-  int? id;
-  Node? parent;
-  int? _depth;
-  String name;
-  fs.FileSystemEntityType type;
-
-  bool get isLink => type == fs.FileSystemEntityType.link;
-
-  bool get isDir => type == fs.FileSystemEntityType.directory;
-
-  bool get isFile => type == fs.FileSystemEntityType.file;
-  int? size;
-  DateTime? modified;
-  int? pageSize; // Page size if any
-  List<String>? targetSegments; // for Links only
+  Node(
+    this.parent,
+    this.name,
+    this.type,
+    this.modified,
+    this.size, {
+    this.id,
+    this.pageSize,
+  }) {
+    _depth = parent == null ? 1 : parent!._depth! + 1;
+  } // for Links only
 
   Node.file(Node parent, String name, {DateTime? modified, int? pageSize})
     : this.node(
@@ -971,18 +965,6 @@ class Node {
     this.pageSize,
   });
 
-  Node(
-    this.parent,
-    this.name,
-    this.type,
-    this.modified,
-    this.size, {
-    this.id,
-    this.pageSize,
-  }) {
-    _depth = parent == null ? 1 : parent!._depth! + 1;
-  }
-
   factory Node.fromMap(Node? parent, Map<String, Object?> map, int id) {
     final parentId = map[parentKey] as int?;
     // For root: map: {name: /, type: DIRECTORY, modified: 2021-02-21T14:42:55.508406, size: 0, pn: /}
@@ -1011,6 +993,21 @@ class Node {
     return Node(parent, name, type, modified, size, id: id, pageSize: pageSize)
       ..targetSegments = (map[targetKey] as List?)?.cast<String>();
   }
+  int? id;
+  Node? parent;
+  int? _depth;
+  String name;
+  fs.FileSystemEntityType type;
+
+  bool get isLink => type == fs.FileSystemEntityType.link;
+
+  bool get isDir => type == fs.FileSystemEntityType.directory;
+
+  bool get isFile => type == fs.FileSystemEntityType.file;
+  int? size;
+  DateTime? modified;
+  int? pageSize; // Page size if any
+  List<String>? targetSegments;
 
   Map<String, Object?> toMap() {
     final map = <String, Object?>{

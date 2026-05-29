@@ -13,11 +13,11 @@ export 'src/idb/idb_file_system.dart' show FileSystemIdbExt;
 
 /// Idb file system options.
 class FileSystemIdbOptions {
-  /// Default page size (null means no page).
-  final int? pageSize;
-
   /// Idb file system options.
   const FileSystemIdbOptions({this.pageSize});
+
+  /// Default page size (null means no page).
+  final int? pageSize;
 
   @override
   String toString() => 'pageSize: $pageSize';
