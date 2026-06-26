@@ -1,3 +1,7 @@
+## 2.5.3
+
+* Add `fileSystemOpfsWeb`.
+
 ## 2.5.2
 
 * dart 3.12 and new lints

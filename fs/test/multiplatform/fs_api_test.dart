@@ -4,17 +4,27 @@
 @Deprecated('do no used, move to fs_api_test in fs_shim')
 library;
 
-import 'package:dev_test/test.dart';
+import 'package:fs_shim/fs_opfs_web.dart';
 import 'package:fs_shim/fs_shim.dart';
-
-import 'test_common.dart' show isRunningAsJavascript, kDartIsWeb;
+import 'package:fs_shim/src/common/env_utils.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('import', () {
     test('web', () {
       try {
         fileSystemWeb;
-        if (!kDartIsWeb) {
+        if (!kFsDartIsWeb) {
+          fail('should fail');
+        }
+      } on UnimplementedError catch (_) {
+        // devPrint(_);
+      }
+    });
+    test('web opfs', () {
+      try {
+        fileSystemOpfsWeb;
+        if (!kFsDartIsWeb) {
           fail('should fail');
         }
       } on UnimplementedError catch (_) {
@@ -24,7 +34,7 @@ void main() {
     test('io', () {
       try {
         fileSystemIo;
-        if (isRunningAsJavascript) {
+        if (kFsDartIsWeb) {
           fail('should fail');
         }
       } on UnimplementedError catch (_) {

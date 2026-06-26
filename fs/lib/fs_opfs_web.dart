@@ -4,15 +4,19 @@
 /// File system implementation on top of the browser Origin Private File System
 /// (OPFS), using raw web interop.
 ///
+/// Safe to import on any platform, but [fileSystemOpfsWeb] is only available on
+/// the web (relies on `navigator.storage.getDirectory()`).
+///
 /// See https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system
 library;
 
-import 'src/opfs/opfs_file_system.dart';
+import 'src/opfs/fs_opfs.dart';
+import 'src/opfs/fs_opfs_stub.dart'
+    if (dart.library.js_interop) 'src/opfs/fs_opfs_impl.dart'
+    if (dart.library.io) 'src/opfs/fs_opfs_io.dart';
 
 export 'fs.dart';
-export 'src/opfs/opfs_file_system.dart' show FileSystemOpfs;
-
-FileSystemOpfs? _fileSystemOpfs;
+export 'src/opfs/fs_opfs.dart' show FileSystemOpfsWeb;
 
 /// The OPFS (Origin Private File System) file system.
 ///
@@ -20,4 +24,4 @@ FileSystemOpfs? _fileSystemOpfs;
 ///
 /// Only available on the web (relies on `navigator.storage.getDirectory()`).
 /// Links and random access are not supported.
-FileSystemOpfs get fileSystemOpfs => _fileSystemOpfs ??= FileSystemOpfs();
+FileSystemOpfsWeb get fileSystemOpfsWeb => fileSystemOpfsWebImpl;

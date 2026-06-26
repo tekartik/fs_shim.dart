@@ -1,7 +1,7 @@
 @TestOn('browser')
 library;
 
-import 'package:fs_shim/fs_opfs.dart';
+import 'package:fs_shim/fs_opfs_web.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
 import 'package:tekartik_fs_test/test_common.dart';
 import 'package:test/test.dart';
@@ -9,7 +9,7 @@ import 'package:test/test.dart';
 /// Test context for the OPFS (Origin Private File System) file system.
 class FileSystemTestContextOpfs with FileSystemTestContextMixin {
   @override
-  final FileSystem fs = fileSystemOpfs;
+  final FileSystem fs = fileSystemOpfsWeb;
 
   FileSystemTestContextOpfs() {
     platform = platformContextBrowser;

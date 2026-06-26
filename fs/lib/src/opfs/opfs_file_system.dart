@@ -13,6 +13,7 @@ import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
+import 'fs_opfs.dart';
 import 'opfs_directory.dart';
 import 'opfs_file.dart';
 import 'opfs_file_stat.dart';
@@ -21,16 +22,10 @@ import 'opfs_file_system_exception.dart';
 import 'opfs_fs.dart';
 import 'opfs_interop.dart';
 
-/// OPFS (Origin Private File System) file system.
-abstract class FileSystemOpfs extends fs.FileSystem {
-  /// Creates a new OPFS file system.
-  factory FileSystemOpfs() => FileSystemOpfsImpl();
-}
-
 /// OPFS file system implementation.
 class FileSystemOpfsImpl extends Object
     with FileSystemMixin
-    implements FileSystemOpfs {
+    implements FileSystemOpfsWeb {
   /// Singleton, the OPFS is unique per origin.
   FileSystemOpfsImpl();
 
