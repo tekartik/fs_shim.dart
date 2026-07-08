@@ -19,5 +19,5 @@ void main() {
       dart pub get
       webdev build -o example:build
   ''');
-  });
+  }, timeout: const Timeout(Duration(minutes: 5)));
 }
