@@ -11,12 +11,12 @@ FileSystem getOpfsFileSystem() => fileSystemOpfsWeb;
 
 Future<FileSystem?> selectOpfsDirectory() async {
   try {
-    final dirHandle = await fileSystemOpfsWebShowDirectoryPicker(
+    final dirHandle = await FileSystemOpfsWeb.showDirectoryPicker(
       FileSystemOpfsWebShowDirectoryPickerOptions(
         mode: FileSystemOpfsWebShowDirectoryPickerOptions.modeReadWrite,
       ),
     );
-    return fileSystemOpfsWebWithRootHandle(dirHandle);
+    return FileSystemOpfsWeb.withRootHandle(dirHandle);
   } catch (e) {
     return null;
   }

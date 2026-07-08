@@ -27,6 +27,16 @@ void main() {
         // devPrint(_);
       }
     });
+    test('web opfs storageGetDirectory', () async {
+      try {
+        await FileSystemOpfsWeb.storageGetDirectory();
+        if (!kFsDartIsWeb) {
+          fail('should fail');
+        }
+      } on UnimplementedError catch (_) {
+        // devPrint(_);
+      }
+    });
     test('io', () {
       try {
         fileSystemIo;

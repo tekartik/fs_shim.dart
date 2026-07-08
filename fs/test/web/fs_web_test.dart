@@ -4,6 +4,7 @@
 library;
 
 import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_opfs_web.dart';
 import 'package:fs_shim/src/idb/idb_file_system.dart';
 import 'package:idb_shim/idb_client_native_interop.dart';
 
@@ -57,6 +58,11 @@ void main() {
     expect(fileSystemWeb.currentDirectory.path, '/');
     expect(p.absolute('.'), '/.');
     expect(p.isAbsolute('.'), isFalse);
+  });
+  test('storageGetDirectory', () async {
+    var handle = await FileSystemOpfsWeb.storageGetDirectory();
+    expect(handle, isNotNull);
+    //expect(handle.jsObject, isNotNull);
   });
   group('idb_web', () {
     fsIdbMultiFormatGroup(idbFactoryNative);

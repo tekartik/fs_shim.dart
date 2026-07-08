@@ -25,7 +25,7 @@ Future<void> main() async {
     output.textContent = '';
     final List<FileSystemOpfsWebFileHandle> handles;
     try {
-      handles = await fileSystemOpfsWebShowOpenFilePicker(
+      handles = await FileSystemOpfsWeb.showOpenFilePicker(
         const FileSystemOpfsWebShowOpenFilePickerOptions(
           multiple: true,
           types: textTypes,
@@ -37,7 +37,7 @@ Future<void> main() async {
       return;
     }
 
-    final fs = fileSystemOpfsWebWithFileHandles(handles);
+    final fs = FileSystemOpfsWeb.withFileHandles(handles);
     write('Content of the selected file(s):');
     await for (final entity in fs.directory('/').list()) {
       final file = fs.file(entity.path);
@@ -50,7 +50,7 @@ Future<void> main() async {
     output.textContent = '';
     final FileSystemOpfsWebFileHandle handle;
     try {
-      handle = await fileSystemOpfsWebShowSaveFilePicker(
+      handle = await FileSystemOpfsWeb.showSaveFilePicker(
         const FileSystemOpfsWebShowSaveFilePickerOptions(
           suggestedName: 'fs_shim_demo.txt',
           types: textTypes,
@@ -62,7 +62,7 @@ Future<void> main() async {
       return;
     }
 
-    final fs = fileSystemOpfsWebWithFileHandles([handle]);
+    final fs = FileSystemOpfsWeb.withFileHandles([handle]);
     final file = (await fs.directory('/').list().toList()).first as File;
     await file.writeAsString('Written by fs_shim at ${DateTime.now()}\n');
     write('Written ${file.path} ${await file.stat()}');

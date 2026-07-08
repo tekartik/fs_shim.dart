@@ -5,10 +5,134 @@ library;
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:path/path.dart' as p;
 
+import 'fs_opfs.dart';
+
 /// OPFS (Origin Private File System) file system.
 ///
 /// Pure type definition, safe to import on any platform.
-abstract class FileSystemOpfsWeb extends fs.FileSystem {}
+abstract class FileSystemOpfsWeb extends fs.FileSystem {
+  /// File system rooted at an existing JS `FileSystemDirectoryHandle`.
+  ///
+  /// [rootDirectoryHandle] is typically obtained from [showDirectoryPicker]
+  /// (Chromium-only) or by wrapping a handle persisted in IndexedDB in a
+  /// [FileSystemOpfsWebDirectoryHandle].
+  ///
+  /// ```dart
+  /// final handle = await FileSystemOpfsWeb.showDirectoryPicker();
+  /// final fs = FileSystemOpfsWeb.withRootHandle(handle);
+  /// ```
+  ///
+  /// Write operations require the handle to have been granted `readwrite`
+  /// permission. Handles do not persist across page reloads unless saved by
+  /// the application (e.g. in IndexedDB) and permission requested again.
+  ///
+  /// Only available on the web. Links and random access are not supported.
+  factory FileSystemOpfsWeb.withRootHandle(
+    FileSystemOpfsWebDirectoryHandle rootDirectoryHandle,
+  ) => fileSystemOpfsWebWithRootHandleImpl(rootDirectoryHandle);
+
+  /// File system whose root "directory" contains exactly [fileHandles], each
+  /// at `/<name>` (`name` being the JS handle name, deduplicated as
+  /// `name (1)`, `name (2)`, ... on collision).
+  ///
+  /// [fileHandles] are typically obtained from [showOpenFilePicker] or
+  /// [showSaveFilePicker] (Chromium-only) or by wrapping JS
+  /// `FileSystemFileHandle`s in [FileSystemOpfsWebFileHandle]s.
+  ///
+  /// ```dart
+  /// final handles = await FileSystemOpfsWeb.showOpenFilePicker(
+  ///     FileSystemOpfsWebShowOpenFilePickerOptions(multiple: true));
+  /// final fs = FileSystemOpfsWeb.withFileHandles(handles);
+  /// await for (final file in fs.directory('/').list()) {
+  ///   print(await fs.file(file.path).readAsString());
+  /// }
+  /// ```
+  ///
+  /// File handles give no access to their parent directory, so the structure
+  /// is fixed: the files can be read, written (permission permitting) and
+  /// copied to each other, but not created, deleted or renamed, and no
+  /// directory can be created. Handles from [showSaveFilePicker] are writable;
+  /// [showOpenFilePicker] handles are read-only unless granted `readwrite`
+  /// permission (see [requestWritePermission]).
+  ///
+  /// Only available on the web. Links and random access are not supported.
+  factory FileSystemOpfsWeb.withFileHandles(
+    List<FileSystemOpfsWebFileHandle> fileHandles,
+  ) => fileSystemOpfsWebWithFileHandlesImpl(fileHandles);
+
+  /// Prompts the user to select a directory using
+  /// `window.showDirectoryPicker()` (File System Access API) and returns the
+  /// resulting [FileSystemOpfsWebDirectoryHandle], suitable for
+  /// [withRootHandle].
+  ///
+  /// See [FileSystemOpfsWebShowDirectoryPickerOptions] for the available
+  /// [options] (`id`, `mode`, `startIn`).
+  ///
+  /// Chromium-only, must be called from a user gesture. Throws if the user
+  /// cancels the picker or if the browser does not support it.
+  ///
+  /// Only available on the web.
+  static Future<FileSystemOpfsWebDirectoryHandle> showDirectoryPicker([
+    FileSystemOpfsWebShowDirectoryPickerOptions? options,
+  ]) => fileSystemOpfsWebShowDirectoryPickerImpl(options);
+
+  /// Prompts the user to select one or more files using
+  /// `window.showOpenFilePicker()` (File System Access API) and returns the
+  /// resulting [FileSystemOpfsWebFileHandle]s, suitable for [withFileHandles].
+  ///
+  /// See [FileSystemOpfsWebShowOpenFilePickerOptions] for the available
+  /// [options] (`id`, `startIn`, `multiple`, `excludeAcceptAllOption`,
+  /// `types`).
+  ///
+  /// The returned handles are read-only, writing requires requesting the
+  /// `readwrite` permission (see [requestWritePermission]).
+  ///
+  /// Chromium-only, must be called from a user gesture. Throws if the user
+  /// cancels the picker or if the browser does not support it.
+  ///
+  /// Only available on the web.
+  static Future<List<FileSystemOpfsWebFileHandle>> showOpenFilePicker([
+    FileSystemOpfsWebShowOpenFilePickerOptions? options,
+  ]) => fileSystemOpfsWebShowOpenFilePickerImpl(options);
+
+  /// Prompts the user to select a file to save to using
+  /// `window.showSaveFilePicker()` (File System Access API) and returns the
+  /// resulting [FileSystemOpfsWebFileHandle], suitable for [withFileHandles].
+  ///
+  /// The file is created empty if it does not exist yet, and the returned
+  /// handle is granted `readwrite` permission.
+  ///
+  /// See [FileSystemOpfsWebShowSaveFilePickerOptions] for the available
+  /// [options] (`id`, `startIn`, `suggestedName`, `excludeAcceptAllOption`,
+  /// `types`).
+  ///
+  /// Chromium-only, must be called from a user gesture. Throws if the user
+  /// cancels the picker or if the browser does not support it.
+  ///
+  /// Only available on the web.
+  static Future<FileSystemOpfsWebFileHandle> showSaveFilePicker([
+    FileSystemOpfsWebShowSaveFilePickerOptions? options,
+  ]) => fileSystemOpfsWebShowSaveFilePickerImpl(options);
+
+  /// Requests the `readwrite` permission on [handle] (a
+  /// [FileSystemOpfsWebFileHandle] or a [FileSystemOpfsWebDirectoryHandle])
+  /// and returns true if granted.
+  ///
+  /// Needed before writing to a file handle obtained from
+  /// [showOpenFilePicker]. May prompt the user, in which case a user gesture
+  /// is required.
+  ///
+  /// Chromium-only. Only available on the web.
+  static Future<bool> requestWritePermission(
+    FileSystemOpfsWebFileSystemEntityHandle handle,
+  ) => fileSystemOpfsWebRequestWritePermissionImpl(handle);
+
+  /// Returns the OPFS root directory handle using `navigator.storage.getDirectory()`.
+  ///
+  /// Only available on the web.
+  static Future<FileSystemOpfsWebDirectoryHandle> storageGetDirectory() =>
+      fileSystemOpfsWebStorageGetDirectoryImpl();
+}
 
 /// Common options for the File System Access API pickers
 /// (`window.showDirectoryPicker()`, `window.showOpenFilePicker()` and
@@ -153,3 +277,18 @@ List<String> opfsPathSegments(String path) {
       )
       .toList();
 }
+
+/// JS `FileSystemDirectoryHandle`, only available on the web (where it is
+/// simply a `JSObject`).
+abstract class FileSystemOpfsWebDirectoryHandle
+    implements FileSystemOpfsWebFileSystemEntityHandle {}
+
+/// JS `FileSystemFileHandle`, only available on the web (where it is
+/// simply a `JSObject`).
+abstract class FileSystemOpfsWebFileHandle
+    implements FileSystemOpfsWebFileSystemEntityHandle {}
+
+/// Wraps a JS `FileSystemHandle`, either a file
+/// ([FileSystemOpfsWebFileHandle]) or a directory
+/// ([FileSystemOpfsWebDirectoryHandle]) handle.
+abstract class FileSystemOpfsWebFileSystemEntityHandle {}

@@ -5,6 +5,7 @@ library;
 import 'dart:js_interop';
 
 import 'package:fs_shim/fs_opfs_web.dart';
+import 'package:fs_shim/src/opfs/fs_opfs_web.dart';
 import 'package:fs_shim/src/opfs/opfs_interop.dart';
 import 'package:test/test.dart';
 
@@ -25,8 +26,7 @@ Future<FileSystemOpfsWebFileHandle> getTestFileHandle(
   final handle = await dir
       .getFileHandle(fileName, OpfsGetFileOptions(create: true))
       .toDart;
-  // ignore: invalid_runtime_check_with_js_interop_types
-  return handle as FileSystemOpfsWebFileHandle;
+  return FileSystemOpfsWebFileHandleWeb(handle);
 }
 
 void main() {
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('read/write/stat through the File interface', () async {
-      final fs = fileSystemOpfsWebWithFileHandles([
+      final fs = FileSystemOpfsWeb.withFileHandles([
         await getTestFileHandle(_dirName, 'file.txt'),
       ]);
       expect(fs.name, 'opfs');
@@ -79,7 +79,7 @@ void main() {
 
     test('list and name deduplication', () async {
       // Two handles with the same name (as picked from different directories).
-      final fs = fileSystemOpfsWebWithFileHandles([
+      final fs = FileSystemOpfsWeb.withFileHandles([
         await getTestFileHandle(_dirName, 'dup.txt'),
         await getTestFileHandle('${_dirName}_other', 'dup.txt'),
         await getTestFileHandle(_dirName, 'file.txt'),
@@ -111,7 +111,7 @@ void main() {
     });
 
     test('copy between file handles', () async {
-      final fs = fileSystemOpfsWebWithFileHandles([
+      final fs = FileSystemOpfsWeb.withFileHandles([
         await getTestFileHandle(_dirName, 'src.txt'),
         await getTestFileHandle(_dirName, 'dst.txt'),
       ]);
@@ -121,7 +121,7 @@ void main() {
     });
 
     test('unsupported operations', () async {
-      final fs = fileSystemOpfsWebWithFileHandles([
+      final fs = FileSystemOpfsWeb.withFileHandles([
         await getTestFileHandle(_dirName, 'file.txt'),
       ]);
       final file = fs.file('/file.txt');
@@ -151,7 +151,7 @@ void main() {
     test('fileSystemOpfsWebRequestWritePermission', () async {
       final handle = await getTestFileHandle(_dirName, 'file.txt');
       // OPFS handles are always granted.
-      expect(await fileSystemOpfsWebRequestWritePermission(handle), isTrue);
+      expect(await FileSystemOpfsWeb.requestWritePermission(handle), isTrue);
     });
   });
 }

@@ -6,13 +6,31 @@ import 'opfs_file_system.dart';
 import 'opfs_fs.dart';
 import 'opfs_interop.dart';
 
-/// JS `FileSystemDirectoryHandle`, any interop binding works (`package:web`,
-/// raw `dart:js_interop`, ...).
-typedef FileSystemOpfsWebDirectoryHandle = JSObject;
+/// Base JS `FileSystemHandle` wrapper.
+abstract class _FsOpfsWebHandle
+    implements FileSystemOpfsWebFileSystemEntityHandle {
+  _FsOpfsWebHandle(this.jsObject);
 
-/// JS `FileSystemFileHandle`, any interop binding works (`package:web`,
-/// raw `dart:js_interop`, ...).
-typedef FileSystemOpfsWebFileHandle = JSObject;
+  final JSObject jsObject;
+
+  OpfsHandle get _handle => jsObject as OpfsHandle;
+}
+
+/// Wraps a JS `FileSystemDirectoryHandle`, any interop binding works
+/// (`package:web`, raw `dart:js_interop`, ...).
+class FileSystemOpfsWebDirectoryHandleWeb extends _FsOpfsWebHandle
+    implements FileSystemOpfsWebDirectoryHandle {
+  /// Wraps [jsObject], a JS `FileSystemDirectoryHandle`.
+  FileSystemOpfsWebDirectoryHandleWeb(super.jsObject);
+}
+
+/// Wraps a JS `FileSystemFileHandle`, any interop binding works
+/// (`package:web`, raw `dart:js_interop`, ...).
+class FileSystemOpfsWebFileHandleWeb extends _FsOpfsWebHandle
+    implements FileSystemOpfsWebFileHandle {
+  /// Wraps [jsObject], a JS `FileSystemFileHandle`.
+  FileSystemOpfsWebFileHandleWeb(super.jsObject);
+}
 
 /// `window.showDirectoryPicker()` (File System Access API), not exposed by
 /// `package:web`. Chromium-only, must be called from a user gesture.
@@ -30,7 +48,8 @@ external JSPromise<JSArray<JSObject>> _showOpenFilePicker([JSObject options]);
 external JSPromise<JSObject> _showSaveFilePicker([JSObject options]);
 
 extension type _ShowDirectoryPickerOptions._(JSObject _) implements JSObject {
-  external factory _ShowDirectoryPickerOptions();
+  factory _ShowDirectoryPickerOptions() =>
+      JSObject() as _ShowDirectoryPickerOptions;
 
   external set id(String value);
 
@@ -40,7 +59,8 @@ extension type _ShowDirectoryPickerOptions._(JSObject _) implements JSObject {
 }
 
 extension type _ShowOpenFilePickerOptions._(JSObject _) implements JSObject {
-  external factory _ShowOpenFilePickerOptions();
+  factory _ShowOpenFilePickerOptions() =>
+      JSObject() as _ShowOpenFilePickerOptions;
 
   external set id(String value);
 
@@ -54,7 +74,8 @@ extension type _ShowOpenFilePickerOptions._(JSObject _) implements JSObject {
 }
 
 extension type _ShowSaveFilePickerOptions._(JSObject _) implements JSObject {
-  external factory _ShowSaveFilePickerOptions();
+  factory _ShowSaveFilePickerOptions() =>
+      JSObject() as _ShowSaveFilePickerOptions;
 
   external set id(String value);
 
@@ -68,7 +89,7 @@ extension type _ShowSaveFilePickerOptions._(JSObject _) implements JSObject {
 }
 
 extension type _FilePickerAcceptType._(JSObject _) implements JSObject {
-  external factory _FilePickerAcceptType();
+  factory _FilePickerAcceptType() => JSObject() as _FilePickerAcceptType;
 
   external set description(String value);
 
@@ -101,6 +122,10 @@ JSObject _acceptTypeToJs(FileSystemOpfsWebFilePickerAcceptType type) {
 
 FileSystemOpfsWeb? _fileSystemOpfsWeb;
 
+extension on FileSystemOpfsWebFileSystemEntityHandle {
+  JSObject get jsObject => (this as _FsOpfsWebHandle)._handle;
+}
+
 /// The OPFS (Origin Private File System) file system.
 ///
 /// There is a single OPFS per origin, this returns a shared instance.
@@ -111,7 +136,7 @@ FileSystemOpfsWeb get fileSystemOpfsWebImpl =>
 FileSystemOpfsWeb fileSystemOpfsWebWithRootHandleImpl(
   FileSystemOpfsWebDirectoryHandle rootDirectoryHandle,
 ) {
-  final handle = rootDirectoryHandle as OpfsDirectoryHandle;
+  final handle = rootDirectoryHandle.jsObject as OpfsDirectoryHandle;
   return FileSystemOpfsImpl(rootHandleProvider: () async => handle);
 }
 
@@ -120,8 +145,8 @@ FileSystemOpfsWeb fileSystemOpfsWebWithFileHandlesImpl(
   List<FileSystemOpfsWebFileHandle> fileHandles,
 ) {
   final map = <String, OpfsFileHandle>{};
-  for (final jsHandle in fileHandles) {
-    final handle = jsHandle as OpfsFileHandle;
+  for (final fileHandle in fileHandles) {
+    final handle = fileHandle.jsObject as OpfsFileHandle;
     var name = handle.name;
     if (map.containsKey(name)) {
       // Handles picked from different directories can share a name,
@@ -147,7 +172,9 @@ fileSystemOpfsWebShowDirectoryPickerImpl([
   final mode = options?.mode;
   final startIn = options?.startIn;
   if (id == null && mode == null && startIn == null) {
-    return await _showDirectoryPicker().toDart;
+    return FileSystemOpfsWebDirectoryHandleWeb(
+      await _showDirectoryPicker().toDart,
+    );
   }
   final jsOptions = _ShowDirectoryPickerOptions();
   if (id != null) {
@@ -159,7 +186,9 @@ fileSystemOpfsWebShowDirectoryPickerImpl([
   if (startIn != null) {
     jsOptions.startIn = _startInToJs(startIn);
   }
-  return await _showDirectoryPicker(jsOptions).toDart;
+  return FileSystemOpfsWebDirectoryHandleWeb(
+    await _showDirectoryPicker(jsOptions).toDart,
+  );
 }
 
 /// Prompts the user to select file(s) using `window.showOpenFilePicker()`.
@@ -172,14 +201,17 @@ fileSystemOpfsWebShowOpenFilePickerImpl([
   final multiple = options?.multiple;
   final excludeAcceptAllOption = options?.excludeAcceptAllOption;
   final types = options?.types;
+  print('#1');
   if (id == null &&
       startIn == null &&
       multiple == null &&
       excludeAcceptAllOption == null &&
       types == null) {
-    return (await _showOpenFilePicker().toDart).toDart;
+    return _wrapFileHandles(await _showOpenFilePicker().toDart);
   }
-  final jsOptions = _ShowOpenFilePickerOptions();
+  print('#2');
+  final jsOptions = JSObject() as _ShowOpenFilePickerOptions;
+  print('#3');
   if (id != null) {
     jsOptions.id = id;
   }
@@ -195,8 +227,14 @@ fileSystemOpfsWebShowOpenFilePickerImpl([
   if (types != null) {
     jsOptions.types = _acceptTypesToJs(types);
   }
-  return (await _showOpenFilePicker(jsOptions).toDart).toDart;
+  return _wrapFileHandles(await _showOpenFilePicker(jsOptions).toDart);
 }
+
+List<FileSystemOpfsWebFileHandle> _wrapFileHandles(
+  JSArray<JSObject> handles,
+) => [
+  for (final handle in handles.toDart) FileSystemOpfsWebFileHandleWeb(handle),
+];
 
 /// Prompts the user to select a file to save to using
 /// `window.showSaveFilePicker()`.
@@ -213,7 +251,7 @@ Future<FileSystemOpfsWebFileHandle> fileSystemOpfsWebShowSaveFilePickerImpl([
       suggestedName == null &&
       excludeAcceptAllOption == null &&
       types == null) {
-    return await _showSaveFilePicker().toDart;
+    return FileSystemOpfsWebFileHandleWeb(await _showSaveFilePicker().toDart);
   }
   final jsOptions = _ShowSaveFilePickerOptions();
   if (id != null) {
@@ -231,15 +269,26 @@ Future<FileSystemOpfsWebFileHandle> fileSystemOpfsWebShowSaveFilePickerImpl([
   if (types != null) {
     jsOptions.types = _acceptTypesToJs(types);
   }
-  return await _showSaveFilePicker(jsOptions).toDart;
+  return FileSystemOpfsWebFileHandleWeb(
+    await _showSaveFilePicker(jsOptions).toDart,
+  );
 }
 
-/// Requests `readwrite` permission on a JS `FileSystemHandle` (file or
+/// Requests `readwrite` permission on a `FileSystemHandle` wrapper (file or
 /// directory handle), returns true if granted.
-Future<bool> fileSystemOpfsWebRequestWritePermissionImpl(Object handle) async {
-  final jsHandle = handle as OpfsHandle;
+Future<bool> fileSystemOpfsWebRequestWritePermissionImpl(
+  FileSystemOpfsWebFileSystemEntityHandle handle,
+) async {
+  final jsHandle = (handle as _FsOpfsWebHandle)._handle;
   final state = await jsHandle
       .requestPermission(OpfsHandlePermissionDescriptor(mode: 'readwrite'))
       .toDart;
   return state.toDart == 'granted';
+}
+
+/// Returns the OPFS root directory handle using `navigator.storage.getDirectory()`.
+Future<FileSystemOpfsWebDirectoryHandle>
+fileSystemOpfsWebStorageGetDirectoryImpl() async {
+  final handle = await opfsNavigator.storage.getDirectory().toDart;
+  return FileSystemOpfsWebDirectoryHandleWeb(handle);
 }

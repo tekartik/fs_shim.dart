@@ -5,6 +5,7 @@ library;
 import 'dart:js_interop';
 
 import 'package:fs_shim/fs_opfs_web.dart';
+import 'package:fs_shim/src/opfs/fs_opfs_web.dart' as web;
 import 'package:fs_shim/src/opfs/opfs_file_system.dart';
 import 'package:fs_shim/src/opfs/opfs_interop.dart';
 import 'package:tekartik_fs_test/fs_test.dart';
@@ -46,10 +47,9 @@ final fileSystemTestContextOpfsRootHandle =
 
 void main() {
   group('opfs_root_handle', () {
-    test('fileSystemOpfsWebWithRootHandle', () async {
-      final fs = fileSystemOpfsWebWithRootHandle(
-        // ignore: invalid_runtime_check_with_js_interop_types
-        (await getTestRootHandle()) as FileSystemOpfsWebDirectoryHandle,
+    test('FileSystemOpfsWeb.withRootHandle', () async {
+      final fs = FileSystemOpfsWeb.withRootHandle(
+        web.FileSystemOpfsWebDirectoryHandleWeb(await getTestRootHandle()),
       );
       expect(fs.name, 'opfs');
       expect(fs, isNot(fileSystemOpfsWeb));
