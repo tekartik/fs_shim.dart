@@ -1,4 +1,4 @@
-## 2.5.4+1
+## 2.5.4+2
 
 * Add `FileSystemOpfsWeb.withRootHandle()` to create a file system rooted at an
   existing `FileSystemOpfsWebDirectoryHandle` (e.g. obtained from
