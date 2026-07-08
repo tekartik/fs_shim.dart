@@ -12,3 +12,9 @@ FileSystemOpfsWeb fileSystemOpfsWebWithRootHandleImpl(
   'fileSystemOpfsWebWithRootHandle is only supported on the web, '
   'use `fileSystemIo`',
 );
+
+/// Only available on the web.
+Future<Object> fileSystemOpfsWebShowDirectoryPickerImpl() =>
+    throw UnimplementedError(
+      'fileSystemOpfsWebShowDirectoryPicker is only supported on the web',
+    );

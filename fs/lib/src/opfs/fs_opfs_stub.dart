@@ -10,3 +10,9 @@ FileSystemOpfsWeb fileSystemOpfsWebWithRootHandleImpl(
 ) => throw UnimplementedError(
   'fileSystemOpfsWebWithRootHandle is only supported on the web',
 );
+
+/// Only available on the web.
+Future<Object> fileSystemOpfsWebShowDirectoryPickerImpl() =>
+    throw UnimplementedError(
+      'fileSystemOpfsWebShowDirectoryPicker is only supported on the web',
+    );

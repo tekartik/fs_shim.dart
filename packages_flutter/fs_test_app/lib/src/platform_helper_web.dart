@@ -9,12 +9,9 @@ FileSystem getIoFileSystem() =>
 FileSystem getWebFileSystem() => fileSystemWeb;
 FileSystem getOpfsFileSystem() => fileSystemOpfsWeb;
 
-@JS('window.showDirectoryPicker')
-external JSPromise<JSObject> _showDirectoryPicker();
-
 Future<FileSystem?> selectOpfsDirectory() async {
   try {
-    final dirHandle = await _showDirectoryPicker().toDart;
+    final dirHandle = await fileSystemOpfsWebShowDirectoryPicker();
     return fileSystemOpfsWebWithRootHandle(dirHandle);
   } catch (e) {
     return null;

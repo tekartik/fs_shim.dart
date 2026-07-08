@@ -1,12 +1,5 @@
-import 'dart:js_interop';
-
 import 'package:fs_shim/fs_opfs_web.dart';
 import 'package:web/web.dart' as web;
-
-/// `window.showDirectoryPicker()` (File System Access API), not exposed by
-/// `package:web`. Chromium-only, must be called from a user gesture.
-@JS('window.showDirectoryPicker')
-external JSPromise<JSObject> _showDirectoryPicker();
 
 Future<void> main() async {
   final button = web.document.querySelector('#pick') as web.HTMLButtonElement;
@@ -18,9 +11,9 @@ Future<void> main() async {
 
   button.onClick.listen((_) async {
     output.textContent = '';
-    final JSObject dirHandle;
+    final Object dirHandle;
     try {
-      dirHandle = await _showDirectoryPicker().toDart;
+      dirHandle = await fileSystemOpfsWebShowDirectoryPicker();
     } catch (e) {
       // Cancelled by the user (or unsupported browser).
       write('No directory selected ($e)');

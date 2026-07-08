@@ -45,3 +45,14 @@ FileSystemOpfsWeb get fileSystemOpfsWeb => fileSystemOpfsWebImpl;
 /// Only available on the web. Links and random access are not supported.
 FileSystemOpfsWeb fileSystemOpfsWebWithRootHandle(Object rootDirectoryHandle) =>
     fileSystemOpfsWebWithRootHandleImpl(rootDirectoryHandle);
+
+/// Prompts the user to select a directory using `window.showDirectoryPicker()`
+/// (File System Access API) and returns the resulting JS
+/// `FileSystemDirectoryHandle`, suitable for [fileSystemOpfsWebWithRootHandle].
+///
+/// Chromium-only, must be called from a user gesture. Throws if the user
+/// cancels the picker or if the browser does not support it.
+///
+/// Only available on the web.
+Future<Object> fileSystemOpfsWebShowDirectoryPicker() =>
+    fileSystemOpfsWebShowDirectoryPickerImpl();
