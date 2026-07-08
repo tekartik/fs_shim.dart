@@ -14,6 +14,7 @@ var webdevReady = () async {
 }();
 void main() {
   test('webdev', () async {
+    await webdevReady;
     await run('''
       dart pub get
       webdev build -o example:build
