@@ -25,3 +25,23 @@ export 'src/opfs/fs_opfs.dart' show FileSystemOpfsWeb;
 /// Only available on the web (relies on `navigator.storage.getDirectory()`).
 /// Links and random access are not supported.
 FileSystemOpfsWeb get fileSystemOpfsWeb => fileSystemOpfsWebImpl;
+
+/// File system rooted at an existing JS `FileSystemDirectoryHandle`.
+///
+/// [rootDirectoryHandle] must be a JS `FileSystemDirectoryHandle`, typically
+/// obtained from `window.showDirectoryPicker()` (Chromium-only) or from a
+/// handle persisted in IndexedDB. Any interop binding works (`package:web`,
+/// raw `dart:js_interop`, ...), the handle is used as-is.
+///
+/// ```dart
+/// final handle = await window.showDirectoryPicker(...); // package:web
+/// final fs = fileSystemOpfsWebWithRootHandle(handle);
+/// ```
+///
+/// Write operations require the handle to have been granted `readwrite`
+/// permission. Handles do not persist across page reloads unless saved by the
+/// application (e.g. in IndexedDB) and permission requested again.
+///
+/// Only available on the web. Links and random access are not supported.
+FileSystemOpfsWeb fileSystemOpfsWebWithRootHandle(Object rootDirectoryHandle) =>
+    fileSystemOpfsWebWithRootHandleImpl(rootDirectoryHandle);

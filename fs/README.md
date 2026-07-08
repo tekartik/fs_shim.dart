@@ -243,6 +243,23 @@ Limitations of the OPFS implementation:
   The import is safe on any platform, but accessing the instance off the web is
   not supported.
 
+Instead of the origin private root, a file system can also be rooted at any JS
+`FileSystemDirectoryHandle` (File System Access API), for example a directory
+picked by the user:
+
+```dart
+import 'package:fs_shim/fs_opfs_web.dart';
+import 'package:web/web.dart';
+
+final handle = await window.showDirectoryPicker().toDart; // Chromium-only
+final fs = fileSystemOpfsWebWithRootHandle(handle);
+```
+
+The handle is used as-is (any interop binding works). Write operations require
+the handle to have been granted `readwrite` permission, and handles do not
+persist across page reloads unless saved by the application (e.g. in indexedDB)
+and permission requested again.
+
 ### Random access support
 
 Random access is supported since version 2.1.0 on io and web (indexedDB).

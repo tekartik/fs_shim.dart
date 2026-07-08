@@ -1,6 +1,6 @@
 # fs_shim
 
-A portable file system library to allow working on io, browser (though idb_shim), node and memory (through idb_shim), 
+A portable file system library to allow working on io, browser (though idb_shim or OPFS), node and memory (through idb_shim), 
 and soon google storage (through storage api), google drive (through google drive api).
 
 It uses a small subset of the file io API (asynchronous only)

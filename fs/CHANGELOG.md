@@ -1,3 +1,9 @@
+## 2.5.4
+
+* Add `fileSystemOpfsWebWithRootHandle` to create a file system rooted at an
+  existing JS `FileSystemDirectoryHandle` (e.g. obtained from
+  `window.showDirectoryPicker()`)
+
 ## 2.5.3
 
 * Add `fileSystemOpfsWeb`.

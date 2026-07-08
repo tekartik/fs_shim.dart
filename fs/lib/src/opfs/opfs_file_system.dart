@@ -26,13 +26,21 @@ import 'opfs_interop.dart';
 class FileSystemOpfsImpl extends Object
     with FileSystemMixin
     implements FileSystemOpfsWeb {
-  /// Singleton, the OPFS is unique per origin.
-  FileSystemOpfsImpl();
+  /// By default the root is the OPFS root (`navigator.storage.getDirectory()`,
+  /// unique per origin, a shared instance is used).
+  ///
+  /// A custom [rootHandleProvider] can be given to root the file system at any
+  /// `FileSystemDirectoryHandle` (e.g. picked by the user through
+  /// `window.showDirectoryPicker()`).
+  FileSystemOpfsImpl({this._rootHandleProvider});
+
+  final Future<OpfsDirectoryHandle> Function()? _rootHandleProvider;
 
   OpfsDirectoryHandle? _root;
 
-  Future<OpfsDirectoryHandle> get _rootHandle async =>
-      _root ??= await opfsNavigator.storage.getDirectory().toDart;
+  Future<OpfsDirectoryHandle> get _rootHandle async => _root ??=
+      await (_rootHandleProvider?.call() ??
+          opfsNavigator.storage.getDirectory().toDart);
 
   @override
   String get name => 'opfs';
@@ -66,7 +74,11 @@ class FileSystemOpfsImpl extends Object
   fs.Directory get currentDirectory => directory(path.current);
 
   @override
-  bool operator ==(Object other) => other is FileSystemOpfsImpl;
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FileSystemOpfsImpl &&
+          _rootHandleProvider == null &&
+          other._rootHandleProvider == null);
 
   @override
   int get hashCode => name.hashCode;
