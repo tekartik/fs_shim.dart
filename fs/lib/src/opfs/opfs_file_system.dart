@@ -76,6 +76,7 @@ class FileSystemOpfsImpl extends Object
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is FileSystemOpfsImpl &&
+          runtimeType == other.runtimeType &&
           _rootHandleProvider == null &&
           other._rootHandleProvider == null);
 

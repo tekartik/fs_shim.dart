@@ -33,6 +33,24 @@ extension type OpfsHandle._(JSObject _) implements JSObject {
 
   /// Entry name.
   external String get name;
+
+  /// Current permission state (`'granted'`, `'denied'` or `'prompt'`).
+  external JSPromise<JSString> queryPermission([
+    OpfsHandlePermissionDescriptor descriptor,
+  ]);
+
+  /// Request permission, returns the new permission state (`'granted'`,
+  /// `'denied'` or `'prompt'`). Chromium-only, requires a user gesture when
+  /// actually prompting.
+  external JSPromise<JSString> requestPermission([
+    OpfsHandlePermissionDescriptor descriptor,
+  ]);
+}
+
+extension type OpfsHandlePermissionDescriptor._(JSObject _)
+    implements JSObject {
+  /// [mode] is `'read'` or `'readwrite'`.
+  external factory OpfsHandlePermissionDescriptor({String mode});
 }
 
 extension type OpfsGetFileOptions._(JSObject _) implements JSObject {
