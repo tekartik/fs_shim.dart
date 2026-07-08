@@ -2,7 +2,7 @@
 
 * Add `fileSystemOpfsWebWithRootHandle` to create a file system rooted at an
   existing JS `FileSystemDirectoryHandle` (e.g. obtained from
-  `window.showDirectoryPicker()`)
+  `window.showDirectoryPicker()` or with the helper )
 * Use conditional imports for `fileSystemDefault` so that importing
   `package:fs_shim/fs.dart` no longer pulls `dart:io` on the web (fixes the
   build_web_compilers platform check when compiling web entrypoints)
