@@ -10,7 +10,7 @@ Future<void> main() async {
     output.textContent = '${output.textContent}$msg\n';
   }
 
-  Future<void> _handleDir(FileSystemOpfsWebDirectoryHandle dirHandle) async {
+  Future<void> handleDir(FileSystemOpfsWebDirectoryHandle dirHandle) async {
     final fs = FileSystemOpfsWeb.withRootHandle(dirHandle);
     write('Content of the selected directory:');
     final entities = await fs.directory('/').list().toList();
@@ -34,14 +34,14 @@ Future<void> main() async {
       return;
     }
 
-    await _handleDir(dirHandle);
+    await handleDir(dirHandle);
   });
   button2.onClick.listen((_) async {
     output.textContent = '';
     final FileSystemOpfsWebDirectoryHandle dirHandle;
     try {
       dirHandle = await FileSystemOpfsWeb.showDirectoryPicker(
-        FileSystemOpfsWebShowDirectoryPickerOptions(
+        const FileSystemOpfsWebShowDirectoryPickerOptions(
           startIn: FileSystemOpfsWebPickerOptions.startInPictures,
         ),
       );
@@ -51,6 +51,6 @@ Future<void> main() async {
       return;
     }
 
-    await _handleDir(dirHandle);
+    await handleDir(dirHandle);
   });
 }

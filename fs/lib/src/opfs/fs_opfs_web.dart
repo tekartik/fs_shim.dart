@@ -201,7 +201,6 @@ fileSystemOpfsWebShowOpenFilePickerImpl([
   final multiple = options?.multiple;
   final excludeAcceptAllOption = options?.excludeAcceptAllOption;
   final types = options?.types;
-  print('#1');
   if (id == null &&
       startIn == null &&
       multiple == null &&
@@ -209,9 +208,7 @@ fileSystemOpfsWebShowOpenFilePickerImpl([
       types == null) {
     return _wrapFileHandles(await _showOpenFilePicker().toDart);
   }
-  print('#2');
   final jsOptions = JSObject() as _ShowOpenFilePickerOptions;
-  print('#3');
   if (id != null) {
     jsOptions.id = id;
   }

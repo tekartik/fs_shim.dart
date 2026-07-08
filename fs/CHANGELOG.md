@@ -1,14 +1,12 @@
-## 2.5.4
+## 2.5.4+1
 
-* Add `fileSystemOpfsWebWithRootHandle()` to create a file system rooted at an
-  existing JS `FileSystemDirectoryHandle` (e.g. obtained from
-  `window.showDirectoryPicker()` or with the helper `fileSystemOpfsWebShowDirectoryPicker()`)
-* Add `fileSystemOpfsWebWithFileHandles()` to create a file system giving access
-  to existing JS `FileSystemFileHandle`s through the `File` interface (e.g.
-  obtained from `window.showOpenFilePicker()`/`window.showSaveFilePicker()` or
-  with the helpers `fileSystemOpfsWebShowOpenFilePicker()` and
-  `fileSystemOpfsWebShowSaveFilePicker()`)
-* Add `fileSystemOpfsWebRequestWritePermission()` to request the `readwrite`
+* Add `FileSystemOpfsWeb.withRootHandle()` to create a file system rooted at an
+  existing `FileSystemOpfsWebDirectoryHandle` (e.g. obtained from
+  `FileSystemOpfsWeb.showDirectoryPicker()` or `FileSystemOpfsWeb.storageGetDirectory()`).
+* Add `FileSystemOpfsWeb.withFileHandles()` to create a file system giving access
+  to files
+  obtained from `FileSystemOpfsWeb.showOpenFilePicker()`/`FileSystemOpfsWeb.showSaveFilePicker()`.
+* Add `fileSystemOpfsWeb.requestWritePermission()` to request the `readwrite`
   permission on a file or directory handle
 * Use conditional imports for `fileSystemDefault` so that importing
   `package:fs_shim/fs.dart` no longer pulls `dart:io` on the web (fixes the
