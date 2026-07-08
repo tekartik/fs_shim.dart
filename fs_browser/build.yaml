@@ -9,7 +9,3 @@ targets:
           - example/**.dart
           - test/web/**.dart
           - test/multiplatform/**.dart
-        options:
-          # fs_shim transitively imports dart:io (throws at use on the web),
-          # which dart2js accepts but the platform check would reject.
-          unsafe-allow-unsupported-modules: true

@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs
 
-import 'package:fs_shim/fs_shim.dart' as fs;
+import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/idb/idb_paging.dart';
 import 'package:idb_shim/idb.dart' as idb;

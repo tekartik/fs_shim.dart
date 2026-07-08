@@ -2,8 +2,8 @@
 
 import 'dart:typed_data';
 
+import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_idb.dart';
-import 'package:fs_shim/fs_shim.dart' as fs;
 import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/common/memory_sink.dart';
