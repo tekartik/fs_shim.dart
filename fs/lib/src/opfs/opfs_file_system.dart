@@ -13,7 +13,6 @@ import 'package:fs_shim/src/common/memory_sink.dart';
 import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 
-import 'fs_opfs.dart';
 import 'opfs_directory.dart';
 import 'opfs_file.dart';
 import 'opfs_file_stat.dart';

@@ -18,9 +18,9 @@ const _rootDirName = 'custom_root';
 /// simulating a handle obtained from `window.showDirectoryPicker()`.
 Future<OpfsDirectoryHandle> getTestRootHandle() async {
   final opfsRoot = await opfsNavigator.storage.getDirectory().toDart;
-  return await opfsRoot
+  return (await opfsRoot
       .getDirectoryHandle(_rootDirName, OpfsGetDirectoryOptions(create: true))
-      .toDart;
+      .toDart);
 }
 
 /// Test context for a file system rooted at a custom directory handle.
@@ -47,7 +47,10 @@ final fileSystemTestContextOpfsRootHandle =
 void main() {
   group('opfs_root_handle', () {
     test('fileSystemOpfsWebWithRootHandle', () async {
-      final fs = fileSystemOpfsWebWithRootHandle(await getTestRootHandle());
+      final fs = fileSystemOpfsWebWithRootHandle(
+        // ignore: invalid_runtime_check_with_js_interop_types
+        (await getTestRootHandle()) as FileSystemOpfsWebDirectoryHandle,
+      );
       expect(fs.name, 'opfs');
       expect(fs, isNot(fileSystemOpfsWeb));
       expect(fileSystemOpfsWeb, fileSystemOpfsWeb);

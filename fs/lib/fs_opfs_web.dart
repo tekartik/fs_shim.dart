@@ -11,12 +11,12 @@
 library;
 
 import 'src/opfs/fs_opfs.dart';
-import 'src/opfs/fs_opfs_stub.dart'
-    if (dart.library.js_interop) 'src/opfs/fs_opfs_impl.dart'
-    if (dart.library.io) 'src/opfs/fs_opfs_io.dart';
+import 'src/opfs/opfs_fs.dart';
 
 export 'fs.dart';
-export 'src/opfs/fs_opfs.dart' show FileSystemOpfsWeb;
+export 'src/opfs/fs_opfs.dart' show FileSystemOpfsWebDirectoryHandle;
+export 'src/opfs/opfs_fs.dart'
+    show FileSystemOpfsWeb, FileSystemOpfsWebShowDirectoryPickerOptions;
 
 /// The OPFS (Origin Private File System) file system.
 ///
@@ -29,12 +29,12 @@ FileSystemOpfsWeb get fileSystemOpfsWeb => fileSystemOpfsWebImpl;
 /// File system rooted at an existing JS `FileSystemDirectoryHandle`.
 ///
 /// [rootDirectoryHandle] must be a JS `FileSystemDirectoryHandle`, typically
-/// obtained from `window.showDirectoryPicker()` (Chromium-only) or from a
-/// handle persisted in IndexedDB. Any interop binding works (`package:web`,
-/// raw `dart:js_interop`, ...), the handle is used as-is.
+/// obtained from [fileSystemOpfsWebShowDirectoryPicker] (Chromium-only) or
+/// from a handle persisted in IndexedDB. Any interop binding works
+/// (`package:web`, raw `dart:js_interop`, ...), the handle is used as-is.
 ///
 /// ```dart
-/// final handle = await window.showDirectoryPicker(...); // package:web
+/// final handle = await fileSystemOpfsWebShowDirectoryPicker();
 /// final fs = fileSystemOpfsWebWithRootHandle(handle);
 /// ```
 ///
@@ -43,16 +43,22 @@ FileSystemOpfsWeb get fileSystemOpfsWeb => fileSystemOpfsWebImpl;
 /// application (e.g. in IndexedDB) and permission requested again.
 ///
 /// Only available on the web. Links and random access are not supported.
-FileSystemOpfsWeb fileSystemOpfsWebWithRootHandle(Object rootDirectoryHandle) =>
-    fileSystemOpfsWebWithRootHandleImpl(rootDirectoryHandle);
+FileSystemOpfsWeb fileSystemOpfsWebWithRootHandle(
+  FileSystemOpfsWebDirectoryHandle rootDirectoryHandle,
+) => fileSystemOpfsWebWithRootHandleImpl(rootDirectoryHandle);
 
 /// Prompts the user to select a directory using `window.showDirectoryPicker()`
-/// (File System Access API) and returns the resulting JS
-/// `FileSystemDirectoryHandle`, suitable for [fileSystemOpfsWebWithRootHandle].
+/// (File System Access API) and returns the resulting
+/// [FileSystemOpfsWebDirectoryHandle], suitable for
+/// [fileSystemOpfsWebWithRootHandle].
+///
+/// See [FileSystemOpfsWebShowDirectoryPickerOptions] for the available
+/// [options] (`id`, `mode`, `startIn`).
 ///
 /// Chromium-only, must be called from a user gesture. Throws if the user
 /// cancels the picker or if the browser does not support it.
 ///
 /// Only available on the web.
-Future<Object> fileSystemOpfsWebShowDirectoryPicker() =>
-    fileSystemOpfsWebShowDirectoryPickerImpl();
+Future<FileSystemOpfsWebDirectoryHandle> fileSystemOpfsWebShowDirectoryPicker([
+  FileSystemOpfsWebShowDirectoryPickerOptions? options,
+]) => fileSystemOpfsWebShowDirectoryPickerImpl(options);

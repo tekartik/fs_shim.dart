@@ -11,7 +11,7 @@ Future<void> main() async {
 
   button.onClick.listen((_) async {
     output.textContent = '';
-    final Object dirHandle;
+    final FileSystemOpfsWebDirectoryHandle dirHandle;
     try {
       dirHandle = await fileSystemOpfsWebShowDirectoryPicker();
     } catch (e) {
