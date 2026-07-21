@@ -1,6 +1,6 @@
 name: fs_shim
 description: A portable file system implementation working on io, web (OPFS or IndexedDB) and memory
-version: 2.5.4+2
+version: 2.5.5
 homepage: https://github.com/tekartik/fs_shim.dart/tree/master/fs
 
 topics:

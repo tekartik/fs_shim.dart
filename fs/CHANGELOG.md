@@ -1,16 +1,20 @@
+## 2.5.5
+
+* Add `File.unsandbox()` and `Directory.unsandbox()` extension methods to get the full path in the delegate file system
+  if any
+
 ## 2.5.4+2
 
-* Add `FileSystemOpfsWeb.withRootHandle()` to create a file system rooted at an
-  existing `FileSystemOpfsWebDirectoryHandle` (e.g. obtained from
+* Add `FileSystemOpfsWeb.withRootHandle()` to create a file system rooted at an existing
+  `FileSystemOpfsWebDirectoryHandle` (e.g. obtained from
   `FileSystemOpfsWeb.showDirectoryPicker()` or `FileSystemOpfsWeb.storageGetDirectory()`).
-* Add `FileSystemOpfsWeb.withFileHandles()` to create a file system giving access
-  to files
-  obtained from `FileSystemOpfsWeb.showOpenFilePicker()`/`FileSystemOpfsWeb.showSaveFilePicker()`.
+* Add `FileSystemOpfsWeb.withFileHandles()` to create a file system giving access to files obtained from
+  `FileSystemOpfsWeb.showOpenFilePicker()`/`FileSystemOpfsWeb.showSaveFilePicker()`.
 * Add `fileSystemOpfsWeb.requestWritePermission()` to request the `readwrite`
   permission on a file or directory handle
 * Use conditional imports for `fileSystemDefault` so that importing
-  `package:fs_shim/fs.dart` no longer pulls `dart:io` on the web (fixes the
-  build_web_compilers platform check when compiling web entrypoints)
+  `package:fs_shim/fs.dart` no longer pulls `dart:io` on the web (fixes the build_web_compilers platform check when
+  compiling web entrypoints)
 
 ## 2.5.3
 
@@ -38,15 +42,14 @@
 * Add `FileSystem.pathEquals` extension method to compare two paths (normalized and absolute)
 * Add `FileSystemEntityParent.link` method to create a link in the parent directory
 * Add `FileSystemEntityParent.childPath` method to get a child path in the parent directory/file system
-* null `path` argument no longer accepted for file, directory, and link constructors and various entity path arguments in methods 
-  (type, isFile, isDirectory, isLink).
-  This should be considered as a breaking change, however null was always throwing an error.
-  Sorry if not ok for you...
+* null `path` argument no longer accepted for file, directory, and link constructors and various entity path arguments
+  in methods (type, isFile, isDirectory, isLink). This should be considered as a breaking change, however null was
+  always throwing an error. Sorry if not ok for you...
 
 ## 2.4.0+1
 
-* Add `FileSystemEntityParent` interface with `directory()`, `directoryWith()`, 
-  and `file()` methods for Directory and FileSystem
+* Add `FileSystemEntityParent` interface with `directory()`, `directoryWith()`, and `file()` methods for Directory and
+  FileSystem
 * Fix web detection
 
 ## 2.3.4
@@ -167,6 +170,7 @@ Add io entity utils
 ## 0.6.0
 
 Add copy utilities:
+
 - copyDirectory
 - copyFile
 - createDirectory
