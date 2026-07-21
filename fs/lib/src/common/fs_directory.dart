@@ -55,4 +55,18 @@ extension FsShimDirectoryExtension on Directory {
   FileSystem sandbox() {
     return fs.sandbox(path: path);
   }
+
+  /// Unsandbox this directory, returning the corresponding directory in the
+  /// underlying (non-sandboxed) delegate file system.
+  ///
+  /// Returns this directory unchanged if its file system is not sandboxed.
+  Directory unsandbox() {
+    var fileSystem = fs;
+    if (fileSystem is FsShimSandboxedFileSystem) {
+      return fileSystem.rootDirectory.fs.directory(
+        fileSystem.delegatePath(path),
+      );
+    }
+    return this;
+  }
 }

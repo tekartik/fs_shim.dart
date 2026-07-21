@@ -102,7 +102,26 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
         expect(sandbox.sandboxPath(mainPath), p.join(p.separator, filePath));
         expect(sandbox.unsandbox(), dir);
         expect(sandbox.unsandbox(path: 'test'), dir.directory('test'));
+
+        /// [File.unsandbox] and [Directory.unsandbox] extensions.
+        expect(sandboxedFile.unsandbox(), file);
+        expect(
+          sandbox.directory(filePath).unsandbox(),
+          dir.directory(filePath),
+        );
+
+        /// Not sandboxed, returns itself.
+        expect(file.unsandbox(), file);
+        expect(dir.unsandbox(), dir);
       }
+
+      /// [File.unsandbox] and [Directory.unsandbox], handling the case where
+      /// [ctx.fs] is already sandboxed.
+      expect(sandboxedFile.unsandbox(), file.unsandbox());
+      expect(
+        sandbox.directory(filePath).unsandbox(),
+        dir.directory(filePath).unsandbox(),
+      );
 
       /// Handle if ctx.fs is already sandboxed
       expect(sandbox.unsandbox(), ctx.fs.unsandbox(path: dir.path));
@@ -145,6 +164,13 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
           sandbox2.unsandbox(path: 'test'),
           dir.directory(p.join(sandbox2Path, 'test')),
         );
+
+        /// [File.unsandbox] and [Directory.unsandbox] extensions.
+        expect(
+          sandboxed2File.unsandbox(),
+          dir.file(p.join(sandbox2Path, filePath)),
+        );
+        expect(sandboxed1File.unsandbox(), sandboxed2File.unsandbox());
       }
     });
   });

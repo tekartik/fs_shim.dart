@@ -18,10 +18,16 @@ import 'fs.dart' as fs;
 
 /// File system extension
 /// - [fs.Directory.tryCreate].
+/// - [fs.Directory.sandbox].
+/// - [fs.Directory.unsandbox].
 export 'src/common/fs_directory.dart' show FsShimDirectoryExtension;
 
 /// File system sandboxing
 export 'src/common/fs_extension.dart' show FsShimFileSystemExtension;
+
+/// File extension
+/// - [fs.File.unsandbox].
+export 'src/common/fs_file.dart' show FsShimFileExtension;
 
 /// File system entity parent, i.e. directory or file system.
 export 'src/common/fs_file_system_entity_parent.dart'
