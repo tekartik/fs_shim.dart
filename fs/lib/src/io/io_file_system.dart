@@ -15,6 +15,7 @@ import 'io_link.dart';
 
 export 'package:fs_shim/fs.dart' show FileSystemEntityType;
 
+/// FileSystemIoImpl representation.
 class FileSystemIoImpl extends Object
     with FileSystemMixin
     implements FileSystemIo {

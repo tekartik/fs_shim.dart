@@ -542,6 +542,7 @@ class FileSystemOpfsImpl extends Object
 
 /// Write sink buffering in memory, flushed to OPFS on close.
 @visibleForTesting
+/// OpfsWriteStreamSink representation.
 class OpfsWriteStreamSink extends MemorySink {
   /// Write sink for [file] in [mode].
   OpfsWriteStreamSink(this._fs, this._file, this._mode);

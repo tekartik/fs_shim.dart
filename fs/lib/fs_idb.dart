@@ -32,6 +32,7 @@ class FileSystemIdbOptions {
 
 /// Internal options helper.
 @visibleForTesting
+/// Extension representing [FileSystemIdbOptionsExt].
 extension FileSystemIdbOptionsExt on FileSystemIdbOptions {
   /// True if it as page size options
   bool get hasPageSize => (pageSize ?? 0) != 0;
@@ -46,9 +47,7 @@ extension FileSystemIdbOptionsExt on FileSystemIdbOptions {
   String get debugName => '$filePageSize';
 }
 
-///
 /// Idb implementation (base for memory and browser)
-///
 FileSystem newFileSystemIdb(idb.IdbFactory idbFactory, [String? dbPath]) =>
     FileSystemIdb(idbFactory, dbPath: dbPath);
 

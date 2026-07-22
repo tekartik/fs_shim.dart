@@ -110,6 +110,7 @@ io.FileSystemEntityType unwrapIoFileSystemEntityTypeImpl(
   }
 }
 
+/// IoWriteFileSink representation.
 class IoWriteFileSink implements FileStreamSink {
   IoWriteFileSink(this.ioSink);
   io.IOSink ioSink;
@@ -139,6 +140,7 @@ class IoWriteFileSink implements FileStreamSink {
   Future addStream(Stream<List<int>> stream) => ioSink.addStream(stream);
 }
 
+/// IoReadFileStreamCtrl representation.
 class IoReadFileStreamCtrl {
   IoReadFileStreamCtrl(this.ioStream) {
     _ctlr = StreamController();

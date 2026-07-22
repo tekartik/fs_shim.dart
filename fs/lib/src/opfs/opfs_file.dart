@@ -11,6 +11,7 @@ import 'opfs_file_system.dart';
 import 'opfs_file_system_entity.dart';
 import 'opfs_fs.dart';
 
+/// OpfsFile representation.
 class OpfsFile extends OpfsFileSystemEntity with FileMixin implements fs.File {
   OpfsFile(super.fs, super.path);
 

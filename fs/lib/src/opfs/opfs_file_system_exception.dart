@@ -12,6 +12,7 @@ OpfsError get _notADirectoryError => OpfsError(20, 'Not a directory');
 
 OpfsError get _isADirectoryError => OpfsError(21, 'Is a directory');
 
+/// OpfsError representation.
 class OpfsError implements fs.OSError {
   OpfsError(this.errorCode, this.message);
 
@@ -66,6 +67,7 @@ OpfsFileSystemException opfsAlreadyExistsException(String path, String msg) =>
       _alreadyExistsError,
     );
 
+/// OpfsFileSystemException representation.
 class OpfsFileSystemException implements fs.FileSystemException {
   OpfsFileSystemException(
     this.status,

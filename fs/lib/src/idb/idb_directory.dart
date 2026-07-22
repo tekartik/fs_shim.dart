@@ -6,6 +6,7 @@ import 'package:fs_shim/fs_mixin.dart';
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
+/// IdbDirectory representation.
 class IdbDirectory extends IdbFileSystemEntity
     with DirectoryMixin
     implements fs.Directory {

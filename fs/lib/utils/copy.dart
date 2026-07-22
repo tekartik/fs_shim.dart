@@ -26,7 +26,6 @@ export 'src/utils_impl.dart'
 /// Copy a directory
 ///
 /// returns dst directory
-///
 Future<Directory> copyDirectory(
   Directory src,
   Directory? dst, {
@@ -37,9 +36,7 @@ Future<Directory> copyDirectory(
 Future<File> copyFile(File src, File dst, {CopyOptions? options}) =>
     utils_impl.copyFile(src, dst, options: options);
 
-///
 /// List the files to be copied
-///
 Future<List<File>> copyDirectoryListFiles(
   Directory src, {
   CopyOptions? options,

@@ -7,6 +7,7 @@ import 'package:path/path.dart' as path_pkg;
 import 'idb_directory.dart';
 import 'idb_fs.dart';
 
+/// IdbFileSystemEntity representation.
 abstract class IdbFileSystemEntity implements fs.FileSystemEntity {
   IdbFileSystemEntity(this._fs, this._path);
   final IdbFileSystem _fs;

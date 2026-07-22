@@ -14,7 +14,6 @@ bool _fsUtilsDebug = false;
 
 bool get fsUtilsDebug => _fsUtilsDebug;
 
-///
 /// deprecated to prevent permanent use
 ///
 /// Use:
@@ -22,7 +21,6 @@ bool get fsUtilsDebug => _fsUtilsDebug;
 ///     fsCopyDebug = true;
 ///
 /// for debugging only
-///
 @deprecated
 set fsUtilsDebug(bool debug) => fsShimUtilsDebug = debug;
 
@@ -33,7 +31,6 @@ bool _fsCopyDebug = false;
 /// Set debug flag for copy (dev only)
 bool get fsCopyDebug => _fsCopyDebug;
 
-///
 /// deprecated to prevent permanant use
 ///
 /// Use:
@@ -41,7 +38,6 @@ bool get fsCopyDebug => _fsCopyDebug;
 ///     fsCopyDebug = true;
 ///
 /// for debugging only
-///
 @Deprecated('Dev only')
 set fsCopyDebug(bool debug) => _fsCopyDebug = debug;
 
@@ -50,7 +46,6 @@ bool _fsDeleteDebug = false;
 /// Set debug flag for delete (dev only)
 bool get fsDeleteDebug => _fsDeleteDebug;
 
-///
 /// deprecated to prevent permanent use
 ///
 /// Use:
@@ -58,7 +53,6 @@ bool get fsDeleteDebug => _fsDeleteDebug;
 ///     fsDeleteDebug = true;
 ///
 /// for debugging only
-///
 @Deprecated('Dev only')
 set fsDeleteDebug(bool debug) => _fsDeleteDebug = debug;
 
@@ -384,6 +378,7 @@ Future<int> copyFileMeta(File src, File dst) async {
   return 0;
 }
 
+/// EntityNode representation.
 abstract class EntityNode {
   EntityNode? get parent; // can be null
   FileSystem get fs; // cannot be null
@@ -447,6 +442,7 @@ mixin EntityChildMixin implements EntityNode {
 }
 
 /*
+/// EntityPartsMixin representation.
 abstract class EntityPartsMixin implements EntityNode {
   String _parts;
   @override
@@ -465,6 +461,7 @@ mixin EntityPathMixin implements EntityNode {
   }
 }
 
+/// TopEntity representation.
 class TopEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {
@@ -495,6 +492,7 @@ TopEntity topEntityPath(FileSystem fs, String top) => TopEntity(fs, top);
 TopEntity fsTopEntity(FileSystemEntity entity) =>
     TopEntity(entity.fs, entity.path);
 
+/// CopyEntity representation.
 class CopyEntity extends Object
     with EntityPathMixin, EntityNodeFsMixin, EntityChildMixin
     implements EntityNode {
@@ -531,6 +529,7 @@ class CopyEntity extends Object
   String toString() => '$sub';
 }
 
+/// CopyNode representation.
 abstract class CopyNode {
   EntityNode? get dst;
 
@@ -574,6 +573,7 @@ Future<int> _executeOperations(List<CopyNodeOperation> operations) async {
   return count;
 }
 
+/// TopCopy representation.
 class TopCopy extends Object
     with CopyNodeMixin, TopNodeMixin
     implements CopyNode {
@@ -641,6 +641,7 @@ mixin TopNodeMixin implements CopyNode, SourceNodeMixin {
 /// Special part name
 const utilsCurrentFolderPart = '';
 
+/// TopSourceNode representation.
 class TopSourceNode extends Object
     with SourceNodeMixin, TopNodeMixin
     implements CopyNode {
@@ -652,6 +653,7 @@ class TopSourceNode extends Object
   String toString() => '[$id] $src';
 }
 
+/// ChildCopy representation.
 class ChildCopy extends Object
     with
         ChildNodeMixin,
@@ -696,6 +698,7 @@ bool _isUnixExecutable(int mode) {
       0;
 }
 
+/// CopyNodeOperation representation.
 class CopyNodeOperation extends CopyNode {
   CopyNodeOperation({
     this.isDirectory,
@@ -925,6 +928,7 @@ mixin ChildNodeMixin
   }
 }
 
+/// ChildSourceNode representation.
 class ChildSourceNode extends Object
     with
         ChildNodeMixin,

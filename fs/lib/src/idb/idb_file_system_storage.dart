@@ -109,6 +109,7 @@ class IdbFileSystemStorageWithDelegate extends IdbFileSystemStorage {
 }
 
 // not exported
+/// IdbFileSystemStorage representation.
 class IdbFileSystemStorage {
   IdbFileSystemStorage(this.idbFactory, this.dbPath, {required this.options}) {
     // devPrint('idbFactory ${idbFactory.hashCode}');
@@ -1074,6 +1075,7 @@ class Node {
   );
 }
 
+/// NodeSearchResult representation.
 class NodeSearchResult {
   List<String>? segments;
   Node? highest;

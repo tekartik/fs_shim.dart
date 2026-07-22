@@ -5,6 +5,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 
 final _epochDateTime = DateTime.fromMillisecondsSinceEpoch(0).toUtc();
 
+/// IdbFileStat representation.
 class IdbFileStat with FileStatModeMixin implements fs.FileStat {
   int? _size;
 

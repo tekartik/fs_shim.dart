@@ -6,6 +6,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'idb_file_system_entity.dart';
 import 'idb_fs.dart';
 
+/// IdbLink representation.
 class IdbLink extends IdbFileSystemEntity with LinkMixin implements fs.Link {
   IdbLink(super.fs, super.path);
   IdbLink _me(_) => this;

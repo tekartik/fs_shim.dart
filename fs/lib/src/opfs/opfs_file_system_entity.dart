@@ -7,6 +7,7 @@ import 'opfs_directory.dart';
 import 'opfs_file_system.dart';
 import 'opfs_fs.dart';
 
+/// OpfsFileSystemEntity representation.
 abstract class OpfsFileSystemEntity implements fs.FileSystemEntity {
   OpfsFileSystemEntity(this._fs, this._path);
 

@@ -12,6 +12,7 @@ IdbError get _notADirectoryError => IdbError(20, 'Not a directory');
 
 IdbError get _isADirectoryError => IdbError(21, 'Is a directory');
 
+/// IdbError representation.
 class IdbError implements fs.OSError {
   IdbError(this.errorCode, this.message);
 
@@ -66,6 +67,7 @@ IdbFileSystemException idbAlreadyExistsException(String path, String msg) =>
       _alreadyExistsError,
     );
 
+/// IdbFileSystemException representation.
 class IdbFileSystemException implements fs.FileSystemException {
   IdbFileSystemException(this.status, this.path, [this._message, this.osError]);
 

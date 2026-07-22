@@ -7,6 +7,7 @@ import 'opfs_file_system.dart';
 import 'opfs_file_system_entity.dart';
 import 'opfs_fs.dart';
 
+/// OpfsDirectory representation.
 class OpfsDirectory extends OpfsFileSystemEntity
     with DirectoryMixin
     implements fs.Directory {

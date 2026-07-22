@@ -22,6 +22,7 @@ Future<T> _wrapFutureFile<T>(Future<T> future) => ioWrap(future);
 
 Future<String> _wrapFutureString(Future<String> future) => ioWrap(future);
 
+/// FileIoImpl representation.
 class FileIoImpl extends FileSystemEntityIoImpl
     with FileMixin
     implements File, FileExecutableSupport {

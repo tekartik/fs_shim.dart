@@ -140,6 +140,7 @@ class TxnNodeDataReadStreamCtlr {
   Stream<Uint8List> get stream => _ctlr.stream;
 }
 
+/// IdbReadStreamCtlr representation.
 class IdbReadStreamCtlr {
   IdbReadStreamCtlr(this.file, this.start, this.end) {
     _ctlr = StreamController(sync: true);

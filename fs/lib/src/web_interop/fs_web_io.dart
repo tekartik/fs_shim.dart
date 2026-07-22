@@ -8,7 +8,7 @@ FileSystem get fileSystemWebImpl =>
 FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) =>
     _stub('getFileSystemWeb', 'use `fileSystemIo`');
 
-///
+/// New FileSystem with a given name.
 FileSystem newFileSystemWebImpl({
   required String name,
   FileSystemIdbOptions? options,

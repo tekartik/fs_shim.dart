@@ -85,6 +85,7 @@ extension FsShimFileSystemExtension on FileSystem {
 
 /// File system extension (private)
 @internal
+/// Extension representing [FsShimFileSystemPrvExtension].
 extension FsShimFileSystemPrvExtension on FileSystem {
   path_prefix.Context get p => path;
   String removeDotSep(String path) {

@@ -5,6 +5,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 
 final _epochDateTime = DateTime.fromMillisecondsSinceEpoch(0).toUtc();
 
+/// OpfsFileStat representation.
 class OpfsFileStat with FileStatModeMixin implements fs.FileStat {
   int? _size;
 

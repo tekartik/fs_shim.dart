@@ -291,6 +291,7 @@ mixin DirectoryMixin implements Directory {
 
 /// Interal debug extension
 @protected
+/// Extension representing [FileSystemDebugExt].
 extension FileSystemDebugExt on FileSystem {
   /// debug name
   String get debugName {

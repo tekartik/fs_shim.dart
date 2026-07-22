@@ -10,6 +10,7 @@ import 'package:fs_shim/src/common/fs_mixin.dart';
 import 'io_file_system_entity.dart';
 import 'io_fs.dart';
 
+/// LinkImpl representation.
 class LinkImpl extends FileSystemEntityIoImpl
     with LinkMixin
     implements Link, FileSystemEntity {

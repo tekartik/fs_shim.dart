@@ -224,6 +224,7 @@ class _SandboxLink extends _SandboxFileSystemEntity with LinkMixin {
 }
 
 @internal
+/// Class representing [FsShimSandboxedFileSystemImpl].
 abstract class FsShimSandboxedFileSystemImpl extends FsShimSandboxedFileSystem {
   factory FsShimSandboxedFileSystemImpl({required Directory rootDirectory}) =>
       _SandboxedFileSystem(rootDirectory: rootDirectory);

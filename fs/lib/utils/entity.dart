@@ -2,9 +2,7 @@ library;
 
 import 'package:fs_shim/src/common/import.dart';
 
-///
 /// convert to a directory object if necessary
-///
 Directory asDirectory(FileSystemEntity? dir) {
   if (dir is Directory) {
     return dir;
@@ -18,9 +16,7 @@ Directory childDirectory(Directory dir, String sub) {
   return dir.fs.directory(dir.fs.path.join(dir.path, sub));
 }
 
-///
 /// convert to a file object if necessary
-///
 File asFile(FileSystemEntity file) {
   if (file is File) {
     return file;
@@ -34,9 +30,7 @@ File childFile(Directory dir, String sub) {
   return dir.fs.file(dir.fs.path.join(dir.path, sub));
 }
 
-///
 /// convert to a link object if necessary
-///
 Link asLink(FileSystemEntity link) {
   if (link is Link) {
     return link;

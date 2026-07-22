@@ -99,9 +99,7 @@ mixin IdbFileSystemDelegateMixin implements fs.FileSystem {
 /// Compat
 typedef IdbFileSystem = FileSystemIdb;
 
-///
 /// File system implement on idb_shim
-///
 class FileSystemIdb extends Object
     with FileSystemMixin
     implements fs.FileSystem {
@@ -1166,6 +1164,7 @@ extension FileSystemInternalIdbExt on FileSystemIdb {
   }
 }
 
+/// FileEntityContent representation.
 class FileEntityContent {
   FileEntityContent(this.entity, this.content);
   final Node entity;

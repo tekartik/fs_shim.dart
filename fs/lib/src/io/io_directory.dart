@@ -19,6 +19,7 @@ DirectoryIoImpl get currentDirectoryIo =>
 @Deprecated('use currentDirectoryIo')
 DirectoryIoImpl get currentDirectory => currentDirectoryIo;
 
+/// DirectoryIoImpl representation.
 class DirectoryIoImpl extends FileSystemEntityIoImpl
     with DirectoryMixin
     implements fs.Directory {

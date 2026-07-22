@@ -2,7 +2,6 @@ library;
 
 import 'package:path/path.dart' as p;
 
-///
 /// Get the parts from any style (linux/windows)
 ///
 ///     C:\windows

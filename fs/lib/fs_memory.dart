@@ -7,9 +7,7 @@ import 'fs_idb.dart';
 
 export 'fs.dart';
 
-///
 /// In memory implementation
-///
 @Deprecated('Use newFileSystemMemory instead')
 FileSystem newMemoryFileSystem([String? name]) => newFileSystemMemory(name);
 

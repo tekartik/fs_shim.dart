@@ -12,6 +12,7 @@ import 'io_directory.dart';
 import 'io_file_stat.dart';
 import 'io_fs.dart';
 
+/// FileSystemEntityIoImpl representation.
 abstract class FileSystemEntityIoImpl
     with FileSystemEntityMixin
     implements FileSystemEntity {

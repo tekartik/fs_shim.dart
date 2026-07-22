@@ -6,6 +6,7 @@ import 'dart:io' as io;
 
 import 'package:fs_shim/fs.dart' as fs;
 
+/// OSErrorImpl representation.
 class OSErrorImpl implements fs.OSError {
   OSErrorImpl.io(this.ioOSError);
   io.OSError? ioOSError;
@@ -107,6 +108,7 @@ int? _statusFromException(io.FileSystemException ioFse) {
   return status;
 }
 
+/// FileSystemExceptionImpl representation.
 class FileSystemExceptionImpl implements fs.FileSystemException {
   FileSystemExceptionImpl.io(this.ioFileSystemException)
     : osError = OSErrorImpl.io(ioFileSystemException.osError),

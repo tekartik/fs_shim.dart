@@ -30,6 +30,7 @@ class FilePartIdb {
   String toString() => '[$index]: $start (size ${bytes.length})';
 }
 
+/// FilePartResult representation.
 class FilePartResult {
   FilePartResult({required this.position, required this.list});
   final int position; // new position
@@ -39,6 +40,7 @@ class FilePartResult {
   String toString() => 'pos: $position $list';
 }
 
+/// FilePartHelper representation.
 class FilePartHelper {
   FilePartHelper(this.pageSize);
   final int pageSize;
