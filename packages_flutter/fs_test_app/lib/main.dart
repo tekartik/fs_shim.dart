@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:fs_shim/fs.dart' as fs;
@@ -439,22 +438,10 @@ class _MainExplorerScreenState extends State<MainExplorerScreen> {
     });
 
     try {
-      final result = await FilePicker.pickFiles(
-        type: FileType.any,
-        withData: true, // Necessary to get bytes on web
-      );
+      final pickedFile = await FilePicker.pickFile(type: FileType.any);
 
-      if (result != null && result.files.isNotEmpty) {
-        final pickedFile = result.files.first;
-        final Uint8List fileBytes;
-
-        if (pickedFile.bytes != null) {
-          fileBytes = pickedFile.bytes!;
-        } else if (pickedFile.path != null) {
-          fileBytes = await readBytesFromPath(pickedFile.path!);
-        } else {
-          throw Exception('Could not read the selected file contents.');
-        }
+      if (pickedFile != null) {
+        final fileBytes = await pickedFile.readAsBytes();
 
         final targetPath = filesystem.path.join(_currentPath, pickedFile.name);
         final file = filesystem.file(targetPath);

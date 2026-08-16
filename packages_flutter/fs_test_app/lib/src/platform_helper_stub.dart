@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:fs_shim/fs.dart';
 
 FileSystem getIoFileSystem() =>
@@ -18,10 +17,6 @@ Future<void> saveFile({required String name, required List<int> bytes}) {
 
 Future<String?> pickDirectoryPath() {
   throw UnsupportedError('pickDirectoryPath not supported on this platform');
-}
-
-Future<Uint8List> readBytesFromPath(String path) {
-  throw UnsupportedError('readBytesFromPath not supported on this platform');
 }
 
 bool get isWebPlatform => false;

@@ -37,8 +37,4 @@ Future<String?> pickDirectoryPath() async {
   return null;
 }
 
-Future<Uint8List> readBytesFromPath(String path) async {
-  throw UnsupportedError('readBytesFromPath not supported on web');
-}
-
 bool get isWebPlatform => true;
