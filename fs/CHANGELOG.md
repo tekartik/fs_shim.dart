@@ -1,3 +1,7 @@
+## 2.5.6
+
+* Add `fs-shim-filesystem` and `fs-shim-platforms` agent skills in `skills/`, installable with `dart run skills@ get`
+
 ## 2.5.5
 
 * Add `File.unsandbox()` and `Directory.unsandbox()` extension methods to get the full path in the delegate file system
