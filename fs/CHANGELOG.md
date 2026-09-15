@@ -1,3 +1,9 @@
+## 2.5.7
+
+* Add `streamToFile(stream, file)` helper and `File.writeStream(stream)` extension in `utils/read_write.dart`
+  to write a `Stream<List<int>>` to a file, creating the parent directory if missing. On a file system
+  without random access support (OPFS) the stream is buffered in memory and written at once.
+
 ## 2.5.6
 
 * Add `fs-shim-filesystem` and `fs-shim-platforms` agent skills in `skills/`, installable with `dart run skills@ get`

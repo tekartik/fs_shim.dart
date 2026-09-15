@@ -44,6 +44,42 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await readString(file), 'test2');
     });
 
+    test('streamToFile', () async {
+      final top = await ctx.prepare();
+      final file = fs.file(fs.path.join(top.path, 'file'));
+      // Multiple chunks
+      expect(
+        await streamToFile(
+          Stream<List<int>>.fromIterable(['te'.codeUnits, 'st'.codeUnits]),
+          file,
+        ),
+        file,
+      );
+      expect(await readString(file), 'test');
+
+      // Overwrite (truncate)
+      await streamToFile(Stream.value('a'.codeUnits), file);
+      expect(await readString(file), 'a');
+
+      // Empty stream
+      await streamToFile(const Stream<List<int>>.empty(), file);
+      expect(await file.exists(), isTrue);
+      expect(await readString(file), '');
+    });
+
+    test('streamToFile_sub', () async {
+      final top = await ctx.prepare();
+      // Parent directory does not exist
+      final file = fs.file(fs.path.join(top.path, 'sub', 'file'));
+      await streamToFile(Stream.value('test'.codeUnits), file);
+      expect(await readString(file), 'test');
+
+      // Extension
+      final file2 = fs.file(fs.path.join(top.path, 'sub2', 'sub', 'file'));
+      expect(await file2.writeStream(Stream.value('test2'.codeUnits)), file2);
+      expect(await readString(file2), 'test2');
+    });
+
     test('Directory.emptyOrCreate', () async {
       final top = await ctx.prepare();
       var dir = fs.directory(fs.path.join(top.path, 'dir'));

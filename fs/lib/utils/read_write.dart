@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:fs_shim/src/common/bytes_utils.dart';
 import 'package:fs_shim/src/common/import.dart';
 import 'package:fs_shim/src/platform/platform.dart';
 
@@ -26,6 +27,40 @@ Future<File> writeBytes(File file, Uint8List bytes) async {
     await file.parent.create(recursive: true);
     await file.writeAsBytes(bytes, flush: true);
   }
+  return file;
+}
+
+/// Write the content of [stream] to [file].
+///
+/// The parent directory is created if missing. The file is truncated first
+/// ([FileMode.write]) and flushed before the returned future completes.
+///
+/// On a file system without random access support
+/// ([FileSystem.supportsRandomAccess] is false, e.g. OPFS), the whole stream
+/// is buffered in memory and written at once with [File.writeAsBytes];
+/// otherwise the stream is piped to [File.openWrite].
+Future<File> streamToFile(Stream<List<int>> stream, File file) async {
+  final parent = file.parent;
+  if (!await parent.exists()) {
+    await parent.create(recursive: true);
+  }
+  if (!file.fs.supportsRandomAccess) {
+    await file.writeAsBytes(await streamToBytes(stream), flush: true);
+    return file;
+  }
+  final sink = file.openWrite();
+  try {
+    await sink.addStream(stream);
+    await sink.flush();
+  } catch (_) {
+    try {
+      await sink.close();
+    } catch (_) {
+      // Keep the original error
+    }
+    rethrow;
+  }
+  await sink.close();
   return file;
 }
 
@@ -67,4 +102,12 @@ extension DirectoryEmptyOrCreateExt on Directory {
     }
     await create(recursive: true);
   }
+}
+
+/// Stream to file helper
+extension FileStreamToFileExt on File {
+  /// Write the content of [stream] to this file, creating the parent
+  /// directory if missing. See [streamToFile].
+  Future<File> writeStream(Stream<List<int>> stream) =>
+      streamToFile(stream, this);
 }

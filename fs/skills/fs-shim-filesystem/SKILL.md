@@ -86,6 +86,10 @@ Future<String> readConfig(FileSystem fs, String dirPath) async {
   `Stream<Uint8List>`; `file.openWrite({mode})` returns a `FileStreamSink`
   (a `StreamSink<List<int>>` with `flush()`). Feed it with `add(bytes)` or
   `addStream(stream)`, it has no `write(String)`; always `await sink.close()`.
+* `streamToFile(stream, file)` (or `file.writeStream(stream)`) from
+  `package:fs_shim/utils/read_write.dart` writes a `Stream<List<int>>` to a
+  file, creating the parent directory if missing; on a file system without
+  random access support (OPFS) it buffers in memory and writes at once.
 * `file.copy(newPath)` returns the new `File` and replaces an existing file;
   `rename(newPath)` returns the entity at the new path; `delete()`.
 * `exists()` only guarantees that something is at the path: io also checks
