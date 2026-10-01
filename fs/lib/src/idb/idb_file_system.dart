@@ -177,9 +177,11 @@ class FileSystemIdb extends Object
   // when storage is ready
   Future get _ready => _storage.ready;
 
+  /// The open connection, unwrapped, for callers that need its concrete
+  /// type (idb_shim's import and export utilities cast it).
   Future<idb.Database> get readyDatabase async {
     await _ready;
-    return database;
+    return _storage.unwrappedDb!;
   }
 
   @override
