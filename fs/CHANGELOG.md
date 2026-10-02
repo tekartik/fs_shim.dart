@@ -1,11 +1,16 @@
+## 2.6.0-1
+
+* idb: open a new IndexedDB connection when the browser closed the current one (`InvalidStateError` on
+  every transaction), including from an open `RandomAccessFile` or write sink; a failed open now reports
+  its error to the caller and is retried on the next operation; a failed read stream now completes.
+  Thanks to [Samuel Hislop-Lynch (SamHL)](https://github.com/SamHL) for the fix in
+  [#63](https://github.com/tekartik/fs_shim.dart/pull/63).
+
 ## 2.5.7
 
 * Add `streamToFile(stream, file)` helper and `File.writeStream(stream)` extension in `utils/read_write.dart`
   to write a `Stream<List<int>>` to a file, creating the parent directory if missing. On a file system
   without random access support (OPFS) the stream is buffered in memory and written at once.
-* idb: open a new IndexedDB connection when the browser closed the current one (`InvalidStateError` on
-  every transaction), including from an open `RandomAccessFile` or write sink; a failed open now reports
-  its error to the caller and is retried on the next operation; a failed read stream now completes.
 
 ## 2.5.6
 
