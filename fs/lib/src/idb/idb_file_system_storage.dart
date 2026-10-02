@@ -127,72 +127,110 @@ class IdbFileSystemStorage {
   idb.Database? db;
   Completer? _readyCompleter;
 
+  /// [db] without the wrapper that watches it for a closed connection, for
+  /// callers that need the concrete database type. Start transactions on
+  /// [db], so that a connection the browser closes is replaced.
+  idb.Database? get unwrappedDb {
+    final current = db;
+    return current is _ConnectionWatchingDatabase ? current._delegate : current;
+  }
+
   Future get ready async {
     if (debugIdbShowLogs) {
       // ignore: avoid_print
       print('ready? $hashCode');
     }
     if (_readyCompleter == null) {
-      _readyCompleter = Completer();
-
-      if (debugIdbShowLogs) {
-        // ignore: avoid_print
-        print('opening $dbPath');
+      final completer = _readyCompleter = Completer<void>();
+      try {
+        await _open();
+        completer.complete();
+      } catch (e, st) {
+        // Let the next caller try again rather than wait forever on a
+        // completer that will never complete.
+        _readyCompleter = null;
+        completer.completeError(e, st);
       }
-      // version 4: add file store
-      // version 7: add part store v2
-      // version 8: add part store v3
-      db = await idbFactory.open(
-        dbPath,
-        version: 8,
-        onUpgradeNeeded: (idb.VersionChangeEvent e) {
-          final db = e.database;
-          idb.ObjectStore store;
-
-          // Older export have version equals to 1 so handle it
-          if (e.oldVersion < 1) {
-            // delete previous if any
-            final storeNames = db.objectStoreNames;
-            if (storeNames.contains(treeStoreName)) {
-              db.deleteObjectStore(treeStoreName);
-            }
-            if (storeNames.contains(fileStoreName)) {
-              db.deleteObjectStore(fileStoreName);
-            }
-            if (storeNames.contains(partStoreName)) {
-              db.deleteObjectStore(partStoreName);
-            }
-            store = db.createObjectStore(treeStoreName, autoIncrement: true);
-            store.createIndex(
-              parentNameIndexName,
-              parentNameKey,
-              unique: true,
-            ); // <id_parent>/<name>
-            store.createIndex(parentIndexName, parentKey);
-
-            store = db.createObjectStore(fileStoreName);
-          }
-          if (e.oldVersion == 7) {
-            // Sorry! it was in dev only though
-            db.deleteObjectStore(partStoreName);
-          }
-          if (e.oldVersion < 8) {
-            store = db.createObjectStore(
-              partStoreName,
-              keyPath: [partFileKey, partIndexKey],
-            );
-          }
-        },
-        onBlocked: (e) {
-          // ignore: avoid_print
-          print(e);
-          // ignore: avoid_print
-          print('#### db format change - reload');
-        },
-      );
-      _readyCompleter!.complete();
     }
     return _readyCompleter!.future;
+  }
+
+  /// Called when a transaction could not be started on [closed].
+  ///
+  /// Starting a transaction fails only once the connection is closed: the
+  /// store names used here are fixed. The browser closes a connection on its
+  /// own when site data is cleared or the storage backend fails, so the next
+  /// [ready] opens a new one instead of reusing the dead one.
+  void _onConnectionClosed(idb.Database closed) {
+    // A late failure on a connection that has already been replaced must not
+    // drop its successor.
+    if (identical(db, closed) && (_readyCompleter?.isCompleted ?? false)) {
+      _readyCompleter = null;
+    }
+  }
+
+  Future<void> _open() async {
+    // A connection the browser closed is replaced, never reused.
+    try {
+      db?.close();
+    } catch (_) {}
+
+    if (debugIdbShowLogs) {
+      // ignore: avoid_print
+      print('opening $dbPath');
+    }
+    // version 4: add file store
+    // version 7: add part store v2
+    // version 8: add part store v3
+    final opened = await idbFactory.open(
+      dbPath,
+      version: 8,
+      onUpgradeNeeded: (idb.VersionChangeEvent e) {
+        final db = e.database;
+        idb.ObjectStore store;
+
+        // Older export have version equals to 1 so handle it
+        if (e.oldVersion < 1) {
+          // delete previous if any
+          final storeNames = db.objectStoreNames;
+          if (storeNames.contains(treeStoreName)) {
+            db.deleteObjectStore(treeStoreName);
+          }
+          if (storeNames.contains(fileStoreName)) {
+            db.deleteObjectStore(fileStoreName);
+          }
+          if (storeNames.contains(partStoreName)) {
+            db.deleteObjectStore(partStoreName);
+          }
+          store = db.createObjectStore(treeStoreName, autoIncrement: true);
+          store.createIndex(
+            parentNameIndexName,
+            parentNameKey,
+            unique: true,
+          ); // <id_parent>/<name>
+          store.createIndex(parentIndexName, parentKey);
+
+          store = db.createObjectStore(fileStoreName);
+        }
+        if (e.oldVersion == 7) {
+          // Sorry! it was in dev only though
+          db.deleteObjectStore(partStoreName);
+        }
+        if (e.oldVersion < 8) {
+          store = db.createObjectStore(
+            partStoreName,
+            keyPath: [partFileKey, partIndexKey],
+          );
+        }
+      },
+      onBlocked: (e) {
+        // ignore: avoid_print
+        print(e);
+        // ignore: avoid_print
+        print('#### db format change - reload');
+      },
+    );
+    db = _ConnectionWatchingDatabase(opened, onClosed: _onConnectionClosed);
   }
 
   Future<Uint8List> txnGetFileDataV1(idb.Transaction txn, int fileId) async {
@@ -1209,4 +1247,68 @@ idb.KeyRange allPartRange(int fileId) {
     false,
     true,
   );
+}
+
+/// Hands every call to [_delegate], and reports when a transaction cannot be
+/// started on it, which means the connection has been closed.
+///
+/// A connection the browser has closed throws `InvalidStateError: The
+/// database connection is closing` on every later transaction, for the life
+/// of the page. Wrapping the connection lets [IdbFileSystemStorage] notice
+/// that wherever a transaction is started, and open a new connection.
+class _ConnectionWatchingDatabase extends idb.Database {
+  _ConnectionWatchingDatabase(this._delegate, {required this.onClosed})
+    : super(_delegate.factory);
+
+  final idb.Database _delegate;
+
+  /// Called with this connection when a transaction cannot be started on it.
+  final void Function(idb.Database closed) onClosed;
+
+  T _start<T>(T Function() start) {
+    try {
+      return start();
+    } catch (_) {
+      onClosed(this);
+      rethrow;
+    }
+  }
+
+  @override
+  idb.Transaction transaction(Object storeNameOrStoreNames, String mode) =>
+      _start(() => _delegate.transaction(storeNameOrStoreNames, mode));
+
+  @override
+  idb.Transaction transactionList(List<String> storeNames, String mode) =>
+      _start(() => _delegate.transactionList(storeNames, mode));
+
+  @override
+  idb.ObjectStore createObjectStore(
+    String name, {
+    Object? keyPath,
+    bool? autoIncrement,
+  }) => _delegate.createObjectStore(
+    name,
+    keyPath: keyPath,
+    autoIncrement: autoIncrement,
+  );
+
+  @override
+  void deleteObjectStore(String name) => _delegate.deleteObjectStore(name);
+
+  @override
+  Iterable<String> get objectStoreNames => _delegate.objectStoreNames;
+
+  @override
+  void close() => _delegate.close();
+
+  @override
+  int get version => _delegate.version;
+
+  @override
+  Stream<idb.VersionChangeEvent> get onVersionChange =>
+      _delegate.onVersionChange;
+
+  @override
+  String get name => _delegate.name;
 }

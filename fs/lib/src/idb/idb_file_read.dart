@@ -146,12 +146,18 @@ class IdbReadStreamCtlr {
     _ctlr = StreamController(sync: true);
 
     // put data
+    //
+    // Runs unawaited from onListen, so it must never throw: every failure,
+    // including opening the transaction on a connection the browser has
+    // closed, goes to the stream. Thrown here instead, it was an uncaught
+    // error and the stream never completed, so readAsBytes never returned.
     Future<void> readAll() async {
-      await _fs.idbReady;
-      final txn = _fs.db!.readAllTransactionList();
-      var treeStore = txn.objectStore(treeStoreName);
-
+      idb.Transaction? txn;
       try {
+        await _fs.idbReady;
+        txn = _fs.db!.readAllTransactionList();
+        var treeStore = txn.objectStore(treeStoreName);
+
         // Try to find the file if it exists
         final segments = getSegments(file.path);
 
@@ -176,7 +182,13 @@ class IdbReadStreamCtlr {
       } catch (e) {
         _ctlr.addError(e);
       } finally {
-        await txn.completed;
+        try {
+          await txn?.completed;
+        } catch (e) {
+          if (!_ctlr.isClosed) {
+            _ctlr.addError(e);
+          }
+        }
       }
     }
 
