@@ -69,6 +69,78 @@ void main() {
       expect(await file.readAsBytes(), [1, 2, 3]);
       expect(factory.opened, 1);
     });
+
+    test('a failed read stream still completes', () async {
+      factory.closeOpenConnections();
+
+      final errors = <Object>[];
+      final done = Completer<void>();
+      file.openRead().listen(
+        (_) {},
+        onError: errors.add,
+        onDone: done.complete,
+        cancelOnError: false,
+      );
+      await done.future.timeout(const Duration(seconds: 5));
+
+      expect(errors, [isA<StateError>()]);
+    });
+
+    test('a random access file opens a new connection', () async {
+      final raf = await file.open();
+      factory.closeOpenConnections();
+
+      await expectLater(raf.readInto(Uint8List(3)), throwsA(isA<StateError>()));
+
+      final buffer = Uint8List(3);
+      expect(await raf.readInto(buffer), 3);
+      expect(buffer, [1, 2, 3]);
+      expect(factory.opened, 2);
+      await raf.close();
+    });
+
+    test('another transaction failure does not reopen', () async {
+      factory.failTransactionsWith(
+        idb.DatabaseError(
+          'NotFoundError: One of the specified object stores was not found.',
+        ),
+      );
+
+      await expectLater(file.readAsBytes(), throwsA(isA<idb.DatabaseError>()));
+      await expectLater(file.readAsBytes(), throwsA(isA<idb.DatabaseError>()));
+      expect(factory.opened, 1);
+    });
+  });
+
+  group('idb open failure', () {
+    test('the error reaches the caller and the next call retries', () async {
+      final factory = _ClosableIdbFactory(newIdbFactoryMemory());
+      final fs = newFileSystemIdb(factory);
+      final file = fs.file('/file.bin');
+      factory.nextOpenError = StateError('open failed');
+
+      final uncaught = <Object>[];
+      Object? error;
+      await runZonedGuarded(() async {
+        try {
+          await file.exists().timeout(const Duration(seconds: 5));
+        } on TimeoutException {
+          rethrow;
+        } catch (e) {
+          error = e;
+        }
+      }, (error, _) => uncaught.add(error))!;
+
+      expect(uncaught, isEmpty);
+      expect(
+        error,
+        isA<StateError>().having((e) => e.message, 'message', 'open failed'),
+      );
+      expect(factory.opened, 0);
+
+      expect(await file.exists(), isFalse);
+      expect(factory.opened, 1);
+    });
   });
 }
 
@@ -80,11 +152,22 @@ class _ClosableIdbFactory implements idb.IdbFactory {
   final idb.IdbFactory _delegate;
   final _databases = <_ClosableDatabase>[];
 
+  /// Thrown by the next [open], once.
+  Error? nextOpenError;
+
   int get opened => _databases.length;
 
-  void closeOpenConnections() {
+  void closeOpenConnections() => failTransactionsWith(
+    StateError(
+      "InvalidStateError: Failed to execute 'transaction' on 'IDBDatabase': "
+      'The database connection is closing.',
+    ),
+  );
+
+  /// Every later transaction on the open connections throws [error].
+  void failTransactionsWith(Error error) {
     for (final database in _databases) {
-      database.closedByBrowser = true;
+      database.transactionError = error;
     }
   }
 
@@ -95,6 +178,11 @@ class _ClosableIdbFactory implements idb.IdbFactory {
     idb.OnUpgradeNeededFunction? onUpgradeNeeded,
     idb.OnBlockedFunction? onBlocked,
   }) async {
+    final openError = nextOpenError;
+    if (openError != null) {
+      nextOpenError = null;
+      throw openError;
+    }
     final database = _ClosableDatabase(
       await _delegate.open(
         dbName,
@@ -134,14 +222,14 @@ class _ClosableDatabase extends idb.Database {
   _ClosableDatabase(this._delegate, idb.IdbFactory factory) : super(factory);
 
   final idb.Database _delegate;
-  bool closedByBrowser = false;
+
+  /// Thrown by every transaction, when set.
+  Error? transactionError;
 
   void _checkOpen() {
-    if (closedByBrowser) {
-      throw StateError(
-        "InvalidStateError: Failed to execute 'transaction' on 'IDBDatabase': "
-        'The database connection is closing.',
-      );
+    final error = transactionError;
+    if (error != null) {
+      throw error;
     }
   }
 

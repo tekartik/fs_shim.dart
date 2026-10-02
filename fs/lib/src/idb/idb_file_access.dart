@@ -55,6 +55,17 @@ mixin FileAccessIdbMixin implements FileAccessIdb {
 
   idb.Database get database => storage.db!;
 
+  /// The open connection, once the storage is ready.
+  ///
+  /// Start transactions on this rather than on [database] when the file
+  /// outlives the call that opened it, so that a connection the browser
+  /// closed in the meantime is replaced instead of failing every later
+  /// operation.
+  Future<idb.Database> get readyDatabase async {
+    await storage.ready;
+    return storage.db!;
+  }
+
   /// Internal storage
   IdbFileSystemStorage get storage => fsIdb.storage;
 

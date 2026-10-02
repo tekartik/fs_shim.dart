@@ -131,8 +131,17 @@ class TxnNodeDataReadStreamCtlr {
       }
       // devPrint('txnRead done (${content.length})');
       await _ctlr.close();
-    } catch (error) {
-      _ctlr.addError(error);
+    } catch (error, stackTrace) {
+      _addErrorAndClose(error, stackTrace);
+    }
+  }
+
+  /// Report [error] and complete the stream: a listener that does not cancel
+  /// on error must still get `done`.
+  void _addErrorAndClose(Object error, StackTrace stackTrace) {
+    if (!_ctlr.isClosed) {
+      _ctlr.addError(error, stackTrace);
+      unawaited(_ctlr.close());
     }
   }
 
@@ -144,6 +153,15 @@ class TxnNodeDataReadStreamCtlr {
 class IdbReadStreamCtlr {
   IdbReadStreamCtlr(this.file, this.start, this.end) {
     _ctlr = StreamController(sync: true);
+
+    // Report [error] and complete the stream: a listener that does not cancel
+    // on error must still get `done`.
+    void addErrorAndClose(Object error, StackTrace stackTrace) {
+      if (!_ctlr.isClosed) {
+        _ctlr.addError(error, stackTrace);
+        unawaited(_ctlr.close());
+      }
+    }
 
     // put data
     //
@@ -173,21 +191,23 @@ class IdbReadStreamCtlr {
             _ctlr.add(event);
           },
           onDone: () {
-            _ctlr.close();
+            if (!_ctlr.isClosed) {
+              _ctlr.close();
+            }
           },
-          onError: (Object e) {
-            _ctlr.addError(e);
+          onError: (Object e, StackTrace st) {
+            if (!_ctlr.isClosed) {
+              _ctlr.addError(e, st);
+            }
           },
         );
-      } catch (e) {
-        _ctlr.addError(e);
+      } catch (e, st) {
+        addErrorAndClose(e, st);
       } finally {
         try {
           await txn?.completed;
-        } catch (e) {
-          if (!_ctlr.isClosed) {
-            _ctlr.addError(e);
-          }
+        } catch (e, st) {
+          addErrorAndClose(e, st);
         }
       }
     }

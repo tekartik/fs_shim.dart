@@ -125,7 +125,7 @@ class IdbFileSystemStorage {
       IdbFileSystemStorageWithDelegate(delegate: this, options: options);
 
   idb.Database? db;
-  Completer? _readyCompleter;
+  Completer<void>? _readyCompleter;
 
   /// [db] without the wrapper that watches it for a closed connection, for
   /// callers that need the concrete database type. Start transactions on
@@ -140,8 +140,9 @@ class IdbFileSystemStorage {
       // ignore: avoid_print
       print('ready? $hashCode');
     }
-    if (_readyCompleter == null) {
-      final completer = _readyCompleter = Completer<void>();
+    var completer = _readyCompleter;
+    if (completer == null) {
+      completer = _readyCompleter = Completer<void>();
       try {
         await _open();
         completer.complete();
@@ -152,15 +153,15 @@ class IdbFileSystemStorage {
         completer.completeError(e, st);
       }
     }
-    return _readyCompleter!.future;
+    return completer.future;
   }
 
-  /// Called when a transaction could not be started on [closed].
+  /// Called when a transaction could not be started on [closed] because the
+  /// connection is closed (see [isClosedConnectionError]).
   ///
-  /// Starting a transaction fails only once the connection is closed: the
-  /// store names used here are fixed. The browser closes a connection on its
-  /// own when site data is cleared or the storage backend fails, so the next
-  /// [ready] opens a new one instead of reusing the dead one.
+  /// The browser closes a connection on its own when site data is cleared or
+  /// the storage backend fails, so the next [ready] opens a new one instead
+  /// of reusing the dead one.
   void _onConnectionClosed(idb.Database closed) {
     // A late failure on a connection that has already been replaced must not
     // drop its successor.
@@ -1249,8 +1250,23 @@ idb.KeyRange allPartRange(int fileId) {
   );
 }
 
+/// Whether [error], thrown when starting a transaction, means that the
+/// connection is closed and must be replaced.
+///
+/// A browser throws `InvalidStateError: Failed to execute 'transaction' on
+/// 'IDBDatabase': The database connection is closing.` for every transaction
+/// started on a connection it has closed. Any other failure, such as a
+/// `NotFoundError` for a store missing from the database, is not fixed by
+/// opening a new connection, so it is left to the caller.
+bool isClosedConnectionError(Object error) {
+  final message = error.toString().toLowerCase();
+  return message.contains('invalidstateerror') ||
+      message.contains('closing') ||
+      message.contains('closed');
+}
+
 /// Hands every call to [_delegate], and reports when a transaction cannot be
-/// started on it, which means the connection has been closed.
+/// started on it because the connection has been closed.
 ///
 /// A connection the browser has closed throws `InvalidStateError: The
 /// database connection is closing` on every later transaction, for the life
@@ -1268,8 +1284,10 @@ class _ConnectionWatchingDatabase extends idb.Database {
   T _start<T>(T Function() start) {
     try {
       return start();
-    } catch (_) {
-      onClosed(this);
+    } catch (e) {
+      if (isClosedConnectionError(e)) {
+        onClosed(this);
+      }
       rethrow;
     }
   }

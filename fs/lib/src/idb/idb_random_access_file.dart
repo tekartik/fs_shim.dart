@@ -63,7 +63,7 @@ class RandomAccessFileIdb
       if (pending.isNotEmpty || close) {
         await flushLock.synchronized(() async {
           if (pending.isNotEmpty || close) {
-            var txn = fsIdb.db!.transactionList([
+            var txn = (await readyDatabase).transactionList([
               treeStoreName,
               partStoreName,
             ], idb.idbModeReadWrite);
@@ -172,7 +172,9 @@ class RandomAccessFileIdb
       if (expectedCount <= 0) {
         return 0;
       }
-      var txn = database.transactionList([partStoreName], idb.idbModeReadOnly);
+      var txn = (await readyDatabase).transactionList([
+        partStoreName,
+      ], idb.idbModeReadOnly);
 
       await txn
           .objectStore(partStoreName)
@@ -221,7 +223,7 @@ class RandomAccessFileIdb
       accessPosition += count;
       return count;
     } else {
-      var txn = database.writeAllTransactionList();
+      var txn = (await readyDatabase).writeAllTransactionList();
 
       var result = await fsIdb.txnReadCheckNodeFileContent(
         txn,
@@ -264,7 +266,10 @@ class RandomAccessFileIdb
         // Truncate
         // Update accessFileSize fo (no cleanup)
         if (length < accessFileSize) {
-          var txn = database.transaction(treeStoreName, idb.idbModeReadWrite);
+          var txn = (await readyDatabase).transaction(
+            treeStoreName,
+            idb.idbModeReadWrite,
+          );
 
           fileEntity = await storage.txnUpdateFileMetaSize(
             txn,
@@ -276,7 +281,7 @@ class RandomAccessFileIdb
         // Keep position
         // await fsIdb.txnWriteNodeFileContent(txn, fileEntity, bytes);
       } else {
-        var txn = database.writeAllTransactionList();
+        var txn = (await readyDatabase).writeAllTransactionList();
         var result = await fsIdb.txnReadCheckNodeFileContent(
           txn,
           file,
@@ -377,7 +382,7 @@ class RandomAccessFileIdb
       return _me;
     } else {
       try {
-        txn = fsIdb.writeAllTransactionList();
+        txn = (await readyDatabase).writeAllTransactionList();
 
         var result = await fsIdb.txnReadCheckNodeFileContent(
           txn,
