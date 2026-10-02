@@ -1,4 +1,4 @@
-## 2.6.0-1
+## 2.6.0
 
 * idb: open a new IndexedDB connection when the browser closed the current one (`InvalidStateError` on
   every transaction), including from an open `RandomAccessFile` or write sink; a failed open now reports
