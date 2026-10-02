@@ -1,11 +1,19 @@
+## 2.5.8-1
+
+* idb: recover when the browser closes the IndexedDB connection. A browser can close a connection on its
+  own (site data cleared, storage backend failure); every transaction on it then threw `InvalidStateError`
+  for the life of the page, and a read stream that hit it never completed, so `File.readAsBytes()` never
+  returned. The storage now detects the closed connection and opens a new one on the next operation,
+  including from an open `RandomAccessFile` or write sink; a failed open reports its error to the caller
+  and is retried on the next operation; a failed read stream now completes with the error.
+  Thanks to [@SamHL](https://github.com/SamHL) for diagnosing and fixing this
+  ([#63](https://github.com/tekartik/fs_shim.dart/pull/63)).
+
 ## 2.5.7
 
 * Add `streamToFile(stream, file)` helper and `File.writeStream(stream)` extension in `utils/read_write.dart`
   to write a `Stream<List<int>>` to a file, creating the parent directory if missing. On a file system
   without random access support (OPFS) the stream is buffered in memory and written at once.
-* idb: open a new IndexedDB connection when the browser closed the current one (`InvalidStateError` on
-  every transaction), including from an open `RandomAccessFile` or write sink; a failed open now reports
-  its error to the caller and is retried on the next operation; a failed read stream now completes.
 
 ## 2.5.6
 
