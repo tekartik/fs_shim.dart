@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:math';
-import 'package:flutter/material.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:fs_shim/fs.dart' as fs;
 import 'package:fs_shim/fs_memory.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
+
 import 'src/platform_helper.dart';
 
 void main() {
@@ -730,8 +732,7 @@ class _MainExplorerScreenState extends State<MainExplorerScreen> {
                       // Card 1: Memory
                       _buildFsCard(
                         title: 'Memory File System',
-                        subtitle:
-                            'Temporary in-memory storage. Resets when app is closed.',
+                        subtitle: 'Temporary in-memory storage. Resets when app is closed.',
                         icon: Icons.memory,
                         gradient: const [Color(0xFF6366F1), Color(0xFF4F46E5)],
                         actionWidget: ElevatedButton(
