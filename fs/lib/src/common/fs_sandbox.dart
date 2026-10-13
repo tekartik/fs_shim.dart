@@ -97,7 +97,12 @@ class _SandboxFile extends _SandboxFileSystemEntity with FileMixin {
     Encoding encoding = utf8,
     bool flush = false,
   }) async {
-    await _fileDelegate.writeAsString(contents, mode: mode, flush: flush);
+    await _fileDelegate.writeAsString(
+      contents,
+      mode: mode,
+      encoding: encoding,
+      flush: flush,
+    );
     return this;
   }
 

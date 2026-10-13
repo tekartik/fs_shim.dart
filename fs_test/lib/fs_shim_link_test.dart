@@ -86,6 +86,7 @@ void defineTests(FileSystemTestContext ctx) {
         // second time should fail
         try {
           await link.create(target);
+          fail('should fail');
         } on FileSystemException catch (e) {
           _printErr(e);
           expect(e.status, FileSystemException.statusAlreadyExists);
@@ -94,6 +95,7 @@ void defineTests(FileSystemTestContext ctx) {
         // different target fails too
         try {
           await link.create('other_target');
+          fail('should fail');
         } on FileSystemException catch (e) {
           _printErr(e);
           expect(e.status, FileSystemException.statusAlreadyExists);
@@ -108,6 +110,7 @@ void defineTests(FileSystemTestContext ctx) {
         final link = fs.link(fs.path.join(dir.path, 'link'));
         try {
           await link.target();
+          fail('should fail');
         } on FileSystemException catch (e) {
           _printErr(e);
           expect(e.status, FileSystemException.statusNotFound);
@@ -120,17 +123,12 @@ void defineTests(FileSystemTestContext ctx) {
           // windows sandboxed
           // link target: Link: '\test1\link' \test1\target
           expect(await link.target(), p.join(link.parent.path, target));
+        } else if (isIoWindows(ctx)) {
+          // on io windows link were absolute
+          // This did no happen when tested on 2019-09-05
+          expect(await link.target(), anyOf(target, p.join(dir.path, target)));
         } else {
-          try {
-            expect(await link.target(), target);
-          } catch (e) {
-            if (isIoWindows(ctx)) {
-              // on io windows link were absolute
-              // This did no happen when tested on 2019-09-05
-              expect(await link.target(), p.join(dir.path, target));
-              rethrow;
-            }
-          }
+          expect(await link.target(), target);
         }
       });
 

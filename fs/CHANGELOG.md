@@ -1,3 +1,23 @@
+## 2.6.1
+
+* Behave like `dart:io` in these cases (bug fixes, the previous behavior lost data or hung):
+  * idb: `openRead(start)` with a `start` past the first page (16 KiB pages for `getFileSystemWeb()` and
+    `newFileSystemWeb()`) no longer fails with `Corrupted content`.
+  * idb and OPFS: renaming a file or a directory to its own path does nothing (idb emptied the file, OPFS
+    deleted it).
+  * idb and OPFS: renaming a directory below itself fails with an invalid argument status (22) (idb made the
+    directory unreachable, OPFS never completed).
+  * idb: a file or a directory can no longer be created, written, read, copied or renamed below a file, and
+    listing a file fails, with a not a directory status (20). OPFS now gives 20 instead of 2 (not found) in
+    these cases.
+  * idb: copying a directory (`File(dirPath).copy()`), or a directory onto a directory, fails with an is a
+    directory status (21) instead of creating an empty file.
+  * idb and OPFS: `openRead(start, end)` honors `end` without pages and clamps `start` and `end` past the end
+    of the file (empty stream when `start` is past the end), an `end` before `start` throws a `RangeError`.
+* Sandboxed file system: `writeAsString` uses the given `encoding`.
+* io: Windows error codes no longer go through the Linux mapping, macOS permission errors get the access
+  error status, and `osError` is null (instead of a wrapper throwing on access) when `dart:io` has none.
+
 ## 2.6.0
 
 * idb: open a new IndexedDB connection when the browser closed the current one (`InvalidStateError` on

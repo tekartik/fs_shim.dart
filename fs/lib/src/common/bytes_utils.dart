@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 
 /// Concert a list to byte array
@@ -50,4 +51,16 @@ List<Uint8List> uint8ListChunk(Uint8List list, int? chunkSize) {
   }
 
   return chunks;
+}
+
+/// The range to read in a file of [length] bytes for `openRead(start, end)`,
+/// as io does: [start] and [end] past the length are clamped (nothing to read
+/// when [start] is past the end) and an [end] before [start] throws a
+/// [RangeError].
+({int start, int end}) fileReadRange(int? start, int? end, int length) {
+  if (start != null && end != null && end < start) {
+    throw RangeError('Bad end position: $end');
+  }
+  final readEnd = min(end ?? length, length);
+  return (start: min(start ?? 0, readEnd), end: readEnd);
 }

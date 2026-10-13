@@ -114,6 +114,33 @@ class FileSystemOpfsImpl extends Object
     return handle;
   }
 
+  /// Like [_navigate] but throws, as io, a not a directory exception when one
+  /// of the [dirSegments] is a file, a not found exception otherwise.
+  Future<OpfsDirectoryHandle> _navigateOrThrow(
+    List<String> dirSegments,
+    String path,
+    String message, {
+    bool create = false,
+  }) async {
+    var handle = await _rootHandle;
+    for (final segment in dirSegments) {
+      try {
+        handle = await handle
+            .getDirectoryHandle(
+              segment,
+              OpfsGetDirectoryOptions(create: create),
+            )
+            .toDart;
+      } catch (_) {
+        if (await _childType(handle, segment) == fs.FileSystemEntityType.file) {
+          throw opfsNotADirectoryException(path, message);
+        }
+        throw opfsNotFoundException(path, message);
+      }
+    }
+    return handle;
+  }
+
   /// Type of the child named [name] in [parent], or `null` if not found.
   Future<fs.FileSystemEntityType?> _childType(
     OpfsDirectoryHandle parent,
@@ -200,10 +227,12 @@ class FileSystemOpfsImpl extends Object
       return;
     }
     final parentSegments = segments.sublist(0, segments.length - 1);
-    final parent = await _navigate(parentSegments, create: recursive);
-    if (parent == null) {
-      throw opfsNotFoundException(path, 'Creation failed');
-    }
+    final parent = await _navigateOrThrow(
+      parentSegments,
+      path,
+      'Creation failed',
+      create: recursive,
+    );
     final name = segments.last;
     final existing = await _childType(parent, name);
     if (existing == fs.FileSystemEntityType.directory) {
@@ -223,10 +252,12 @@ class FileSystemOpfsImpl extends Object
       throw opfsIsADirectoryException(path, 'Creation failed');
     }
     final parentSegments = segments.sublist(0, segments.length - 1);
-    final parent = await _navigate(parentSegments, create: recursive);
-    if (parent == null) {
-      throw opfsNotFoundException(path, 'Creation failed');
-    }
+    final parent = await _navigateOrThrow(
+      parentSegments,
+      path,
+      'Creation failed',
+      create: recursive,
+    );
     final name = segments.last;
     final existing = await _childType(parent, name);
     if (existing == fs.FileSystemEntityType.directory) {
@@ -292,22 +323,31 @@ class FileSystemOpfsImpl extends Object
     if (segments.isEmpty || newSegments.isEmpty) {
       throw opfsNotFoundException(path, 'Rename failed');
     }
-    final parent = await _navigate(segments.sublist(0, segments.length - 1));
-    if (parent == null) {
-      throw opfsNotFoundException(path, 'Rename failed');
-    }
+    final parent = await _navigateOrThrow(
+      segments.sublist(0, segments.length - 1),
+      path,
+      'Rename failed',
+    );
     final name = segments.last;
     final actual = await _childType(parent, name);
     if (actual == null) {
       throw opfsNotFoundException(path, 'Rename failed');
     }
-
-    final newParent = await _navigate(
-      newSegments.sublist(0, newSegments.length - 1),
-    );
-    if (newParent == null) {
-      throw opfsNotFoundException(path, 'Rename failed');
+    // Same path, nothing to do (as io).
+    if (pathSegmentsEqual(newSegments, segments)) {
+      return;
     }
+    // A directory cannot be moved below itself (as io).
+    if (actual == fs.FileSystemEntityType.directory &&
+        pathSegmentsStartWith(newSegments, segments)) {
+      throw opfsInvalidArgumentException(path, 'Rename failed');
+    }
+
+    final newParent = await _navigateOrThrow(
+      newSegments.sublist(0, newSegments.length - 1),
+      path,
+      'Rename failed',
+    );
     final newName = newSegments.last;
     final newActual = await _childType(newParent, newName);
 
@@ -378,10 +418,11 @@ class FileSystemOpfsImpl extends Object
     if (segments.isEmpty) {
       throw opfsNotFoundException(file.path, 'Copy failed');
     }
-    final parent = await _navigate(segments.sublist(0, segments.length - 1));
-    if (parent == null) {
-      throw opfsNotFoundException(file.path, 'Copy failed');
-    }
+    final parent = await _navigateOrThrow(
+      segments.sublist(0, segments.length - 1),
+      file.path,
+      'Copy failed',
+    );
     final name = segments.last;
     final actual = await _childType(parent, name);
     if (actual == null) {
@@ -391,12 +432,11 @@ class FileSystemOpfsImpl extends Object
       throw opfsIsADirectoryException(file.path, 'Copy failed');
     }
 
-    final newParent = await _navigate(
+    final newParent = await _navigateOrThrow(
       newSegments.sublist(0, newSegments.length - 1),
+      file.path,
+      'Copy failed',
     );
-    if (newParent == null) {
-      throw opfsNotFoundException(file.path, 'Copy failed');
-    }
     final newName = newSegments.last;
     final newActual = await _childType(newParent, newName);
     if (newActual == fs.FileSystemEntityType.directory) {
@@ -416,10 +456,11 @@ class FileSystemOpfsImpl extends Object
     if (segments.isEmpty) {
       throw opfsIsADirectoryException(path, 'Read failed');
     }
-    final parent = await _navigate(segments.sublist(0, segments.length - 1));
-    if (parent == null) {
-      throw opfsNotFoundException(path, 'Read failed');
-    }
+    final parent = await _navigateOrThrow(
+      segments.sublist(0, segments.length - 1),
+      path,
+      'Read failed',
+    );
     final name = segments.last;
     final actual = await _childType(parent, name);
     if (actual == fs.FileSystemEntityType.directory) {
@@ -442,10 +483,11 @@ class FileSystemOpfsImpl extends Object
     if (segments.isEmpty) {
       throw opfsIsADirectoryException(path, 'Write failed');
     }
-    final parent = await _navigate(segments.sublist(0, segments.length - 1));
-    if (parent == null) {
-      throw opfsNotFoundException(path, 'Write failed');
-    }
+    final parent = await _navigateOrThrow(
+      segments.sublist(0, segments.length - 1),
+      path,
+      'Write failed',
+    );
     final name = segments.last;
     final actual = await _childType(parent, name);
     if (actual == fs.FileSystemEntityType.directory) {
@@ -471,9 +513,8 @@ class FileSystemOpfsImpl extends Object
       try {
         var bytes = await readFileBytes(file.path);
         if (start != null || end != null) {
-          final from = start ?? 0;
-          final to = end ?? bytes.length;
-          bytes = bytes.sublist(from, to > bytes.length ? bytes.length : to);
+          final range = fileReadRange(start, end, bytes.length);
+          bytes = bytes.sublist(range.start, range.end);
         }
         if (bytes.isNotEmpty) {
           controller.add(bytes);
@@ -524,12 +565,8 @@ class FileSystemOpfsImpl extends Object
     Future<void>(() async {
       try {
         final segments = opfsPathSegments(path);
-        final handle = await _navigate(segments);
-        if (handle == null) {
-          controller.addError(opfsNotFoundException(path, 'List failed'));
-        } else {
-          await listInto(path, handle);
-        }
+        final handle = await _navigateOrThrow(segments, path, 'List failed');
+        await listInto(path, handle);
       } catch (e) {
         controller.addError(e);
       } finally {

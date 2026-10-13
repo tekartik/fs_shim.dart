@@ -150,6 +150,62 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await fs.isDirectory(dir2.path), isTrue);
     });
 
+    test('rename_same_path', () async {
+      final directory = await ctx.prepare();
+      final dir = fs.directory(fs.path.join(directory.path, 'dir'));
+      final file = fs.file(fs.path.join(dir.path, 'file'));
+      await file.create(recursive: true);
+      await dir.rename(dir.path);
+      expect(await file.exists(), isTrue);
+    });
+
+    test('rename_into_itself', () async {
+      final directory = await ctx.prepare();
+      final dir = fs.directory(fs.path.join(directory.path, 'dir'));
+      final file = fs.file(fs.path.join(dir.path, 'file'));
+      await file.create(recursive: true);
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => dir.rename(fs.path.join(dir.path, 'sub')),
+        FileSystemException.statusInvalidArgument,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => dir.rename(fs.path.join(dir.path, 'sub', 'sub')),
+        // Not found on io as the parent does not exist.
+        isIo(ctx)
+            ? FileSystemException.statusNotFound
+            : FileSystemException.statusInvalidArgument,
+      );
+      expect(await file.exists(), isTrue);
+      expect(await fs.directory(directory.path).list().toList(), [dir]);
+    });
+
+    test('create_under_file', () async {
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      await file.create();
+      final child = fs.directory(fs.path.join(file.path, 'child'));
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => child.create(),
+        FileSystemException.statusNotADirectory,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => fs
+            .directory(fs.path.join(child.path, 'sub'))
+            .create(recursive: true),
+        FileSystemException.statusNotADirectory,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => fs.directory(file.path).list().toList(),
+        FileSystemException.statusNotADirectory,
+      );
+      expect(await fs.type(file.path), FileSystemEntityType.file);
+    });
+
     test('rename_not_found', () async {
       final directory = await ctx.prepare();
 
@@ -416,6 +472,7 @@ void defineTests(FileSystemTestContext ctx) {
       final dir = childDirectory(top, 'dir');
       try {
         await dir.list().toList();
+        fail('should fail');
       } on FileSystemException catch (e) {
         expect(e.status, FileSystemException.statusNotFound);
       }

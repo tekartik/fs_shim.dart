@@ -74,7 +74,8 @@ io.FileSystemException unwrapIoFileSystemException(
 /// Wraps IO OS Error.
 fs.OSError? /*!*/
 /*!*/
-wrapIoOSError(io.OSError? /*!*/ ioOSError) => OSErrorImpl.io(ioOSError);
+wrapIoOSError(io.OSError? /*!*/ ioOSError) =>
+    ioOSError == null ? null : OSErrorImpl.io(ioOSError);
 
 /// Unwraps IO OS Error.
 io.OSError? /*!*/ unwrapIoOSError(fs.OSError? /*!*/ osError) =>

@@ -316,6 +316,81 @@ void defineTests(FileSystemTestContext ctx) {
       expect(await file2.readAsString(), 'test');
     });
 
+    test('rename_same_path', () async {
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      await file.writeAsString('test');
+      await file.rename(file.path);
+      expect(await file.readAsString(), 'test');
+    });
+
+    test('copy_directory', () async {
+      final directory = await ctx.prepare();
+      final dir = fs.directory(fs.path.join(directory.path, 'dir'));
+      await dir.create();
+      final dir2 = fs.directory(fs.path.join(directory.path, 'dir2'));
+      await dir2.create();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      await file.writeAsString('test');
+
+      // A directory cannot be copied, as a new file or over a directory.
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => fs.file(dir.path).copy(fs.path.join(directory.path, 'copy')),
+        FileSystemException.statusIsADirectory,
+      );
+      expect(
+        await fs.type(fs.path.join(directory.path, 'copy')),
+        FileSystemEntityType.notFound,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => fs.file(dir.path).copy(dir2.path),
+        FileSystemException.statusIsADirectory,
+      );
+      // A file cannot be copied over a directory.
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => file.copy(dir.path),
+        FileSystemException.statusIsADirectory,
+      );
+      expect(await fs.isDirectory(dir.path), isTrue);
+    });
+
+    test('create_under_file', () async {
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      await file.writeAsString('test');
+      final child = fs.file(fs.path.join(file.path, 'child'));
+
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => child.create(),
+        FileSystemException.statusNotADirectory,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => fs.file(fs.path.join(child.path, 'sub')).create(recursive: true),
+        FileSystemException.statusNotADirectory,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => child.writeAsString('test'),
+        FileSystemException.statusNotADirectory,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => child.readAsString(),
+        FileSystemException.statusNotADirectory,
+      );
+      await expectFileSystemExceptionStatus(
+        ctx,
+        () => file.copy(child.path),
+        FileSystemException.statusNotADirectory,
+      );
+      expect(await file.readAsString(), 'test');
+    });
+
     test('createdirectory_or_file', () async {
       final directory = await ctx.prepare();
 
@@ -446,6 +521,41 @@ void defineTests(FileSystemTestContext ctx) {
         expect(await file.readAsString(), 'test');
       });
 
+      test('openRead_range', () async {
+        // Several pages of the idb file system to read from any page.
+        var pageSize = 16 * 1024;
+        if (fs is FileSystemIdb) {
+          if (fs.idbOptions.hasPageSize) {
+            pageSize = fs.idbOptions.pageSize!;
+          }
+        }
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        final size = pageSize * 2 + pageSize ~/ 2 + 1;
+        final bytes = Uint8List.fromList(List.generate(size, (i) => i % 251));
+        await file.writeAsBytes(bytes);
+
+        Future<List<int>> read([int? start, int? end]) async =>
+            (await file.openRead(start, end).toList())
+                .expand((e) => e)
+                .toList();
+
+        expect(await read(), bytes);
+        expect(await read(null, 2), bytes.sublist(0, 2));
+        expect(await read(pageSize - 1, pageSize + 1), [
+          ...bytes.sublist(pageSize - 1, pageSize + 1),
+        ]);
+        expect(await read(pageSize), bytes.sublist(pageSize));
+        expect(await read(pageSize * 2 + 1), bytes.sublist(pageSize * 2 + 1));
+        expect(await read(size - 1, size), bytes.sublist(size - 1));
+        // Past the end, as io.
+        expect(await read(size - 1, size + 10), bytes.sublist(size - 1));
+        expect(await read(size + 10), isEmpty);
+        expect(await read(size + 10, size + 20), isEmpty);
+        expect(await read(1, 1), isEmpty);
+        await expectLater(read(2, 1), throwsRangeError);
+      });
+
       test('read_not_found', () async {
         final directory = await ctx.prepare();
         final file = fs.file(fs.path.join(directory.path, 'file'));
@@ -453,6 +563,7 @@ void defineTests(FileSystemTestContext ctx) {
           await file.openRead().listen((Uint8List data) {
             //content.addAll(data);
           }).asFuture<void>();
+          fail('should fail');
         } on FileSystemException catch (e) {
           // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
           // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
@@ -468,6 +579,7 @@ void defineTests(FileSystemTestContext ctx) {
           var sink = file.openWrite(mode: FileMode.read);
           sink.add('test'.codeUnits);
           await sink.close();
+          fail('should fail');
         } on ArgumentError catch (e) {
           _printErr(e);
         }
@@ -490,15 +602,10 @@ void defineTests(FileSystemTestContext ctx) {
       test('write_not_found', () async {
         final directory = await ctx.prepare();
         final file = fs.file(fs.path.join(directory.path, 'file'));
-        try {
-          var sink = file.openWrite(mode: FileMode.append);
-          sink.add('test'.codeUnits);
-          await sink.close();
-        } on FileSystemException catch (e) {
-          // [2] FileSystemException: Cannot open file, path = '/media/ssd/devx/hg/dart-pkg/lib/fs_shim/test_out/io/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
-          // [2] FileSystemException: Read failed, path = '/file/read_not_found/file' (OS Error: No such file or directory, errno = 2)
-          _printErr(e);
-        }
+        // Write creates the file.
+        var sink = file.openWrite(mode: FileMode.write);
+        sink.add('test'.codeUnits);
+        await sink.close();
 
         final content = <int>[];
         await file.openRead().listen((Uint8List data) {
@@ -578,6 +685,7 @@ void defineTests(FileSystemTestContext ctx) {
         sink.add('test'.codeUnits);
         try {
           await sink.close();
+          fail('should fail');
         } on FileSystemException catch (e) {
           if (isIoWindows(ctx)) {
             if (isIoNode(ctx)) {
@@ -629,6 +737,14 @@ void defineTests(FileSystemTestContext ctx) {
       // append
       await file.writeAsString(text, mode: FileMode.append, flush: true);
       expect(await file.readAsString(), '$text$text');
+    });
+
+    test('read_write_string_encoding', () async {
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      await file.writeAsString('é', encoding: latin1);
+      expect(await file.readAsBytes(), [233]);
+      expect(await file.readAsString(encoding: latin1), 'é');
     });
 
     test('relative_access', () async {

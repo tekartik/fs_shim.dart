@@ -21,6 +21,10 @@ class OSErrorImpl implements fs.OSError {
   String toString() => ioOSError.toString();
 }
 
+/// Null (as io) when there is no os error.
+OSErrorImpl? _osErrorOrNull(io.OSError? ioOSError) =>
+    ioOSError == null ? null : OSErrorImpl.io(ioOSError);
+
 int? _statusFromException(io.FileSystemException ioFse) {
   // linux error code is 2
   int? status;
@@ -49,12 +53,14 @@ int? _statusFromException(io.FileSystemException ioFse) {
           status = fs.FileSystemException.statusInvalidArgument;
           break;
       }
-    }
-    if (io.Platform.isMacOS) {
+    } else if (io.Platform.isMacOS) {
       // http://www.ioplex.com/~miallen/errcmp.html
       switch (errorCode) {
         case 2: // No such file or directory
           status = fs.FileSystemException.statusNotFound;
+          break;
+        case 13: // Permission denied
+          status = fs.FileSystemException.statusAccessError;
           break;
         case 17:
           status = fs.FileSystemException.statusAlreadyExists;
@@ -111,7 +117,7 @@ int? _statusFromException(io.FileSystemException ioFse) {
 /// FileSystemExceptionImpl representation.
 class FileSystemExceptionImpl implements fs.FileSystemException {
   FileSystemExceptionImpl.io(this.ioFileSystemException)
-    : osError = OSErrorImpl.io(ioFileSystemException.osError),
+    : osError = _osErrorOrNull(ioFileSystemException.osError),
       status = _statusFromException(ioFileSystemException);
   io.FileSystemException ioFileSystemException;
 
@@ -119,7 +125,7 @@ class FileSystemExceptionImpl implements fs.FileSystemException {
   final int? status;
 
   @override
-  final OSErrorImpl osError;
+  final OSErrorImpl? osError;
 
   @override
   String get message => ioFileSystemException.message;

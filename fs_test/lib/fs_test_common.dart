@@ -145,6 +145,25 @@ void devPrintJson(Map json) {
   print(const JsonEncoder.withIndent('  ').convert(json));
 }
 
+/// Expects [action] to fail with a [FileSystemException] of [status], as io.
+///
+/// Only a [FileSystemException] is expected on io windows, where the error
+/// codes differ.
+Future<void> expectFileSystemExceptionStatus(
+  FileSystemTestContext ctx,
+  Future<Object?> Function() action,
+  int status,
+) async {
+  try {
+    await action();
+    fail('should fail with status $status');
+  } on FileSystemException catch (e) {
+    if (!isIoWindows(ctx)) {
+      expect(e.status, status, reason: '$e');
+    }
+  }
+}
+
 bool isIoWindows(FileSystemTestContext ctx) {
   return isIo(ctx) && (ctx.platform as PlatformContextIo).isIoWindows;
 }

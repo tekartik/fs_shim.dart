@@ -6,30 +6,13 @@ import 'package:idb_shim/utils/idb_import_export.dart';
 import 'package:test/test.dart';
 
 import '../test_common.dart';
-import 'fs_idb_format_v2_test.dart';
 
 void main() {
-  fsIdbFormatV2Group(idbFactoryMemoryFs);
+  fsIdbFormatV3Group(idbFactoryMemoryFs);
 }
 
-void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
+void fsIdbFormatV3Group(idb.IdbFactory idbFactory) {
   group('idb_format_v3', () {
-    test('v2 export page size 0', () async {
-      var exportMap = rawExportOneFileV2PageSize0;
-      var dbName = 'export_file_v2.sdb';
-      await idbFactory.deleteDatabase(dbName);
-      var db = await idbImportDatabase(exportMap, idbFactory, dbName);
-      expect(await idbExportDatabase(db), exportMap);
-      db.close();
-
-      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
-      var filePath = 'file.txt';
-
-      var file = fs.file(filePath);
-      expect(await file.readAsString(), 'test');
-
-      fs.close();
-    }, skip: false);
     test('v3 export page size 2', () async {
       var exportMap = rawExportOneFileV3PageSize2;
       var dbName = 'export_file_v3.sdb';
@@ -47,7 +30,7 @@ void fsIdbFormatV2Group(idb.IdbFactory idbFactory) {
       fs.close();
     }, skip: false);
 
-    test('v2 page size 1024 import', () async {
+    test('v3 page size 1024 import', () async {
       var exportMap = rawExportOneFileV3PageSize1024;
       var dbName = 'export_file_v3_1024.sdb';
       await idbFactory.deleteDatabase(dbName);

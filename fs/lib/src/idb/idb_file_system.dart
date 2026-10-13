@@ -229,6 +229,7 @@ class FileSystemIdb extends Object
         }
         throw idbAlreadyExistsException(path, 'Creation failed');
       }
+      _checkParentIsDirectory(result, path, 'Creation failed');
 
       // Are we creating a root?
       if ((segments.length == 2) &&
@@ -280,6 +281,11 @@ class FileSystemIdb extends Object
           throw UnsupportedError('unsupported type ${entity.type}');
         }
       }
+      _checkParentIsDirectory(
+        result,
+        segmentsToPath(segments),
+        'Creation failed',
+      );
 
       // Are we creating a root?
       if ((segments.length == 2) &&
@@ -369,6 +375,11 @@ class FileSystemIdb extends Object
         }
         */
       }
+      _checkParentIsDirectory(
+        result,
+        segmentsToPath(segments),
+        'Creation failed',
+      );
 
       // not recursive and too deep, cancel
       if ((result.depthDiff > 1) && (!recursive)) {
@@ -583,11 +594,19 @@ class FileSystemIdb extends Object
       final entity = result.match;
 
       if (entity == null) {
-        throw throw idbNotFoundException(path, 'Rename failed');
+        throw idbNotFoundException(path, 'Rename failed');
       }
 
       return txnSearch(store, newSegments, true)
           .then((NodeSearchResult newResult) {
+            // Same path, nothing to do (as io).
+            if (pathSegmentsEqual(newSegments, segments)) {
+              return null;
+            }
+            // A directory cannot be moved below itself (as io).
+            if (entity.isDir && pathSegmentsStartWith(newSegments, segments)) {
+              throw idbInvalidArgumentException(path, 'Rename failed');
+            }
             final newEntity = newResult.match;
 
             Node? newParent;
@@ -638,6 +657,7 @@ class FileSystemIdb extends Object
                 }
               }
             } else {
+              _checkParentIsDirectory(newResult, newPath, 'Rename failed');
               // check destination (parent folder must exists)
               if (newResult.depthDiff > 1) {
                 throw idbNotFoundException(path, 'Rename failed');
@@ -689,7 +709,11 @@ class FileSystemIdb extends Object
       var newEntity = newResult.match;
 
       if (entity == null) {
-        throw throw idbNotFoundException(file.path, 'Copy failed');
+        throw idbNotFoundException(file.path, 'Copy failed');
+      }
+      // Only files can be copied (as io).
+      if (entity.isDir) {
+        throw idbIsADirectoryException(file.path, 'Copy failed');
       }
 
       if (newEntity != null) {
@@ -702,6 +726,7 @@ class FileSystemIdb extends Object
           }
         }
       } else {
+        _checkParentIsDirectory(newResult, newPath, 'Copy failed');
         // check destination (parent folder must exists)
         if (newResult.depthDiff > 1) {
           throw idbNotFoundException(file.path, 'Copy failed');
@@ -733,6 +758,19 @@ class FileSystemIdb extends Object
       );
     } finally {
       await txn.completed;
+    }
+  }
+
+  /// Throws a not a directory exception (as io) when the search for [path]
+  /// stopped on a file: [path] would be below a file.
+  void _checkParentIsDirectory(
+    NodeSearchResult result,
+    String path,
+    String message,
+  ) {
+    final highest = result.highest;
+    if (result.match == null && highest != null && highest.isFile) {
+      throw idbNotADirectoryException(path, message);
     }
   }
 
@@ -805,8 +843,10 @@ class FileSystemIdb extends Object
     List<String> segments, {
     required fs.FileMode mode,
   }) async {
-    var entity = await storage.txnGetNode(treeStore, segments, true);
+    final result = await txnSearch(treeStore, segments, true);
+    var entity = result.match;
     if (entity == null) {
+      _checkParentIsDirectory(result, segmentsToPath(segments), '$mode failed');
       if (mode == fs.FileMode.write || mode == fs.FileMode.append) {
         entity = await txnCreateFile(treeStore, segments);
       }
@@ -860,8 +900,6 @@ class FileSystemIdb extends Object
           0,
           node.fileSize,
         );
-
-        TxnNodeDataReadStreamCtlr(file, txn, node, 0, node.fileSize);
         var newNode = node.clone(pageSize: expectedPageSize);
         var writeCtlr = TxnWriteStreamSinkIdb(
           file,
@@ -953,7 +991,12 @@ class FileSystemIdb extends Object
       return txnSearch(treeStore, segments, true)
           .then((result) {
             final entity = result.match;
-            if (entity == null) {
+            final highest = result.highest;
+            if ((entity != null && !entity.isDir) ||
+                (entity == null && highest != null && highest.isFile)) {
+              // A file or below a file (as io).
+              ctlr.addError(idbNotADirectoryException(path, 'List failed'));
+            } else if (entity == null) {
               ctlr.addError(idbNotFoundException(path, 'List failed'));
             } else {
               Future list(String path, Node entity) {

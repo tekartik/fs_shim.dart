@@ -12,6 +12,8 @@ IdbError get _notADirectoryError => IdbError(20, 'Not a directory');
 
 IdbError get _isADirectoryError => IdbError(21, 'Is a directory');
 
+IdbError get _invalidArgumentError => IdbError(22, 'Invalid argument');
+
 /// IdbError representation.
 class IdbError implements fs.OSError {
   IdbError(this.errorCode, this.message);
@@ -41,6 +43,14 @@ IdbFileSystemException idbIsADirectoryException(String path, String msg) =>
       path,
       msg,
       _isADirectoryError,
+    );
+
+IdbFileSystemException idbInvalidArgumentException(String path, String msg) =>
+    IdbFileSystemException(
+      fs.FileSystemException.statusInvalidArgument,
+      path,
+      msg,
+      _invalidArgumentError,
     );
 
 IdbFileSystemException idbNotEmptyException(String path, String msg) =>

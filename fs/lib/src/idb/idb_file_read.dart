@@ -59,10 +59,12 @@ class TxnNodeDataReadStreamCtlr {
         var helper = FilePartHelper(fileEntity.filePageSize);
 
         var fileId = fileEntity.fileId;
-        var start = this.start ?? 0;
-        var end = this.end ?? fileEntity.fileSize;
+        var range = fileReadRange(this.start, this.end, fileEntity.fileSize);
+        var start = range.start;
+        var end = range.end;
         var startPositionInPage = helper.getPositionInPage(start);
-        var partIndex = -1;
+        // The cursor starts at the part containing start.
+        var partIndex = helper.pageIndexFromPosition(start) - 1;
         var first = true;
         var expectedCount = end - start;
         var count = 0;
@@ -121,11 +123,10 @@ class TxnNodeDataReadStreamCtlr {
         // get existing content
         //store = txn.objectStore(fileStoreName);
         //var content = (await store.getObject(entity.id!) as List?)?.cast<int>();
+        var range = fileReadRange(start, end, content.length);
+        content = content.sublist(range.start, range.end);
         if (content.isNotEmpty) {
           // All at once!
-          if (start != null) {
-            content = content.sublist(start!, end);
-          }
           _ctlr.add(anyListAsUint8List(content));
         }
       }

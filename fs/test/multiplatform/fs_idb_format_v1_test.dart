@@ -32,27 +32,6 @@ void fsIdbFormatV1Group(idb.IdbFactory idbFactory) {
       fs.close();
     }, skip: false);
 
-    test('v1 export simple one absolute file again', () async {
-      var dbName = 'import_v1.sdb';
-      //devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');
-      await idbFactory.deleteDatabase(dbName);
-      var db = await idbImportDatabase(
-        exportMapOneAbsoluteFileV1,
-        idbFactory,
-        dbName,
-      );
-      expect(await idbExportDatabase(db), exportMapOneAbsoluteFileV1);
-
-      db.close();
-
-      var fs = IdbFileSystem(idbFactory, dbPath: dbName);
-      var filePath = 'file.txt';
-
-      var file = fs.file(filePath);
-      expect(await file.readAsString(), 'test');
-
-      fs.close();
-    });
     test('v1 export 2 again', () async {
       var dbName = 'import_v1.sdb';
       // devPrint('ds_idb_format_v1_test: idbFactory: $idbFactory');

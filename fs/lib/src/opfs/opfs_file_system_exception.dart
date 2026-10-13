@@ -12,6 +12,8 @@ OpfsError get _notADirectoryError => OpfsError(20, 'Not a directory');
 
 OpfsError get _isADirectoryError => OpfsError(21, 'Is a directory');
 
+OpfsError get _invalidArgumentError => OpfsError(22, 'Invalid argument');
+
 /// OpfsError representation.
 class OpfsError implements fs.OSError {
   OpfsError(this.errorCode, this.message);
@@ -41,6 +43,14 @@ OpfsFileSystemException opfsIsADirectoryException(String path, String msg) =>
       path,
       msg,
       _isADirectoryError,
+    );
+
+OpfsFileSystemException opfsInvalidArgumentException(String path, String msg) =>
+    OpfsFileSystemException(
+      fs.FileSystemException.statusInvalidArgument,
+      path,
+      msg,
+      _invalidArgumentError,
     );
 
 OpfsFileSystemException opfsNotEmptyException(String path, String msg) =>
