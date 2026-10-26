@@ -1,4 +1,4 @@
-## 2.7.0-1
+## 2.7.0
 
 * OPFS: handles can be persisted (e.g. in IndexedDB, idb_shim `IdbNativeValue` / sdb `SdbNativeValue`) and
   restored without importing `src/`:
