@@ -24,6 +24,7 @@ export 'src/opfs/opfs_fs.dart'
         FileSystemOpfsWeb,
         FileSystemOpfsWebFilePickerAcceptType,
         FileSystemOpfsWebFileSystemEntityHandle,
+        FileSystemOpfsWebFileSystemEntityHandleExtension,
         FileSystemOpfsWebDirectoryHandle,
         FileSystemOpfsWebFileHandle,
         FileSystemOpfsWebPickerOptions,

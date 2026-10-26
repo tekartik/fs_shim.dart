@@ -26,3 +26,4 @@ out/
 fs_node/build
 
 /fs_io/lfs.db
+/fs_browser/pubspec_overrides.yaml

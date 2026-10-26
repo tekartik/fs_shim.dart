@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>fs_shim handle persistence demo</title>
+</head>
+<body>
+<h1>fs_shim handle persistence demo</h1>
+<p>Pick a file or a directory, it is saved in an sdb (IndexedDB) database
+    and can be restored after a reload. Pickers are Chromium-only, the OPFS
+    file works in every browser.</p>
+<p>
+    <button id="pick-file">Pick file...</button>
+    <button id="pick-directory">Pick directory...</button>
+    <button id="opfs-file">Use an OPFS file</button>
+</p>
+<p>
+    <button id="restore-file">Restore file</button>
+    <button id="restore-directory">Restore directory</button>
+    <button id="forget">Forget</button>
+</p>
+<pre id="output"></pre>
+
+<script async src="main.dart.js"></script>
+</body>
+</html>

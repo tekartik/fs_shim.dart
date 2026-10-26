@@ -14,8 +14,8 @@ abstract class FileSystemOpfsWeb extends fs.FileSystem {
   /// File system rooted at an existing JS `FileSystemDirectoryHandle`.
   ///
   /// [rootDirectoryHandle] is typically obtained from [showDirectoryPicker]
-  /// (Chromium-only) or by wrapping a handle persisted in IndexedDB in a
-  /// [FileSystemOpfsWebDirectoryHandle].
+  /// (Chromium-only) or by wrapping a handle persisted in IndexedDB
+  /// ([FileSystemOpfsWebDirectoryHandle.fromJsObject]).
   ///
   /// ```dart
   /// final handle = await FileSystemOpfsWeb.showDirectoryPicker();
@@ -24,7 +24,10 @@ abstract class FileSystemOpfsWeb extends fs.FileSystem {
   ///
   /// Write operations require the handle to have been granted `readwrite`
   /// permission. Handles do not persist across page reloads unless saved by
-  /// the application (e.g. in IndexedDB) and permission requested again.
+  /// the application (e.g. in IndexedDB, see
+  /// [FileSystemOpfsWebFileSystemEntityHandleExtension.jsObject]) and
+  /// permission requested again (see [queryPermission] and
+  /// [requestPermission]).
   ///
   /// Only available on the web. Links and random access are not supported.
   factory FileSystemOpfsWeb.withRootHandle(
@@ -37,7 +40,9 @@ abstract class FileSystemOpfsWeb extends fs.FileSystem {
   ///
   /// [fileHandles] are typically obtained from [showOpenFilePicker] or
   /// [showSaveFilePicker] (Chromium-only) or by wrapping JS
-  /// `FileSystemFileHandle`s in [FileSystemOpfsWebFileHandle]s.
+  /// `FileSystemFileHandle`s ([FileSystemOpfsWebFileHandle.fromJsObject]).
+  /// The path of each file can be predicted from the handle name
+  /// ([FileSystemOpfsWebFileSystemEntityHandleExtension.name]).
   ///
   /// ```dart
   /// final handles = await FileSystemOpfsWeb.showOpenFilePicker(
@@ -114,18 +119,81 @@ abstract class FileSystemOpfsWeb extends fs.FileSystem {
     FileSystemOpfsWebShowSaveFilePickerOptions? options,
   ]) => fileSystemOpfsWebShowSaveFilePickerImpl(options);
 
+  /// [queryPermission] and [requestPermission] mode: read access (the
+  /// default).
+  static const permissionModeRead = 'read';
+
+  /// [queryPermission] and [requestPermission] mode: read and write access.
+  static const permissionModeReadWrite = 'readwrite';
+
+  /// Permission state: granted.
+  static const permissionGranted = 'granted';
+
+  /// Permission state: denied.
+  static const permissionDenied = 'denied';
+
+  /// Permission state: not granted yet, [requestPermission] (from a user
+  /// gesture) prompts the user.
+  static const permissionPrompt = 'prompt';
+
+  /// Returns the current permission state of [handle] (a
+  /// [FileSystemOpfsWebFileHandle] or a [FileSystemOpfsWebDirectoryHandle])
+  /// for [mode] ([permissionModeRead], the default, or
+  /// [permissionModeReadWrite]): [permissionGranted], [permissionDenied] or
+  /// [permissionPrompt].
+  ///
+  /// Typically called when restoring a handle persisted in IndexedDB:
+  /// permissions do not survive a reload by default, Chromium then returns
+  /// [permissionPrompt] until [requestPermission] is called.
+  ///
+  /// Browsers without the permission API (Firefox, Safari), where the only
+  /// handles are the OPFS ones (always accessible), return
+  /// [permissionGranted].
+  ///
+  /// Only available on the web.
+  static Future<String> queryPermission(
+    FileSystemOpfsWebFileSystemEntityHandle handle, {
+    String? mode,
+  }) => fileSystemOpfsWebQueryPermissionImpl(
+    handle,
+    mode: mode ?? permissionModeRead,
+  );
+
+  /// Requests the permission on [handle] (a [FileSystemOpfsWebFileHandle] or
+  /// a [FileSystemOpfsWebDirectoryHandle]) for [mode] ([permissionModeRead],
+  /// the default, or [permissionModeReadWrite]) and returns the new
+  /// permission state ([permissionGranted], [permissionDenied] or
+  /// [permissionPrompt]).
+  ///
+  /// May prompt the user, in which case a user gesture is required.
+  ///
+  /// Browsers without the permission API (Firefox, Safari), where the only
+  /// handles are the OPFS ones (always accessible), return
+  /// [permissionGranted].
+  ///
+  /// Only available on the web.
+  static Future<String> requestPermission(
+    FileSystemOpfsWebFileSystemEntityHandle handle, {
+    String? mode,
+  }) => fileSystemOpfsWebRequestPermissionImpl(
+    handle,
+    mode: mode ?? permissionModeRead,
+  );
+
   /// Requests the `readwrite` permission on [handle] (a
   /// [FileSystemOpfsWebFileHandle] or a [FileSystemOpfsWebDirectoryHandle])
   /// and returns true if granted.
   ///
   /// Needed before writing to a file handle obtained from
   /// [showOpenFilePicker]. May prompt the user, in which case a user gesture
-  /// is required.
+  /// is required. Same as [requestPermission] with [permissionModeReadWrite].
   ///
-  /// Chromium-only. Only available on the web.
+  /// Only available on the web.
   static Future<bool> requestWritePermission(
     FileSystemOpfsWebFileSystemEntityHandle handle,
-  ) => fileSystemOpfsWebRequestWritePermissionImpl(handle);
+  ) async =>
+      await requestPermission(handle, mode: permissionModeReadWrite) ==
+      permissionGranted;
 
   /// Returns the OPFS root directory handle using `navigator.storage.getDirectory()`.
   ///
@@ -281,14 +349,48 @@ List<String> opfsPathSegments(String path) {
 /// JS `FileSystemDirectoryHandle`, only available on the web (where it is
 /// simply a `JSObject`).
 abstract class FileSystemOpfsWebDirectoryHandle
-    implements FileSystemOpfsWebFileSystemEntityHandle {}
+    implements FileSystemOpfsWebFileSystemEntityHandle {
+  /// Wraps [jsObject], a JS `FileSystemDirectoryHandle` (any interop binding
+  /// works, `package:web`, raw `dart:js_interop`...), typically a handle
+  /// persisted in IndexedDB.
+  ///
+  /// Only available on the web.
+  factory FileSystemOpfsWebDirectoryHandle.fromJsObject(Object jsObject) =>
+      fileSystemOpfsWebDirectoryHandleFromJsObjectImpl(jsObject);
+}
 
 /// JS `FileSystemFileHandle`, only available on the web (where it is
 /// simply a `JSObject`).
 abstract class FileSystemOpfsWebFileHandle
-    implements FileSystemOpfsWebFileSystemEntityHandle {}
+    implements FileSystemOpfsWebFileSystemEntityHandle {
+  /// Wraps [jsObject], a JS `FileSystemFileHandle` (any interop binding
+  /// works, `package:web`, raw `dart:js_interop`...), typically a handle
+  /// persisted in IndexedDB.
+  ///
+  /// Only available on the web.
+  factory FileSystemOpfsWebFileHandle.fromJsObject(Object jsObject) =>
+      fileSystemOpfsWebFileHandleFromJsObjectImpl(jsObject);
+}
 
 /// Wraps a JS `FileSystemHandle`, either a file
 /// ([FileSystemOpfsWebFileHandle]) or a directory
 /// ([FileSystemOpfsWebDirectoryHandle]) handle.
 abstract class FileSystemOpfsWebFileSystemEntityHandle {}
+
+/// [FileSystemOpfsWebFileSystemEntityHandle] helpers.
+extension FileSystemOpfsWebFileSystemEntityHandleExtension
+    on FileSystemOpfsWebFileSystemEntityHandle {
+  /// The wrapped JS `FileSystemHandle` (a `JSObject`), to persist it in
+  /// IndexedDB (a handle is stored as is and can be wrapped again with
+  /// [FileSystemOpfsWebFileHandle.fromJsObject] or
+  /// [FileSystemOpfsWebDirectoryHandle.fromJsObject]).
+  ///
+  /// Only available on the web.
+  Object get jsObject => fileSystemOpfsWebHandleJsObjectImpl(this);
+
+  /// The file or directory name (JS `FileSystemHandle.name`), also its path
+  /// (`/<name>`) in [FileSystemOpfsWeb.withFileHandles] unless deduplicated.
+  ///
+  /// Only available on the web.
+  String get name => fileSystemOpfsWebHandleNameImpl(this);
+}

@@ -1,3 +1,16 @@
+## 2.7.0-1
+
+* OPFS: handles can be persisted (e.g. in IndexedDB, idb_shim `IdbNativeValue` / sdb `SdbNativeValue`) and
+  restored without importing `src/`:
+  * `FileSystemOpfsWebFileHandle.fromJsObject()` and `FileSystemOpfsWebDirectoryHandle.fromJsObject()` wrap a
+    JS handle (any interop binding).
+  * `handle.jsObject` (the wrapped JS handle) and `handle.name` (also its path in `withFileHandles`), as
+    extension getters (`FileSystemOpfsWebFileSystemEntityHandleExtension`).
+  * `FileSystemOpfsWeb.queryPermission()` and `FileSystemOpfsWeb.requestPermission()` (`mode`: `read`, the
+    default, or `readwrite`) return the permission state (`granted`, `denied` or `prompt`).
+    `requestWritePermission()` is kept. Browsers without the permission API (Firefox, Safari: OPFS handles
+    only) return `granted` (`requestWritePermission()` used to throw there).
+
 ## 2.6.1
 
 * Behave like `dart:io` in these cases (bug fixes, the previous behavior lost data or hung):

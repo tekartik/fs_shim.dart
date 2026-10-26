@@ -122,9 +122,28 @@ JSObject _acceptTypeToJs(FileSystemOpfsWebFilePickerAcceptType type) {
 
 FileSystemOpfsWeb? _fileSystemOpfsWeb;
 
-extension on FileSystemOpfsWebFileSystemEntityHandle {
-  JSObject get jsObject => (this as _FsOpfsWebHandle)._handle;
-}
+OpfsHandle _opfsHandle(FileSystemOpfsWebFileSystemEntityHandle handle) =>
+    (handle as _FsOpfsWebHandle)._handle;
+
+/// Wraps a JS `FileSystemFileHandle`.
+FileSystemOpfsWebFileHandle fileSystemOpfsWebFileHandleFromJsObjectImpl(
+  Object jsObject,
+) => FileSystemOpfsWebFileHandleWeb(jsObject as JSObject);
+
+/// Wraps a JS `FileSystemDirectoryHandle`.
+FileSystemOpfsWebDirectoryHandle
+fileSystemOpfsWebDirectoryHandleFromJsObjectImpl(Object jsObject) =>
+    FileSystemOpfsWebDirectoryHandleWeb(jsObject as JSObject);
+
+/// The wrapped JS `FileSystemHandle`.
+Object fileSystemOpfsWebHandleJsObjectImpl(
+  FileSystemOpfsWebFileSystemEntityHandle handle,
+) => _opfsHandle(handle);
+
+/// The JS `FileSystemHandle` name.
+String fileSystemOpfsWebHandleNameImpl(
+  FileSystemOpfsWebFileSystemEntityHandle handle,
+) => _opfsHandle(handle).name;
 
 /// The OPFS (Origin Private File System) file system.
 ///
@@ -136,7 +155,7 @@ FileSystemOpfsWeb get fileSystemOpfsWebImpl =>
 FileSystemOpfsWeb fileSystemOpfsWebWithRootHandleImpl(
   FileSystemOpfsWebDirectoryHandle rootDirectoryHandle,
 ) {
-  final handle = rootDirectoryHandle.jsObject as OpfsDirectoryHandle;
+  final handle = _opfsHandle(rootDirectoryHandle) as OpfsDirectoryHandle;
   return FileSystemOpfsImpl(rootHandleProvider: () async => handle);
 }
 
@@ -146,7 +165,7 @@ FileSystemOpfsWeb fileSystemOpfsWebWithFileHandlesImpl(
 ) {
   final map = <String, OpfsFileHandle>{};
   for (final fileHandle in fileHandles) {
-    final handle = fileHandle.jsObject as OpfsFileHandle;
+    final handle = _opfsHandle(fileHandle) as OpfsFileHandle;
     var name = handle.name;
     if (map.containsKey(name)) {
       // Handles picked from different directories can share a name,
@@ -271,16 +290,36 @@ Future<FileSystemOpfsWebFileHandle> fileSystemOpfsWebShowSaveFilePickerImpl([
   );
 }
 
-/// Requests `readwrite` permission on a `FileSystemHandle` wrapper (file or
-/// directory handle), returns true if granted.
-Future<bool> fileSystemOpfsWebRequestWritePermissionImpl(
-  FileSystemOpfsWebFileSystemEntityHandle handle,
-) async {
-  final jsHandle = (handle as _FsOpfsWebHandle)._handle;
+/// `FileSystemHandle.queryPermission()`, `'granted'` when the browser has no
+/// permission API (Firefox, Safari: OPFS handles only).
+Future<String> fileSystemOpfsWebQueryPermissionImpl(
+  FileSystemOpfsWebFileSystemEntityHandle handle, {
+  required String mode,
+}) async {
+  final jsHandle = _opfsHandle(handle);
+  if (!jsHandle.has('queryPermission')) {
+    return FileSystemOpfsWeb.permissionGranted;
+  }
   final state = await jsHandle
-      .requestPermission(OpfsHandlePermissionDescriptor(mode: 'readwrite'))
+      .queryPermission(OpfsHandlePermissionDescriptor(mode: mode))
       .toDart;
-  return state.toDart == 'granted';
+  return state.toDart;
+}
+
+/// `FileSystemHandle.requestPermission()`, `'granted'` when the browser has
+/// no permission API (Firefox, Safari: OPFS handles only).
+Future<String> fileSystemOpfsWebRequestPermissionImpl(
+  FileSystemOpfsWebFileSystemEntityHandle handle, {
+  required String mode,
+}) async {
+  final jsHandle = _opfsHandle(handle);
+  if (!jsHandle.has('requestPermission')) {
+    return FileSystemOpfsWeb.permissionGranted;
+  }
+  final state = await jsHandle
+      .requestPermission(OpfsHandlePermissionDescriptor(mode: mode))
+      .toDart;
+  return state.toDart;
 }
 
 /// Returns the OPFS root directory handle using `navigator.storage.getDirectory()`.

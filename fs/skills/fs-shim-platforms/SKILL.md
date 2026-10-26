@@ -6,7 +6,8 @@ description: >-
   fileSystemWeb (IndexedDB, newFileSystemWeb, getFileSystemWeb,
   FileSystemIdbOptions page size) vs fileSystemOpfsWeb (OPFS,
   FileSystemOpfsWeb.withRootHandle, withFileHandles, showDirectoryPicker,
-  showOpenFilePicker, requestWritePermission), the fs_io.dart drop-in import
+  showOpenFilePicker, queryPermission, requestPermission, persisting a handle
+  with jsObject/fromJsObject), the fs_io.dart drop-in import
   for dart:io code with wrapIoFile/unwrapIoFile, newFileSystemIdb on a sembast
   factory for persistent VM storage, and unit tests with newFileSystemMemory
   or a sandboxed io directory.
@@ -122,8 +123,16 @@ final FileSystem fs = fileSystemDefault;
   cancelled. Handles from `showOpenFilePicker` are read-only until
   `FileSystemOpfsWeb.requestWritePermission(handle)` returns `true`; ask
   `mode: FileSystemOpfsWebShowDirectoryPickerOptions.modeReadWrite` for a
-  writable directory. Handles do not survive a reload unless the app persists
-  them itself.
+  writable directory. `FileSystemOpfsWeb.queryPermission(handle, {mode})` and
+  `requestPermission(handle, {mode})` return `'granted'`, `'denied'` or
+  `'prompt'` (always `'granted'` in Firefox/Safari, OPFS handles only).
+* Handles do not survive a reload unless the app persists them: store
+  `handle.jsObject` in IndexedDB (idb_shim `IdbNativeValue(handle.jsObject)`,
+  sdb `SdbNativeValue`, idb_shim 2.11.0+), wrap it back with
+  `FileSystemOpfsWebFileHandle.fromJsObject(jsObject)` (or
+  `FileSystemOpfsWebDirectoryHandle.fromJsObject`), then `queryPermission`
+  and, from a user gesture, `requestPermission` (Chromium asks again after a
+  reload). `handle.name` is the file path in `withFileHandles` (`/<name>`).
 * Options: `FileSystemOpfsWebShowDirectoryPickerOptions({id, mode, startIn})`,
   `FileSystemOpfsWebShowOpenFilePickerOptions({id, startIn, multiple,
   excludeAcceptAllOption, types})`,
