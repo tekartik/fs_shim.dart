@@ -67,9 +67,9 @@ class RandomAccessFileIdb
               treeStoreName,
               partStoreName,
             ], idb.idbModeReadWrite);
-            var list =
-                pending.map((e) => e.list).expand((element) => element).toList()
-                  ..sort((part1, part2) => part1.index - part2.index);
+            var list = _sortedParts(
+              pending.map((e) => e.list).expand((element) => element).toList(),
+            );
             try {
               await txnUpdateDataV2(txn, list);
 
@@ -320,6 +320,17 @@ class RandomAccessFileIdb
 
   /// Pending file parts
   final pending = <FilePartResult>[];
+
+  /// [parts] by page index, the parts of a page kept in write order (a later
+  /// write overwrites an earlier one): `List.sort` is not stable.
+  static List<FilePartIdb> _sortedParts(List<FilePartIdb> parts) {
+    var order = List<int>.generate(parts.length, (i) => i)
+      ..sort((a, b) {
+        var cmp = parts[a].index - parts[b].index;
+        return cmp != 0 ? cmp : a - b;
+      });
+    return order.map((i) => parts[i]).toList();
+  }
 
   @override
   Future<RandomAccessFile> writeFrom(

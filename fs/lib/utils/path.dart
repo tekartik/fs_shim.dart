@@ -6,11 +6,16 @@ import 'package:path/path.dart';
 @Deprecated('Use toPosixPath()')
 String posixPath(String anyPath) => toPosixPath(anyPath);
 
-/// To posix path.
+/// To posix path, both `/` and `\` are separators.
 ///
-/// \a\b => /a/b
-/// /a\b => /a/b
-/// C:\ => /C:/
+/// ```text
+/// \a\b    => /a/b
+/// /a\b    => /a/b
+/// C:\a\b  => /C:/a/b
+/// C:\     => /C:
+/// ```
+///
+/// A drive path written with `/` is returned as is (`C:/x` => `C:/x`).
 String toPosixPath(String anyPath) {
   var context = posix;
   var parts = contextPathSplit(context, anyPath);
@@ -36,11 +41,18 @@ String toPosixPath(String anyPath) {
 /// \a\b => /a/b
 String toUrlPath(String anyPath) => toPosixPath(anyPath);
 
-/// To windows path (same result than posix)
+/// To windows path, both `/` and `\` are separators.
 ///
-/// /a/b => \a\b
-/// \a/b => \a\b
-/// /c:/ => C:\
+/// ```text
+/// /a/b   => \a\b
+/// \a/b   => \a\b
+/// /C:/a  => C:\a
+/// C:\    => C:\
+/// /C:/   => C:
+/// ```
+///
+/// `C:` alone is the current directory of the drive, not its root. A drive
+/// path written with `/` is returned as is (`C:/x` => `C:/x`).
 String toWindowsPath(String anyPath) {
   var context = windows;
   var parts = contextPathSplit(context, anyPath);

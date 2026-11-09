@@ -118,6 +118,26 @@ void defineIdbTests(IdbFileSystemTestContext ctx) {
       expect(await getFileStoreSize(db), fileStoreSize);
     });
 
+    test('copy_onto_other_page_size', () async {
+      // The destination is written with the page size of the copying file
+      // system (a no page copy onto a paged file lost the content).
+      final dir = await ctx.prepare();
+      final noPage = fs.withIdbOptions(options: FileSystemIdbOptions.noPage);
+      final paged = fs.withIdbOptions(
+        options: const FileSystemIdbOptions(pageSize: 4),
+      );
+      for (var (from, to) in [(noPage, paged), (paged, noPage)]) {
+        final src = from.file(p.join(dir.path, 'src'));
+        final dst = p.join(dir.path, 'dst');
+        await to.file(dst).writeAsString('old content');
+        await src.writeAsString('new content');
+        await src.copy(dst);
+        expect(await from.file(dst).readAsString(), 'new content');
+        expect(await to.file(dst).readAsString(), 'new content');
+        expect((await to.file(dst).stat()).size, 11);
+      }
+    });
+
     test('current', () async {
       if (idbPathContextIsPosix) {
         expect(fs.currentDirectory.path, '/');

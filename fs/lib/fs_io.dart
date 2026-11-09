@@ -1,3 +1,8 @@
+/// Drop-in replacement of `dart:io` for io only code: exports `dart:io`
+/// with `File`, `Directory`, `Link`, `FileSystemEntity`,
+/// `FileSystemEntityType`, `FileMode`, `FileStat`, `FileSystemException` and
+/// `OSError` replaced by the fs_shim ones (on [fileSystemIo]), plus
+/// `wrapIo...`/`unwrapIo...` converters.
 library;
 
 import 'dart:io' as io;

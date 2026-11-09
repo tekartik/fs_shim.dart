@@ -1,3 +1,19 @@
+## 2.7.1
+
+* Requires idb_shim 2.11.3 (a directory or a paged file of more than about 30000 entries overflowed
+  the stack)
+* idb: `open(mode: FileMode.write)` truncates the file (as io); writing nothing over a paged file
+  updates its size; a truncate then a write in the same page no longer brings back the cut bytes;
+  many writes of the same bytes before a flush are applied in order
+* idb: a link loop is not found instead of never resolving (and blocking the file system); a
+  recursive list following links reports a link cycle as a link (as io); renaming onto a link
+  replaces the link; a copy onto a file stored with another page size keeps the content
+* idb and OPFS: `IOSink.done` completes once the content is written
+* sandbox: a relative `..` path no longer leaves the sandbox; a name starting with `..` is in the
+  sandbox
+* Documentation: getting started, which file system to use, common pitfalls; example and library
+  docs updated
+
 ## 2.7.0
 
 * OPFS: handles can be persisted (e.g. in IndexedDB, idb_shim `IdbNativeValue` / sdb `SdbNativeValue`) and

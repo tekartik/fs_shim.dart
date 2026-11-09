@@ -133,9 +133,7 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
   }
 
   @override
-  Future close() async {
-    await super.close();
-
+  Future<void> onClose() async {
     if (fsIdb.idbOptions.hasPageSize) {
       await doFlush(close: true);
     } else {
@@ -205,20 +203,34 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
                 }
               } else {
                 if (close) {
-                  if (storage.needClearRemainingV2(
+                  var needClear = storage.needClearRemainingV2(
                     initialFileEntity,
                     fileEntity,
-                  )) {
-                    var txn = database.transaction(
+                  );
+                  // Nothing written over an existing file (write mode): its
+                  // node must get the new size too.
+                  var sizeChanged =
+                      fileEntity.fileSize != initialFileEntity.fileSize;
+                  if (needClear || sizeChanged) {
+                    var txn = database.transactionList([
+                      treeStoreName,
                       partStoreName,
-                      idb.idbModeReadWrite,
-                    );
+                    ], idb.idbModeReadWrite);
                     try {
-                      await storage.txnStoreClearRemainingV2(
-                        txn.objectStore(partStoreName),
-                        initialFileEntity,
-                        fileEntity,
-                      );
+                      if (needClear) {
+                        await storage.txnStoreClearRemainingV2(
+                          txn.objectStore(partStoreName),
+                          initialFileEntity,
+                          fileEntity,
+                        );
+                      }
+                      if (sizeChanged) {
+                        fileEntity = await storage.txnUpdateFileMetaSize(
+                          txn,
+                          fileEntity,
+                          size: fileEntity.fileSize,
+                        );
+                      }
                     } finally {
                       await txn.completed;
                     }

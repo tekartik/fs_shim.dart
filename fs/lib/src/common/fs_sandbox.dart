@@ -254,7 +254,8 @@ class _SandboxedFileSystem
   @override
   String sandboxPath(String path) {
     var relativePath = p.relative(path, from: rootDirectory.path);
-    if (relativePath.startsWith('..')) {
+    // `..` or `../x` is outside, a name starting with two dots is not.
+    if (relativePath == '..' || relativePath.startsWith('..${p.separator}')) {
       throw PathException(
         'Path $path is outside of the sandbox root ${rootDirectory.path}',
       );
@@ -279,15 +280,11 @@ class _SandboxedFileSystem
   @override
   String delegatePath(String path) {
     var sep = p.separator;
-    String rawPath;
-    if (p.isAbsolute(path)) {
-      var relativePath = p.relative(path, from: sep);
-      rawPath = p.join(rootDirectory.path, relativePath);
-    } else {
-      rawPath = p.join(rootDirectory.path, path);
-    }
-    var normalizedPath = p.normalize(rawPath);
-    return normalizedPath;
+    // Resolved in the sandbox first (a relative path is relative to its root,
+    // its current directory), so that `..` cannot leave it.
+    var inSandbox = p.normalize(p.join(sep, path));
+    var relativePath = p.relative(inSandbox, from: sep);
+    return p.normalize(p.join(rootDirectory.path, relativePath));
   }
 
   @override

@@ -88,8 +88,9 @@ options.
   `childLink(dir, 'name')` join with `dir.fs.path`.
 * `asFile(entity)`, `asDirectory(entity)`, `asLink(entity)` re-type an entity
   of another kind at the same path.
-* `entityExists(entity)` is true for any entity type at that path, unlike
-  `entity.exists()` which also checks the type.
+* `entityExists(entity)` is true for any entity type at that path, like
+  `entity.exists()` on memory, web and OPFS (on io, `exists()` also checks
+  the type).
 
 ## Read/write (`package:fs_shim/utils/read_write.dart`)
 

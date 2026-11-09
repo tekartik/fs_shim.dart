@@ -1,3 +1,6 @@
+/// In memory file systems ([fileSystemMemory], [newFileSystemMemory]),
+/// on every platform: posix paths rooted at `/`, links and random access
+/// supported, content lost when the program ends.
 library;
 
 import 'package:idb_shim/idb_client_sembast.dart';

@@ -1110,7 +1110,108 @@ void defineTests(FileSystemTestContext ctx) {
             expect(getInList(list, link), const TypeMatcher<Link>());
           }
         });
+
+        test('list_recursive_link_cycle', () async {
+          // A link to a directory already entered through a link: as io, a
+          // link is followed once then reported as a link (idb listed it
+          // forever). The walk is bounded so that a looping
+          // implementation fails fast.
+          Future<List<FileSystemEntity>> listAll(Directory dir) => dir
+              .list(followLinks: true, recursive: true)
+              .take(20)
+              .toList()
+              .timeout(const Duration(seconds: 10));
+
+          final top = await ctx.prepare();
+          // Link to the listed directory.
+          var dir = childDirectory(top, 'dir');
+          var sub = childDirectory(dir, 'sub');
+          await sub.create(recursive: true);
+          var up = childLink(sub, 'up');
+          await up.create(dir.path);
+
+          var list = await listAll(dir);
+          expect(list.length, 4);
+          expect(getInList(list, sub), const TypeMatcher<Directory>());
+          expect(getInList(list, up), const TypeMatcher<Directory>());
+          final upSub = fs.directory(p.join(up.path, 'sub'));
+          expect(getInList(list, upSub), const TypeMatcher<Directory>());
+          final upSubUp = fs.link(p.join(upSub.path, 'up'));
+          expect(getInList(list, upSubUp), const TypeMatcher<Link>());
+
+          // Link to its own parent directory, below the listed one.
+          dir = childDirectory(top, 'dir2');
+          sub = childDirectory(dir, 'sub');
+          await sub.create(recursive: true);
+          up = childLink(sub, 'up');
+          await up.create(sub.path);
+
+          list = await listAll(dir);
+          expect(list.length, 3);
+          expect(getInList(list, sub), const TypeMatcher<Directory>());
+          expect(getInList(list, up), const TypeMatcher<Directory>());
+          final upUp = fs.link(p.join(up.path, 'up'));
+          expect(getInList(list, upUp), const TypeMatcher<Link>());
+        }, timeout: const Timeout(Duration(seconds: 30)));
       });
+
+      test('rename_file_over_link', () async {
+        // As io, the link is replaced: its target is kept (idb deleted it
+        // and moved the file next to it).
+        if (fs.supportsFileLink) {
+          final top = await ctx.prepare();
+          final target = childFile(childDirectory(top, 'sub'), 'target');
+          await target.create(recursive: true);
+          await target.writeAsString('target');
+          final link = childLink(top, 'link');
+          await link.create(target.path);
+          final src = childFile(top, 'src');
+          await src.writeAsString('src');
+
+          await src.rename(link.path);
+          expect(await fs.isLink(link.path), isFalse);
+          expect(await fs.file(link.path).readAsString(), 'src');
+          expect(await target.readAsString(), 'target');
+          expect(await fs.isFile(p.join(target.parent.path, 'link')), isFalse);
+          expect(await src.exists(), isFalse);
+        }
+      });
+
+      test('link_loop', () async {
+        // A link loop is not found (io: too many levels of links), idb
+        // resolved it forever and blocked the file system.
+        if (fs.supportsFileLink) {
+          final top = await ctx.prepare();
+          final a = childLink(top, 'a');
+          final b = childLink(top, 'b');
+          await a.create(b.path);
+          await b.create(a.path);
+          // Short: a looping implementation fails fast.
+          const timeout = Duration(seconds: 10);
+
+          expect(
+            await fs.type(a.path).timeout(timeout),
+            FileSystemEntityType.notFound,
+          );
+          expect(
+            (await fs.file(a.path).stat().timeout(timeout)).type,
+            FileSystemEntityType.notFound,
+          );
+          await expectLater(
+            fs.file(a.path).readAsString().timeout(timeout),
+            throwsA(isA<FileSystemException>()),
+          );
+          await expectLater(
+            fs.file(a.path).writeAsString('x').timeout(timeout),
+            throwsA(isA<FileSystemException>()),
+          );
+          // Still usable.
+          expect(
+            await fs.type(top.path).timeout(timeout),
+            FileSystemEntityType.directory,
+          );
+        }
+      }, timeout: const Timeout(Duration(seconds: 60)));
       test('create relative', () async {
         final dirPath = fs.path.join(
           '.',

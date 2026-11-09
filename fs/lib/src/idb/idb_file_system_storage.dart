@@ -60,6 +60,10 @@ const String contentKey = 'content'; // content in part
 
 const String partFilePartIndexName = '${partStoreName}_$indexKey';
 
+/// The maximum number of links followed to resolve a path (as Linux
+/// MAXSYMLINKS): a link loop is then not found instead of never ending.
+const idbMaxLinkDepth = 40;
+
 List toFilePartIndexKey(int fileId, int index) => [fileId, index];
 
 List _filePartIndexKeyAsList(Object key) => (key as List);
@@ -525,6 +529,12 @@ class IdbFileSystemStorage {
         bytes = part.bytes;
       } else {
         var existingBytes = await txnStoreGetPartContent(partStore, pk);
+        // The bytes of the page past the current size (left by a truncate
+        // until the file is closed) are not part of the file.
+        var sizeInPage = posMax - part.index * pageSize;
+        if (existingBytes.length > sizeInPage) {
+          existingBytes = existingBytes.sublist(0, max(0, sizeInPage));
+        }
         var end = part.end;
 
         var bytesBuilder = BytesBuilder();
@@ -638,13 +648,17 @@ class IdbFileSystemStorage {
   }
 
   /// For the given [parent] find the child named [name]
+  ///
+  /// [linkDepth] is the number of links followed so far, see
+  /// [idbMaxLinkDepth].
   Future<Node?> txnGetChildNode(
     idb.ObjectStore treeStore,
     idb.Index index,
     Node? parent,
     String name,
-    bool followLastLink,
-  ) {
+    bool followLastLink, {
+    int linkDepth = 0,
+  }) {
     final parentName = getParentName(parent, name);
 
     FutureOr<Node?> nodeFromKey(dynamic id) {
@@ -663,7 +677,11 @@ class IdbFileSystemStorage {
           id as int,
         );
         if (followLastLink && entity.isLink) {
-          return txnResolveLinkNode(treeStore, entity);
+          return txnResolveLinkNode(
+            treeStore,
+            entity,
+            linkDepth: linkDepth + 1,
+          );
         }
         if (debugIdbShowLogs) {
           // ignore: avoid_print
@@ -696,23 +714,36 @@ class IdbFileSystemStorage {
     return entity;
   }
 
-  Future<Node?> txnResolveLinkNode(idb.ObjectStore treeStore, Node link) {
+  /// The node [link] points to, null if not found or after [idbMaxLinkDepth]
+  /// links (a loop).
+  Future<Node?> txnResolveLinkNode(
+    idb.ObjectStore treeStore,
+    Node link, {
+    int linkDepth = 0,
+  }) {
+    if (linkDepth > idbMaxLinkDepth) {
+      return Future.value(null);
+    }
     // convert to absolute
     final targetSegments = getAbsoluteSegments(link, link.targetSegments!);
-    return txnGetNode(treeStore, targetSegments, true);
+    return txnGetNode(treeStore, targetSegments, true, linkDepth: linkDepth);
   }
 
   // Return a matching result
   Future<Node?> txnGetNode(
     idb.ObjectStore store,
     List<String> segments,
-    bool followLastLink,
-  ) {
+    bool followLastLink, {
+    int linkDepth = 0,
+  }) {
     //idb.idbDevPrint('#XX');
     Future<Node?> nodeFromSegments(List<String> segments) {
-      return txnSearch(store, segments, followLastLink).then((
-        NodeSearchResult result,
-      ) {
+      return txnSearch(
+        store,
+        segments,
+        followLastLink,
+        linkDepth: linkDepth,
+      ).then((NodeSearchResult result) {
         final entity = result.match;
         //print('##${entity}');
         if (entity == null) {
@@ -749,8 +780,9 @@ class IdbFileSystemStorage {
   Future<NodeSearchResult> txnSearch(
     idb.ObjectStore store,
     List<String> segments,
-    bool followLastLink,
-  ) {
+    bool followLastLink, {
+    int linkDepth = 0,
+  }) {
     final result = NodeSearchResult()..segments = segments;
     final index = store.index(parentNameIndexName);
     Node? parent;
@@ -772,6 +804,7 @@ class IdbFileSystemStorage {
           parent,
           segment,
           followLastLink,
+          linkDepth: linkDepth,
         ).then((Node? nodeEntity) {
           if (nodeEntity != null) {
             var entity = nodeEntity;
@@ -786,9 +819,14 @@ class IdbFileSystemStorage {
           }
         });
       }
-      return txnGetChildNode(store, index, parent, segment, true).then((
-        Node? nodeEntity,
-      ) {
+      return txnGetChildNode(
+        store,
+        index,
+        parent,
+        segment,
+        true,
+        linkDepth: linkDepth,
+      ).then((Node? nodeEntity) {
         if (nodeEntity != null) {
           var entity = nodeEntity;
           // Change segments if changing parent

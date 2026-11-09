@@ -494,7 +494,14 @@ class FileSystemEntityType {
   String toString() => const ['FILE', 'DIRECTORY', 'LINK', 'NOT_FOUND'][_type];
 }
 
-/// An abstract file system.
+/// A file system: creates the [File], [Directory] and [Link] entities of a
+/// path ([file], [directory], [link]) and tells the type of a path ([type],
+/// [isFile], [isDirectory], [isLink]).
+///
+/// Implementations: `fileSystemIo`, `fileSystemMemory`, `fileSystemWeb`
+/// (IndexedDB) and `fileSystemOpfsWeb` (OPFS). Write code against this
+/// interface and check [supportsLink], [supportsFileLink] and
+/// [supportsRandomAccess] rather than the platform. Build paths with [path].
 abstract class FileSystem implements FileSystemEntityParent {
   /// Creates a [Directory] object.
   ///

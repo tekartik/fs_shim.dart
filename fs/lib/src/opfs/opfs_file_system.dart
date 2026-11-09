@@ -589,8 +589,7 @@ class OpfsWriteStreamSink extends MemorySink {
   final fs.FileMode _mode;
 
   @override
-  Future<void> close() async {
-    await super.close();
+  Future<void> onClose() async {
     await _fs.writeFileBytes(_file.path, asUint8List(content), mode: _mode);
   }
 }

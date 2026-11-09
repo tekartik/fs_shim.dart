@@ -173,5 +173,43 @@ void defineFileSystemSandboxTests(FileSystemTestContext ctx) {
         expect(sandboxed1File.unsandbox(), sandboxed2File.unsandbox());
       }
     });
+
+    test('parent_path_stays_in_sandbox', () async {
+      // A relative `..` resolves in the sandbox, as an absolute one
+      // (it used to reach the parent of the sandbox root).
+      final dir = await ctx.prepare();
+      final root = dir.directory('root');
+      await root.create(recursive: true);
+      var sandbox =
+          ctx.fs.sandbox(path: root.path) as FsShimSandboxedFileSystem;
+      if (ctx.fs is! FsShimSandboxedFileSystem) {
+        expect(
+          sandbox.delegatePath(p.join('..', 'outside.txt')),
+          root.childPath('outside.txt'),
+        );
+        expect(
+          sandbox.delegatePath(p.join('a', '..', '..', 'x')),
+          root.childPath('x'),
+        );
+      }
+      await sandbox.file(p.join('..', 'outside.txt')).writeAsString('in');
+      expect(await dir.file('outside.txt').exists(), isFalse);
+      expect(await root.file('outside.txt').readAsString(), 'in');
+    });
+
+    test('link_target_starting_with_two_dots', () async {
+      // `..hidden` is a name in the sandbox, not its parent.
+      if (ctx.fs.supportsFileLink) {
+        final dir = await ctx.prepare();
+        var sandbox = ctx.fs.sandbox(path: dir.path);
+        final target = p.join(p.separator, '..hidden');
+        await sandbox.file(target).writeAsString('hidden');
+        final link = await sandbox
+            .link(p.join(p.separator, 'link'))
+            .create(target);
+        expect(await link.target(), target);
+        expect(await sandbox.file(link.path).readAsString(), 'hidden');
+      }
+    });
   });
 }

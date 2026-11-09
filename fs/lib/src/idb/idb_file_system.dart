@@ -250,10 +250,13 @@ class FileSystemIdb extends Object
     }
   }
 
+  /// [linkDepth] is the number of links followed so far, see
+  /// [idbMaxLinkDepth].
   Future<Node> txnCreateFile(
     idb.ObjectStore store,
     List<String> segments, {
     bool recursive = false,
+    int linkDepth = 0,
   }) {
     FutureOr<Node> nodeFromSearchResult(NodeSearchResult result) {
       var entity = result.match;
@@ -265,13 +268,22 @@ class FileSystemIdb extends Object
           throw idbIsADirectoryException(result.path, 'Creation failed');
         } else if (entity.isLink) {
           // Ok if targetSegments is set
+          if (linkDepth >= idbMaxLinkDepth) {
+            // A link loop.
+            throw idbNotFoundException(result.path, 'Creation failed');
+          }
 
           final targetSegments = getAbsoluteSegments(
             entity,
             entity.targetSegments!,
           );
 
-          return txnCreateFile(store, targetSegments, recursive: recursive);
+          return txnCreateFile(
+            store,
+            targetSegments,
+            recursive: recursive,
+            linkDepth: linkDepth + 1,
+          );
 
           // Should not happen
           // Need actually write on the target then...
@@ -597,7 +609,8 @@ class FileSystemIdb extends Object
         throw idbNotFoundException(path, 'Rename failed');
       }
 
-      return txnSearch(store, newSegments, true)
+      // As io, a link at the destination is replaced, not followed.
+      return txnSearch(store, newSegments, false)
           .then((NodeSearchResult newResult) {
             // Same path, nothing to do (as io).
             if (pathSegmentsEqual(newSegments, segments)) {
@@ -625,6 +638,15 @@ class FileSystemIdb extends Object
 
             if (newEntity != null) {
               newParent = newEntity.parent;
+              if (newEntity.isLink && !entity.isLink) {
+                // A directory cannot replace a link (as io).
+                if (entity.isDir) {
+                  throw idbNotADirectoryException(path, 'Rename failed');
+                }
+                return store.delete(newEntity.id!).then((_) {
+                  return changeParent();
+                });
+              }
               // Same type ok
               if (newEntity.type == entity.type) {
                 if (entity.type == fs.FileSystemEntityType.directory) {
@@ -724,6 +746,13 @@ class FileSystemIdb extends Object
           } else {
             throw idbIsADirectoryException(file.path, 'Copy failed');
           }
+        }
+        // The content is written with the page size of this file system:
+        // drop the existing one, stored with the page size of the node.
+        var expectedPageSize = idbOptions.expectedPageSize;
+        if (newEntity.filePageSize != expectedPageSize) {
+          await txnDeleteFileContent(txn, newEntity);
+          newEntity = newEntity.clone(pageSize: expectedPageSize);
         }
       } else {
         _checkParentIsDirectory(newResult, newPath, 'Copy failed');
@@ -926,6 +955,10 @@ class FileSystemIdb extends Object
     await _ready;
     var node = await openNodeFile(file, mode: mode);
     final raf = RandomAccessFileIdb(mode: mode, file: file, fileEntity: node);
+    // As io: the write mode overwrites an existing file.
+    if (mode == FileMode.write && node.fileSize > 0) {
+      await raf.truncate(0);
+    }
     return raf;
   }
 
@@ -999,7 +1032,10 @@ class FileSystemIdb extends Object
             } else if (entity == null) {
               ctlr.addError(idbNotFoundException(path, 'List failed'));
             } else {
-              Future list(String path, Node entity) {
+              // [listed]: the ids of the directories entered through a link
+              // on the way down; a link to one of them again is a cycle: as
+              // io, it is reported as a link and not followed.
+              Future list(String path, Node entity, List<int> listed) {
                 return index
                     .openCursor(key: entity.id, autoAdvance: true)
                     .listen((idb.CursorWithValue cwv) {
@@ -1018,7 +1054,7 @@ class FileSystemIdb extends Object
                         final dir = IdbDirectory(this, relativePath);
                         ctlr.add(dir);
                         if (recursive) {
-                          recursives.add(list(relativePath, childNode));
+                          recursives.add(list(relativePath, childNode, listed));
                         }
                       } else if (childNode.isFile) {
                         ctlr.add(FileIdb(this, relativePath));
@@ -1032,7 +1068,11 @@ class FileSystemIdb extends Object
                               return _storage
                                   .txnResolveLinkNode(treeStore, childNode)
                                   .then((entity) {
-                                    if (entity != null) {
+                                    if (entity != null &&
+                                        entity.isDir &&
+                                        listed.contains(entity.id)) {
+                                      ctlr.add(link);
+                                    } else if (entity != null) {
                                       ctlr.add(
                                         linkNodeToFileSystemEntity(
                                               relativePath,
@@ -1044,7 +1084,10 @@ class FileSystemIdb extends Object
                                       // recursive?
                                       if (entity.isDir && recursive) {
                                         recursives.add(
-                                          list(relativePath, entity),
+                                          list(relativePath, entity, [
+                                            ...listed,
+                                            entity.id!,
+                                          ]),
                                         );
                                       }
                                     } else {
@@ -1065,7 +1108,7 @@ class FileSystemIdb extends Object
                     .asFuture();
               }
 
-              return list(path, entity);
+              return list(path, entity, const []);
             }
             return null;
           })

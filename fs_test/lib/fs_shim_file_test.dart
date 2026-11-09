@@ -807,5 +807,27 @@ void defineTests(FileSystemTestContext ctx) {
       );
       expect(await file.exists(), isFalse);
     });
+
+    test('write_empty_over_content', () async {
+      // The size must follow (idb paged files kept the old size).
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      await file.writeAsString('hello world');
+      await file.writeAsBytes(Uint8List(0));
+      expect(await file.readAsBytes(), isEmpty);
+      expect((await file.stat()).size, 0);
+    });
+
+    test('sink_done_after_write', () async {
+      // As io, done completes once the content is written (idb and OPFS
+      // completed it before writing).
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'file'));
+      final sink = file.openWrite();
+      sink.add(utf8.encode('hello'));
+      unawaited(sink.close());
+      await sink.done;
+      expect(await file.readAsString(), 'hello');
+    });
   });
 }

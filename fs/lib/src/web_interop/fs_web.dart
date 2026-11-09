@@ -4,7 +4,12 @@ import 'fs_web_stub.dart'
     if (dart.library.js_interop) 'fs_web_impl.dart'
     if (dart.library.io) 'fs_web_io.dart';
 
-/// Web file system on top of IndexedDB.
+/// Web file system on top of IndexedDB (database `lfs.db`), the default
+/// file system on the web.
+///
+/// A file is stored in one record (no paging): good for whole file reads
+/// and writes. Use [getFileSystemWeb] for 16 KiB pages (random access,
+/// partial reads). Web only: throws `UnimplementedError` on io.
 FileSystem get fileSystemWeb => fileSystemWebImpl;
 
 /// Create a new web file system with some options.

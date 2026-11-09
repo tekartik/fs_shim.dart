@@ -100,7 +100,8 @@ Future<String> readConfig(FileSystem fs, String dirPath) async {
   (`FileSystemEntityType.notFound` when missing), `size`, `modified` and
   `mode` (`FileStat.modeNotSupported`, `-1`, outside io).
 * Random access when `fs.supportsRandomAccess`: `final raf = await
-  file.open(mode: FileMode.write)`, then `writeFrom`, `writeString`,
+  file.open(mode: FileMode.write)` (empties an existing file, as io;
+  `FileMode.append` keeps it), then `writeFrom`, `writeString`,
   `writeByte`, `read(count)`, `readInto`, `readByte`, `setPosition`,
   `position()`, `length()`, `truncate(length)`, `flush()`, and `close()`.
   `open()` throws `UnsupportedError` on a file system without support.
@@ -130,6 +131,11 @@ Future<String> readConfig(FileSystem fs, String dirPath) async {
 * `fs.type(path)` follows links by default; use `followLinks: false` (or
   `fs.isLink(path)`, which never follows) to detect `FileSystemEntityType.link`.
   `dir.list(followLinks: false)` yields `Link` objects instead of targets.
+* As io, a link loop is not found (`fs.type` gives `notFound`, reading or
+  writing through it throws), and `dir.list(recursive: true, followLinks:
+  true)` reports a link to a directory already entered through a link as a
+  `Link` instead of entering it again. Renaming onto a link replaces the
+  link, not its target.
 
 ### Errors
 
@@ -146,7 +152,8 @@ Future<String> readConfig(FileSystem fs, String dirPath) async {
 
 * `fs.sandbox(path: dirPath)` returns a `FileSystem` whose root `/` is that
   directory (absolute, normalized); `dir.sandbox()` is the shortcut. Inside,
-  `currentDirectory` is `/` and every path is confined; the result implements
+  `currentDirectory` is `/` and every path is confined (a relative `..`
+  too); the result implements
   `FsShimSandboxedFileSystem` with `rootDirectory`, `delegatePath(path)` and
   `sandboxPath(path)` (throws `PathException` when outside the root).
 * Sandboxing a sandbox never nests: it re-roots on the original file system.

@@ -1,205 +1,164 @@
 # fs_shim
 
-A portable file system library for Dart and Flutter.
+A portable file system API for Dart and Flutter: `File`, `Directory` and `Link`
+(an asynchronous subset of `dart:io`) behind a `FileSystem` object. The same
+code runs on io (Dart VM, Flutter mobile and desktop), in the browser
+(IndexedDB or OPFS) and in memory (tests).
 
-`fs_shim` exposes a single asynchronous `File`/`Directory`/`Link` API (a subset
-of `dart:io`) that runs the same code on:
+[![pub package](https://img.shields.io/pub/v/fs_shim.svg)](https://pub.dev/packages/fs_shim)
 
-- 🖥 Dart VM / Flutter native (IO)
-- 🌐 Web — browser storage (through [`idb_shim`](https://pub.dev/packages/idb_shim))
-- 🌐 Web — OPFS (Origin Private File System), a thin layer over the native browser API
-- 🧪 Tests / in-memory (through `idb_shim`)
+## Getting started
 
-## API supported
+Add the dependency:
 
-It contains a subset of the io `File`/`Directory` API. Basically all sync methods
-are removed since on the web indexedDB (and OPFS) cannot be accessed in a
-synchronous way. All operations are asynchronous and return a `Future` (or a
-`Stream` for `openRead`/`list`).
-
-Classes
-
-- `File` (create, openWrite, openRead, writeAsBytes, writeAsString, copy)
-- `Link` (create, target)
-- `Directory` (create, list)
-- `FileSystem` (file, link, directory, type, isFile, isDirectory, isLink)
-- `FileSystemEntity` (path, exists, delete, rename, absolute, isAbsolute, stat, parent)
-- `FileStat`
-- `FileSystemEntityType`
-- `FileSystemException`
-
-Static method
-
-- `Directory.current`
-- `FileSystemEntity.isFile`
-- `FileSystemEntity.isDirectory`
-- `FileSystemEntity.isLink`
-
-Static and `File`/`Directory`/`Link` constructors use `fileSystemDefault` which
-is platform dependent (web or io).
-
-## Implementations
-
-| File system          | Import                            | Platform | Links | Random access |
-|----------------------|-----------------------------------|----------|-------|---------------|
-| `fileSystemDefault`  | `package:fs_shim/fs_shim.dart`    | all      | io    | io / web      |
-| `fileSystemIo`       | `package:fs_shim/fs_shim.dart`    | io       | ✅¹    | ✅            |
-| `fileSystemMemory`   | `package:fs_shim/fs_shim.dart`    | all      | ✅    | ✅            |
-| `fileSystemWeb`      | `package:fs_shim/fs_browser.dart` | web      | ✅    | ✅ (opt-in)   |
-| `fileSystemOpfsWeb`  | `package:fs_shim/fs_opfs_web.dart`| web      | ❌    | ❌            |
-
-¹ File links are not supported on Windows (`fs.supportsFileLink` returns `false`).
-
-You can always check capabilities at runtime with `fs.supportsLink`,
-`fs.supportsFileLink` and `fs.supportsRandomAccess`.
-
-## Installation
-
-Add the following dependency to your `pubspec.yaml`:
-
-```yaml
-dependencies:
-  fs_shim: ^<latest>
+```sh
+dart pub add fs_shim
 ```
+
+Write your code against a `FileSystem`, then pick one:
+
+```dart
+import 'package:fs_shim/fs_shim.dart';
+
+Future<void> main() async {
+  // io on the Dart VM and Flutter native, IndexedDB in the browser.
+  final fs = fileSystemDefault;
+
+  final dir = fs.directory(fs.path.join(fs.currentDirectory.path, 'demo'));
+  await dir.create(recursive: true);
+  final file = dir.file('hello.txt');
+  await file.writeAsString('Hello world!');
+  print(await file.readAsString()); // Hello world!
+  await dir.delete(recursive: true);
+}
+```
+
+Every call is asynchronous (there is no `...Sync` method): the browser storage
+cannot be read synchronously.
+
+| Platform                              | File system                               | Needs                                   |
+|---------------------------------------|-------------------------------------------|-----------------------------------------|
+| Dart VM, Flutter mobile and desktop   | `fileSystemIo` (the default there)        | nothing                                 |
+| Browser, Flutter web (dart2js, wasm)  | `fileSystemWeb` on IndexedDB (the default) | IndexedDB, size limited by the browser quota |
+| Browser, Flutter web (dart2js, wasm)  | `fileSystemOpfsWeb` on OPFS               | `navigator.storage.getDirectory()`      |
+| Everywhere, for tests                 | `fileSystemMemory`, `newFileSystemMemory()` | nothing (content lost at exit)        |
+
+Every import is safe on every platform. Reading `fileSystemIo` on the web, or
+`fileSystemWeb` / `fileSystemOpfsWeb` off the web, throws `UnimplementedError`.
+
+## Which file system to use
+
+| File system                               | Import                              | Links | Random access     |
+|-------------------------------------------|-------------------------------------|-------|-------------------|
+| `fileSystemDefault`                       | `package:fs_shim/fs_shim.dart`      | ✅¹    | ✅                 |
+| `fileSystemIo`                            | `package:fs_shim/fs_shim.dart`      | ✅¹    | ✅                 |
+| `fileSystemMemory`, `newFileSystemMemory()` | `package:fs_shim/fs_memory.dart`  | ✅     | ✅                 |
+| `fileSystemWeb`, `getFileSystemWeb()`, `newFileSystemWeb()` | `package:fs_shim/fs_browser.dart` | ✅ | ✅ (paging for speed, see below) |
+| `fileSystemOpfsWeb`                       | `package:fs_shim/fs_opfs_web.dart`  | ❌     | ❌                 |
+
+¹ No file links on Windows (`fs.supportsFileLink` is `false`).
+
+- `fileSystemDefault` is `fileSystemWeb` on the web and `fileSystemIo`
+  elsewhere. The `File(path)`, `Directory(path)` and `Link(path)` constructors
+  use it. It is a variable: a test can assign `newFileSystemMemory()` to it.
+- `fileSystemMemory` is shared by the whole program; `newFileSystemMemory()`
+  creates an empty one (one per test).
+- Prefer passing a `FileSystem` to your code over using `fileSystemDefault`:
+  the code then runs unchanged on any implementation.
+- Check capabilities at runtime with `fs.supportsLink`, `fs.supportsFileLink`
+  and `fs.supportsRandomAccess`.
+
+## Common pitfalls
+
+- Build paths with the file system's own context, `fs.path.join(...)`, or
+  `dir.file('name')`. Memory, IndexedDB and OPFS paths are posix (root `/`)
+  on every host; the top-level `join` of `package:path` uses `\` on Windows.
+- `writeAsString`, `writeAsBytes` and `openWrite` do not create the parent
+  directory: call `file.create(recursive: true)` (or
+  `file.parent.create(recursive: true)`) first, or use `writeString` from
+  `package:fs_shim/utils/read_write.dart`.
+- `writeAsBytes` takes a `Uint8List`, not a `List<int>`.
+- Do not import `dart:io` next to `fs_shim.dart`: `File`, `Directory`... clash.
+  For io only code, import `package:fs_shim/fs_io.dart` instead (see below).
+- Catch the `FileSystemException` of fs_shim and test its `status`
+  (`FileSystemException.statusNotFound`...), not the `dart:io` one.
+- `await sink.close()` after `file.openWrite()`; the content is written once
+  `close()` (and `done`) complete.
+- `CopyOptions()` of `package:fs_shim/utils/copy.dart` is not recursive: pass
+  `recursive: true` or use `defaultCopyOptions`.
+- `entity.exists()` checks the type of the entity on io only. When the kind
+  matters, use `fs.isFile(path)`, `fs.isDirectory(path)` or `fs.type(path)`.
 
 ## Usage
 
 ### In memory
 
-A simple usage example:
-
 ```dart
 import 'package:fs_shim/fs_shim.dart';
-import 'package:path/path.dart';
 
 Future<void> main() async {
   final fs = fileSystemMemory;
 
-  // Create a top level directory
+  // A file in a top level directory
   final dir = fs.directory('/dir');
+  final file = dir.file('file');
 
-  // and a file in it
-  final file = fs.file(join(dir.path, 'file'));
-
-  // create a file
   await file.create(recursive: true);
   await file.writeAsString('Hello world!');
-
-  // read a file
   print('file: ${await file.readAsString()}');
 
-  // use a file link if supported
+  // Use a file link if supported
   if (fs.supportsFileLink) {
-    final link = fs.link(join(dir.path, 'link'));
+    final link = dir.link('link');
     await link.create(file.path);
-
     print('link: ${await fs.file(link.path).readAsString()}');
   }
 
-  // list dir content
+  // List the directory content
   print(await dir.list(recursive: true, followLinks: true).toList());
 }
 ```
 
-The same code runs unchanged against any other implementation: just swap the
-`fs` instance.
+The same code runs unchanged on another implementation: only the `fs`
+instance changes.
 
-### Using IO API
+### io
 
-#### Using fs_shim.dart
+Use `fileSystemIo` (or `fileSystemDefault`) from `fs_shim.dart`.
 
-You can simply replace in the above example:
-
-```dart
-final fs = fileSystemMemory;
-```
-
-by
+To port existing io only code, replace
 
 ```dart
-final fs = fileSystemIo;
+import 'dart:io';
 ```
 
-If you only target io, you can still use the `File` and `Directory`
-constructors, replace
-
-```dart
-import 'dart:io'
-    hide
-    Directory,
-    File,
-    Link,
-    FileSystemEntity,
-    FileMode,
-    FileStat,
-    OSError,
-    FileSystemException,
-    FileSystemEntityType;
-
-import 'package:fs_shim/fs_shim.dart';
-```
-
-by
+with
 
 ```dart
 import 'package:fs_shim/fs_io.dart';
 ```
 
-Then a reduced set of the IO API can be used, same source code that might
-require some cleanup if you import from existing code.
-
-Simple example
+It exports `dart:io` with `File`, `Directory`, `Link`, `FileSystemEntity`,
+`FileSystemEntityType`, `FileMode`, `FileStat`, `FileSystemException` and
+`OSError` replaced by the fs_shim ones, plus `fileSystemIo`. Only the
+asynchronous methods remain. `wrapIoFile`/`unwrapIoFile` (and the same for
+directories, links...) convert between `dart:io` and fs_shim objects.
 
 ```dart
 import 'package:fs_shim/fs_io.dart';
 import 'package:path/path.dart';
 
 Future<void> main() async {
-  final fs = fileSystemDefault;
-  // safe place when running from package root
-  final dirPath = join(Directory.current.path, 'test_out', 'example', 'dir');
-
-  // Create a top level directory
-  final dir = Directory(dirPath);
-  print('dir: $dir');
-  // delete its content
-  if (await dir.exists()) {
-    await dir.delete(recursive: true);
-  }
-
-  // and a file in it
+  final dir = Directory(join(Directory.current.path, '.dart_tool', 'demo'));
+  await dir.create(recursive: true);
   final file = File(join(dir.path, 'file'));
-
-  // create a file
-  await file.create(recursive: true);
   await file.writeAsString('Hello world!');
-
-  // read a file
   print('file: ${await file.readAsString()}');
-
-  // use a file link if supported
-  if (fs.supportsFileLink) {
-    final link = Link(join(dir.path, 'link'));
-
-    await link.create(basename(file.path));
-    final linkFile = File(link.path);
-    print('link: ${await linkFile.readAsString()}');
-  }
-
-  // list dir content
-  print(await dir.list(recursive: true, followLinks: true).toList());
+  print('os: ${Platform.operatingSystem}'); // still dart:io
 }
 ```
 
-### Browser usage
-
-You can simply replace in the in-memory example:
-
-```dart
-final fs = fileSystemMemory;
-```
-
-by
+### Browser: IndexedDB
 
 ```dart
 import 'package:fs_shim/fs_browser.dart';
@@ -207,15 +166,33 @@ import 'package:fs_shim/fs_browser.dart';
 final fs = fileSystemWeb;
 ```
 
-The default implementation on the browser uses `fileSystemWeb` (backed by
-indexedDB through `idb_shim`).
+`fileSystemWeb` (the default on the web) stores the files in the IndexedDB
+database `lfs.db` through [idb_shim](https://pub.dev/packages/idb_shim), with
+links and random access. It stores each file in one record: good for whole
+file reads and writes. For random access or partial reads of large files, use
+16 KiB pages:
 
-### OPFS usage (Origin Private File System)
+```dart
+import 'package:fs_shim/fs_browser.dart';
 
-`fs_shim` also provides an implementation on top of the
-browser [Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system)
-(OPFS). It is a thin layer over the native `navigator.storage.getDirectory()`
-API (using `dart:js_interop`, so it is Wasm compatible).
+// Same database, 16 KiB pages.
+final fs = getFileSystemWeb();
+// Another database, custom page size.
+final cacheFs = newFileSystemWeb(
+  name: 'cache.db',
+  options: const FileSystemIdbOptions(pageSize: 64 * 1024),
+);
+```
+
+Files stay readable when the page size changes: a file is converted when it
+is next written.
+
+### Browser: OPFS (Origin Private File System)
+
+`fs_shim` also provides an implementation on top of the browser
+[Origin Private File System](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system),
+a thin layer over the native `navigator.storage.getDirectory()` API (using
+`dart:js_interop`, so it is wasm compatible).
 
 ```dart
 import 'package:fs_shim/fs_opfs_web.dart';
@@ -223,92 +200,131 @@ import 'package:fs_shim/fs_opfs_web.dart';
 final fs = fileSystemOpfsWeb;
 ```
 
-There is a single OPFS per origin, so `fileSystemOpfsWeb` returns a shared
-instance. The same `File`/`Directory` code shown in the examples above runs
-unchanged on OPFS.
+There is a single OPFS per origin, `fileSystemOpfsWeb` is a shared instance.
 
 When to use OPFS instead of `fileSystemWeb`:
 
-- OPFS is backed directly by the browser's native file system primitives, which
-  is well suited for storing larger files and binary content.
-- `fileSystemWeb` (indexedDB) supports links and (opt-in) random access, which
-  OPFS does not.
+- OPFS uses the browser's native file storage, well suited for large files
+  and binary content.
+- `fileSystemWeb` (IndexedDB) supports links and random access, OPFS does not
+  (`fs.supportsLink`, `fs.supportsFileLink` and `fs.supportsRandomAccess` are
+  `false`, `file.open()` throws `UnsupportedError`).
 
-Limitations of the OPFS implementation:
-
-- Links are not supported (`fs.supportsLink` / `fs.supportsFileLink` return
-  `false`).
-- Random access is not supported (`fs.supportsRandomAccess` returns `false`).
-- Web only — `fileSystemOpfsWeb` relies on `navigator.storage.getDirectory()`.
-  The import is safe on any platform, but accessing the instance off the web is
-  not supported.
-
-Instead of the origin private root, a file system can also be rooted at any JS
-`FileSystemDirectoryHandle` (File System Access API), for example a directory
-picked by the user:
+A file system can also be rooted at any JS `FileSystemDirectoryHandle` (File
+System Access API), for example a directory picked by the user:
 
 ```dart
 import 'package:fs_shim/fs_opfs_web.dart';
-import 'package:web/web.dart';
 
-final handle = await window.showDirectoryPicker().toDart; // Chromium-only
-final fs = fileSystemOpfsWebWithRootHandle(handle);
+/// Call it from a click handler (pickers are Chromium only).
+Future<FileSystem> pickDirectory() async {
+  final handle = await FileSystemOpfsWeb.showDirectoryPicker(
+    const FileSystemOpfsWebShowDirectoryPickerOptions(
+      mode: FileSystemOpfsWebShowDirectoryPickerOptions.modeReadWrite,
+    ),
+  );
+  return FileSystemOpfsWeb.withRootHandle(handle);
+}
 ```
 
-The handle is used as-is (any interop binding works). Write operations require
-the handle to have been granted `readwrite` permission, and handles do not
-persist across page reloads unless saved by the application (e.g. in indexedDB)
-and permission requested again.
+From a JS `FileSystemDirectoryHandle` of any interop binding, use
+`FileSystemOpfsWeb.withRootHandle(FileSystemOpfsWebDirectoryHandle.fromJsObject(jsHandle))`.
+Write operations need the `readwrite` permission. Handles do not survive a
+page reload unless the application saves them (`handle.jsObject` in
+IndexedDB) and asks for the permission again (`FileSystemOpfsWeb.queryPermission`,
+`requestPermission`).
 
-### Random access support
+### Random access
 
-Random access is supported since version 2.1.0 on io and web (indexedDB).
-
-The default web implementation is not optimized for random access (it might
-change in the future). You can specify a paging parameter (initial testing is
-good in some scenarios with a 16Kb page; you might tune it for your needs).
+`file.open(mode: ...)` returns a `RandomAccessFile` (`setPosition`, `read`,
+`writeFrom`, `writeString`, `truncate`, `length`...) on io, memory and
+IndexedDB. As in `dart:io`, `FileMode.write` empties an existing file; use
+`FileMode.append` to keep the content and move with `setPosition`.
 
 ```dart
-import 'package:fs_shim/fs_browser.dart';
+import 'package:fs_shim/fs_shim.dart';
 
-// Use default paging 16Kb
-final fs =
-  fileSystemWeb.withIdbOptions(options: FileSystemIdbOptions.pageDefault);
+Future<void> patchHeader(File file) async {
+  final raf = await file.open(mode: FileMode.append);
+  try {
+    await raf.setPosition(0);
+    await raf.writeString('v2');
+  } finally {
+    await raf.close();
+  }
+}
 ```
 
-Storage remains compatible if the options are changed.
+On the web, prefer a paged file system (`getFileSystemWeb()`) for random
+access: without pages each write reads and rewrites the whole file.
 
-Random access is not supported by the OPFS implementation.
+### Links
+
+`link.create(target)` takes an absolute target or one relative to the link's
+directory. `fs.type(path)` follows links (pass `followLinks: false` to see the
+link itself). As on io, a link loop is reported as not found (or as a
+`FileSystemException`), and a recursive `list(followLinks: true)` reports a
+link to a directory it is already listing as a `Link` instead of entering it
+again.
+
+### Sandbox
+
+`fs.sandbox(path: dirPath)` (or `dir.sandbox()`) returns a `FileSystem` whose
+root `/` is that directory: every path, `..` included, stays inside it.
+`file.unsandbox()` gives the entity in the original file system.
 
 ### Utilities
 
-* Lightweight glob support (`**`, `*` and `?` in a posix style path)
-* Copy utilities (copy files, directories recursively)
+- `package:fs_shim/utils/copy.dart`: copy a file or a directory tree, even
+  between two file systems (`copyDirectory`, `copyFile`, `CopyOptions` with
+  include/exclude globs).
+- `package:fs_shim/utils/read_write.dart`: `writeString`, `writeLines`,
+  `readString`, `readLines` (creating the parent directory),
+  `dir.emptyOrCreate()`.
+- `package:fs_shim/utils/glob.dart`: lightweight glob (`**`, `*` and `?` in a
+  posix style path).
+- `package:fs_shim/utils/path.dart`: convert between posix and windows paths.
 
 ## Testing
 
-`fs_shim` is well suited for testing file system access in VM unit tests using
-`fileSystemMemory`, then running the exact same code on io or the web.
+Write the code under test against a `FileSystem` and run it on a new memory
+file system, then on the real one:
 
-### Dev dependencies
+```dart
+import 'package:fs_shim/fs_memory.dart';
+import 'package:test/test.dart';
 
-Stable
+Future<int> countWords(File file) async =>
+    (await file.readAsString()).split(' ').length;
 
-    fs_shim: any
+void main() {
+  late FileSystem fs;
+  setUp(() => fs = newFileSystemMemory());
+  test('countWords', () async {
+    final file = fs.file('/doc.txt');
+    await file.writeAsString('one two three');
+    expect(await countWords(file), 3);
+  });
+}
+```
 
-Bleeding edge
+To use the latest code from git:
 
-    fs_shim:
-        git: https://github.com/tekartik/fs_shim.dart
+```yaml
+dependencies:
+  fs_shim:
+    git:
+      url: https://github.com/tekartik/fs_shim.dart
+      path: fs
+```
 
-## Features and bugs
+## Limitations
 
-* On Windows file links are not supported (`fs.supportsFileLink` returns `false`)
-* On Windows directory link targets are absolute
-* On the web (indexedDB), the size of the file system is limited by the size
-  limit of indexedDB databases (browser dependent)
-* On the web (OPFS), links and random access are not supported
+- Asynchronous API only, a subset of `dart:io` (no `Process`, no watch, no
+  permissions other than the executable bit on io).
+- On Windows, file links are not supported (`fs.supportsFileLink` is `false`)
+  and directory link targets are absolute.
+- On the web, IndexedDB and OPFS storage are limited by the browser quota.
+- OPFS: no links and no random access.
 
-* Project [source code](https://github.com/tekartik/fs_shim.dart)
-</content>
-</invoke>
+Source code: [github.com/tekartik/fs_shim.dart](https://github.com/tekartik/fs_shim.dart)

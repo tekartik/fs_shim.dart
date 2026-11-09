@@ -196,5 +196,54 @@ void defineTests(FileSystemTestContext ctx) {
         await randomAccessFile.close();
       }
     });
+
+    test('truncate then write in the same page', () async {
+      // The bytes cut by truncate must not come back (idb paged files kept
+      // them in the page until close and wrote them back).
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'truncate_write'));
+      await file.writeAsString('hello world');
+      var raf = await file.open(mode: FileMode.append);
+      await raf.truncate(2);
+      await raf.setPosition(2);
+      await raf.writeString('X');
+      expect(await raf.length(), 3);
+      await raf.close();
+      expect(await file.readAsString(), 'heX');
+
+      raf = await file.open(mode: FileMode.append);
+      await raf.truncate(1);
+      await raf.setPosition(0);
+      await raf.writeString('E');
+      await raf.close();
+      expect(await file.readAsString(), 'E');
+      expect((await file.stat()).size, 1);
+    });
+
+    test('write mode overwrites', () async {
+      // As io, FileMode.write truncates an existing file.
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'write_overwrites'));
+      await file.writeAsString('hello world');
+      final raf = await file.open(mode: FileMode.write);
+      expect(await raf.length(), 0);
+      await raf.writeString('ab');
+      await raf.close();
+      expect(await file.readAsString(), 'ab');
+    });
+
+    test('overwrites in write order', () async {
+      // Many pending writes of the same bytes: the last one wins (idb
+      // sorted them with an unstable sort).
+      final directory = await ctx.prepare();
+      final file = fs.file(fs.path.join(directory.path, 'write_order'));
+      final raf = await file.open(mode: FileMode.write);
+      for (var i = 0; i < 200; i++) {
+        await raf.setPosition(i % 4);
+        await raf.writeByte(i);
+      }
+      await raf.close();
+      expect(await file.readAsBytes(), [196, 197, 198, 199]);
+    });
   }, skip: !fs.supportsRandomAccess);
 }
