@@ -175,7 +175,7 @@ class _MainExplorerScreenState extends State<MainExplorerScreen> {
 
         case 'web':
           final dbName = webDbName ?? 'fs_shim_web';
-          fsInstance = getWebFileSystem();
+          fsInstance = getWebFileSystem(name: dbName);
           displayName = 'Web IndexedDB ($dbName)';
           rootPath = '/';
           break;

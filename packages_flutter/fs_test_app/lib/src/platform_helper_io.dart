@@ -4,7 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:fs_shim/fs_io.dart';
 
 FileSystem getIoFileSystem() => fileSystemIo;
-FileSystem getWebFileSystem() =>
+FileSystem getWebFileSystem({required String name}) =>
     throw UnsupportedError('webFileSystem is not supported on native');
 FileSystem getOpfsFileSystem() =>
     throw UnsupportedError('opfsFileSystem is not supported on native');

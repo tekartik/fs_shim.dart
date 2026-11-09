@@ -7,7 +7,10 @@ import 'package:web/web.dart' as web;
 
 FileSystem getIoFileSystem() =>
     throw UnsupportedError('ioFileSystem is not supported on web');
-FileSystem getWebFileSystem() => fileSystemWeb;
+
+/// The IndexedDB file system stored in the database [name].
+FileSystem getWebFileSystem({required String name}) =>
+    newFileSystemWeb(name: name);
 FileSystem getOpfsFileSystem() => fileSystemOpfsWeb;
 
 Future<FileSystem?> selectOpfsDirectory() async {

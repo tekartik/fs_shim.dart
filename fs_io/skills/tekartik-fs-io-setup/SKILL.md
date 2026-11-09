@@ -23,7 +23,7 @@ and all the helpers — comes from `fs_shim` itself.
   where the types live:
   ```yaml
   dependencies:
-    fs_shim: ">=2.3.3+1"
+    fs_shim: ">=2.7.1"
     tekartik_fs_io:
       git:
         url: https://github.com/tekartik/fs_shim.dart
@@ -130,7 +130,6 @@ Future<void> saveConfig(String json) async {
 library;
 
 import 'package:fs_shim/fs_memory.dart';
-import 'package:fs_shim/fs_shim.dart';
 import 'package:tekartik_fs_io/fs_io.dart';
 import 'package:test/test.dart';
 

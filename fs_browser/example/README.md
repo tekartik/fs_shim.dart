@@ -1,18 +1,28 @@
 # fs_browser examples
 
-## opfs_directory_picker
-
-Pick a local directory using `window.showDirectoryPicker()` (File System
-Access API, Chromium-only) and list its content (with stat) through the
-fs_shim API (`fileSystemOpfsWebWithRootHandle`).
-
-Run with:
+Run them with:
 
 ```bash
 dart run build_runner serve example:8080
 ```
 
-then open <http://localhost:8080/opfs_directory_picker/>.
+then open <http://localhost:8080/> (a page lists the three examples).
+
+## opfs_directory_picker
+
+Pick a local directory using `window.showDirectoryPicker()` (File System
+Access API, Chromium-only) and list its content (with stat) through the
+fs_shim API (`FileSystemOpfsWeb.withRootHandle(handle)`).
+
+Open <http://localhost:8080/opfs_directory_picker/>.
+
+## opfs_file_picker
+
+Pick text files with `FileSystemOpfsWeb.showOpenFilePicker` and read them
+(`FileSystemOpfsWeb.withFileHandles(handles)`), or save one with
+`showSaveFilePicker` (Chromium-only).
+
+Open <http://localhost:8080/opfs_file_picker/>.
 
 ## opfs_handle_sdb
 
@@ -24,4 +34,4 @@ permission queried and requested again if needed
 (`FileSystemOpfsWeb.queryPermission` and `requestPermission`) before reading it
 through the fs_shim API.
 
-Then open <http://localhost:8080/opfs_handle_sdb/>.
+Open <http://localhost:8080/opfs_handle_sdb/>.

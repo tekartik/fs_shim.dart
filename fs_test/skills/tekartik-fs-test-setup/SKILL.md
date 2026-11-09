@@ -95,6 +95,18 @@ providing a `FileSystemTestContext`.
 * Do not write assertions against the internals of a context; keep your own
   tests in separate `defineTests(FileSystemTestContext ctx)` functions so the
   same file runs on memory, io and browser contexts.
+* Who runs the suite: memory and sandboxes (`fs_test/test`), io and idb on
+  sembast io with 4 page sizes (`fs_io/test`), IndexedDB, page size 2 and
+  OPFS in Chrome (`fs_browser/test/web`), idb_sqflite
+  (`tekartik/fs_shim_test.dart`), node (`tekartik/common_node.dart`). A
+  behaviour shared by the file systems gets its test here.
+* Writing a shared test: it must be able to fail (never put the expectations
+  in a catch all: it catches the `TestFailure` of `expect`; catch only the
+  error you tolerate, as the `big file` test does for a write over quota),
+  and a broken implementation must fail fast: bound the walks over links
+  (`list(...).take(20)`, `.timeout(...)` on each call, a `timeout:` per test,
+  see `link_loop` and `list_recursive_link_cycle`) so that a loop fails
+  instead of filling the memory.
 
 ## Examples
 
@@ -245,7 +257,6 @@ void main() {
 ```dart
 import 'package:fs_shim/fs_memory.dart';
 import 'package:tekartik_fs_test/fs_perf_test.dart';
-import 'package:tekartik_fs_test/test_common.dart';
 import 'package:test/test.dart';
 
 void main() {

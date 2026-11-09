@@ -2,7 +2,7 @@ import 'package:fs_shim/fs.dart';
 
 FileSystem getIoFileSystem() =>
     throw UnsupportedError('ioFileSystem is not supported');
-FileSystem getWebFileSystem() =>
+FileSystem getWebFileSystem({required String name}) =>
     throw UnsupportedError('webFileSystem is not supported');
 FileSystem getOpfsFileSystem() =>
     throw UnsupportedError('opfsFileSystem is not supported');

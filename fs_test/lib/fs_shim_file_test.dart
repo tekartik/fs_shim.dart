@@ -775,23 +775,35 @@ void defineTests(FileSystemTestContext ctx) {
         }
       }
 
+      // 8Mb, a pattern so that a lost or misplaced page is seen.
+      var bytes = Uint8List.fromList(List<int>.generate(size, (i) => i % 251));
+      final directory = await ctx.prepare();
+      var filePath = fs.path.join(directory.path, 'big_file');
+      final file = fs.file(filePath);
+
       try {
-        // 8Mb
-        var bytes = Uint8List(size);
-        final directory = await ctx.prepare();
-        var filePath = fs.path.join(directory.path, 'big_file');
-        final file = fs.file(filePath);
-
         await file.writeAsBytes(bytes);
-
-        var read = await file.readAsBytes();
-        expect(read.length, bytes.length);
       } catch (e, st) {
+        // Only the write may fail on CI (storage quota). The read checks
+        // were in this catch too, so a wrong read was never reported
+        // (review of 2026-11-09).
         // ignore: avoid_print
-        print('ERROR writing $size byes files, allowed on CI');
+        print('ERROR writing $size bytes files, allowed on CI: $e');
         // ignore: avoid_print
         print(st);
+        return;
       }
+
+      var read = await file.readAsBytes();
+      expect(read.length, bytes.length);
+      var firstDifference = -1;
+      for (var i = 0; i < read.length; i++) {
+        if (read[i] != bytes[i]) {
+          firstDifference = i;
+          break;
+        }
+      }
+      expect(firstDifference, -1, reason: 'first different byte');
     }, timeout: const Timeout(Duration(minutes: 2)));
     test('delete_read_bytes', () async {
       final directory = await ctx.prepare();

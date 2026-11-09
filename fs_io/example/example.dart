@@ -1,18 +1,17 @@
-import 'dart:io'
-    hide
-        Directory,
-        File,
-        Link,
-        FileSystemEntity,
-        FileMode,
-        FileStat,
-        OSError,
-        FileSystemException,
-        FileSystemEntityType;
+// ignore_for_file: avoid_print
 
-import 'package:fs_shim/fs_shim.dart';
+import 'package:tekartik_fs_io/fs_io.dart';
 
-void main() {
-  stdout.writeln('    version: ${Platform.version}');
-  stdout.writeln('current dir: ${Directory.current}');
+/// Writes then reads a file through the io file system of tekartik_fs_io.
+Future<void> main() async {
+  final dir = fileSystem.directory(
+    fileSystem.path.join('.dart_tool', 'fs_io_example'),
+  );
+  final file = fileSystem.file(fileSystem.path.join(dir.path, 'hello.txt'));
+  await file.create(recursive: true);
+  await file.writeAsString('Hello');
+  print('${file.path}: ${await file.readAsString()}');
+  await for (final entity in dir.list()) {
+    print('${entity.path} ${(await entity.stat()).type}');
+  }
 }
