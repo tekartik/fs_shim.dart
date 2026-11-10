@@ -399,6 +399,22 @@ void defineTests(FileSystemTestContext ctx) {
       }
     });
 
+    test('delete_recursive_not_found', () async {
+      // As io: a recursive delete of a missing directory or file fails.
+      final dir = await ctx.prepare();
+      for (var entity in <FileSystemEntity>[
+        fs.directory(fs.path.join(dir.path, 'missing_dir')),
+        fs.file(fs.path.join(dir.path, 'missing_file')),
+      ]) {
+        try {
+          await entity.delete(recursive: true);
+          fail('should fail $entity');
+        } on FileSystemException catch (e) {
+          expect(e.status, FileSystemException.statusNotFound);
+        }
+      }
+    }, timeout: const Timeout(Duration(seconds: 10)));
+
     int indexOf(List<FileSystemEntity> list, FileSystemEntity entity) {
       for (var i = 0; i < list.length; i++) {
         if (list[i].path == entity.path) {

@@ -572,6 +572,28 @@ void defineTests(FileSystemTestContext ctx) {
         }
       });
 
+      test('read_not_found error then done', () async {
+        // As io: a listener without cancelOnError gets the error then done.
+        final directory = await ctx.prepare();
+        final file = fs.file(fs.path.join(directory.path, 'file'));
+        var errors = <Object>[];
+        var done = Completer<void>();
+        file.openRead().listen(
+          (Uint8List data) {},
+          onError: (Object e) => errors.add(e),
+          onDone: done.complete,
+        );
+        await done.future.timeout(
+          const Duration(seconds: 5),
+          onTimeout: () => fail('no done event after $errors'),
+        );
+        expect(errors, hasLength(1));
+        expect(
+          (errors.first as FileSystemException).status,
+          FileSystemException.statusNotFound,
+        );
+      }, timeout: const Timeout(Duration(seconds: 10)));
+
       test('write_bad_mode', () async {
         final directory = await ctx.prepare();
         final file = fs.file(fs.path.join(directory.path, 'file'));
