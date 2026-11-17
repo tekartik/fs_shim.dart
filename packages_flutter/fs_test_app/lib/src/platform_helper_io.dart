@@ -22,11 +22,20 @@ Future<void> saveFile({required String name, required List<int> bytes}) async {
 }
 
 Future<String?> pickDirectoryPath() async {
-  // A path for fileSystemIo: pickDirectory() (file_picker 13.4) gives a
-  // content:// tree URI on Android, not a path.
-
-  return (await FilePicker.pickDirectory(dialogTitle: 'Select Directory'))
-      ?.toFilePath();
+  // A path for fileSystemIo: pickDirectory() (file_picker 13.4) gives a file
+  // URI on desktop and iOS, but a content:// tree URI on Android, which is
+  // not a path (toFilePath() would throw a less clear error).
+  var uri = await FilePicker.pickDirectory(dialogTitle: 'Select Directory');
+  if (uri == null) {
+    return null;
+  }
+  if (!uri.isScheme('file')) {
+    throw UnsupportedError(
+      'Not a folder path fileSystemIo can open (Android gives a '
+      '${uri.scheme}:// URI): $uri',
+    );
+  }
+  return uri.toFilePath();
 }
 
 bool get isWebPlatform => false;
