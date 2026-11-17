@@ -25,9 +25,21 @@ Uint8List anyAsUint8List(Object? value) {
   return Uint8List(0);
 }
 
-/// Convert a list of list of bytes to a buffer
+/// Convert a list of list of bytes to a buffer (a new one, sized once and
+/// filled by chunk, never through a growable `List<int>`: a JS array on
+/// dart2js, slow to fill and limited to 2^27 elements).
 Uint8List bytesListToBytes(List<List<int>> bytesList) {
-  return asUint8List(bytesList.expand((element) => element).toList());
+  var length = 0;
+  for (var bytes in bytesList) {
+    length += bytes.length;
+  }
+  var result = Uint8List(length);
+  var offset = 0;
+  for (var bytes in bytesList) {
+    result.setRange(offset, offset + bytes.length, bytes);
+    offset += bytes.length;
+  }
+  return result;
 }
 
 /// Stream list of bytes to a buffer

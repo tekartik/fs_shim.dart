@@ -164,7 +164,7 @@ class FileSystemOpfsFileHandlesImpl extends FileSystemOpfsImpl {
     if (mode == fs.FileMode.append) {
       final existing = await opfsReadFileHandle(handle);
       if (existing.isNotEmpty) {
-        content = asUint8List([...existing, ...bytes]);
+        content = bytesListToBytes([existing, bytes]);
       }
     }
     await opfsWriteFileHandle(handle, content);

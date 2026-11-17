@@ -501,7 +501,7 @@ class FileSystemOpfsImpl extends Object
     if (mode == fs.FileMode.append) {
       final existing = await opfsReadFileHandle(handle);
       if (existing.isNotEmpty) {
-        content = asUint8List([...existing, ...bytes]);
+        content = bytesListToBytes([existing, bytes]);
       }
     }
     await opfsWriteFileHandle(handle, content);
@@ -590,6 +590,6 @@ class OpfsWriteStreamSink extends MemorySink {
 
   @override
   Future<void> onClose() async {
-    await _fs.writeFileBytes(_file.path, asUint8List(content), mode: _mode);
+    await _fs.writeFileBytes(_file.path, takeContent(), mode: _mode);
   }
 }

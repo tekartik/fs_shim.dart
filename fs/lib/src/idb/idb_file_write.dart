@@ -42,9 +42,10 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
       //var existingSize = fileEntity.fileSize;
 
       // get existing content
-      var bytesBuilder = BytesBuilder();
+      Uint8List content;
       if (mode == fs.FileMode.write || initialFileEntity.fileSize == 0) {
         // was created or existing
+        content = takeContent();
       } else {
         var result = await fsIdb.txnReadCheckNodeFileContent(
           txn,
@@ -52,12 +53,8 @@ class TxnWriteStreamSinkIdb extends MemorySink with FileAccessIdbMixin {
           fileEntity,
         );
         fileEntity = result.entity;
-        var bytes = result.content;
-        bytesBuilder.add(bytes);
+        content = bytesListToBytes([result.content, takeContent()]);
       }
-
-      bytesBuilder.add(this.content);
-      var content = bytesBuilder.toBytes();
       if (content.isEmpty) {
         if (initialFileEntity.size != 0) {
           if (debugIdbShowLogs) {
@@ -147,7 +144,8 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
           mode,
           initialFileEntity: initialFileEntity,
         );
-        ctlr.add(content);
+        // No copy: the bytes of this sink, given away.
+        ctlr.addOwnedBytes(takeContent());
         await ctlr.close();
       } finally {
         await txn.completed;
@@ -158,9 +156,9 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
   /// if [all] is false, flush full entries only
   Future<void> flushPending({bool all = false, bool close = false}) async {
     if (fsIdb.idbOptions.hasPageSize) {
-      if (content.isNotEmpty || all || close) {
+      if (contentLength > 0 || all || close) {
         await flushLock.synchronized(() async {
-          if (content.isNotEmpty || all || close) {
+          if (contentLength > 0 || all || close) {
             await _openNodeFile();
             // devPrint('flushPending($all, $close) $initialEntity, $entity');
             if (fileEntity.hasPageSize) {
@@ -187,8 +185,8 @@ class IdbWriteStreamSink extends MemorySink with FileAccessIdbMixin {
                     result.list,
                   );
                   var length = result.position - position;
-                  // Truncate
-                  content = content.sublist(length);
+                  // Truncate (bytes added during the transaction are kept).
+                  skipContent(length);
                   position = result.position;
 
                   if (close) {
