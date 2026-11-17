@@ -1,3 +1,15 @@
+## 2.8.0
+
+* web: `fileSystemWeb` stores files in 256 KiB pages (one record per file before), as do
+  `getFileSystemWeb()` and `newFileSystemWeb()` without options (16 KiB before): whole file
+  reads and writes as fast, random access and streams of any size. Existing files stay
+  readable and get pages on their next write
+* web: `fileSystemWebNoPaging`, the same database with one record per file (the previous
+  `fileSystemWeb`)
+* idb and OPFS: writes and `readAsBytes` no longer copy each byte through a `List<int>`
+  (on the web about 10x faster writes and 20x faster full reads of big files); files of
+  128 MiB or more can be written and read whole on dart2js (`Invalid array length` before)
+
 ## 2.7.1
 
 * Requires idb_shim 2.11.3 (a directory or a paged file of more than about 30000 entries overflowed
