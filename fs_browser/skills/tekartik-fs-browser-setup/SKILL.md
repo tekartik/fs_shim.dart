@@ -35,16 +35,19 @@ its own, so anything true of `package:fs_shim/fs_browser.dart` is true here.
   (`fs_memory.dart`, `utils/...`).
 * Imports:
   * `package:tekartik_fs_browser/fs_browser.dart` = `fileSystemWeb`,
-    `getFileSystemWeb({options})`, `newFileSystemWeb({required name, options})`
+    `fileSystemWebNoPaging`, `getFileSystemWeb({options})`, `newFileSystemWeb({required name, options})`
     plus `fs_idb.dart` (`FileSystemIdbOptions`, `newFileSystemIdb`).
   * `package:tekartik_fs_browser/fs_opfs_web.dart` = `fileSystemOpfsWeb`,
     `FileSystemOpfsWeb` and the File System Access picker types.
   Both are safe to *import* anywhere (the implementation is behind a
   conditional import); only *using* an instance off the browser throws.
 * IndexedDB (`fs_browser.dart`): `fileSystemWeb` is the shared `lfs.db`
-  database with no paging — best for whole file `readAsString`/`writeAsString`,
-  poor for random access. `getFileSystemWeb(options:
-  FileSystemIdbOptions.pageDefault)` gives the same database with 16 KiB pages;
+  database with 256 KiB pages — whole file reads and writes about as fast as
+  one record, random access and streams of any size. `fileSystemWebNoPaging`
+  is the same database with no paging (the default up to fs_shim 2.7) — whole
+  file `readAsString`/`writeAsString` only, poor for random access.
+  `getFileSystemWeb(options: FileSystemIdbOptions.pageDefault)` gives the same
+  database with 16 KiB pages;
   `newFileSystemWeb(name: 'other.db', options: ...)` opens a separate database.
   `FileSystemIdbOptions(pageSize:)`, `.noPage` and `.pageDefault` are the
   available options. Storage is bounded by the browser IndexedDB quota; links
@@ -90,13 +93,12 @@ its own, so anything true of `package:fs_shim/fs_browser.dart` is true here.
 ```dart
 import 'package:tekartik_fs_browser/fs_browser.dart';
 
-/// Shared `lfs.db`, no paging: fast whole file read/write.
+/// Shared `lfs.db`, 256 KiB pages: whole file read/write, streams, random
+/// access.
 final FileSystem fs = fileSystemWeb;
 
-/// Same database, 16 KiB pages: better for openRead/openWrite.
-final FileSystem pagedFs = getFileSystemWeb(
-  options: FileSystemIdbOptions.pageDefault,
-);
+/// Same database, one record per file: whole file read/write only.
+final FileSystem wholeFileFs = fileSystemWebNoPaging;
 
 /// A separate database with a custom page size.
 final FileSystem cacheFs = newFileSystemWeb(
@@ -253,7 +255,7 @@ void main() {
   which runs the same IndexedDB implementation in memory.
 * Calling a picker outside a click handler, or on a non-Chromium browser.
 * Expecting links or `file.open()` random access on OPFS.
-* Streaming large files from `fileSystemWeb` without asking for
-  `FileSystemIdbOptions.pageDefault`.
+* Streaming large files or random access on `fileSystemWebNoPaging` (or
+  `FileSystemIdbOptions.noPage`): each one loads the whole file.
 * Writing browser tests without `@TestOn('browser')` or without a chrome
   platform in `dart_test.yaml`.

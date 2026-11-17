@@ -2,8 +2,15 @@ import 'package:fs_shim/fs_idb.dart';
 import 'package:fs_shim/src/idb/idb_file_system_storage.dart';
 import 'package:idb_shim/idb_client_native.dart';
 
-/// The default browser file system on top of IndexedDB. Random access support is not optimized
-final FileSystem fileSystemWebImpl = newFileSystemIdb(idbFactoryNative);
+/// The browser file system on top of IndexedDB (`lfs.db`), one record per
+/// file.
+final FileSystem fileSystemWebNoPagingImpl = newFileSystemIdb(idbFactoryNative);
+
+/// The default browser file system: [fileSystemWebNoPagingImpl] (the same
+/// database) with [webDefaultPageSize] pages.
+final FileSystem fileSystemWebImpl = fileSystemWebNoPagingImpl.withIdbOptions(
+  options: _defaultOptions,
+);
 
 /// New file system on the web using a particular database
 FileSystem newFileSystemWebImpl({
@@ -14,14 +21,16 @@ FileSystem newFileSystemWebImpl({
   name,
 ).withIdbOptions(options: options ?? _defaultOptions);
 
-FileSystemIdbOptions get _defaultOptions =>
-    const FileSystemIdbOptions(pageSize: defaultPageSize);
+const _defaultOptions = FileSystemIdbOptions(pageSize: webDefaultPageSize);
 
-/// FileSystem with options (if [options] is null, a default options with pageSize default being 16Kb).
+/// FileSystem with options (if [options] is null, [fileSystemWebImpl]; no
+/// page size, [fileSystemWebNoPagingImpl]).
 FileSystem getFileSystemWebImpl({FileSystemIdbOptions? options}) {
-  options ??= _defaultOptions;
-  if (options.pageSize == null) {
+  if (options == null) {
     return fileSystemWebImpl;
   }
-  return fileSystemWebImpl.withIdbOptions(options: options);
+  if ((options.pageSize ?? 0) == 0) {
+    return fileSystemWebNoPagingImpl;
+  }
+  return fileSystemWebNoPagingImpl.withIdbOptions(options: options);
 }

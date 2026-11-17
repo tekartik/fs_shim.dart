@@ -16,8 +16,13 @@ import 'package:meta/meta.dart';
 import 'idb_fs.dart';
 import 'idb_paging.dart';
 
-/// Default page size
+/// Default page size ([FileSystemIdbOptions.pageDefault]).
 const defaultPageSize = 16 * 1024;
+
+/// Page size of the web file system (`fileSystemWeb`, and `getFileSystemWeb`
+/// and `newFileSystemWeb` without options): whole file reads and writes about
+/// as fast as one record per file, random access within a few KiB.
+const webDefaultPageSize = 256 * 1024;
 
 /// Max part count, adapt your settings.
 const partCountMax = 16777216; // fit on 8 digits

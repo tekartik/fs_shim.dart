@@ -53,7 +53,7 @@ Every import is safe on every platform. Reading `fileSystemIo` on the web, or
 | `fileSystemDefault`                       | `package:fs_shim/fs_shim.dart`      | ✅¹    | ✅                 |
 | `fileSystemIo`                            | `package:fs_shim/fs_shim.dart`      | ✅¹    | ✅                 |
 | `fileSystemMemory`, `newFileSystemMemory()` | `package:fs_shim/fs_memory.dart`  | ✅     | ✅                 |
-| `fileSystemWeb`, `getFileSystemWeb()`, `newFileSystemWeb()` | `package:fs_shim/fs_browser.dart` | ✅ | ✅ (paging for speed, see below) |
+| `fileSystemWeb`, `fileSystemWebNoPaging`, `getFileSystemWeb()`, `newFileSystemWeb()` | `package:fs_shim/fs_browser.dart` | ✅ | ✅ (256 KiB pages by default, see below) |
 | `fileSystemOpfsWeb`                       | `package:fs_shim/fs_opfs_web.dart`  | ❌     | ❌                 |
 
 ¹ No file links on Windows (`fs.supportsFileLink` is `false`).
@@ -168,16 +168,18 @@ final fs = fileSystemWeb;
 
 `fileSystemWeb` (the default on the web) stores the files in the IndexedDB
 database `lfs.db` through [idb_shim](https://pub.dev/packages/idb_shim), with
-links and random access. It stores each file in one record: good for whole
-file reads and writes. For random access or partial reads of large files, use
-16 KiB pages:
+links and random access, in 256 KiB pages: whole file reads and writes about
+as fast as one record per file, random access, streams of any size.
+`fileSystemWebNoPaging` is the same database with each file in one record
+(the default up to fs_shim 2.7): only for whole file reads and writes, a
+random write rewrites the whole file.
 
 ```dart
 import 'package:fs_shim/fs_browser.dart';
 
-// Same database, 16 KiB pages.
-final fs = getFileSystemWeb();
-// Another database, custom page size.
+// Same database, one record per file.
+final fs = fileSystemWebNoPaging;
+// Another database, custom page size (256 KiB without options).
 final cacheFs = newFileSystemWeb(
   name: 'cache.db',
   options: const FileSystemIdbOptions(pageSize: 64 * 1024),
@@ -185,7 +187,8 @@ final cacheFs = newFileSystemWeb(
 ```
 
 Files stay readable when the page size changes: a file is converted when it
-is next written.
+is next written (a file stored in one record by fs_shim 2.7 gets pages on its
+first write through `fileSystemWeb`).
 
 ### Browser: OPFS (Origin Private File System)
 
@@ -255,8 +258,9 @@ Future<void> patchHeader(File file) async {
 }
 ```
 
-On the web, prefer a paged file system (`getFileSystemWeb()`) for random
-access: without pages each write reads and rewrites the whole file.
+On the web, keep a paged file system (`fileSystemWeb`) for random access:
+without pages (`fileSystemWebNoPaging`) each write reads and rewrites the
+whole file.
 
 ### Links
 

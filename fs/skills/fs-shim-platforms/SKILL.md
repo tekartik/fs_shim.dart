@@ -3,8 +3,8 @@ name: fs-shim-platforms
 description: >-
   Use when choosing, configuring or testing the fs_shim FileSystem for a
   platform: fileSystemDefault vs fileSystemIo vs fileSystemMemory vs
-  fileSystemWeb (IndexedDB, newFileSystemWeb, getFileSystemWeb,
-  FileSystemIdbOptions page size) vs fileSystemOpfsWeb (OPFS,
+  fileSystemWeb (IndexedDB, fileSystemWebNoPaging, newFileSystemWeb,
+  getFileSystemWeb, FileSystemIdbOptions page size) vs fileSystemOpfsWeb (OPFS,
   FileSystemOpfsWeb.withRootHandle, withFileHandles, showDirectoryPicker,
   showOpenFilePicker, queryPermission, requestPermission, persisting a handle
   with jsObject/fromJsObject), the fs_io.dart drop-in import
@@ -25,7 +25,7 @@ on the wrong platform throws `UnimplementedError`.
 | `fileSystemDefault` | `fs_shim.dart` | all | io or web below | | |
 | `fileSystemIo` | `fs_shim.dart`, `fs_io.dart` | VM, Flutter native | process cwd, native style | yes (file links not on Windows) | yes |
 | `fileSystemMemory`, `newFileSystemMemory()` | `fs_shim.dart`, `fs_memory.dart` | all | `/`, posix | yes | yes |
-| `fileSystemWeb`, `newFileSystemWeb`, `getFileSystemWeb` | `fs_browser.dart` | web (IndexedDB via idb_shim) | `/`, posix | yes | yes (page size opt-in) |
+| `fileSystemWeb`, `fileSystemWebNoPaging`, `newFileSystemWeb`, `getFileSystemWeb` | `fs_browser.dart` | web (IndexedDB via idb_shim) | `/`, posix | yes | yes (256 KiB pages by default) |
 | `fileSystemOpfsWeb`, `FileSystemOpfsWeb.withRootHandle/withFileHandles` | `fs_opfs_web.dart` | web (OPFS, wasm ready) | `/`, posix | no | no |
 
 ```dart
@@ -91,11 +91,14 @@ final FileSystem fs = fileSystemDefault;
 
 ### Web on IndexedDB (`package:fs_shim/fs_browser.dart`)
 
-* `fileSystemWeb` uses the database `lfs.db` without paging: efficient for
-  whole-file `readAsString`/`writeAsString`, slow for random access and
-  partial streaming.
+* `fileSystemWeb` uses the database `lfs.db` with 256 KiB pages: whole-file
+  reads and writes about as fast as one record, random access and streams of
+  any size. `fileSystemWebNoPaging` is the same database without paging (the
+  default up to 2.7): whole-file only, slow for random access and partial
+  streaming.
 * `getFileSystemWeb(options: FileSystemIdbOptions.pageDefault)` returns the
-  same database with 16 KiB pages (`options` `null` also means 16 KiB).
+  same database with 16 KiB pages (`options` `null` gives `fileSystemWeb`,
+  `FileSystemIdbOptions.noPage` gives `fileSystemWebNoPaging`).
   `newFileSystemWeb(name: 'other.db', options: ...)` opens a separate
   database. `fs.withIdbOptions(options:)` re-wraps an idb file system;
   `fs.idbOptions` and `fs.hasIdbOptions` inspect it.
@@ -204,10 +207,9 @@ io.Directory nativeDir(Directory dir) => unwrapIoDirectory(dir);
 ```dart
 import 'package:fs_shim/fs_browser.dart';
 
-// Default database, 16 KiB pages (good for openRead/open).
-final FileSystem pagedFs = getFileSystemWeb(
-  options: FileSystemIdbOptions.pageDefault,
-);
+// Default database, 256 KiB pages (fileSystemWeb), or one record per file.
+final FileSystem pagedFs = fileSystemWeb;
+final FileSystem wholeFileFs = fileSystemWebNoPaging;
 
 // Separate database with a custom page size.
 final FileSystem cacheFs = newFileSystemWeb(

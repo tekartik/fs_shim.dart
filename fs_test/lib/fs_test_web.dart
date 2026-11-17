@@ -6,5 +6,5 @@ class FileSystemTestContextIdbWeb extends FileSystemTestContextIdbWithOptions {
   FileSystemTestContextIdbWeb({required super.options});
 
   @override
-  FileSystemIdb get rawFsIdb => fileSystemWeb as FileSystemIdb;
+  FileSystemIdb get rawFsIdb => fileSystemWebNoPaging as FileSystemIdb;
 }

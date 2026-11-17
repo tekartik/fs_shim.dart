@@ -15,6 +15,7 @@ var _index = 0;
 List<FileSystem> fsList = isRunningAsJavascript
     ? [
         fileSystemWeb,
+        fileSystemWebNoPaging,
         getFileSystemWeb(
           options: const FileSystemIdbOptions(pageSize: 16 * 1024),
         ),

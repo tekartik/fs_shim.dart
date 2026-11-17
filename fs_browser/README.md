@@ -23,7 +23,7 @@ dependencies:
 import 'package:tekartik_fs_browser/fs_browser.dart';
 
 Future<void> main() async {
-  // IndexedDB database `lfs.db`, one record per file.
+  // IndexedDB database `lfs.db`, 256 KiB pages.
   final fs = fileSystemWeb;
   final file = fs.file('/notes/hello.txt');
   await file.parent.create(recursive: true);
@@ -38,9 +38,11 @@ Web only (dart2js and dart2wasm): importing is safe everywhere, using
 
 ## What to use
 
-* `fileSystemWeb`: IndexedDB, links supported, whole file reads and writes.
-* `getFileSystemWeb(options: FileSystemIdbOptions.pageDefault)`: the same
-  database with 16 KiB pages (streams, random access);
+* `fileSystemWeb`: IndexedDB, links supported, 256 KiB pages (whole file
+  reads and writes, streams, random access).
+* `fileSystemWebNoPaging`: the same database, one record per file (the
+  default up to fs_shim 2.7, whole file reads and writes only);
+  `getFileSystemWeb(options: ...)` another page size;
   `newFileSystemWeb(name: 'other.db')`: another database.
 * `fileSystemOpfsWeb` (`fs_opfs_web.dart`): the OPFS, faster for big files, no
   links, no random access. `FileSystemOpfsWeb.withRootHandle(handle)` on a

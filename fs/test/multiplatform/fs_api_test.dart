@@ -1,5 +1,6 @@
 library;
 
+import 'package:fs_shim/fs_browser.dart';
 import 'package:fs_shim/fs_opfs_web.dart';
 import 'package:fs_shim/fs_shim.dart';
 import 'package:fs_shim/src/common/env_utils.dart';
@@ -10,6 +11,16 @@ void main() {
     test('web', () {
       try {
         fileSystemWeb;
+        if (!kFsDartIsWeb) {
+          fail('should fail');
+        }
+      } on UnimplementedError catch (_) {
+        // devPrint(_);
+      }
+    });
+    test('web no paging', () {
+      try {
+        fileSystemWebNoPaging;
         if (!kFsDartIsWeb) {
           fail('should fail');
         }
