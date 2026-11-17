@@ -22,7 +22,11 @@ Future<void> saveFile({required String name, required List<int> bytes}) async {
 }
 
 Future<String?> pickDirectoryPath() async {
-  return await FilePicker.getDirectoryPath(dialogTitle: 'Select Directory');
+  // A path for fileSystemIo: pickDirectory() (file_picker 13.4) gives a
+  // content:// tree URI on Android, not a path.
+
+  return (await FilePicker.pickDirectory(dialogTitle: 'Select Directory'))
+      ?.toFilePath();
 }
 
 bool get isWebPlatform => false;
